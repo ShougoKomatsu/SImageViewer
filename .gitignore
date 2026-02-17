@@ -1,0 +1,11 @@
+*.tlog
+*.obj
+*.ilk
+*.log
+*.pch
+*.pdb
+*.cache
+*.res
+*.idb
+*.sdf
+*.aps
