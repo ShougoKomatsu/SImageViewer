@@ -51,6 +51,7 @@ IMPLEMENT_DYNCREATE(CSImageViewerView, CView)
 		m_iUnDoAvailableCount=0;
 		m_iReDoAvailableCount=0;
 		m_iScaleIndex=20;
+		m_sFilePath=_T("");
 		if(g_sParam.GetLength()>0){m_sFilePath.Format(_T("%s"), g_sParam);}
 	}
 
@@ -202,8 +203,7 @@ IMPLEMENT_DYNCREATE(CSImageViewerView, CView)
 	{
 		CScrollView::OnInitialUpdate();
 
-		m_sFilePath.Format(_T(""));
-
+		
 		m_image[m_iImgIndex].Create(100,100,0);
 
 		SetScrollSizes(MM_TEXT, CSize(0,0));

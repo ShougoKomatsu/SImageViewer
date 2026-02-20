@@ -68,6 +68,8 @@ BOOL CSImageViewerApp::InitInstance()
 	SetRegistryKey(_T("アプリケーション ウィザードで生成されたローカル アプリケーション"));
 	LoadStdProfileSettings(4);  // 標準の INI ファイルのオプションをロードします (MRU を含む)
 
+	g_sParam.Format(_T("%s"),m_lpCmdLine); 
+	g_sParam.Trim();
 
 	InitContextMenuManager();
 
