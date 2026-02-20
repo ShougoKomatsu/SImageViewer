@@ -28,6 +28,7 @@ IMPLEMENT_DYNCREATE(CSImageViewerView, CView)
 		ON_WM_CONTEXTMENU()
 		ON_WM_RBUTTONUP()
 		ON_COMMAND(ID_FILE_OPEN, &CSImageViewerView::OnFileOpen)
+		ON_COMMAND(ID_EDIT_EQU_HIST, &CSImageViewerView::OnEquHistImage)
 		ON_WM_SIZE()
 		ON_WM_MOUSEMOVE()
 		ON_WM_LBUTTONDOWN()
@@ -36,6 +37,7 @@ IMPLEMENT_DYNCREATE(CSImageViewerView, CView)
 		ON_WM_SETCURSOR()
 		ON_WM_HSCROLL()
 		ON_WM_VSCROLL()
+		ON_UPDATE_COMMAND_UI(ID_EDIT_EQU_HIST, &CSImageViewerView::OnUpdateEditEquHist)
 	END_MESSAGE_MAP()
 
 	// CSImageViewerView コンストラクション/デストラクション
@@ -48,6 +50,7 @@ IMPLEMENT_DYNCREATE(CSImageViewerView, CView)
 		m_iImgIndex=0;
 		m_iUnDoAvailableCount=0;
 		m_iReDoAvailableCount=0;
+		m_iScaleIndex=20;
 		if(g_sParam.GetLength()>0){m_sFilePath.Format(_T("%s"), g_sParam);}
 	}
 
@@ -167,6 +170,21 @@ IMPLEMENT_DYNCREATE(CSImageViewerView, CView)
 		ReadFile(m_sFilePath);
 
 	}
+	void CSImageViewerView::OnEquHistImage()
+	{
+		
+
+		ImgRGB imgRGB;
+		ImgRGB imgMeaned;
+		ConvertImage(&m_image[m_iImgIndex], &imgRGB);
+		EquHistImage(&imgRGB,&imgMeaned,m_Rect_i.top,m_Rect_i.left,m_Rect_i.bottom,m_Rect_i.right);
+		m_iImgIndex++;
+		m_iUnDoAvailableCount++;
+		if(m_iUnDoAvailableCount>=MAX_IMG_BUF-1){m_iUnDoAvailableCount=MAX_IMG_BUF-1;}
+		ConvertImage(&imgMeaned,&m_image[(m_iImgIndex % MAX_IMG_BUF)]);
+		Invalidate();
+	}
+
 
 
 	void CSImageViewerView::OnSize(UINT nType, int cx, int cy)
@@ -472,6 +490,15 @@ IMPLEMENT_DYNCREATE(CSImageViewerView, CView)
 				}
 				return TRUE;
 			} 
+			if(pMsg->wParam=='U')
+			{
+				if(GetKeyState(VK_SHIFT)<0)
+				{
+				OnEquHistImage();
+				return TRUE;
+				}
+			}
+
 			if (pMsg->wParam == VK_RETURN) { EnterFullScreen(); return TRUE; } 
 			if (pMsg->wParam == VK_ESCAPE) { if(m_bBingFullScreen==true){ ExitFullScreen(); return TRUE;} }
 			
@@ -484,22 +511,6 @@ IMPLEMENT_DYNCREATE(CSImageViewerView, CView)
 			{
 				ZoomChange(-1);
 				return TRUE; 
-			}
-			if(pMsg->wParam == 'U')
-			{
-				if(GetKeyState(VK_SHIFT)<0)
-				{
-
-					ImgRGB imgRGB;
-					ImgRGB imgMeaned;
-					ConvertImage(&m_image[m_iImgIndex], &imgRGB);
-					EquHistImage(&imgRGB,&imgMeaned,m_Rect_i.top,m_Rect_i.left,m_Rect_i.bottom,m_Rect_i.right);
-					m_iImgIndex++;
-					m_iUnDoAvailableCount++;
-					if(m_iUnDoAvailableCount>=MAX_IMG_BUF-1){m_iUnDoAvailableCount=MAX_IMG_BUF-1;}
-					ConvertImage(&imgMeaned,&m_image[(m_iImgIndex % MAX_IMG_BUF)]);
-					Invalidate();
-				}
 			}
 			if(pMsg->wParam == 'Z')
 			{
@@ -550,4 +561,10 @@ IMPLEMENT_DYNCREATE(CSImageViewerView, CView)
 		}
 
 		return CScrollView::PreTranslateMessage(pMsg);
+	}
+
+
+	void CSImageViewerView::OnUpdateEditEquHist(CCmdUI *pCmdUI)
+	{
+		pCmdUI->Enable(TRUE);
 	}

@@ -66,6 +66,7 @@ protected:
 	DECLARE_MESSAGE_MAP()
 public:
 	afx_msg void OnFileOpen();
+	afx_msg void OnEquHistImage();
 	afx_msg void OnSize(UINT nType, int cx, int cy);
 	virtual void OnInitialUpdate();
 	afx_msg void OnMouseMove(UINT nFlags, CPoint point);
@@ -76,6 +77,7 @@ public:
 	afx_msg void OnHScroll(UINT nSBCode, UINT nPos, CScrollBar* pScrollBar);
 	afx_msg void OnVScroll(UINT nSBCode, UINT nPos, CScrollBar* pScrollBar);
 	virtual BOOL PreTranslateMessage(MSG* pMsg);
+	afx_msg void OnUpdateEditEquHist(CCmdUI *pCmdUI);
 };
 
 #ifndef _DEBUG  // SImageViewerView.cpp のデバッグ バージョン
