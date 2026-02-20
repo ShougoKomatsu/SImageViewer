@@ -339,11 +339,11 @@ IMPLEMENT_DYNCREATE(CSImageViewerView, CView)
 		bool bRet = GetColorAtCursor(point,&iR_img,&iC_img, &byR, &byG, &byB);
 		if(bRet == true)
 		{
-			sCaption.Format(_T("(%d, %d) (R, G, B)= (%d, %d, %d)"), iC_img, iR_img, byR, byG, byB);
+			sCaption.Format(_T("%s | (%d, %d) (R, G, B)= (%d, %d, %d)"), m_sFilePath, iC_img, iR_img, byR, byG, byB);
 		}
 		else
 		{
-			sCaption.Format(_T(""));
+			sCaption.Format(m_sFilePath);
 		}
 		AfxGetMainWnd()->SetWindowText(sCaption);
 
