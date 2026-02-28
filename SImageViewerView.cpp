@@ -238,6 +238,15 @@ IMPLEMENT_DYNCREATE(CSImageViewerView, CView)
 		m_iImgIndex=0;
 		m_iUnDoAvailableCount=0;
 		m_iReDoAvailableCount=0;
+		m_iDispOriginC=0;
+		m_iDispOriginR=0;
+
+		SCROLLINFO si;
+		si.nPos = 0; 
+		SetScrollInfo(SB_HORZ, &si, TRUE);
+		SetScrollInfo(SB_VERT, &si, TRUE);
+
+
 		m_Rect_i.SetRect(0, 0, m_image[m_iImgIndex].GetWidth()-1,m_image[m_iImgIndex].GetHeight()-1);
 		Invalidate();
 		return true;
@@ -250,8 +259,6 @@ IMPLEMENT_DYNCREATE(CSImageViewerView, CView)
 		if(cf.DoModal()!=IDOK){ return;}
 		m_sFilePath.Format(_T("%s"),cf.GetPathName());
 		ReadFile(m_sFilePath);
-		m_iDispOriginC=0;
-		m_iDispOriginR=0;
 
 	}
 	void CSImageViewerView::OnEquHistImage()
@@ -516,14 +523,15 @@ IMPLEMENT_DYNCREATE(CSImageViewerView, CView)
 		if(rect_v->IsRectEmpty()==TRUE)
 		{
 		}
+
 		int ix=GetScrollPos(SB_HORZ);
 		int iy=GetScrollPos(SB_VERT);
-		CPoint scrollPos(ix,iy);
 
-		rcImage.left   = (int)(((rect_v->left   + scrollPos.x) / g_dScale[m_iScaleIndex])+0.5);
-		rcImage.top    = (int)(((rect_v->top    + scrollPos.y) / g_dScale[m_iScaleIndex])+0.5);
-		rcImage.right  = (int)(((rect_v->right  + scrollPos.x) / g_dScale[m_iScaleIndex])+0.5);
-		rcImage.bottom = (int)(((rect_v->bottom + scrollPos.y) / g_dScale[m_iScaleIndex])+0.5);
+		rcImage.left   = (int)(((rect_v->left+ ix) / g_dScale[m_iScaleIndex])   +0.5);
+		rcImage.top    = (int)(((rect_v->top+ iy) / g_dScale[m_iScaleIndex])    +0.5);
+
+		rcImage.right  = (int)(((rect_v->right+ ix) / g_dScale[m_iScaleIndex])  -0.5);
+		rcImage.bottom = (int)(((rect_v->bottom+ iy) / g_dScale[m_iScaleIndex]) -0.5);
 
 		return rcImage;
 	}
@@ -534,10 +542,12 @@ IMPLEMENT_DYNCREATE(CSImageViewerView, CView)
 		if(rect_i->IsRectEmpty()==TRUE)
 		{
 		}
-		rcView.left   = (int)((rect_i->left   ) * g_dScale[m_iScaleIndex]);
-		rcView.top    = (int)((rect_i->top    ) * g_dScale[m_iScaleIndex]);
-		rcView.right  = (int)((rect_i->right  ) * g_dScale[m_iScaleIndex]);
-		rcView.bottom = (int)((rect_i->bottom ) * g_dScale[m_iScaleIndex]);
+		int ix=GetScrollPos(SB_HORZ);
+		int iy=GetScrollPos(SB_VERT);
+		rcView.left   = (int)((rect_i->left   ) * g_dScale[m_iScaleIndex])-ix;
+		rcView.top    = (int)((rect_i->top    ) * g_dScale[m_iScaleIndex])-iy;
+		rcView.right  = (int)((rect_i->right +1 ) * g_dScale[m_iScaleIndex])-ix;
+		rcView.bottom = (int)((rect_i->bottom +1) * g_dScale[m_iScaleIndex])-iy;
 
 		return rcView;
 	}
