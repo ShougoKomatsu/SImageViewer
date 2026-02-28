@@ -24,7 +24,8 @@ public:
 	double m_iDispOriginR;
 	double m_iDispOriginC;
 	CImage m_imageZoomed;
-	CImage m_image[32];
+	CImage m_image;
+	CImage m_imageProcessed[32];
 	CString m_sFilePath;
 	int m_iScaleIndex;
 	bool ReadFile(CString sFilePath);
