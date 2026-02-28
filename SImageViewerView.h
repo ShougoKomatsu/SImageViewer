@@ -6,7 +6,7 @@
 #define MAX_IMG_BUF (32)
 
 
-class CSImageViewerView : public CScrollView
+class CSImageViewerView : public CView
 {
 protected: // シリアル化からのみ作成します。
 	CSImageViewerView();
@@ -14,18 +14,20 @@ protected: // シリアル化からのみ作成します。
 
 // 属性
 public:
+	void SetScroll();
 	CSImageViewerDoc* GetDocument() const;
 	CRect v_to_i(const CRect* rect_v);
 	CRect i_to_v(const CRect* rect_i);
 		int m_iImgIndex;
 	int m_iUnDoAvailableCount;
 	int m_iReDoAvailableCount;
-	
+	double m_iDispOriginR;
+	double m_iDispOriginC;
+	CImage m_imageZoomed;
 	CImage m_image[32];
 	CString m_sFilePath;
 	int m_iScaleIndex;
 	bool ReadFile(CString sFilePath);
-	bool ScrollChange(double dH,double dV);
 	bool ZoomChange(int iChange);
 	bool m_bBingFullScreen;
 	RECT m_rectPreserved;
@@ -38,7 +40,8 @@ public:
 	CPoint m_PointStart; 
 	CRect m_Rect_v;
 	CRect m_Rect_i;
-
+	void OnScroll(int iSB, int nSBCode, double* iPos);
+	void DispStatus(CPoint point);
 // 操作
 public:
 
@@ -74,10 +77,12 @@ public:
 	afx_msg void OnLButtonUp(UINT nFlags, CPoint point);
 	afx_msg void OnTimer(UINT_PTR nIDEvent);
 	afx_msg BOOL OnSetCursor(CWnd* pWnd, UINT nHitTest, UINT message);
-	afx_msg void OnHScroll(UINT nSBCode, UINT nPos, CScrollBar* pScrollBar);
-	afx_msg void OnVScroll(UINT nSBCode, UINT nPos, CScrollBar* pScrollBar);
 	virtual BOOL PreTranslateMessage(MSG* pMsg);
 	afx_msg void OnUpdateEditEquHist(CCmdUI *pCmdUI);
+//	afx_msg void OnVScroll(UINT nSBCode, UINT nPos, CScrollBar* pScrollBar);
+	afx_msg void OnHScroll(UINT nSBCode, UINT nPos, CScrollBar* pScrollBar);
+	afx_msg void OnVScroll(UINT nSBCode, UINT nPos, CScrollBar* pScrollBar);
+	afx_msg BOOL OnEraseBkgnd(CDC* pDC);
 };
 
 #ifndef _DEBUG  // SImageViewerView.cpp のデバッグ バージョン

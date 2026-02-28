@@ -1,6 +1,71 @@
 #include "stdafx.h"
 #include "ImageProc.h"
 #include "SImgProc_ex.h"
+
+
+bool CreateZoomedImage(CImage* imgOriginal, CImage* imgZoomed, const int iZoomFactor, const int iCenterR, const int iCenterC)
+{
+	if (imgOriginal->IsNull() == true){return false;}
+
+	int iImgWidth  = imgOriginal->GetWidth();
+	int iImgHeight = imgOriginal->GetHeight();
+
+	int iBPP = imgOriginal->GetBPP();
+
+	if(iBPP==24)
+	{
+		ImgRGB imgRGBOld;
+		ImgRGB imgRGB;
+		ConvertImage(imgOriginal,&imgRGBOld);
+		imgRGB.Set(iImgWidth, iImgHeight, CHANNEL_3_8RGB);
+		for(int r=0; r<iImgHeight; r++)
+		{
+			for(int c=0; c<iImgWidth; c++)
+			{
+				imgRGB.byImgR[r*iImgWidth+c]=0;
+				imgRGB.byImgG[r*iImgWidth+c]=0;
+				imgRGB.byImgB[r*iImgWidth+c]=0;
+			}
+		}
+		int iStartOffset_oldR=-iImgHeight/(2*iZoomFactor);
+		int iStartOffset_oldC=-iImgWidth/(2*iZoomFactor);
+		for(int iOffset_oldr=0; iOffset_oldr<iImgHeight/iZoomFactor; iOffset_oldr++)
+		{
+			int r_old=iCenterR+iStartOffset_oldR+iOffset_oldr;
+			if(r_old<0){continue;}
+			if(r_old>=iImgHeight-1){continue;}
+			for(int iOffset_oldc=0; iOffset_oldc<iImgWidth/iZoomFactor; iOffset_oldc++)
+			{
+				int c_old=iCenterC+iStartOffset_oldC+iOffset_oldc;
+				if(c_old<0){continue;}
+				if(c_old>=iImgHeight-1){continue;}
+
+				int iNewR=iOffset_oldr*iZoomFactor;
+				int iNewC=iOffset_oldc*iZoomFactor;
+				if(iNewR<0){continue;}
+				if(iNewR>=iImgHeight-1){continue;}
+				if(iNewC<0){continue;}
+				if(iNewC>=iImgWidth-1){continue;}
+				BYTE byR=imgRGBOld.byImgR[r_old*iImgWidth+c_old];
+				BYTE byG=imgRGBOld.byImgG[r_old*iImgWidth+c_old];
+				BYTE byB=imgRGBOld.byImgB[r_old*iImgWidth+c_old];
+
+				for(int iOffset_newr=0; iOffset_newr<=iZoomFactor-1; iOffset_newr++)
+				{
+					for(int iOffset_newc=0; iOffset_newc<=iZoomFactor-1; iOffset_newc++)
+					{
+						imgRGB.byImgR[(iOffset_newr+iNewR)*iImgWidth+(iOffset_newc+iNewC)]=byR;
+						imgRGB.byImgG[(iOffset_newr+iNewR)*iImgWidth+(iOffset_newc+iNewC)]=byG;
+						imgRGB.byImgB[(iOffset_newr+iNewR)*iImgWidth+(iOffset_newc+iNewC)]=byB;
+					}
+				}
+			}
+		}
+		ConvertImage(&imgRGB,imgZoomed);
+	}
+
+	return true;
+}
 bool ClipImage(const CImage* imgOriginal, CImage* imgClipped, int iR0, int iC0, int iR1, int iC1)
 {
 	if (imgOriginal->IsNull() == true){return false;}
@@ -142,6 +207,67 @@ BOOL ConvertImage(ImgRGB* imgRGB, CImage* cimage)
 			src[r*iPitch+c*3+2]=imgRGB->byImgR[r*imgRGB->iWidth+c];
 			src[r*iPitch+c*3+1]=imgRGB->byImgG[r*imgRGB->iWidth+c];
 			src[r*iPitch+c*3+0]=imgRGB->byImgB[r*imgRGB->iWidth+c];
+		}
+	}
+	return TRUE;
+}
+
+
+BOOL ZoomImage(CImage* imgSrc, CImage* imgDst, const double iR0_Src, const double iC0_Src, const double dScale, const int iWidth_Dst, const int iHeight_Dst)
+{
+	if(iC0_Src==1898)
+	{
+		int i=iC0_Src;
+	}
+	
+	if(iR0_Src>=1069)
+	{
+		int i=iR0_Src;
+	}
+
+	int iWidthSrc = imgSrc->GetWidth();
+	int iHeightSrc = imgSrc->GetHeight();
+
+	if(imgDst->IsNull() != true){imgDst->Destroy();}
+	imgDst->Create(iWidth_Dst, iHeight_Dst,24);
+
+	BYTE* src = (BYTE*)imgSrc->GetBits();
+	int iPitch_src=imgSrc->GetPitch();
+	BYTE* dst = (BYTE*)imgDst->GetBits();
+	int iPitch_dst=imgDst->GetPitch();
+
+	for(int r=0; r<iHeight_Dst; r++)
+	{
+		int ir_Src=r/dScale+iR0_Src;
+		if(ir_Src==1079)
+		{
+			r=r;
+		}
+
+		if((ir_Src<0)||(ir_Src>=iHeightSrc))
+		{
+			for(int c=0; c<iWidth_Dst; c++)
+			{
+				dst[r*iPitch_dst+c*3+2]=127;
+				dst[r*iPitch_dst+c*3+1]=127;
+				dst[r*iPitch_dst+c*3+0]=127;
+			}
+				continue;
+		}
+
+		for(int c=0; c<iWidth_Dst; c++)
+		{
+			int ic_Src=c/dScale+iC0_Src;
+			if((ic_Src<0)||(ic_Src>=iWidthSrc))
+			{
+				dst[r*iPitch_dst+c*3+2]=127;
+				dst[r*iPitch_dst+c*3+1]=127;
+				dst[r*iPitch_dst+c*3+0]=127;
+				continue;
+			}
+			dst[r*iPitch_dst+c*3+2]=src[ir_Src*iPitch_src+ic_Src*3+2];
+			dst[r*iPitch_dst+c*3+1]=src[ir_Src*iPitch_src+ic_Src*3+1];
+			dst[r*iPitch_dst+c*3+0]=src[ir_Src*iPitch_src+ic_Src*3+0];
 		}
 	}
 	return TRUE;

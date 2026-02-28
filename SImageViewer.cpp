@@ -46,7 +46,7 @@ CSImageViewerApp::CSImageViewerApp()
 
 CSImageViewerApp theApp;
 
-
+#include "math.h"
 // CSImageViewerApp èâä˙âª
 
 BOOL CSImageViewerApp::InitInstance()
@@ -74,6 +74,7 @@ BOOL CSImageViewerApp::InitInstance()
 	InitContextMenuManager();
 
 	InitKeyboardManager();
+
 
 	InitTooltipManager();
 	CMFCToolTipInfo ttParams;
