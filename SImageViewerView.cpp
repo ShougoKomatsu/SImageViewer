@@ -20,31 +20,31 @@
 #define SCALE_VAR_NUM (25)
 double g_dScale[SCALE_VAR_NUM]=
 {
-0.125000,
-0.162105,
-0.210224,
-0.272627,
-0.353553,
-0.458502,
-0.594604,
-0.771105,
-1.000000,
-1.296840,
-1.681793,
-2.181015,
-2.828427,
-3.668016,
-4.756828,
-6.168843,
-8.000000,
-10.374716,
-13.454343,
-17.448124,
-22.627417,
-29.344129,
-38.054628,
-49.350746,
-64.000000,
+	0.125000,
+	0.162105,
+	0.210224,
+	0.272627,
+	0.353553,
+	0.458502,
+	0.594604,
+	0.771105,
+	1.000000,
+	1.296840,
+	1.681793,
+	2.181015,
+	2.828427,
+	3.668016,
+	4.756828,
+	6.168843,
+	8.000000,
+	10.374716,
+	13.454343,
+	17.448124,
+	22.627417,
+	29.344129,
+	38.054628,
+	49.350746,
+	64.000000,
 };
 
 // CSImageViewerView
@@ -62,12 +62,9 @@ IMPLEMENT_DYNCREATE(CSImageViewerView, CView)
 		ON_WM_LBUTTONUP()
 		ON_WM_TIMER()
 		ON_WM_SETCURSOR()
-		ON_WM_HSCROLL()
-//		ON_WM_VSCROLL()
 		ON_UPDATE_COMMAND_UI(ID_EDIT_EQU_HIST, &CSImageViewerView::OnUpdateEditEquHist)
 		ON_WM_VSCROLL()
 		ON_WM_HSCROLL()
-		ON_WM_VSCROLL()
 		ON_WM_ERASEBKGND()
 	END_MESSAGE_MAP()
 
@@ -110,22 +107,19 @@ IMPLEMENT_DYNCREATE(CSImageViewerView, CView)
 
 		CDC memDC;
 		memDC.CreateCompatibleDC(pDC);
-		
-	//	int iBarWidth= ::GetSystemMetrics(SM_CYHSCROLL);
-	//	int iBarHeight= ::GetSystemMetrics(SM_CXVSCROLL);
 
 		CImage imgZoomed;
 		CRect rect;
 		GetClientRect(&rect);
-		
-		int iWidth = rect.Width()-1;//-iBarWidth;
-		int iHeight = rect.Height()-1;//-iBarHeight; 
+
+		int iWidth = rect.Width()-1;
+		int iHeight = rect.Height()-1;
 
 		CBitmap bufferBmp; 
 		bufferBmp.CreateCompatibleBitmap(pDC, iWidth, iHeight);
 		CBitmap* pOldBmp = memDC.SelectObject(&bufferBmp);
 
-		
+
 		if(m_iDispOriginR==68478)
 		{
 			m_iDispOriginC=m_iDispOriginC;
@@ -198,10 +192,10 @@ IMPLEMENT_DYNCREATE(CSImageViewerView, CView)
 
 	void CSImageViewerView::SetScroll()
 	{
-		
+
 		CRect rect;
 		GetClientRect(&rect);
-	
+
 		int iBarWidth= ::GetSystemMetrics(SM_CYHSCROLL);
 		int iBarHeight= ::GetSystemMetrics(SM_CXVSCROLL);
 
@@ -210,7 +204,7 @@ IMPLEMENT_DYNCREATE(CSImageViewerView, CView)
 
 		int iZoomedWidth = iImageWidth*g_dScale[m_iScaleIndex];
 		int iZoomedHeight=iImageHeight*g_dScale[m_iScaleIndex];
-		
+
 		if(iZoomedWidth<=rect.Width()-1){iBarWidth=0;}
 		if(iZoomedHeight<=rect.Height()-1){iBarHeight=0;}
 
@@ -223,7 +217,7 @@ IMPLEMENT_DYNCREATE(CSImageViewerView, CView)
 		si.nMax=iZoomedHeight;
 		si.nPage = rect.Height()-1-iBarHeight;
 		SetScrollInfo(SB_VERT, &si, TRUE);
-		
+
 		GetScrollInfo(SB_HORZ, &si);
 		si.nMin=0;
 		si.nMax=iZoomedWidth;
@@ -237,8 +231,8 @@ IMPLEMENT_DYNCREATE(CSImageViewerView, CView)
 		if(m_image[m_iImgIndex].IsNull()!=true){m_image[m_iImgIndex].Destroy();}
 
 		m_image[m_iImgIndex].Load(m_sFilePath);
-		
-				m_iScaleIndex =8;
+
+		m_iScaleIndex =8;
 		SetScroll();
 
 		m_iImgIndex=0;
@@ -262,7 +256,7 @@ IMPLEMENT_DYNCREATE(CSImageViewerView, CView)
 	}
 	void CSImageViewerView::OnEquHistImage()
 	{
-		
+
 
 		ImgRGB imgRGB;
 		ImgRGB imgMeaned;
@@ -282,9 +276,8 @@ IMPLEMENT_DYNCREATE(CSImageViewerView, CView)
 		CView::OnSize(nType, cx, cy);
 
 		if(m_image[m_iImgIndex].IsNull()==true){return;}
-		
-		//SetScrollSizes(MM_TEXT, CSize((int)(m_image[m_iImgIndex].GetWidth() * g_dScale[m_iScaleIndex]), (int)(m_image[m_iImgIndex].GetHeight() * g_dScale[m_iScaleIndex]))); 
 
+		SetScroll();
 		Invalidate();
 	}
 
@@ -295,10 +288,10 @@ IMPLEMENT_DYNCREATE(CSImageViewerView, CView)
 
 		CRect rectClient;
 		GetClientRect(&rectClient); 
-		
+
 		m_image[m_iImgIndex].Create(100,100,0);
 
-//		SetScrollSizes(MM_TEXT, CSize(10,rectClient.Height()+1));
+		//		SetScrollSizes(MM_TEXT, CSize(10,rectClient.Height()+1));
 		m_bBingFullScreen = false;
 		SetTimer(TIMER_INIT, 100, 0);
 	}
@@ -381,7 +374,7 @@ IMPLEMENT_DYNCREATE(CSImageViewerView, CView)
 
 		if(m_image[m_iImgIndex].IsNull()==true){return false;}
 
-		
+
 		SCROLLINFO si;
 		GetScrollInfo(SB_HORZ,&si);
 		int iScrC=si.nPos;
@@ -407,13 +400,13 @@ IMPLEMENT_DYNCREATE(CSImageViewerView, CView)
 		*byR = GetRValue(col);
 		*byG = GetGValue(col);
 		*byB = GetBValue(col);
-		
+
 		return true;
 	}
-	
+
 	void CSImageViewerView::DispStatus(CPoint point)
 	{
-		
+
 		int iR_img,iC_img;
 		BYTE byR,byG,byB;
 		CString sCaption;
@@ -553,7 +546,7 @@ IMPLEMENT_DYNCREATE(CSImageViewerView, CView)
 
 	BOOL CSImageViewerView::PreTranslateMessage(MSG* pMsg)
 	{
-			if (pMsg->message == WM_KEYDOWN)
+		if (pMsg->message == WM_KEYDOWN)
 		{
 			if (pMsg->wParam == 'C') 
 			{ 
@@ -569,14 +562,14 @@ IMPLEMENT_DYNCREATE(CSImageViewerView, CView)
 			{
 				if(GetKeyState(VK_SHIFT)<0)
 				{
-				OnEquHistImage();
-				return TRUE;
+					OnEquHistImage();
+					return TRUE;
 				}
 			}
 
 			if (pMsg->wParam == VK_RETURN) { EnterFullScreen(); return TRUE; } 
 			if (pMsg->wParam == VK_ESCAPE) { if(m_bBingFullScreen==true){ ExitFullScreen(); return TRUE;} }
-			
+
 			if(pMsg->wParam == VK_ADD)
 			{
 				ZoomChange(1);
@@ -619,15 +612,15 @@ IMPLEMENT_DYNCREATE(CSImageViewerView, CView)
 			{
 				if(GetKeyState(VK_CONTROL)<0)
 				{
-//					m_Rect_i=CRect(0, 0, m_image[m_iImgIndex].GetWidth()-1, m_image[m_iImgIndex].GetHeight()-1);
+					//					m_Rect_i=CRect(0, 0, m_image[m_iImgIndex].GetWidth()-1, m_image[m_iImgIndex].GetHeight()-1);
 
 					ImgRGB imgRGB;
 					ImgRGB imgMeaned;
-				ConvertImage(&m_image[m_iImgIndex], &imgRGB);
-				MeanImage(&imgRGB,&imgMeaned,m_Rect_i.top,m_Rect_i.left,m_Rect_i.bottom,m_Rect_i.right,3,3);
-				ConvertImage(&imgMeaned,&m_image[m_iImgIndex]);
-//WriteImage(&imgRGB, _T("d:\\test.bmp"));
-			Invalidate();
+					ConvertImage(&m_image[m_iImgIndex], &imgRGB);
+					MeanImage(&imgRGB,&imgMeaned,m_Rect_i.top,m_Rect_i.left,m_Rect_i.bottom,m_Rect_i.right,3,3);
+					ConvertImage(&imgMeaned,&m_image[m_iImgIndex]);
+					//WriteImage(&imgRGB, _T("d:\\test.bmp"));
+					Invalidate();
 					return TRUE; 
 				}
 				ZoomChange(2);
@@ -645,12 +638,12 @@ IMPLEMENT_DYNCREATE(CSImageViewerView, CView)
 	}
 
 
-//	void CSImageViewerView::OnVScroll(UINT nSBCode, UINT nPos, CScrollBar* pScrollBar)
-//	{
-//		// TODO: ここにメッセージ ハンドラー コードを追加するか、既定の処理を呼び出します。
-//
-//		CView::OnVScroll(nSBCode, nPos, pScrollBar);
-//	}
+	//	void CSImageViewerView::OnVScroll(UINT nSBCode, UINT nPos, CScrollBar* pScrollBar)
+	//	{
+	//		// TODO: ここにメッセージ ハンドラー コードを追加するか、既定の処理を呼び出します。
+	//
+	//		CView::OnVScroll(nSBCode, nPos, pScrollBar);
+	//	}
 
 
 	void CSImageViewerView::OnScroll(int iSB, int nSBCode, double* iPos)
@@ -694,7 +687,7 @@ IMPLEMENT_DYNCREATE(CSImageViewerView, CView)
 				return;
 			}
 		}
-				*iPos= iNewPos;
+		*iPos= iNewPos;
 		si.nPos = iNewPos; 
 		SetScrollInfo(iSB, &si, TRUE);
 	}
