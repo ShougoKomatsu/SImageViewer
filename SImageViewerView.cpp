@@ -556,6 +556,24 @@ IMPLEMENT_DYNCREATE(CSImageViewerView, CView)
 
 	BOOL CSImageViewerView::PreTranslateMessage(MSG* pMsg)
 	{
+		if(pMsg->message==WM_MOUSEWHEEL)
+		{
+			int iDelta;
+			iDelta = GET_WHEEL_DELTA_WPARAM(pMsg->wParam);
+			if(iDelta>0)
+			{
+			OnScroll(SB_VERT, SB_LINEUP,&m_iDispOriginR);
+			}
+			else
+			{
+			OnScroll(SB_VERT, SB_LINEDOWN,&m_iDispOriginR);
+			}
+
+			return TRUE;
+
+
+		}
+
 		if (pMsg->message == WM_KEYDOWN)
 		{
 			if (pMsg->wParam == 'C') 
@@ -700,6 +718,7 @@ IMPLEMENT_DYNCREATE(CSImageViewerView, CView)
 		*iPos= iNewPos;
 		si.nPos = iNewPos; 
 		SetScrollInfo(iSB, &si, TRUE);
+		Invalidate();
 	}
 
 
@@ -707,15 +726,12 @@ IMPLEMENT_DYNCREATE(CSImageViewerView, CView)
 	{
 		OnScroll(SB_HORZ, nSBCode, &m_iDispOriginC);
 
-		Invalidate();
 	}
 
 
 	void CSImageViewerView::OnVScroll(UINT nSBCode, UINT nPos, CScrollBar* pScrollBar)
 	{
 		OnScroll(SB_VERT, nSBCode, &m_iDispOriginR);
-
-		Invalidate();
 	}
 
 
