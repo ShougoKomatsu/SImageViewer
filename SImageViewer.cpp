@@ -69,6 +69,7 @@ BOOL CSImageViewerApp::InitInstance()
 	LoadStdProfileSettings(4);  // 標準の INI ファイルのオプションをロードします (MRU を含む)
 
 	g_sParam.Format(_T("%s"),m_lpCmdLine); 
+	g_sParam.Trim(_T("\""));
 	g_sParam.Trim();
 
 	InitContextMenuManager();
