@@ -170,20 +170,54 @@ BOOL ConvertImage(CImage* cimage, ImgRGB* imgRGB)
 {
 	int iWidth = cimage->GetWidth();
 	imgRGB->Set(iWidth,cimage->GetHeight(),CHANNEL_3_8RGB);
-
+	
+	int iBPP = cimage->GetBPP();
 	BYTE* src = (BYTE*)cimage->GetBits();
 	int iPitch=cimage->GetPitch();
 	int iIncR;
-//	if(iPitch<0){iIncR=-1;iPitch=iPitch*-1;}else{iIncR=+1;}
-	for(int r=0; r<cimage->GetHeight(); r++)
+	//	if(iPitch<0){iIncR=-1;iPitch=iPitch*-1;}else{iIncR=+1;}
+	if(iBPP==24)
 	{
-		for(int c=0; c<cimage->GetWidth(); c++)
+		for(int r=0; r<cimage->GetHeight(); r++)
 		{
-			imgRGB->byImgR[r*imgRGB->iWidth+c]=src[r*iPitch+c*3+2];
-			imgRGB->byImgG[r*imgRGB->iWidth+c]=src[r*iPitch+c*3+1];
-			imgRGB->byImgB[r*imgRGB->iWidth+c]=src[r*iPitch+c*3+0];
+			for(int c=0; c<cimage->GetWidth(); c++)
+			{
+				imgRGB->byImgR[r*imgRGB->iWidth+c]=src[r*iPitch+c*3+2];
+				imgRGB->byImgG[r*imgRGB->iWidth+c]=src[r*iPitch+c*3+1];
+				imgRGB->byImgB[r*imgRGB->iWidth+c]=src[r*iPitch+c*3+0];
+			}
 		}
+		return TRUE;
 	}
+
+	if(iBPP==8)
+	{
+		for(int r=0; r<cimage->GetHeight(); r++)
+		{
+			for(int c=0; c<cimage->GetWidth(); c++)
+			{
+				imgRGB->byImgR[r*imgRGB->iWidth+c]=src[r*iPitch+c];
+				imgRGB->byImgG[r*imgRGB->iWidth+c]=src[r*iPitch+c];
+				imgRGB->byImgB[r*imgRGB->iWidth+c]=src[r*iPitch+c];
+			}
+		}
+		return TRUE;
+	}
+	
+	if(iBPP==32)
+	{
+		for(int r=0; r<cimage->GetHeight(); r++)
+		{
+			for(int c=0; c<cimage->GetWidth(); c++)
+			{
+				imgRGB->byImgR[r*imgRGB->iWidth+c]=src[r*iPitch+c*4+2];
+				imgRGB->byImgG[r*imgRGB->iWidth+c]=src[r*iPitch+c*4+1];
+				imgRGB->byImgB[r*imgRGB->iWidth+c]=src[r*iPitch+c*4+0];
+			}
+		}
+		return TRUE;
+	}
+
 	return TRUE;
 }
 

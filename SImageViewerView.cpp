@@ -233,9 +233,9 @@ IMPLEMENT_DYNCREATE(CSImageViewerView, CView)
 		CFileFind cf;
 		BOOL bRet = cf.FindFile(sFilePath);
 		if(bRet != TRUE){return false;}
-		if(m_image[m_iImgIndex].IsNull()!=true){m_image[m_iImgIndex].Destroy();}
+		if(m_image.IsNull()!=true){m_image.Destroy();}
 
-		HRESULT hResult = m_image[m_iImgIndex].Load(m_sFilePath);
+		HRESULT hResult = m_image.Load(m_sFilePath);
 		if(hResult != S_OK){return false;}
 
 		m_imageProcessed[m_iImgIndex]=m_image;
