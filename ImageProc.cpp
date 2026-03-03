@@ -270,14 +270,13 @@ BOOL ZoomImage(CImage* imgSrc, CImage* imgDst, const double iR0_Src, const doubl
 	BYTE* dst = (BYTE*)imgDst->GetBits();
 	int iPitch_dst=imgDst->GetPitch();
 
+	int iBPP = imgSrc->GetBPP();
+	if(iBPP==24)
+	{
 	for(int r=0; r<iHeight_Dst; r++)
 	{
 		int ir_Src=r/dScale+iR0_Src;
-		if(ir_Src==1079)
-		{
-			r=r;
-		}
-
+	
 		if((ir_Src<0)||(ir_Src>=iHeightSrc))
 		{
 			for(int c=0; c<iWidth_Dst; c++)
@@ -303,6 +302,76 @@ BOOL ZoomImage(CImage* imgSrc, CImage* imgDst, const double iR0_Src, const doubl
 			dst[r*iPitch_dst+c*3+1]=src[ir_Src*iPitch_src+ic_Src*3+1];
 			dst[r*iPitch_dst+c*3+0]=src[ir_Src*iPitch_src+ic_Src*3+0];
 		}
+	}
+	return TRUE;
+	}
+	if(iBPP==32)
+	{
+	for(int r=0; r<iHeight_Dst; r++)
+	{
+		int ir_Src=r/dScale+iR0_Src;
+	
+		if((ir_Src<0)||(ir_Src>=iHeightSrc))
+		{
+			for(int c=0; c<iWidth_Dst; c++)
+			{
+				dst[r*iPitch_dst+c*3+2]=127;
+				dst[r*iPitch_dst+c*3+1]=127;
+				dst[r*iPitch_dst+c*3+0]=127;
+			}
+				continue;
+		}
+
+		for(int c=0; c<iWidth_Dst; c++)
+		{
+			int ic_Src=c/dScale+iC0_Src;
+			if((ic_Src<0)||(ic_Src>=iWidthSrc))
+			{
+				dst[r*iPitch_dst+c*3+2]=127;
+				dst[r*iPitch_dst+c*3+1]=127;
+				dst[r*iPitch_dst+c*3+0]=127;
+				continue;
+			}
+			dst[r*iPitch_dst+c*3+2]=src[ir_Src*iPitch_src+ic_Src*4+2];
+			dst[r*iPitch_dst+c*3+1]=src[ir_Src*iPitch_src+ic_Src*4+1];
+			dst[r*iPitch_dst+c*3+0]=src[ir_Src*iPitch_src+ic_Src*4+0];
+		}
+	}
+	return TRUE;
+	}
+	if(iBPP==8)
+	{
+	for(int r=0; r<iHeight_Dst; r++)
+	{
+		int ir_Src=r/dScale+iR0_Src;
+	
+		if((ir_Src<0)||(ir_Src>=iHeightSrc))
+		{
+			for(int c=0; c<iWidth_Dst; c++)
+			{
+				dst[r*iPitch_dst+c*3+2]=127;
+				dst[r*iPitch_dst+c*3+1]=127;
+				dst[r*iPitch_dst+c*3+0]=127;
+			}
+				continue;
+		}
+
+		for(int c=0; c<iWidth_Dst; c++)
+		{
+			int ic_Src=c/dScale+iC0_Src;
+			if((ic_Src<0)||(ic_Src>=iWidthSrc))
+			{
+				dst[r*iPitch_dst+c*3+2]=127;
+				dst[r*iPitch_dst+c*3+1]=127;
+				dst[r*iPitch_dst+c*3+0]=127;
+				continue;
+			}
+			dst[r*iPitch_dst+c*3+2]=src[ir_Src*iPitch_src+ic_Src];
+			dst[r*iPitch_dst+c*3+1]=src[ir_Src*iPitch_src+ic_Src];
+			dst[r*iPitch_dst+c*3+0]=src[ir_Src*iPitch_src+ic_Src];
+		}
+	}
+	return TRUE;
 	}
 	return TRUE;
 }
