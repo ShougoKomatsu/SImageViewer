@@ -229,8 +229,15 @@ IMPLEMENT_DYNCREATE(CSImageViewerView, CView)
 	bool CSImageViewerView::ReadFile(CString sFilePath)
 	{
 		if(m_imageProcessed[m_iImgIndex].IsNull()!=true){m_imageProcessed[m_iImgIndex].Destroy();}
+		
+		CFileFind cf;
+		BOOL bRet = cf.FindFile(sFilePath);
+		if(bRet != TRUE){return false;}
+		if(m_image[m_iImgIndex].IsNull()!=true){m_image[m_iImgIndex].Destroy();}
 
-		m_image.Load(m_sFilePath);
+		HRESULT hResult = m_image[m_iImgIndex].Load(m_sFilePath);
+		if(hResult != S_OK){return false;}
+
 		m_imageProcessed[m_iImgIndex]=m_image;
 		m_iScaleIndex =8;
 		SetScroll();
