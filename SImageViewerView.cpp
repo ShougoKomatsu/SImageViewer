@@ -315,12 +315,39 @@ IMPLEMENT_DYNCREATE(CSImageViewerView, CView)
 		if((m_iScaleIndex>=SCALE_VAR_NUM-1)&&(iChange>0)){return false;}
 		if((m_iScaleIndex<=0)&&(iChange<0)){return false;}
 
+		CRect rect;
+		GetClientRect(rect);
+
+		int iOldOriginR_i = (m_iDispOriginR )/g_dScale[m_iScaleIndex];
+		int iOldOriginC_i = (m_iDispOriginC)/g_dScale[m_iScaleIndex];
+
+		int iOldCenterR_i = iOldOriginR_i + rect.Height()/2.0/g_dScale[m_iScaleIndex];
+		int iOldCenterC_i = iOldOriginC_i + rect.Width()/2.0/g_dScale[m_iScaleIndex];
+
+
+
 		CRect rectClient;
 		GetClientRect(&rectClient); 
 
 		double dScalePre=g_dScale[m_iScaleIndex];
-
 		m_iScaleIndex+=iChange;
+
+		int iOffsetR=rect.Height()/g_dScale[m_iScaleIndex]/2.0;;
+		int iOffsetC=rect.Width()/g_dScale[m_iScaleIndex]/2.0;
+		
+		SCROLLINFO si;
+		GetScrollInfo(SB_VERT, &si);
+		m_iDispOriginR = min(si.nMax,max(si.nMin,(iOldCenterR_i- iOffsetR)*g_dScale[m_iScaleIndex] ));
+		si.nPos = m_iDispOriginR; 
+		SetScrollInfo(SB_VERT, &si, TRUE);
+
+		
+		GetScrollInfo(SB_HORZ, &si);
+		m_iDispOriginC = min(si.nMax,max(si.nMin,(iOldCenterC_i- iOffsetC)*g_dScale[m_iScaleIndex] ));
+		si.nPos = m_iDispOriginC; 
+		SetScrollInfo(SB_HORZ, &si, TRUE);
+
+
 		if(m_iScaleIndex>=SCALE_VAR_NUM-1){m_iScaleIndex=SCALE_VAR_NUM-1;}
 		if(m_iScaleIndex<=0){m_iScaleIndex=0;}
 		SetScroll();

@@ -10,3 +10,10 @@
 *.sdf
 *.aps
 *.opensdf
+/Debug
+Debug/SImageViewer.exe
+Debug/SImageViewer.lastbuildstate
+Debug/SImgProc.dll
+Release/SImageViewer.lastbuildstate
+Release/SImgProc.dll
+SImageViewer.suo

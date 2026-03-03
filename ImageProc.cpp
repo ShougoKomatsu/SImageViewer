@@ -249,15 +249,6 @@ BOOL ConvertImage(ImgRGB* imgRGB, CImage* cimage)
 
 BOOL ZoomImage(CImage* imgSrc, CImage* imgDst, const double iR0_Src, const double iC0_Src, const double dScale, const int iWidth_Dst, const int iHeight_Dst)
 {
-	if(iC0_Src==1898)
-	{
-		int i=iC0_Src;
-	}
-	
-	if(iR0_Src>=1069)
-	{
-		int i=iR0_Src;
-	}
 
 	int iWidthSrc = imgSrc->GetWidth();
 	int iHeightSrc = imgSrc->GetHeight();
