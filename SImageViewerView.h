@@ -5,6 +5,7 @@
 #pragma once
 #define MAX_IMG_BUF (32)
 
+#include "SImageViewerDoc.h"
 
 class CSImageViewerView : public CView
 {

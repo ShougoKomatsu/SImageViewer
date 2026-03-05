@@ -25,6 +25,9 @@ BEGIN_MESSAGE_MAP(CMainFrame, CFrameWndEx)
 	ON_REGISTERED_MESSAGE(AFX_WM_CREATETOOLBAR, &CMainFrame::OnToolbarCreateNew)
 //	ON_COMMAND_RANGE(ID_VIEW_APPLOOK_WIN_2000, ID_VIEW_APPLOOK_WINDOWS_7, &CMainFrame::OnApplicationLook)
 //	ON_UPDATE_COMMAND_UI_RANGE(ID_VIEW_APPLOOK_WIN_2000, ID_VIEW_APPLOOK_WINDOWS_7, &CMainFrame::OnUpdateApplicationLook)
+ON_UPDATE_COMMAND_UI(AFX_IDP_COMMAND_FAILURE, &CMainFrame::OnUpdateAfxIdpCommandFailure)
+ON_COMMAND(IDM_ZOOMDOWN, &CMainFrame::OnZoomdown)
+ON_COMMAND(IDM_ZOOMUP, &CMainFrame::OnZoomup)
 END_MESSAGE_MAP()
 
 static UINT indicators[] =
@@ -61,31 +64,33 @@ int CMainFrame::OnCreate(LPCREATESTRUCT lpCreateStruct)
 		TRACE0("メニュー バーを作成できませんでした\n");
 		return -1;      // 作成できませんでした。
 	}
+	m_wndMenuBar.SetPaneStyle(CBRS_FLOATING);
 
 	m_wndMenuBar.SetPaneStyle(m_wndMenuBar.GetPaneStyle() | CBRS_SIZE_DYNAMIC | CBRS_TOOLTIPS | CBRS_FLYBY);
 
 	// アクティブになったときメニュー バーにフォーカスを移動しない
 	CMFCPopupMenu::SetForceMenuFocus(FALSE);
-	/*
+	
 	if (!m_wndToolBar.CreateEx(this, TBSTYLE_FLAT, WS_CHILD | WS_VISIBLE | CBRS_TOP | CBRS_GRIPPER | CBRS_TOOLTIPS | CBRS_FLYBY | CBRS_SIZE_DYNAMIC) ||
 		!m_wndToolBar.LoadToolBar(theApp.m_bHiColorIcons ? IDR_MAINFRAME_256 : IDR_MAINFRAME))
 	{
 		TRACE0("ツール バーの作成に失敗しました。\n");
 		return -1;      // 作成できませんでした。
 	}
-	*/
+	
 	CString strToolBarName;
 	bNameValid = strToolBarName.LoadString(IDS_TOOLBAR_STANDARD);
 	ASSERT(bNameValid);
-//	m_wndToolBar.SetWindowText(strToolBarName);
+	m_wndToolBar.SetWindowText(strToolBarName);
 
 	CString strCustomize;
 	bNameValid = strCustomize.LoadString(IDS_TOOLBAR_CUSTOMIZE);
 	ASSERT(bNameValid);
-//	m_wndToolBar.EnableCustomizeButton(TRUE, ID_VIEW_CUSTOMIZE, strCustomize);
+	m_wndToolBar.EnableCustomizeButton(TRUE, ID_VIEW_CUSTOMIZE, strCustomize);
+
 
 	// ユーザー定義のツール バーの操作を許可します:
-	InitUserToolbars(NULL, uiFirstUserToolBarId, uiLastUserToolBarId);
+//	InitUserToolbars(NULL, uiFirstUserToolBarId, uiLastUserToolBarId);
 
 	if (!m_wndStatusBar.Create(this))
 	{
@@ -96,10 +101,10 @@ int CMainFrame::OnCreate(LPCREATESTRUCT lpCreateStruct)
 
 	// TODO: ツール バーおよびメニュー バーをドッキング可能にしない場合は、この 5 つの行を削除します
 	m_wndMenuBar.EnableDocking(CBRS_ALIGN_ANY);
-//	m_wndToolBar.EnableDocking(CBRS_ALIGN_ANY);
+	m_wndToolBar.EnableDocking(CBRS_ALIGN_ANY);
 	EnableDocking(CBRS_ALIGN_ANY);
 	DockPane(&m_wndMenuBar);
-//	DockPane(&m_wndToolBar);
+	DockPane(&m_wndToolBar);
 
 
 	// Visual Studio 2005 スタイルのドッキング ウィンドウ動作を有効にします
@@ -313,3 +318,30 @@ BOOL CMainFrame::LoadFrame(UINT nIDResource, DWORD dwDefaultStyle, CWnd* pParent
 	return TRUE;
 }
 
+
+
+void CMainFrame::OnUpdateAfxIdpCommandFailure(CCmdUI *pCmdUI)
+{
+    pCmdUI->Enable(TRUE); 
+}
+
+#include "SImageViewerView.h"
+void CMainFrame::OnZoomdown()
+{
+	
+    CView* pView = GetActiveView();
+    if (pView != nullptr)
+    {
+        ((CSImageViewerView*)pView)->ZoomChange(-1);
+    }
+}
+
+
+void CMainFrame::OnZoomup()
+{
+    CView* pView = GetActiveView();
+    if (pView != nullptr)
+    {
+        ((CSImageViewerView*)pView)->ZoomChange(1);
+    }
+}

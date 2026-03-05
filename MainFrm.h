@@ -45,6 +45,9 @@ protected:
 	afx_msg void OnUpdateApplicationLook(CCmdUI* pCmdUI);
 	DECLARE_MESSAGE_MAP()
 
+public:
+	afx_msg void OnUpdateAfxIdpCommandFailure(CCmdUI *pCmdUI);
+	afx_msg void OnZoomdown();
+	afx_msg void OnZoomup();
 };
-
 
