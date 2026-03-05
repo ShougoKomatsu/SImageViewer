@@ -353,6 +353,65 @@ IMPLEMENT_DYNCREATE(CSImageViewerView, CView)
 		return true; 
 	}
 
+	
+	bool CSImageViewerView::ZoomChange(int iR0_i, int iC0_i, int iWidth_i, int iHeight_i)
+	{
+		CRect rect;
+		GetClientRect(rect);
+
+
+		int iHeight_v=rect.Height();
+		int iWidth_v=rect.Width();
+		int iNewScaleIndex = m_iScaleIndex;
+		for(int i=SCALE_VAR_NUM-1; i>=0; i--)
+		{
+			if((iWidth_v>iWidth_i*g_dScale[i])&&(iHeight_v>iHeight_i*g_dScale[i]))
+			{
+				iNewScaleIndex=i;
+				break;
+			}
+		}
+
+		int iR1_i = iR0_i + iHeight_i;
+		int iC1_i = iC0_i + iWidth_i;
+
+		double dNewCenterR_i = (iR0_i + iR1_i)/2.0;
+		double dNewCenterC_i = (iC0_i + iC1_i)/2.0;
+
+		m_iScaleIndex = iNewScaleIndex;
+		if(m_iScaleIndex>=SCALE_VAR_NUM-1){m_iScaleIndex=SCALE_VAR_NUM-1;}
+		if(m_iScaleIndex<=0){m_iScaleIndex=0;}
+		
+		SetScroll();
+
+		double dNewCenterR_tv = dNewCenterR_i*g_dScale[m_iScaleIndex];
+		double dNewCenterC_tv = dNewCenterC_i*g_dScale[m_iScaleIndex];
+
+
+		m_iDispOriginR_tv = int(dNewCenterR_tv-iHeight_v/2.0);
+		m_iDispOriginC_tv = int(dNewCenterC_tv-iWidth_v/2.0);
+
+		SCROLLINFO si;
+		GetScrollInfo(SB_VERT, &si);
+		m_iDispOriginR_tv = min(si.nMax,max(si.nMin,m_iDispOriginR_tv) );
+		si.nPos = m_iDispOriginR_tv; 
+		SetScrollInfo(SB_VERT, &si, TRUE);
+
+		
+		GetScrollInfo(SB_HORZ, &si);
+		m_iDispOriginC_tv = min(si.nMax,max(si.nMin,m_iDispOriginC_tv) );
+		si.nPos = m_iDispOriginC_tv; 
+		SetScrollInfo(SB_HORZ, &si, TRUE);
+
+
+		Invalidate();
+
+		CPoint point;
+		GetCursorPos(&point);
+		ScreenToClient(&point);
+		DispStatus(point);
+		return true; 
+	}
 
 	void CSImageViewerView::EnterFullScreen()
 	{
@@ -490,7 +549,7 @@ IMPLEMENT_DYNCREATE(CSImageViewerView, CView)
 	{
 		SetCapture(); 
 		m_bDragging = true;
-		m_PointStart = point; 
+		m_PointStart.SetPoint(point.x,point.y); 
 
 		CView::OnLButtonDown(nFlags, point);
 	}
@@ -510,6 +569,13 @@ IMPLEMENT_DYNCREATE(CSImageViewerView, CView)
 			} 
 			if(m_PointStart==point)
 			{
+				CRect rect_v;
+				rect_v = i_to_v(&m_Rect_i);
+				if((point.y>=rect_v.top)&&(point.y<=rect_v.bottom)&&(point.x>=rect_v.left)&&(point.x<=rect_v.right))
+				{
+					ZoomChange(m_Rect_i.top,m_Rect_i.left,m_Rect_i.Width(),m_Rect_i.Height());
+					return;
+				}
 				m_Rect_v.SetRectEmpty();
 			}
 			m_Rect_i = v_to_i(&m_Rect_v);
