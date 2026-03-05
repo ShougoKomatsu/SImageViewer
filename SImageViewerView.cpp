@@ -255,8 +255,8 @@ IMPLEMENT_DYNCREATE(CSImageViewerView, CView)
 		SetScrollInfo(SB_HORZ, &si, TRUE);
 		SetScrollInfo(SB_VERT, &si, TRUE);
 
-
-		m_Rect_i.SetRect(0, 0, m_imageProcessed[m_iImgIndex].GetWidth()-1,m_imageProcessed[m_iImgIndex].GetHeight()-1);
+		m_iCurSor=0;
+		m_Rect_i.SetRect(0, 0,0, 0);
 		Invalidate();
 		return true;
 	}
@@ -538,8 +538,21 @@ IMPLEMENT_DYNCREATE(CSImageViewerView, CView)
 			m_Rect_v.NormalizeRect();
 			pDC->DrawFocusRect(&m_Rect_v); 
 			ReleaseDC(pDC);
+			CView::OnMouseMove(nFlags, point);
+			return;
 		} 
 
+
+		CRect rect_v;
+		rect_v = i_to_v(&m_Rect_i);
+		if((point.y>=rect_v.top)&&(point.y<=rect_v.bottom)&&(point.x>=rect_v.left)&&(point.x<=rect_v.right))
+		{
+			m_iCurSor=1;
+		}
+		else
+		{
+			m_iCurSor=0;
+		}
 
 		CView::OnMouseMove(nFlags, point);
 	}
@@ -606,11 +619,28 @@ IMPLEMENT_DYNCREATE(CSImageViewerView, CView)
 
 	BOOL CSImageViewerView::OnSetCursor(CWnd* pWnd, UINT nHitTest, UINT message)
 	{
-		if (nHitTest == HTCLIENT) 
+		switch(m_iCurSor)
 		{
-			SetCursor(AfxGetApp()->LoadStandardCursor(IDC_CROSS));
-			return TRUE;
+		case 0:
+			{
+				if (nHitTest == HTCLIENT) 
+				{
+					SetCursor(AfxGetApp()->LoadStandardCursor(IDC_CROSS));
+					return TRUE;
+				}
+				break;
+			}
+		case 1:
+			{
+				if (nHitTest == HTCLIENT) 
+				{
+					SetCursor(AfxGetApp()->LoadCursorW(IDC_CURSOR_ZOOMIN));
+					return TRUE;
+				}
+				break;
+			}
 		}
+
 		return CView::OnSetCursor(pWnd, nHitTest, message);
 	}
 

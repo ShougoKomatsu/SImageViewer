@@ -97,6 +97,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <None Include="ReadMe.txt" />
+    <None Include="res\cursor1.cur" />
     <None Include="res\SImageViewer.ico" />
     <None Include="res\SImageViewer.rc2" />
     <None Include="res\SImageViewerDoc.ico" />
