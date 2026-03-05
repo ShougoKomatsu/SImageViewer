@@ -112,29 +112,26 @@ IMPLEMENT_DYNCREATE(CSImageViewerView, CView)
 		CRect rect;
 		GetClientRect(&rect);
 
-		int iWidth = rect.Width()-1;
-		int iHeight = rect.Height()-1;
+		int iWidth_v = rect.Width()-1;
+		int iHeight_v = rect.Height()-1;
 
 		CBitmap bufferBmp; 
-		bufferBmp.CreateCompatibleBitmap(pDC, iWidth, iHeight);
+		bufferBmp.CreateCompatibleBitmap(pDC, iWidth_v, iHeight_v);
 		CBitmap* pOldBmp = memDC.SelectObject(&bufferBmp);
 
-
-		if(m_iDispOriginR==68478)
-		{
-			m_iDispOriginC=m_iDispOriginC;
-		}
+		int iR0_i=m_iDispOriginR_tv/g_dScale[m_iScaleIndex];
+		int iC0_i=m_iDispOriginC_tv/g_dScale[m_iScaleIndex];
 
 		ZoomImage(&(m_imageProcessed[m_iImgIndex]),&imgZoomed,
-			m_iDispOriginR/g_dScale[m_iScaleIndex],
-			m_iDispOriginC/g_dScale[m_iScaleIndex],
+			iR0_i,
+			iC0_i,
 			g_dScale[m_iScaleIndex],
-			iWidth,iHeight);
+			iWidth_v,iHeight_v);
 
 
 		imgZoomed.BitBlt( memDC.GetSafeHdc(), 1, 1,imgZoomed.GetWidth(), imgZoomed.GetHeight(), 0, 0  );
 
-		pDC->BitBlt(0, 0, iWidth, iHeight, &memDC, 0, 0,SRCCOPY);
+		pDC->BitBlt(0, 0, iWidth_v, iHeight_v, &memDC, 0, 0,SRCCOPY);
 
 		memDC.SelectObject(pOldBmp);
 
@@ -199,14 +196,19 @@ IMPLEMENT_DYNCREATE(CSImageViewerView, CView)
 		int iBarWidth= ::GetSystemMetrics(SM_CYHSCROLL);
 		int iBarHeight= ::GetSystemMetrics(SM_CXVSCROLL);
 
-		int iImageWidth =max(0,m_imageProcessed[m_iImgIndex].GetWidth());//-rect.Width());
-		int iImageHeight =max(0,m_imageProcessed[m_iImgIndex].GetHeight());//-rect.Height());
+		int iWidth_i =max(0,m_imageProcessed[m_iImgIndex].GetWidth());//-rect.Width());
+		int iHeight_i =max(0,m_imageProcessed[m_iImgIndex].GetHeight());//-rect.Height());
 
-		int iZoomedWidth = iImageWidth*g_dScale[m_iScaleIndex];
-		int iZoomedHeight=iImageHeight*g_dScale[m_iScaleIndex];
+		int iWidth_tv = iWidth_i*g_dScale[m_iScaleIndex];
+		int iHeight_tv= iHeight_i*g_dScale[m_iScaleIndex];
 
-		if(iZoomedWidth<=rect.Width()-1){iBarWidth=0;}
-		if(iZoomedHeight<=rect.Height()-1){iBarHeight=0;}
+		int iWidth_v=rect.Width();
+		int iHeight_v=rect.Height();
+
+		if(iWidth_tv<=iWidth_v){iBarWidth=0;}
+		if(iHeight_tv<=iHeight_v){iBarHeight=0;}
+
+
 
 		SCROLLINFO si = { 0 };
 		si.cbSize = sizeof(SCROLLINFO);
@@ -214,14 +216,14 @@ IMPLEMENT_DYNCREATE(CSImageViewerView, CView)
 
 		GetScrollInfo(SB_VERT, &si);
 		si.nMin=0;
-		si.nMax=iZoomedHeight;
-		si.nPage = rect.Height()-1-iBarHeight;
+		si.nMax=iHeight_tv;
+		si.nPage = iHeight_v-1-iBarHeight;
 		SetScrollInfo(SB_VERT, &si, TRUE);
 
 		GetScrollInfo(SB_HORZ, &si);
 		si.nMin=0;
-		si.nMax=iZoomedWidth;
-		si.nPage = rect.Width()-1-iBarWidth;
+		si.nMax=iWidth_tv;
+		si.nPage = iWidth_v-1-iBarWidth;
 		SetScrollInfo(SB_HORZ, &si, TRUE);
 
 	}
@@ -245,8 +247,8 @@ IMPLEMENT_DYNCREATE(CSImageViewerView, CView)
 		m_iImgIndex=0;
 		m_iUnDoAvailableCount=0;
 		m_iReDoAvailableCount=0;
-		m_iDispOriginC=0;
-		m_iDispOriginR=0;
+		m_iDispOriginC_tv=0;
+		m_iDispOriginR_tv=0;
 
 		SCROLLINFO si;
 		si.nPos = 0; 
@@ -270,8 +272,6 @@ IMPLEMENT_DYNCREATE(CSImageViewerView, CView)
 	}
 	void CSImageViewerView::OnEquHistImage()
 	{
-
-
 		ImgRGB imgRGB;
 		ImgRGB imgMeaned;
 		ConvertImage(&m_imageProcessed[m_iImgIndex], &imgRGB);
@@ -319,27 +319,25 @@ IMPLEMENT_DYNCREATE(CSImageViewerView, CView)
 		GetClientRect(rect);
 
 
-		int iOldCenterR_i = (m_iDispOriginR + rect.Height()/2.0 )/g_dScale[m_iScaleIndex];
-		int iOldCenterC_i = (m_iDispOriginC + rect.Width()/2.0)/g_dScale[m_iScaleIndex];
+		int iHeight_v=rect.Height();
+		int iWidth_v=rect.Width();
 
-
-
-		CRect rectClient;
-		GetClientRect(&rectClient); 
+		int iOldCenterR_i = (m_iDispOriginR_tv+iHeight_v/2.0)/g_dScale[m_iScaleIndex];
+		int iOldCenterC_i = (m_iDispOriginC_tv+iWidth_v/2.0)/g_dScale[m_iScaleIndex];
 
 		double dScalePre=g_dScale[m_iScaleIndex];
 		m_iScaleIndex+=iChange;
 
 		SCROLLINFO si;
 		GetScrollInfo(SB_VERT, &si);
-		m_iDispOriginR = min(si.nMax,max(si.nMin,iOldCenterR_i*g_dScale[m_iScaleIndex]- rect.Height()/2.0) );
-		si.nPos = m_iDispOriginR; 
+		m_iDispOriginR_tv = min(si.nMax,max(si.nMin,iOldCenterR_i*g_dScale[m_iScaleIndex]- iHeight_v/2.0) );
+		si.nPos = m_iDispOriginR_tv; 
 		SetScrollInfo(SB_VERT, &si, TRUE);
 
 		
 		GetScrollInfo(SB_HORZ, &si);
-		m_iDispOriginC = min(si.nMax,max(si.nMin,iOldCenterC_i*g_dScale[m_iScaleIndex] - rect.Width()/2.0) );
-		si.nPos = m_iDispOriginC; 
+		m_iDispOriginC_tv = min(si.nMax,max(si.nMin,iOldCenterC_i*g_dScale[m_iScaleIndex] - iWidth_v/2.0) );
+		si.nPos = m_iDispOriginC_tv; 
 		SetScrollInfo(SB_HORZ, &si, TRUE);
 
 
@@ -557,14 +555,14 @@ IMPLEMENT_DYNCREATE(CSImageViewerView, CView)
 		{
 		}
 
-		int ix=GetScrollPos(SB_HORZ);
-		int iy=GetScrollPos(SB_VERT);
+		int iCOrigin_tv = GetScrollPos(SB_HORZ);
+		int iROrigin_tv = GetScrollPos(SB_VERT);
 
-		rcImage.left   = (int)(((rect_v->left+ ix) / g_dScale[m_iScaleIndex])   +0.5);
-		rcImage.top    = (int)(((rect_v->top+ iy) / g_dScale[m_iScaleIndex])    +0.5);
+		rcImage.left   = (int)(((rect_v->left+ iCOrigin_tv) / g_dScale[m_iScaleIndex])   +0.5);
+		rcImage.top    = (int)(((rect_v->top+ iROrigin_tv) / g_dScale[m_iScaleIndex])    +0.5);
 
-		rcImage.right  = (int)(((rect_v->right+ ix) / g_dScale[m_iScaleIndex])  -0.5);
-		rcImage.bottom = (int)(((rect_v->bottom+ iy) / g_dScale[m_iScaleIndex]) -0.5);
+		rcImage.right  = (int)(((rect_v->right+ iCOrigin_tv) / g_dScale[m_iScaleIndex])  -0.5);
+		rcImage.bottom = (int)(((rect_v->bottom+ iROrigin_tv) / g_dScale[m_iScaleIndex]) -0.5);
 
 		return rcImage;
 	}
@@ -575,12 +573,12 @@ IMPLEMENT_DYNCREATE(CSImageViewerView, CView)
 		if(rect_i->IsRectEmpty()==TRUE)
 		{
 		}
-		int ix=GetScrollPos(SB_HORZ);
-		int iy=GetScrollPos(SB_VERT);
-		rcView.left   = (int)((rect_i->left   ) * g_dScale[m_iScaleIndex])-ix;
-		rcView.top    = (int)((rect_i->top    ) * g_dScale[m_iScaleIndex])-iy;
-		rcView.right  = (int)((rect_i->right +1 ) * g_dScale[m_iScaleIndex])-ix;
-		rcView.bottom = (int)((rect_i->bottom +1) * g_dScale[m_iScaleIndex])-iy;
+		int iCOrigin_tv = GetScrollPos(SB_HORZ);
+		int iROrigin_tv = GetScrollPos(SB_VERT);
+		rcView.left   = (int)((rect_i->left   ) * g_dScale[m_iScaleIndex])-iCOrigin_tv;
+		rcView.top    = (int)((rect_i->top    ) * g_dScale[m_iScaleIndex])-iROrigin_tv;
+		rcView.right  = (int)((rect_i->right +1 ) * g_dScale[m_iScaleIndex])-iCOrigin_tv;
+		rcView.bottom = (int)((rect_i->bottom +1) * g_dScale[m_iScaleIndex])-iROrigin_tv;
 
 		return rcView;
 	}
@@ -595,11 +593,11 @@ IMPLEMENT_DYNCREATE(CSImageViewerView, CView)
 			iDelta = GET_WHEEL_DELTA_WPARAM(pMsg->wParam);
 			if(iDelta>0)
 			{
-			OnScroll(SB_VERT, SB_LINEUP,&m_iDispOriginR);
+				OnScroll(SB_VERT, SB_LINEUP,&m_iDispOriginR_tv);
 			}
 			else
 			{
-			OnScroll(SB_VERT, SB_LINEDOWN,&m_iDispOriginR);
+				OnScroll(SB_VERT, SB_LINEDOWN,&m_iDispOriginR_tv);
 			}
 
 			return TRUE;
@@ -663,12 +661,12 @@ IMPLEMENT_DYNCREATE(CSImageViewerView, CView)
 					Invalidate();
 				}
 			}
-			if(pMsg->wParam == VK_LEFT){OnScroll(SB_HORZ,SB_LINEUP,&m_iDispOriginC);return TRUE; }
-			if(pMsg->wParam == VK_RIGHT){OnScroll(SB_HORZ,SB_LINEDOWN,&m_iDispOriginC); return TRUE; }
-			if(pMsg->wParam == VK_UP){OnScroll(SB_VERT,SB_LINEUP,&m_iDispOriginC);return TRUE; }
-			if(pMsg->wParam == VK_DOWN){OnScroll(SB_VERT,SB_LINEDOWN,&m_iDispOriginC); return TRUE; }
-			if(pMsg->wParam == VK_PRIOR){OnScroll(SB_VERT,SB_PAGEUP,&m_iDispOriginC);return TRUE; }
-			if(pMsg->wParam == VK_NEXT){OnScroll(SB_VERT,SB_PAGEDOWN,&m_iDispOriginC);return TRUE; }
+			if(pMsg->wParam == VK_LEFT){OnScroll(SB_HORZ,SB_LINEUP,&m_iDispOriginC_tv);return TRUE; }
+			if(pMsg->wParam == VK_RIGHT){OnScroll(SB_HORZ,SB_LINEDOWN,&m_iDispOriginC_tv); return TRUE; }
+			if(pMsg->wParam == VK_UP){OnScroll(SB_VERT,SB_LINEUP,&m_iDispOriginC_tv);return TRUE; }
+			if(pMsg->wParam == VK_DOWN){OnScroll(SB_VERT,SB_LINEDOWN,&m_iDispOriginC_tv); return TRUE; }
+			if(pMsg->wParam == VK_PRIOR){OnScroll(SB_VERT,SB_PAGEUP,&m_iDispOriginC_tv);return TRUE; }
+			if(pMsg->wParam == VK_NEXT){OnScroll(SB_VERT,SB_PAGEDOWN,&m_iDispOriginC_tv);return TRUE; }
 			if((pMsg->wParam == 'A') || (pMsg->wParam == VK_ADD))
 			{
 				if(GetKeyState(VK_CONTROL)<0)
@@ -757,14 +755,14 @@ IMPLEMENT_DYNCREATE(CSImageViewerView, CView)
 
 	void CSImageViewerView::OnHScroll(UINT nSBCode, UINT nPos, CScrollBar* pScrollBar)
 	{
-		OnScroll(SB_HORZ, nSBCode, &m_iDispOriginC);
+		OnScroll(SB_HORZ, nSBCode, &m_iDispOriginC_tv);
 
 	}
 
 
 	void CSImageViewerView::OnVScroll(UINT nSBCode, UINT nPos, CScrollBar* pScrollBar)
 	{
-		OnScroll(SB_VERT, nSBCode, &m_iDispOriginR);
+		OnScroll(SB_VERT, nSBCode, &m_iDispOriginR_tv);
 	}
 
 

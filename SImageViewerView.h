@@ -21,8 +21,8 @@ public:
 		int m_iImgIndex;
 	int m_iUnDoAvailableCount;
 	int m_iReDoAvailableCount;
-	double m_iDispOriginR;
-	double m_iDispOriginC;
+	double m_iDispOriginR_tv;
+	double m_iDispOriginC_tv;
 	CImage m_imageZoomed;
 	CImage m_image;
 	CImage m_imageProcessed[32];
