@@ -168,7 +168,10 @@ BOOL CMainFrame::PreCreateWindow(CREATESTRUCT& cs)
 
 	return TRUE;
 }
-
+void CMainFrame::SetStatusMessage(CString sMes)
+{
+	m_wndStatusBar.SetPaneText(0, sMes);
+}
 // CMainFrame êfíf
 
 #ifdef _DEBUG

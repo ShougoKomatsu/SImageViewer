@@ -12,6 +12,7 @@
 #include "SImageViewerDoc.h"
 #include "SImageViewerView.h"
 #include "ImageProc.h"
+#include "MainFrm.h"
 #ifdef _DEBUG
 #define new DEBUG_NEW
 #endif
@@ -258,6 +259,13 @@ IMPLEMENT_DYNCREATE(CSImageViewerView, CView)
 		m_iCurSor=0;
 		m_Rect_i.SetRect(0, 0,0, 0);
 		Invalidate();
+
+		CString sImageSize;
+		sImageSize.Format(_T("%d x %d"), m_image.GetWidth(),m_image.GetHeight());
+		
+    CMainFrame* pFrame = (CMainFrame*)AfxGetMainWnd();
+    if (pFrame != nullptr)	{pFrame->SetStatusMessage(sImageSize);}
+
 		return true;
 	}
 
@@ -344,6 +352,50 @@ IMPLEMENT_DYNCREATE(CSImageViewerView, CView)
 		if(m_iScaleIndex>=SCALE_VAR_NUM-1){m_iScaleIndex=SCALE_VAR_NUM-1;}
 		if(m_iScaleIndex<=0){m_iScaleIndex=0;}
 		SetScroll();
+		Invalidate();
+
+		CPoint point;
+		GetCursorPos(&point);
+		ScreenToClient(&point);
+		DispStatus(point);
+		return true; 
+	}
+
+	bool CSImageViewerView::ZoomChange(int iMousePosR_v, int iMousePosC_v, int iChange)
+	{
+		if((m_iScaleIndex>=SCALE_VAR_NUM-1)&&(iChange>0)){return false;}
+		if((m_iScaleIndex<=0)&&(iChange<0)){return false;}
+
+		int iMousePosR_tv=iMousePosR_v+m_iDispOriginR_tv;
+		int iMousePosC_tv=iMousePosC_v+m_iDispOriginC_tv;
+		
+		int iMousePosR_i=iMousePosR_tv/g_dScale[m_iScaleIndex];
+		int iMousePosC_i=iMousePosC_tv/g_dScale[m_iScaleIndex];
+
+		m_iScaleIndex+=iChange;		
+		SetScroll();
+
+		double dNewMousePosR_tv = iMousePosR_i*g_dScale[m_iScaleIndex];
+		double dNewMousePosC_tv = iMousePosC_i*g_dScale[m_iScaleIndex];
+
+
+		m_iDispOriginR_tv = int(dNewMousePosR_tv-iMousePosR_v);
+		m_iDispOriginC_tv = int(dNewMousePosC_tv-iMousePosC_v);
+
+
+		SCROLLINFO si;
+		GetScrollInfo(SB_VERT, &si);
+		m_iDispOriginR_tv = min(si.nMax,max(si.nMin,m_iDispOriginR_tv) );
+		si.nPos = m_iDispOriginR_tv; 
+		SetScrollInfo(SB_VERT, &si, TRUE);
+
+		
+		GetScrollInfo(SB_HORZ, &si);
+		m_iDispOriginC_tv = min(si.nMax,max(si.nMin,m_iDispOriginC_tv) );
+		si.nPos = m_iDispOriginC_tv; 
+		SetScrollInfo(SB_HORZ, &si, TRUE);
+
+
 		Invalidate();
 
 		CPoint point;
@@ -687,6 +739,24 @@ IMPLEMENT_DYNCREATE(CSImageViewerView, CView)
 		{
 			int iDelta;
 			iDelta = GET_WHEEL_DELTA_WPARAM(pMsg->wParam);
+			if(GetKeyState(VK_CONTROL)<0)
+			{
+				CPoint point;
+				::GetCursorPos(&point);
+				this->ScreenToClient(&point);
+
+
+
+				if(iDelta>0)
+				{
+					ZoomChange(point.y, point.x,1);
+				}
+				else
+				{
+					ZoomChange(point.y, point.x,-1);
+				}
+				return TRUE;
+			}
 			if(iDelta>0)
 			{
 				OnScroll(SB_VERT, SB_LINEUP,&m_iDispOriginR_tv);

@@ -32,6 +32,7 @@ public:
 	int m_iScaleIndex;
 	bool ReadFile(CString sFilePath);
 	bool ZoomChange(int iChange);
+	bool ZoomChange(int iMousePosR_v, int iMousePosC_v,int iChange);
 	bool ZoomChange(int iR0_i, int iC0_i, int iWidth_i, int iHeight_i);
 	bool m_bBingFullScreen;
 	RECT m_rectPreserved;
