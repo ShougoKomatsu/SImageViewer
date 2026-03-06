@@ -15,6 +15,10 @@ protected: // ÉVÉäÉAÉãâªÇ©ÇÁÇÃÇ›çÏê¨ÇµÇ‹Ç∑ÅB
 
 // ëÆê´
 public:
+
+	int GetClientHeight();
+	int GetClientWidth();
+
 	int m_iCurSor;
 	void SetScroll();
 	CSImageViewerDoc* GetDocument() const;
@@ -23,8 +27,8 @@ public:
 		int m_iImgIndex;
 	int m_iUnDoAvailableCount;
 	int m_iReDoAvailableCount;
-	double m_iDispOriginR_tv;
-	double m_iDispOriginC_tv;
+	double m_dDispOriginR_tv;
+	double m_dDispOriginC_tv;
 	CImage m_imageZoomed;
 	CImage m_image;
 	CImage m_imageProcessed[32];
@@ -33,7 +37,11 @@ public:
 	bool ReadFile(CString sFilePath);
 	bool ZoomChange(int iChange);
 	bool ZoomChange(int iMousePosR_v, int iMousePosC_v,int iChange);
-	bool ZoomChange(int iR0_i, int iC0_i, int iWidth_i, int iHeight_i);
+	bool ZoomChange(int iR0_i, int iC0_i, int iR1_i, int iC1_i);
+	void SetScrollPos(int iR, int iC);
+	double GetDispOriginR_tv();
+	double GetDispOriginC_tv();
+
 	bool m_bBingFullScreen;
 	RECT m_rectPreserved;
 	DWORD m_dwStylePreserved;
@@ -45,7 +53,7 @@ public:
 	CPoint m_PointStart; 
 	CRect m_Rect_v;
 	CRect m_Rect_i;
-	void OnScroll(int iSB, int nSBCode, double* iPos);
+	void OnScroll(int iSB, int nSBCode);
 	void DispStatus(CPoint point);
 // ëÄçÏ
 public:
