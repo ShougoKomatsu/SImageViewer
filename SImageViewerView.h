@@ -21,6 +21,7 @@ public:
 
 	int m_iCurSor;
 	void SetScroll();
+	bool SaveImage(CImage* image);
 	CSImageViewerDoc* GetDocument() const;
 	CRect v_to_i(const CRect* rect_v);
 	CRect i_to_v(const CRect* rect_i);
@@ -84,6 +85,7 @@ protected:
 	DECLARE_MESSAGE_MAP()
 public:
 	afx_msg void OnFileOpen();
+	afx_msg void OnFileSave();
 	afx_msg void OnEquHistImage();
 	afx_msg void OnSize(UINT nType, int cx, int cy);
 	virtual void OnInitialUpdate();

@@ -177,22 +177,33 @@ BOOL CopyFromClipBoardImg(CImage* img)
 	hResult = GetClipboardData(CF_DIB);
 	if(hResult == NULL){return FALSE;}
 
-	LPVOID byData = GlobalLock(hResult);
-	if(byData==NULL){return FALSE;}
+	LPVOID byDataTemp = GlobalLock(hResult);
+	if(byDataTemp==NULL){return FALSE;}
 
-	ImgRGB imgRGB;
-	bRet = ReadBmpFromData(FALSE, (BYTE*)byData, &imgRGB);
-	if(bRet == FALSE)
-	{
-		GlobalUnlock(hResult);
-		CloseClipboard();
-		return FALSE;
-	}
+	SIZE_T dataSize = GlobalSize(hResult);
+	if (dataSize == 0) { GlobalUnlock(hResult);CloseClipboard();}
+
+	BYTE* byData;
+	byData = new BYTE[dataSize];
+
+	memcpy(byData, byDataTemp, dataSize);
 
 	GlobalUnlock(hResult);
 
 	bRet = CloseClipboard();
 	if(bRet == FALSE){return FALSE;}
+
+
+	ImgRGB imgRGB;
+	bRet = ReadBmpFromData(FALSE, (BYTE*)byData, &imgRGB);
+	if(bRet == FALSE)
+	{
+		if(byData != NULL){delete [] byData;}
+		return FALSE;
+	}
+	if(byData != NULL){delete [] byData;}
+
+
 	ConvertImage(&imgRGB,img);
 	return TRUE;
 }

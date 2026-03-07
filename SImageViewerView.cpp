@@ -57,6 +57,7 @@ IMPLEMENT_DYNCREATE(CSImageViewerView, CView)
 		ON_WM_CONTEXTMENU()
 		ON_WM_RBUTTONUP()
 		ON_COMMAND(ID_FILE_OPEN, &CSImageViewerView::OnFileOpen)
+		ON_COMMAND(ID_FILE_SAVE_AS, &CSImageViewerView::OnFileSave)
 		ON_COMMAND(ID_EDIT_EQU_HIST, &CSImageViewerView::OnEquHistImage)
 		ON_WM_SIZE()
 		ON_WM_MOUSEMOVE()
@@ -277,7 +278,33 @@ IMPLEMENT_DYNCREATE(CSImageViewerView, CView)
 		ResetImage();
 		return true;
 	}
+	
+	bool CSImageViewerView::SaveImage(CImage* image)
+	{
+		CFileDialog cf(FALSE);
+		//		cf.m_ofn.lpstrInitialDir = sMacroFolderPath;
+		if(cf.DoModal()!=IDOK){ return false;}
+		CString sFilePath;
+		sFilePath.Format(_T("%s"),cf.GetPathName());
+		
+		CFileFind cff;
+		BOOL bRet = cff.FindFile(sFilePath);
+		if(bRet = FALSE)
+		{
+			INT_PTR iRet = AfxMessageBox(_T("ファイルは既に存在します。上書きしますか？"),0,MB_YESNO);
+			if(iRet != IDYES){return false;}
+		}
 
+		HRESULT hResult = image->Save(sFilePath);
+		if(hResult != S_OK){return false;}
+
+		return true;
+	}
+	
+	void CSImageViewerView::OnFileSave()
+	{
+		SaveImage(&m_image);
+	}
 	void CSImageViewerView::OnFileOpen()
 	{
 		CFileDialog cf(TRUE);
@@ -832,6 +859,14 @@ IMPLEMENT_DYNCREATE(CSImageViewerView, CView)
 					OnEquHistImage();
 					return TRUE;
 				}
+			}
+			if(pMsg->wParam==VK_F5)
+			{
+				if(m_sFilePath.Compare(_T("Clipboard"))!=0)
+				{
+					return ReadFile(m_sFilePath);
+				}
+				ResetImage();
 			}
 
 			if (pMsg->wParam == VK_RETURN) { EnterFullScreen(); return TRUE; } 
