@@ -13,6 +13,7 @@
 #include "SImageViewerView.h"
 #include "ImageProc.h"
 #include "MainFrm.h"
+#include "ImageModifyDlg.h"
 #ifdef _DEBUG
 #define new DEBUG_NEW
 #endif
@@ -261,7 +262,7 @@ IMPLEMENT_DYNCREATE(CSImageViewerView, CView)
 		SetScrollInfo(SB_VERT, &si, TRUE);
 
 		m_iCurSor=0;
-		m_Rect_i.SetRect(0, 0,0, 0);
+		m_Rect_i.SetRectEmpty();
 		Invalidate();
 
 		CString sImageSize;
@@ -284,6 +285,8 @@ IMPLEMENT_DYNCREATE(CSImageViewerView, CView)
 	}
 	void CSImageViewerView::OnEquHistImage()
 	{
+		if(m_Rect_i.IsRectEmpty()==TRUE){return;}
+
 		ImgRGB imgRGB;
 		ImgRGB imgMeaned;
 		ConvertImage(&m_imageProcessed[m_iImgIndex], &imgRGB);
@@ -292,6 +295,25 @@ IMPLEMENT_DYNCREATE(CSImageViewerView, CView)
 		m_iUnDoAvailableCount++;
 		if(m_iUnDoAvailableCount>=MAX_IMG_BUF-1){m_iUnDoAvailableCount=MAX_IMG_BUF-1;}
 		ConvertImage(&imgMeaned,&m_imageProcessed[(m_iImgIndex % MAX_IMG_BUF)]);
+		Invalidate();
+	}
+	
+	void CSImageViewerView::OnBrightnessContrastGamma(int iBrightness, int iContrast, double dGamma)
+	{
+		if(m_Rect_i.IsRectEmpty()==TRUE){return;}
+
+		ImgRGB imgRGB;
+		ImgRGB imgResult1;
+		ImgRGB imgResult2;
+		ConvertImage(&m_imageProcessed[m_iImgIndex], &imgRGB);
+		BrightnessContrast(&imgRGB,&imgResult1,m_Rect_i.top,m_Rect_i.left,m_Rect_i.bottom,m_Rect_i.right,(double)iBrightness,(double)iContrast);
+		Gamma(&imgResult1,&imgResult2,m_Rect_i.top,m_Rect_i.left,m_Rect_i.bottom,m_Rect_i.right,dGamma);
+
+
+		m_iImgIndex++;
+		m_iUnDoAvailableCount++;
+		if(m_iUnDoAvailableCount>=MAX_IMG_BUF-1){m_iUnDoAvailableCount=MAX_IMG_BUF-1;}
+		ConvertImage(&imgResult2,&m_imageProcessed[(m_iImgIndex % MAX_IMG_BUF)]);
 		Invalidate();
 	}
 
@@ -421,7 +443,7 @@ IMPLEMENT_DYNCREATE(CSImageViewerView, CView)
 		int iNewScaleIndex = m_iScaleIndex;
 		for(int i=SCALE_VAR_NUM-1; i>=0; i--)
 		{
-			if((iWidth_v>(iR1_i-iR0_i+1)*g_dScale[i]) && (iHeight_v>(iC1_i-iC0_i+1)*g_dScale[i]))
+			if((iHeight_v>(iR1_i-iR0_i+1)*g_dScale[i]) && (iWidth_v>(iC1_i-iC0_i+1)*g_dScale[i]))
 			{
 				iNewScaleIndex=i;
 				break;
@@ -769,6 +791,8 @@ IMPLEMENT_DYNCREATE(CSImageViewerView, CView)
 			{ 
 				if(GetKeyState(VK_CONTROL)<0)
 				{
+					if(m_Rect_i.IsRectEmpty()==TRUE){return FALSE;}
+
 					CImage imgClipped;
 					ClipImage(&m_imageProcessed[m_iImgIndex],&imgClipped, m_Rect_i.top,m_Rect_i.left, m_Rect_i.bottom, m_Rect_i.right); 
 					CopyToClipBoardImg(&imgClipped);
@@ -833,8 +857,9 @@ IMPLEMENT_DYNCREATE(CSImageViewerView, CView)
 			{
 				if(GetKeyState(VK_CONTROL)<0)
 				{
+					m_Rect_i.SetRect(0, 0, m_image.GetWidth()-1,m_image.GetHeight()-1);
 					//					m_Rect_i=CRect(0, 0, m_image[m_iImgIndex].GetWidth()-1, m_image[m_iImgIndex].GetHeight()-1);
-
+					/*
 					ImgRGB imgRGB;
 					ImgRGB imgMeaned;
 					ConvertImage(&m_imageProcessed[m_iImgIndex], &imgRGB);
@@ -843,6 +868,23 @@ IMPLEMENT_DYNCREATE(CSImageViewerView, CView)
 					//WriteImage(&imgRGB, _T("d:\\test.bmp"));
 					Invalidate();
 					return TRUE; 
+					*/
+				}
+				return TRUE; 
+			}
+			if(pMsg->wParam == 'G')
+			{
+				if(GetKeyState(VK_SHIFT)<0)
+				{
+					CImageModifyDlg dlgModify;
+					INT_PTR iRet;
+					dlgModify.DoModal();
+					iRet = dlgModify.m_iRet;
+					if(iRet == IDCANCEL)
+					{
+						return CView::PreTranslateMessage(pMsg);
+					}
+					OnBrightnessContrastGamma(dlgModify.m_iBrightness, dlgModify.m_iContrast,dlgModify.m_dGamma);
 				}
 				return TRUE; 
 			}

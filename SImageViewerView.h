@@ -49,6 +49,7 @@ public:
 	void EnterFullScreen();
 	void ExitFullScreen();
 	bool m_bDragging; 
+	void OnBrightnessContrastGamma(int iBrightness, int iContrast, double dGamma);
 	bool GetColorAtCursor(CPoint point, int* iR_img, int* iC_img, BYTE* byR, BYTE* byG, BYTE* bYB);
 	CPoint m_PointStart; 
 	CRect m_Rect_v;
