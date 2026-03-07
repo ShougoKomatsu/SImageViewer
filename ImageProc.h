@@ -8,3 +8,4 @@
 bool CreateZoomedImage(CImage* imgOriginal, CImage* imgZoomed, const int iZoomFactor,  const int iCenterR, const int iCenterC);
 //bool CopyImage(CImage* imgSrc, CImage* imgDst);
 BOOL ZoomImage(CImage* imgSrc, CImage* imgDst, const double iR0_Src, const double iC0_Src, const double dScale, const int iWidth_Dst, const int iHeight_Dst);
+BOOL CopyFromClipBoardImg(CImage* img);

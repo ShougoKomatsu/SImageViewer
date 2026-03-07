@@ -233,19 +233,8 @@ IMPLEMENT_DYNCREATE(CSImageViewerView, CView)
 		SetScrollInfo(SB_HORZ, &si, TRUE);
 
 	}
-
-	bool CSImageViewerView::ReadFile(CString sFilePath)
+	void CSImageViewerView::ResetImage()
 	{
-		if(m_imageProcessed[m_iImgIndex].IsNull()!=true){m_imageProcessed[m_iImgIndex].Destroy();}
-		
-		CFileFind cf;
-		BOOL bRet = cf.FindFile(sFilePath);
-		if(bRet != TRUE){return false;}
-		if(m_image.IsNull()!=true){m_image.Destroy();}
-
-		HRESULT hResult = m_image.Load(m_sFilePath);
-		if(hResult != S_OK){return false;}
-
 		m_imageProcessed[m_iImgIndex]=m_image;
 		m_iScaleIndex =8;
 		SetScroll();
@@ -267,10 +256,25 @@ IMPLEMENT_DYNCREATE(CSImageViewerView, CView)
 
 		CString sImageSize;
 		sImageSize.Format(_T("%d x %d"), m_image.GetWidth(),m_image.GetHeight());
-		
-    CMainFrame* pFrame = (CMainFrame*)AfxGetMainWnd();
-    if (pFrame != nullptr)	{pFrame->SetStatusMessage(sImageSize);}
 
+		CMainFrame* pFrame = (CMainFrame*)AfxGetMainWnd();
+		if (pFrame != nullptr)	{pFrame->SetStatusMessage(sImageSize);}
+
+	}
+
+	bool CSImageViewerView::ReadFile(CString sFilePath)
+	{
+		if(m_imageProcessed[m_iImgIndex].IsNull()!=true){m_imageProcessed[m_iImgIndex].Destroy();}
+
+		CFileFind cf;
+		BOOL bRet = cf.FindFile(sFilePath);
+		if(bRet != TRUE){return false;}
+		if(m_image.IsNull()!=true){m_image.Destroy();}
+
+		HRESULT hResult = m_image.Load(m_sFilePath);
+		if(hResult != S_OK){return false;}
+
+		ResetImage();
 		return true;
 	}
 
@@ -297,10 +301,20 @@ IMPLEMENT_DYNCREATE(CSImageViewerView, CView)
 		ConvertImage(&imgMeaned,&m_imageProcessed[(m_iImgIndex % MAX_IMG_BUF)]);
 		Invalidate();
 	}
-	
-	void CSImageViewerView::OnBrightnessContrastGamma(int iBrightness, int iContrast, double dGamma)
+
+	void CSImageViewerView::ModifyBrightnessContrastGamma()
 	{
 		if(m_Rect_i.IsRectEmpty()==TRUE){return;}
+
+		CImageModifyDlg dlgModify;
+		INT_PTR iRet;
+		dlgModify.DoModal();
+		iRet = dlgModify.m_iRet;
+		if(iRet == IDCANCEL){return ;}
+
+		int iBrightness=dlgModify.m_iBrightness;
+		int iContrast=dlgModify.m_iContrast;
+		double dGamma=dlgModify.m_dGamma;
 
 		ImgRGB imgRGB;
 		ImgRGB imgResult1;
@@ -799,6 +813,18 @@ IMPLEMENT_DYNCREATE(CSImageViewerView, CView)
 				}
 				return TRUE;
 			} 
+			if (pMsg->wParam == 'V') 
+			{ 
+				if(GetKeyState(VK_CONTROL)<0)
+				{
+
+					BOOL bRet = CopyFromClipBoardImg(&m_image);
+					if(bRet != TRUE){return FALSE;}
+					m_sFilePath.Format(_T("Clipboard"));
+					ResetImage();
+				}
+				return TRUE;
+			} 
 			if(pMsg->wParam=='U')
 			{
 				if(GetKeyState(VK_SHIFT)<0)
@@ -858,17 +884,6 @@ IMPLEMENT_DYNCREATE(CSImageViewerView, CView)
 				if(GetKeyState(VK_CONTROL)<0)
 				{
 					m_Rect_i.SetRect(0, 0, m_image.GetWidth()-1,m_image.GetHeight()-1);
-					//					m_Rect_i=CRect(0, 0, m_image[m_iImgIndex].GetWidth()-1, m_image[m_iImgIndex].GetHeight()-1);
-					/*
-					ImgRGB imgRGB;
-					ImgRGB imgMeaned;
-					ConvertImage(&m_imageProcessed[m_iImgIndex], &imgRGB);
-					MeanImage(&imgRGB,&imgMeaned,m_Rect_i.top,m_Rect_i.left,m_Rect_i.bottom,m_Rect_i.right,3,3);
-					ConvertImage(&imgMeaned,&m_imageProcessed[m_iImgIndex]);
-					//WriteImage(&imgRGB, _T("d:\\test.bmp"));
-					Invalidate();
-					return TRUE; 
-					*/
 				}
 				return TRUE; 
 			}
@@ -876,17 +891,9 @@ IMPLEMENT_DYNCREATE(CSImageViewerView, CView)
 			{
 				if(GetKeyState(VK_SHIFT)<0)
 				{
-					CImageModifyDlg dlgModify;
-					INT_PTR iRet;
-					dlgModify.DoModal();
-					iRet = dlgModify.m_iRet;
-					if(iRet == IDCANCEL)
-					{
-						return CView::PreTranslateMessage(pMsg);
-					}
-					OnBrightnessContrastGamma(dlgModify.m_iBrightness, dlgModify.m_iContrast,dlgModify.m_dGamma);
+					ModifyBrightnessContrastGamma();
+					return TRUE;
 				}
-				return TRUE; 
 			}
 		}
 

@@ -166,6 +166,37 @@ BOOL CopyToClipBoardImg(CImage* img)
 	return true;
 }
 
+BOOL CopyFromClipBoardImg(CImage* img)
+{
+	BOOL bRet;
+
+	bRet = OpenClipboard(NULL);
+	if(bRet == FALSE){return FALSE;}
+
+	HANDLE hResult;
+	hResult = GetClipboardData(CF_DIB);
+	if(hResult == NULL){return FALSE;}
+
+	LPVOID byData = GlobalLock(hResult);
+	if(byData==NULL){return FALSE;}
+
+	ImgRGB imgRGB;
+	bRet = ReadBmpFromData(FALSE, (BYTE*)byData, &imgRGB);
+	if(bRet == FALSE)
+	{
+		GlobalUnlock(hResult);
+		CloseClipboard();
+		return FALSE;
+	}
+
+	GlobalUnlock(hResult);
+
+	bRet = CloseClipboard();
+	if(bRet == FALSE){return FALSE;}
+	ConvertImage(&imgRGB,img);
+	return TRUE;
+}
+
 BOOL ConvertImage(CImage* cimage, ImgRGB* imgRGB)
 {
 	int iWidth = cimage->GetWidth();

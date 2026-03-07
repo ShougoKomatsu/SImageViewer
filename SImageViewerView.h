@@ -25,6 +25,7 @@ public:
 	CRect v_to_i(const CRect* rect_v);
 	CRect i_to_v(const CRect* rect_i);
 		int m_iImgIndex;
+	void ResetImage();
 	int m_iUnDoAvailableCount;
 	int m_iReDoAvailableCount;
 	double m_dDispOriginR_tv;
@@ -49,7 +50,7 @@ public:
 	void EnterFullScreen();
 	void ExitFullScreen();
 	bool m_bDragging; 
-	void OnBrightnessContrastGamma(int iBrightness, int iContrast, double dGamma);
+	void ModifyBrightnessContrastGamma();
 	bool GetColorAtCursor(CPoint point, int* iR_img, int* iC_img, BYTE* byR, BYTE* byG, BYTE* bYB);
 	CPoint m_PointStart; 
 	CRect m_Rect_v;
