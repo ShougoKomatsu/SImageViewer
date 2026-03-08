@@ -49,6 +49,11 @@ double g_dScale[SCALE_VAR_NUM]=
 	64.000000,
 };
 
+enum MOUSE_CURSOR
+{
+	CURSOR_CROSS=0,
+	CURSOR_ZOOMUP=1
+};
 // CSImageViewerView
 
 IMPLEMENT_DYNCREATE(CSImageViewerView, CView)
@@ -58,14 +63,12 @@ IMPLEMENT_DYNCREATE(CSImageViewerView, CView)
 		ON_WM_RBUTTONUP()
 		ON_COMMAND(ID_FILE_OPEN, &CSImageViewerView::OnFileOpen)
 		ON_COMMAND(ID_FILE_SAVE_AS, &CSImageViewerView::OnFileSave)
-		ON_COMMAND(ID_EDIT_EQU_HIST, &CSImageViewerView::OnEquHistImage)
 		ON_WM_SIZE()
 		ON_WM_MOUSEMOVE()
 		ON_WM_LBUTTONDOWN()
 		ON_WM_LBUTTONUP()
 		ON_WM_TIMER()
 		ON_WM_SETCURSOR()
-		ON_UPDATE_COMMAND_UI(ID_EDIT_EQU_HIST, &CSImageViewerView::OnUpdateEditEquHist)
 		ON_WM_VSCROLL()
 		ON_WM_HSCROLL()
 		ON_WM_ERASEBKGND()
@@ -206,8 +209,8 @@ IMPLEMENT_DYNCREATE(CSImageViewerView, CView)
 		int iBarWidth= ::GetSystemMetrics(SM_CYHSCROLL);
 		int iBarHeight= ::GetSystemMetrics(SM_CXVSCROLL);
 
-		int iWidth_i =max(0,m_imageProcessed[m_iImgIndex].GetWidth());//-rect.Width());
-		int iHeight_i =max(0,m_imageProcessed[m_iImgIndex].GetHeight());//-rect.Height());
+		int iWidth_i =max(0,m_imageProcessed[m_iImgIndex].GetWidth());
+		int iHeight_i =max(0,m_imageProcessed[m_iImgIndex].GetHeight());
 
 		int iWidth_tv = iWidth_i*g_dScale[m_iScaleIndex];
 		int iHeight_tv= iHeight_i*g_dScale[m_iScaleIndex];
@@ -263,7 +266,7 @@ IMPLEMENT_DYNCREATE(CSImageViewerView, CView)
 
 	}
 
-	bool CSImageViewerView::ReadFile(CString sFilePath)
+	bool CSImageViewerView::ReadImage(CString sFilePath)
 	{
 		if(m_imageProcessed[m_iImgIndex].IsNull()!=true){m_imageProcessed[m_iImgIndex].Destroy();}
 
@@ -311,10 +314,10 @@ IMPLEMENT_DYNCREATE(CSImageViewerView, CView)
 		//		cf.m_ofn.lpstrInitialDir = sMacroFolderPath;
 		if(cf.DoModal()!=IDOK){ return;}
 		m_sFilePath.Format(_T("%s"),cf.GetPathName());
-		ReadFile(m_sFilePath);
+		ReadImage(m_sFilePath);
 
 	}
-	void CSImageViewerView::OnEquHistImage()
+	void CSImageViewerView::OperateEquHistImage()
 	{
 		if(m_Rect_i.IsRectEmpty()==TRUE){return;}
 
@@ -329,7 +332,7 @@ IMPLEMENT_DYNCREATE(CSImageViewerView, CView)
 		Invalidate();
 	}
 
-	void CSImageViewerView::ModifyBrightnessContrastGamma()
+	void CSImageViewerView::OperateBrightnessContrastGamma()
 	{
 		if(m_Rect_i.IsRectEmpty()==TRUE){return;}
 
@@ -654,11 +657,11 @@ IMPLEMENT_DYNCREATE(CSImageViewerView, CView)
 		rect_v = i_to_v(&m_Rect_i);
 		if((point.y>=rect_v.top)&&(point.y<=rect_v.bottom)&&(point.x>=rect_v.left)&&(point.x<=rect_v.right))
 		{
-			m_iCurSor=1;
+			m_iCurSor=CURSOR_ZOOMUP;
 		}
 		else
 		{
-			m_iCurSor=0;
+			m_iCurSor=CURSOR_CROSS;
 		}
 
 		CView::OnMouseMove(nFlags, point);
@@ -714,7 +717,7 @@ IMPLEMENT_DYNCREATE(CSImageViewerView, CView)
 			KillTimer(TIMER_INIT);
 			if(m_sFilePath.GetLength()>0)
 			{
-				ReadFile(m_sFilePath);
+				ReadImage(m_sFilePath);
 			}
 			//	SetCursor(AfxGetApp()->LoadStandardCursor(IDC_CROSS));
 			return;
@@ -728,7 +731,7 @@ IMPLEMENT_DYNCREATE(CSImageViewerView, CView)
 	{
 		switch(m_iCurSor)
 		{
-		case 0:
+		case CURSOR_CROSS:
 			{
 				if (nHitTest == HTCLIENT) 
 				{
@@ -737,7 +740,7 @@ IMPLEMENT_DYNCREATE(CSImageViewerView, CView)
 				}
 				break;
 			}
-		case 1:
+		case CURSOR_ZOOMUP:
 			{
 				if (nHitTest == HTCLIENT) 
 				{
@@ -753,37 +756,44 @@ IMPLEMENT_DYNCREATE(CSImageViewerView, CView)
 
 	CRect CSImageViewerView::v_to_i(const CRect* rect_v)
 	{
-		CRect rcImage;
+		CRect rect_i;
+		rect_i.SetRectEmpty();
 		if(rect_v->IsRectEmpty()==TRUE)
 		{
+			return rect_i;
 		}
 
 		int iCOrigin_tv = GetScrollPos(SB_HORZ);
 		int iROrigin_tv = GetScrollPos(SB_VERT);
 
-		rcImage.left   = (int)(((rect_v->left+ iCOrigin_tv) / g_dScale[m_iScaleIndex])   +0.5);
-		rcImage.top    = (int)(((rect_v->top+ iROrigin_tv) / g_dScale[m_iScaleIndex])    +0.5);
+		rect_i.SetRect(
+			(int)(((rect_v->left+ iCOrigin_tv) / g_dScale[m_iScaleIndex])   +0.5)
+			,(int)(((rect_v->top+ iROrigin_tv) / g_dScale[m_iScaleIndex])    +0.5)
+			,(int)(((rect_v->right+ iCOrigin_tv) / g_dScale[m_iScaleIndex])  -0.5)
+			,(int)(((rect_v->bottom+ iROrigin_tv) / g_dScale[m_iScaleIndex]) -0.5));
 
-		rcImage.right  = (int)(((rect_v->right+ iCOrigin_tv) / g_dScale[m_iScaleIndex])  -0.5);
-		rcImage.bottom = (int)(((rect_v->bottom+ iROrigin_tv) / g_dScale[m_iScaleIndex]) -0.5);
-
-		return rcImage;
+		return rect_i;
 	}
 
 	CRect CSImageViewerView::i_to_v(const CRect* rect_i)
 	{
-		CRect rcView;
+		CRect rect_v;
 		if(rect_i->IsRectEmpty()==TRUE)
 		{
+			rect_v.SetRectEmpty();
+			return rect_v;
 		}
+
 		int iCOrigin_tv = GetScrollPos(SB_HORZ);
 		int iROrigin_tv = GetScrollPos(SB_VERT);
-		rcView.left   = (int)((rect_i->left   ) * g_dScale[m_iScaleIndex])-iCOrigin_tv;
-		rcView.top    = (int)((rect_i->top    ) * g_dScale[m_iScaleIndex])-iROrigin_tv;
-		rcView.right  = (int)((rect_i->right +1 ) * g_dScale[m_iScaleIndex])-iCOrigin_tv;
-		rcView.bottom = (int)((rect_i->bottom +1) * g_dScale[m_iScaleIndex])-iROrigin_tv;
 
-		return rcView;
+		rect_v.SetRect(
+			(int)((rect_i->left   ) * g_dScale[m_iScaleIndex])-iCOrigin_tv
+			,(int)((rect_i->top    ) * g_dScale[m_iScaleIndex])-iROrigin_tv
+			,(int)((rect_i->right +1 ) * g_dScale[m_iScaleIndex])-iCOrigin_tv
+			,(int)((rect_i->bottom +1) * g_dScale[m_iScaleIndex])-iROrigin_tv);
+
+		return rect_v;
 	}
 
 
@@ -800,110 +810,84 @@ IMPLEMENT_DYNCREATE(CSImageViewerView, CView)
 				::GetCursorPos(&point);
 				this->ScreenToClient(&point);
 
-
-
-				if(iDelta>0)
-				{
-					ZoomChange(point.y, point.x,1);
-				}
-				else
-				{
-					ZoomChange(point.y, point.x,-1);
-				}
+				if(iDelta>0){ZoomChange(point.y, point.x,1);}
+				else{ZoomChange(point.y, point.x,-1);}
 				return TRUE;
 			}
-			if(iDelta>0)
-			{
-				OnScroll(SB_VERT, SB_LINEUP);
-			}
-			else
-			{
-				OnScroll(SB_VERT, SB_LINEDOWN);
-			}
+
+			if(iDelta>0){OnScroll(SB_VERT, SB_LINEUP);}
+			else{OnScroll(SB_VERT, SB_LINEDOWN);}
 
 			return TRUE;
-
-
 		}
 
 		if (pMsg->message == WM_KEYDOWN)
-		{
-			if (pMsg->wParam == 'C') 
-			{ 
-				if(GetKeyState(VK_CONTROL)<0)
-				{
+		{	
+			if(GetKeyState(VK_CONTROL)<0)
+			{
+				if (pMsg->wParam == 'C') 
+				{ 
 					if(m_Rect_i.IsRectEmpty()==TRUE){return FALSE;}
 
 					CImage imgClipped;
 					ClipImage(&m_imageProcessed[m_iImgIndex],&imgClipped, m_Rect_i.top,m_Rect_i.left, m_Rect_i.bottom, m_Rect_i.right); 
 					CopyToClipBoardImg(&imgClipped);
-				}
-				return TRUE;
-			} 
-			if (pMsg->wParam == 'V') 
-			{ 
-				if(GetKeyState(VK_CONTROL)<0)
-				{
-
+					return TRUE;
+				} 
+				if (pMsg->wParam == 'V') 
+				{ 
 					BOOL bRet = CopyFromClipBoardImg(&m_image);
 					if(bRet != TRUE){return FALSE;}
 					m_sFilePath.Format(_T("Clipboard"));
 					ResetImage();
-				}
-				return TRUE;
-			} 
-			if(pMsg->wParam=='U')
-			{
-				if(GetKeyState(VK_SHIFT)<0)
-				{
-					OnEquHistImage();
 					return TRUE;
 				}
-			}
-			if(pMsg->wParam==VK_F5)
-			{
-				if(m_sFilePath.Compare(_T("Clipboard"))!=0)
+			
+				if(pMsg->wParam == 'A')
 				{
-					return ReadFile(m_sFilePath);
+					m_Rect_i.SetRect(0, 0, m_image.GetWidth()-1,m_image.GetHeight()-1);
+					return TRUE; 
 				}
-				ResetImage();
-			}
-
-			if (pMsg->wParam == VK_RETURN) { EnterFullScreen(); return TRUE; } 
-			if (pMsg->wParam == VK_ESCAPE) { if(m_bBingFullScreen==true){ ExitFullScreen(); return TRUE;} }
-
-			if(pMsg->wParam == VK_ADD)
-			{
-				ZoomChange(1);
-				return TRUE; 
-			}
-			if(pMsg->wParam == VK_SUBTRACT)
-			{
-				ZoomChange(-1);
-				return TRUE; 
-			}
-			if(pMsg->wParam == 'Z')
-			{
-				if(GetKeyState(VK_CONTROL)<0)
+				if(pMsg->wParam == 'Z')
 				{
 					if(m_iUnDoAvailableCount<=0){return FALSE;}
 					m_iImgIndex--;
 					m_iUnDoAvailableCount--;
 					m_iReDoAvailableCount++;
 					Invalidate();
+					return TRUE; 
 				}
-			}
-			if(pMsg->wParam == 'Y')
-			{
-				if(GetKeyState(VK_CONTROL)<0)
+				if(pMsg->wParam == 'Y')
 				{
 					if(m_iReDoAvailableCount<=0){return FALSE;}
 					m_iImgIndex++;
 					m_iReDoAvailableCount--;
 					m_iUnDoAvailableCount++;
 					Invalidate();
+					return TRUE; 
 				}
 			}
+			
+			if(GetKeyState(VK_SHIFT)<0)
+			{
+				if(pMsg->wParam == 'U'){OperateEquHistImage();return TRUE;}
+				if(pMsg->wParam == 'G'){OperateBrightnessContrastGamma();return TRUE;}
+			}	
+
+			if(pMsg->wParam==VK_F5)
+			{
+				if(m_sFilePath.Compare(_T("Clipboard"))!=0)
+				{
+					return ReadImage(m_sFilePath);
+				}
+				ResetImage();
+			}
+
+			if(pMsg->wParam == VK_RETURN) { if(m_bBingFullScreen==true){ ExitFullScreen(); return TRUE;} EnterFullScreen(); return TRUE; } 
+			if(pMsg->wParam == VK_ESCAPE) { if(m_bBingFullScreen==true){ ExitFullScreen(); return TRUE;} ::PostQuitMessage( 0 );}
+
+			if(pMsg->wParam == VK_ADD){ZoomChange(1);return TRUE;}
+			if(pMsg->wParam == VK_SUBTRACT){ZoomChange(-1);return TRUE;}
 			if(pMsg->wParam == VK_LEFT){OnScroll(SB_HORZ,SB_LINEUP);return TRUE; }
 			if(pMsg->wParam == VK_RIGHT){OnScroll(SB_HORZ,SB_LINEDOWN); return TRUE; }
 			if(pMsg->wParam == VK_UP){OnScroll(SB_VERT,SB_LINEUP);return TRUE; }
@@ -914,40 +898,10 @@ IMPLEMENT_DYNCREATE(CSImageViewerView, CView)
 			if(pMsg->wParam == VK_SUBTRACT){ZoomChange(-1);}
 
 
-			if(pMsg->wParam == 'A')
-			{
-				if(GetKeyState(VK_CONTROL)<0)
-				{
-					m_Rect_i.SetRect(0, 0, m_image.GetWidth()-1,m_image.GetHeight()-1);
-				}
-				return TRUE; 
-			}
-			if(pMsg->wParam == 'G')
-			{
-				if(GetKeyState(VK_SHIFT)<0)
-				{
-					ModifyBrightnessContrastGamma();
-					return TRUE;
-				}
-			}
 		}
 
 		return CView::PreTranslateMessage(pMsg);
 	}
-
-
-	void CSImageViewerView::OnUpdateEditEquHist(CCmdUI *pCmdUI)
-	{
-		pCmdUI->Enable(TRUE);
-	}
-
-
-	//	void CSImageViewerView::OnVScroll(UINT nSBCode, UINT nPos, CScrollBar* pScrollBar)
-	//	{
-	//		// TODO: ここにメッセージ ハンドラー コードを追加するか、既定の処理を呼び出します。
-	//
-	//		CView::OnVScroll(nSBCode, nPos, pScrollBar);
-	//	}
 
 
 	void CSImageViewerView::OnScroll(int iSB, int nSBCode)
@@ -955,16 +909,16 @@ IMPLEMENT_DYNCREATE(CSImageViewerView, CView)
 		SCROLLINFO si;
 		GetScrollInfo(iSB,&si);
 		int iOldPos;
-		double* dNewPos;
+		double* pdNewPos;
 		if(iSB==SB_VERT)
 		{
 			iOldPos=GetDispOriginR_tv();
-			dNewPos=&m_dDispOriginR_tv;
+			pdNewPos=&m_dDispOriginR_tv;
 		}
 		else
 		{
 			iOldPos=GetDispOriginC_tv();
-			dNewPos=&m_dDispOriginC_tv;
+			pdNewPos=&m_dDispOriginC_tv;
 		}
 
 		int iPageSize=si.nPage;
@@ -975,27 +929,27 @@ IMPLEMENT_DYNCREATE(CSImageViewerView, CView)
 		{
 		case SB_LINEUP:
 			{
-				*dNewPos=max(iMin, iOldPos-iPageSize/8.0);
+				*pdNewPos=max(iMin, iOldPos-iPageSize/8.0);
 				break;
 			}
 		case SB_LINEDOWN:
 			{
-				*dNewPos=min(iMax-iPageSize, iOldPos+iPageSize/8.0);
+				*pdNewPos=min(iMax-iPageSize, iOldPos+iPageSize/8.0);
 				break;
 			}
 		case SB_PAGEUP:
 			{
-				*dNewPos=max(iMin, iOldPos-iPageSize);
+				*pdNewPos=max(iMin, iOldPos-iPageSize);
 				break;
 			}
 		case SB_PAGEDOWN:
 			{
-				*dNewPos=min(iMax-iPageSize, iOldPos+iPageSize);
+				*pdNewPos=min(iMax-iPageSize, iOldPos+iPageSize);
 				break;
 			}
 		case SB_THUMBTRACK:
 			{
-				*dNewPos=max(iMin,min(iMax-iPageSize , si.nTrackPos));
+				*pdNewPos=max(iMin,min(iMax-iPageSize , si.nTrackPos));
 				break;
 			}
 		default:
@@ -1003,7 +957,7 @@ IMPLEMENT_DYNCREATE(CSImageViewerView, CView)
 				return;
 			}
 		}
-		si.nPos = *dNewPos; 
+		si.nPos = *pdNewPos; 
 		SetScrollInfo(iSB, &si, TRUE);
 		Invalidate();
 	}
@@ -1012,7 +966,6 @@ IMPLEMENT_DYNCREATE(CSImageViewerView, CView)
 	void CSImageViewerView::OnHScroll(UINT nSBCode, UINT nPos, CScrollBar* pScrollBar)
 	{
 		OnScroll(SB_HORZ, nSBCode);
-
 	}
 
 
@@ -1024,7 +977,6 @@ IMPLEMENT_DYNCREATE(CSImageViewerView, CView)
 
 	BOOL CSImageViewerView::OnEraseBkgnd(CDC* pDC)
 	{
-		// TODO: ここにメッセージ ハンドラー コードを追加するか、既定の処理を呼び出します。
 		return TRUE;
 		return CView::OnEraseBkgnd(pDC);
 	}

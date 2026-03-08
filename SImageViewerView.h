@@ -16,27 +16,39 @@ protected: // ÉVÉäÉAÉãâªÇ©ÇÁÇÃÇ›çÏê¨ÇµÇ‹Ç∑ÅB
 // ëÆê´
 public:
 
+	CString m_sFilePath;
+	CImage m_imageZoomed;
+	CImage m_image;
+	CImage m_imageProcessed[32];
+	int m_iImgIndex;
+	int m_iUnDoAvailableCount;
+	int m_iReDoAvailableCount;
+
+	int m_iScaleIndex;
+	int m_iCurSor;
+	double m_dDispOriginR_tv;
+	double m_dDispOriginC_tv;
+
+	bool m_bBingFullScreen;
+	RECT m_rectPreserved;
+	DWORD m_dwStylePreserved;
+	DWORD m_dwExStylePreserved;	
+
+	bool m_bDragging; 
+	CPoint m_PointStart; 
+	CRect m_Rect_v;
+	CRect m_Rect_i;
+
 	int GetClientHeight();
 	int GetClientWidth();
 
-	int m_iCurSor;
 	void SetScroll();
 	bool SaveImage(CImage* image);
 	CSImageViewerDoc* GetDocument() const;
 	CRect v_to_i(const CRect* rect_v);
 	CRect i_to_v(const CRect* rect_i);
-		int m_iImgIndex;
 	void ResetImage();
-	int m_iUnDoAvailableCount;
-	int m_iReDoAvailableCount;
-	double m_dDispOriginR_tv;
-	double m_dDispOriginC_tv;
-	CImage m_imageZoomed;
-	CImage m_image;
-	CImage m_imageProcessed[32];
-	CString m_sFilePath;
-	int m_iScaleIndex;
-	bool ReadFile(CString sFilePath);
+	bool ReadImage(CString sFilePath);
 	bool ZoomChange(int iChange);
 	bool ZoomChange(int iMousePosR_v, int iMousePosC_v,int iChange);
 	bool ZoomChange(int iR0_i, int iC0_i, int iR1_i, int iC1_i);
@@ -44,18 +56,13 @@ public:
 	double GetDispOriginR_tv();
 	double GetDispOriginC_tv();
 
-	bool m_bBingFullScreen;
-	RECT m_rectPreserved;
-	DWORD m_dwStylePreserved;
-	DWORD m_dwExStylePreserved;	
 	void EnterFullScreen();
 	void ExitFullScreen();
-	bool m_bDragging; 
-	void ModifyBrightnessContrastGamma();
+
+	void OperateBrightnessContrastGamma();
+	void OperateEquHistImage();
+
 	bool GetColorAtCursor(CPoint point, int* iR_img, int* iC_img, BYTE* byR, BYTE* byG, BYTE* bYB);
-	CPoint m_PointStart; 
-	CRect m_Rect_v;
-	CRect m_Rect_i;
 	void OnScroll(int iSB, int nSBCode);
 	void DispStatus(CPoint point);
 // ëÄçÏ
@@ -84,19 +91,16 @@ protected:
 	afx_msg void OnContextMenu(CWnd* pWnd, CPoint point);
 	DECLARE_MESSAGE_MAP()
 public:
+	virtual void OnInitialUpdate();
+	virtual BOOL PreTranslateMessage(MSG* pMsg);
 	afx_msg void OnFileOpen();
 	afx_msg void OnFileSave();
-	afx_msg void OnEquHistImage();
 	afx_msg void OnSize(UINT nType, int cx, int cy);
-	virtual void OnInitialUpdate();
 	afx_msg void OnMouseMove(UINT nFlags, CPoint point);
 	afx_msg void OnLButtonDown(UINT nFlags, CPoint point);
 	afx_msg void OnLButtonUp(UINT nFlags, CPoint point);
 	afx_msg void OnTimer(UINT_PTR nIDEvent);
 	afx_msg BOOL OnSetCursor(CWnd* pWnd, UINT nHitTest, UINT message);
-	virtual BOOL PreTranslateMessage(MSG* pMsg);
-	afx_msg void OnUpdateEditEquHist(CCmdUI *pCmdUI);
-//	afx_msg void OnVScroll(UINT nSBCode, UINT nPos, CScrollBar* pScrollBar);
 	afx_msg void OnHScroll(UINT nSBCode, UINT nPos, CScrollBar* pScrollBar);
 	afx_msg void OnVScroll(UINT nSBCode, UINT nPos, CScrollBar* pScrollBar);
 	afx_msg BOOL OnEraseBkgnd(CDC* pDC);
