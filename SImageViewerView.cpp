@@ -391,7 +391,7 @@ IMPLEMENT_DYNCREATE(CSImageViewerView, CView)
 		GetClientRect(&rectClient);
 		return rectClient.Height();
 	}
-	
+
 	int CSImageViewerView::GetClientWidth()
 	{
 		CRect rectClient;
@@ -409,14 +409,42 @@ IMPLEMENT_DYNCREATE(CSImageViewerView, CView)
 		double dOldDispOriginR_tv = GetDispOriginR_tv();
 		double dOldDispOriginC_tv = GetDispOriginC_tv();
 
-		int iOldCenterR_i = (dOldDispOriginR_tv +iHeight_v/2.0)/g_dScale[m_iScaleIndex];
-		int iOldCenterC_i = (dOldDispOriginC_tv +iWidth_v/2.0)/g_dScale[m_iScaleIndex];
+		int iWidth_i =max(0,m_imageProcessed[m_iImgIndex].GetWidth());
+		int iHeight_i =max(0,m_imageProcessed[m_iImgIndex].GetHeight());
 
-		double dScalePre=g_dScale[m_iScaleIndex];
-		m_iScaleIndex+=iChange;
+		int iWidth_tv = iWidth_i*g_dScale[m_iScaleIndex];
+		int iHeight_tv= iHeight_i*g_dScale[m_iScaleIndex];
+		double dNewDispOriginC_tv;
+		double dNewDispOriginR_tv;
+		int iNewZoom = m_iScaleIndex+=iChange;
+		if(iWidth_tv>iWidth_v)
+		{
 
-		double dNewDispOriginR_tv = iOldCenterR_i*g_dScale[m_iScaleIndex] - iHeight_v/2.0;
-		double dNewDispOriginC_tv = iOldCenterC_i*g_dScale[m_iScaleIndex] - iWidth_v/2.0;
+			double dScalePre=g_dScale[m_iScaleIndex];
+			
+			int iOldCenterC_i = (dOldDispOriginC_tv +iWidth_v/2.0)/g_dScale[iNewZoom];
+			dNewDispOriginC_tv = iOldCenterC_i*g_dScale[iNewZoom] - iWidth_v/2.0;
+		}
+		else
+		{
+			dNewDispOriginC_tv = 0;
+		}
+
+		if(iHeight_tv>iHeight_v)
+		{
+			int iOldCenterR_i = (dOldDispOriginR_tv +iHeight_v/2.0)/g_dScale[iNewZoom];
+
+			double dScalePre=g_dScale[m_iScaleIndex];
+
+			dNewDispOriginR_tv = iOldCenterR_i*g_dScale[iNewZoom] - iHeight_v/2.0;
+
+		}
+		else
+		{
+			dNewDispOriginR_tv = 0;
+		}
+			m_iScaleIndex=iNewZoom;
+
 
 		SetScrollPos(dNewDispOriginR_tv, dNewDispOriginC_tv);
 
@@ -442,15 +470,50 @@ IMPLEMENT_DYNCREATE(CSImageViewerView, CView)
 		
 		int iMousePosR_i=iMousePosR_tv/g_dScale[m_iScaleIndex];
 		int iMousePosC_i=iMousePosC_tv/g_dScale[m_iScaleIndex];
+		
+		
+		int iHeight_v=GetClientHeight();
+		int iWidth_v=GetClientWidth();
+		double dOldDispOriginR_tv = GetDispOriginR_tv();
+		double dOldDispOriginC_tv = GetDispOriginC_tv();
 
-		m_iScaleIndex+=iChange;		
-		SetScroll();
+		int iWidth_i =max(0,m_imageProcessed[m_iImgIndex].GetWidth());
+		int iHeight_i =max(0,m_imageProcessed[m_iImgIndex].GetHeight());
 
-		double dNewMousePosR_tv = iMousePosR_i*g_dScale[m_iScaleIndex];
-		double dNewMousePosC_tv = iMousePosC_i*g_dScale[m_iScaleIndex];
+		int iWidth_tv = iWidth_i*g_dScale[m_iScaleIndex];
+		int iHeight_tv= iHeight_i*g_dScale[m_iScaleIndex];
+		double dNewDispOriginC_tv;
+		double dNewDispOriginR_tv;
+		int iNewScrollR_tv ;
+		int iNewScrollC_tv ;
+			m_iScaleIndex+=iChange;		
+		if(iWidth_tv>iWidth_v)
+		{
 
-		int iNewScrollR_tv = int(dNewMousePosR_tv-iMousePosR_v);
-		int iNewScrollC_tv = int(dNewMousePosC_tv-iMousePosC_v);
+			SetScroll();
+
+			double dNewMousePosC_tv = iMousePosC_i*g_dScale[m_iScaleIndex];
+
+			iNewScrollC_tv = int(dNewMousePosC_tv-iMousePosC_v);
+		}
+		else
+		{
+			iNewScrollC_tv =0;
+		}
+
+		if(iHeight_tv>iHeight_v)
+		{
+
+			SetScroll();
+
+			double dNewMousePosR_tv = iMousePosR_i*g_dScale[m_iScaleIndex];
+
+			iNewScrollR_tv = int(dNewMousePosR_tv-iMousePosR_v);
+		}
+		else
+		{
+			iNewScrollR_tv =0;
+		}
 
 		SetScrollPos(iNewScrollR_tv, iNewScrollC_tv);
 
