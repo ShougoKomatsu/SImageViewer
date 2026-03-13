@@ -15,7 +15,7 @@ protected: // ƒVƒŠƒAƒ‹‰»‚©‚ç‚Ì‚İì¬‚µ‚Ü‚·B
 
 // ‘®«
 public:
-
+	void FullDomain();
 	CString m_sFilePath;
 	CImage m_imageZoomed;
 	CImage m_image;

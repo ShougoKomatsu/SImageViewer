@@ -317,14 +317,21 @@ IMPLEMENT_DYNCREATE(CSImageViewerView, CView)
 		ReadImage(m_sFilePath);
 
 	}
+	void CSImageViewerView::FullDomain()
+	{
+		m_Rect_i.SetRect(0, 0, m_image.GetWidth()-1,m_image.GetHeight()-1);
+	}
 	void CSImageViewerView::OperateEquHistImage()
 	{
-		if(m_Rect_i.IsRectEmpty()==TRUE){return;}
+		bool bAutoFull;
+		if(m_Rect_i.IsRectEmpty()==TRUE){bAutoFull=true;FullDomain();}
 
 		ImgRGB imgRGB;
 		ImgRGB imgMeaned;
 		ConvertImage(&m_imageProcessed[m_iImgIndex], &imgRGB);
 		EquHistImage(&imgRGB,&imgMeaned,m_Rect_i.top,m_Rect_i.left,m_Rect_i.bottom,m_Rect_i.right);
+		if(bAutoFull==true){m_Rect_i.SetRectEmpty();}
+
 		m_iImgIndex++;
 		m_iUnDoAvailableCount++;
 		if(m_iUnDoAvailableCount>=MAX_IMG_BUF-1){m_iUnDoAvailableCount=MAX_IMG_BUF-1;}
@@ -334,13 +341,14 @@ IMPLEMENT_DYNCREATE(CSImageViewerView, CView)
 
 	void CSImageViewerView::OperateBrightnessContrastGamma()
 	{
-		if(m_Rect_i.IsRectEmpty()==TRUE){return;}
+		bool bAutoFull;
+		if(m_Rect_i.IsRectEmpty()==TRUE){bAutoFull=true;FullDomain();}
 
 		CImageModifyDlg dlgModify;
 		INT_PTR iRet;
 		dlgModify.DoModal();
 		iRet = dlgModify.m_iRet;
-		if(iRet == IDCANCEL){return ;}
+		if(iRet == IDCANCEL){if(bAutoFull==true){m_Rect_i.SetRectEmpty();} return ;}
 
 		int iBrightness=dlgModify.m_iBrightness;
 		int iContrast=dlgModify.m_iContrast;
@@ -352,7 +360,7 @@ IMPLEMENT_DYNCREATE(CSImageViewerView, CView)
 		ConvertImage(&m_imageProcessed[m_iImgIndex], &imgRGB);
 		BrightnessContrast(&imgRGB,&imgResult1,m_Rect_i.top,m_Rect_i.left,m_Rect_i.bottom,m_Rect_i.right,(double)iBrightness,(double)iContrast);
 		Gamma(&imgResult1,&imgResult2,m_Rect_i.top,m_Rect_i.left,m_Rect_i.bottom,m_Rect_i.right,dGamma);
-
+		if(bAutoFull==true){m_Rect_i.SetRectEmpty();}
 
 		m_iImgIndex++;
 		m_iUnDoAvailableCount++;
@@ -905,7 +913,7 @@ IMPLEMENT_DYNCREATE(CSImageViewerView, CView)
 			
 				if(pMsg->wParam == 'A')
 				{
-					m_Rect_i.SetRect(0, 0, m_image.GetWidth()-1,m_image.GetHeight()-1);
+					FullDomain();
 					return TRUE; 
 				}
 				if(pMsg->wParam == 'Z')
