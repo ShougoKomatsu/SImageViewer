@@ -484,38 +484,33 @@ IMPLEMENT_DYNCREATE(CSImageViewerView, CView)
 		int iHeight_tv= iHeight_i*g_dScale[m_iScaleIndex];
 		double dNewDispOriginC_tv;
 		double dNewDispOriginR_tv;
-		int iNewScrollR_tv ;
-		int iNewScrollC_tv ;
-			m_iScaleIndex+=iChange;		
+		m_iScaleIndex+=iChange;		
+			SetScroll();
 		if(iWidth_tv>iWidth_v)
 		{
 
-			SetScroll();
-
 			double dNewMousePosC_tv = iMousePosC_i*g_dScale[m_iScaleIndex];
 
-			iNewScrollC_tv = int(dNewMousePosC_tv-iMousePosC_v);
+			dNewDispOriginC_tv = dNewMousePosC_tv-iMousePosC_v;
 		}
 		else
 		{
-			iNewScrollC_tv =0;
+			dNewDispOriginC_tv =0;
 		}
 
 		if(iHeight_tv>iHeight_v)
 		{
 
-			SetScroll();
-
 			double dNewMousePosR_tv = iMousePosR_i*g_dScale[m_iScaleIndex];
 
-			iNewScrollR_tv = int(dNewMousePosR_tv-iMousePosR_v);
+			dNewDispOriginR_tv= dNewMousePosR_tv-iMousePosR_v;
 		}
 		else
 		{
-			iNewScrollR_tv =0;
+			dNewDispOriginR_tv=0;
 		}
 
-		SetScrollPos(iNewScrollR_tv, iNewScrollC_tv);
+		SetScrollPos(dNewDispOriginR_tv, dNewDispOriginC_tv);
 
 		Invalidate();
 
@@ -760,6 +755,8 @@ IMPLEMENT_DYNCREATE(CSImageViewerView, CView)
 				if((point.y>=rect_v.top)&&(point.y<=rect_v.bottom)&&(point.x>=rect_v.left)&&(point.x<=rect_v.right))
 				{
 					ZoomChange(m_Rect_i.top, m_Rect_i.left, m_Rect_i.bottom,m_Rect_i.right);
+					m_Rect_v.SetRectEmpty();
+					m_Rect_i.SetRectEmpty();
 					return;
 				}
 				m_Rect_v.SetRectEmpty();
