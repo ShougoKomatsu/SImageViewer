@@ -679,6 +679,7 @@ IMPLEMENT_DYNCREATE(CSImageViewerView, CView)
 
 	void CSImageViewerView::DispStatus(CPoint point)
 	{
+		CString sFileName = m_sFilePath.Mid(m_sFilePath.ReverseFind('\\') + 1);
 
 		int iR_img,iC_img;
 		BYTE byR,byG,byB;
@@ -686,11 +687,11 @@ IMPLEMENT_DYNCREATE(CSImageViewerView, CView)
 		bool bRet = GetColorAtCursor(point,&iR_img,&iC_img, &byR, &byG, &byB);
 		if(bRet == true)
 		{
-			sCaption.Format(_T("%s | (%d, %d) (R, G, B)= (%d, %d, %d) | %.3f%%"), m_sFilePath, iC_img, iR_img, byR, byG, byB,100*g_dScale[m_iScaleIndex]);
+			sCaption.Format(_T("%s | (%d, %d) (R, G, B)= (%d, %d, %d) | %.3f%%"), sFileName, iC_img, iR_img, byR, byG, byB,100*g_dScale[m_iScaleIndex]);
 		}
 		else
 		{
-			sCaption.Format(m_sFilePath);
+			sCaption.Format(sFileName);
 		}
 		AfxGetMainWnd()->SetWindowText(sCaption);
 	}
