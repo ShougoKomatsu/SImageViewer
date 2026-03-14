@@ -554,9 +554,7 @@ IMPLEMENT_DYNCREATE(CSImageViewerView, CView)
 		SetScroll();
 		if(iWidth_tv>iWidth_v)
 		{
-
 			double dNewMousePosC_tv = iMousePosC_i*g_dScale[m_iScaleIndex];
-
 			dNewDispOriginC_tv = dNewMousePosC_tv-iMousePosC_v;
 		}
 		else
@@ -566,9 +564,7 @@ IMPLEMENT_DYNCREATE(CSImageViewerView, CView)
 
 		if(iHeight_tv>iHeight_v)
 		{
-
 			double dNewMousePosR_tv = iMousePosR_i*g_dScale[m_iScaleIndex];
-
 			dNewDispOriginR_tv= dNewMousePosR_tv-iMousePosR_v;
 		}
 		else
@@ -1023,8 +1019,6 @@ IMPLEMENT_DYNCREATE(CSImageViewerView, CView)
 			if(pMsg->wParam == VK_NEXT){OnScroll(SB_VERT,SB_PAGEDOWN);return TRUE; }
 			if(pMsg->wParam == VK_ADD){ZoomChange(1);}
 			if(pMsg->wParam == VK_SUBTRACT){ZoomChange(-1);}
-
-
 		}
 
 		return CView::PreTranslateMessage(pMsg);
@@ -1054,31 +1048,11 @@ IMPLEMENT_DYNCREATE(CSImageViewerView, CView)
 
 		switch (nSBCode)
 		{
-		case SB_LINEUP:
-			{
-				*pdNewPos=max(iMin, iOldPos-iPageSize/8.0);
-				break;
-			}
-		case SB_LINEDOWN:
-			{
-				*pdNewPos=min(iMax-iPageSize, iOldPos+iPageSize/8.0);
-				break;
-			}
-		case SB_PAGEUP:
-			{
-				*pdNewPos=max(iMin, iOldPos-iPageSize);
-				break;
-			}
-		case SB_PAGEDOWN:
-			{
-				*pdNewPos=min(iMax-iPageSize, iOldPos+iPageSize);
-				break;
-			}
-		case SB_THUMBTRACK:
-			{
-				*pdNewPos=max(iMin,min(iMax-iPageSize , si.nTrackPos));
-				break;
-			}
+		case SB_LINEUP:		{*pdNewPos=max(iMin, iOldPos-iPageSize/8.0); break;}
+		case SB_LINEDOWN:	{*pdNewPos=min(iMax-iPageSize, iOldPos+iPageSize/8.0); break;}
+		case SB_PAGEUP:		{*pdNewPos=max(iMin, iOldPos-iPageSize); break;}
+		case SB_PAGEDOWN:	{*pdNewPos=min(iMax-iPageSize, iOldPos+iPageSize); break;}
+		case SB_THUMBTRACK:	{*pdNewPos=max(iMin,min(iMax-iPageSize , si.nTrackPos)); break;}
 		default:
 			{
 				return;
