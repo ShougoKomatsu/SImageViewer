@@ -14,6 +14,7 @@
 #include "ImageProc.h"
 #include "MainFrm.h"
 #include "ImageModifyDlg.h"
+#include "SetSelectionDlg.h"
 #ifdef _DEBUG
 #define new DEBUG_NEW
 #endif
@@ -63,6 +64,7 @@ IMPLEMENT_DYNCREATE(CSImageViewerView, CView)
 		ON_WM_RBUTTONUP()
 		ON_COMMAND(ID_FILE_OPEN, &CSImageViewerView::OnFileOpen)
 		ON_COMMAND(ID_FILE_SAVE_AS, &CSImageViewerView::OnFileSave)
+    ON_COMMAND(ID_SET_SELECTION, &CSImageViewerView::OnSetSelection)
 		ON_WM_SIZE()
 		ON_WM_MOUSEMOVE()
 		ON_WM_LBUTTONDOWN()
@@ -100,7 +102,24 @@ IMPLEMENT_DYNCREATE(CSImageViewerView, CView)
 
 		return CView::PreCreateWindow(cs);
 	}
+	void CSImageViewerView::OnSetSelection()
+{
+	CSetSelectionDlg setdlg;
+	if(m_Rect_i.IsRectEmpty() != TRUE)
+	{
+		setdlg.m_iC0=m_Rect_i.left;
+		setdlg.m_iR0=m_Rect_i.top;
+		setdlg.m_iC1=m_Rect_i.right;
+		setdlg.m_iR1=m_Rect_i.bottom;
+	}
 
+	INT_PTR iRet = setdlg.DoModal();
+	if(iRet == IDOK)
+	{
+		m_Rect_i.SetRect(setdlg.m_iC0,setdlg.m_iR0,setdlg.m_iC1,setdlg.m_iR1);
+		Invalidate();
+	}
+}
 	// CSImageViewerView •`‰æ
 	double CSImageViewerView::GetDispOriginR_tv()
 	{

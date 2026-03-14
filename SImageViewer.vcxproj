@@ -110,6 +110,7 @@
     <ClInclude Include="ImageProc.h" />
     <ClInclude Include="MainFrm.h" />
     <ClInclude Include="Resource.h" />
+    <ClInclude Include="SetSelectionDlg.h" />
     <ClInclude Include="SImageViewer.h" />
     <ClInclude Include="SImageViewerDoc.h" />
     <ClInclude Include="SImageViewerView.h" />
@@ -120,6 +121,7 @@
     <ClCompile Include="ImageModifyDlg.cpp" />
     <ClCompile Include="ImageProc.cpp" />
     <ClCompile Include="MainFrm.cpp" />
+    <ClCompile Include="SetSelectionDlg.cpp" />
     <ClCompile Include="SImageViewer.cpp" />
     <ClCompile Include="SImageViewerDoc.cpp" />
     <ClCompile Include="SImageViewerView.cpp" />
