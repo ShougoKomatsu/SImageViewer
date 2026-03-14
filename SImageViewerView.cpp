@@ -15,6 +15,7 @@
 #include "MainFrm.h"
 #include "ImageModifyDlg.h"
 #include "SetSelectionDlg.h"
+#include "CopyAsDlg.h"
 #ifdef _DEBUG
 #define new DEBUG_NEW
 #endif
@@ -64,7 +65,8 @@ IMPLEMENT_DYNCREATE(CSImageViewerView, CView)
 		ON_WM_RBUTTONUP()
 		ON_COMMAND(ID_FILE_OPEN, &CSImageViewerView::OnFileOpen)
 		ON_COMMAND(ID_FILE_SAVE_AS, &CSImageViewerView::OnFileSave)
-    ON_COMMAND(ID_SET_SELECTION, &CSImageViewerView::OnSetSelection)
+		ON_COMMAND(ID_SET_SELECTION, &CSImageViewerView::OnSetSelection)
+		ON_COMMAND(ID_COPY_AS, &CSImageViewerView::OnCopyAs)
 		ON_WM_SIZE()
 		ON_WM_MOUSEMOVE()
 		ON_WM_LBUTTONDOWN()
@@ -102,24 +104,60 @@ IMPLEMENT_DYNCREATE(CSImageViewerView, CView)
 
 		return CView::PreCreateWindow(cs);
 	}
-	void CSImageViewerView::OnSetSelection()
-{
-	CSetSelectionDlg setdlg;
-	if(m_Rect_i.IsRectEmpty() != TRUE)
+
+	void CSImageViewerView::OnCopyAs()
 	{
-		setdlg.m_iC0=m_Rect_i.left;
-		setdlg.m_iR0=m_Rect_i.top;
-		setdlg.m_iC1=m_Rect_i.right;
-		setdlg.m_iR1=m_Rect_i.bottom;
+		CCopyAsDlg copyAsdlg;
+
+		INT_PTR iRet = copyAsdlg.DoModal();
+		if(iRet != IDOK){return;}
+		
+				CImage imgClipped;
+				ClipImage(&m_imageProcessed[m_iImgIndex],&imgClipped, m_Rect_i.top,m_Rect_i.left, m_Rect_i.bottom, m_Rect_i.right); 
+		switch(copyAsdlg.m_enumCopyMode)
+		{
+		case COPY_AS_IMAGE:
+			{
+				CopyToClipBoardImg(&imgClipped);
+				break;
+			}
+		case COPY_AS_CSV:
+			{
+				CString sImage;
+				bool bRet = ConvertImageToStr(&imgClipped,_T(","), &sImage);
+ CopyToClipBoardStr(sImage);
+				break;
+			}
+		case COPY_AS_TSV:
+			{
+				CString sImage;
+				bool bRet = ConvertImageToStr(&imgClipped,_T("	"), &sImage);
+ CopyToClipBoardStr(sImage);
+				break;
+			}
+		}
 	}
 
-	INT_PTR iRet = setdlg.DoModal();
-	if(iRet == IDOK)
+
+	void CSImageViewerView::OnSetSelection()
 	{
-		m_Rect_i.SetRect(setdlg.m_iC0,setdlg.m_iR0,setdlg.m_iC1,setdlg.m_iR1);
-		Invalidate();
+		CSetSelectionDlg setdlg;
+		if(m_Rect_i.IsRectEmpty() != TRUE)
+		{
+			setdlg.m_iC0=m_Rect_i.left;
+			setdlg.m_iR0=m_Rect_i.top;
+			setdlg.m_iC1=m_Rect_i.right;
+			setdlg.m_iR1=m_Rect_i.bottom;
+		}
+
+		INT_PTR iRet = setdlg.DoModal();
+		if(iRet == IDOK)
+		{
+			m_Rect_i.SetRect(setdlg.m_iC0,setdlg.m_iR0,setdlg.m_iC1,setdlg.m_iR1);
+			Invalidate();
+		}
 	}
-}
+
 	// CSImageViewerView •`‰æ
 	double CSImageViewerView::GetDispOriginR_tv()
 	{

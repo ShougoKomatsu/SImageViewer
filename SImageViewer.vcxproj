@@ -106,6 +106,7 @@
     <None Include="UserImages.bmp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="CopyAsDlg.h" />
     <ClInclude Include="ImageModifyDlg.h" />
     <ClInclude Include="ImageProc.h" />
     <ClInclude Include="MainFrm.h" />
@@ -118,6 +119,7 @@
     <ClInclude Include="targetver.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="CopyAsDlg.cpp" />
     <ClCompile Include="ImageModifyDlg.cpp" />
     <ClCompile Include="ImageProc.cpp" />
     <ClCompile Include="MainFrm.cpp" />
