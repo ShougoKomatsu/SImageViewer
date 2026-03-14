@@ -1,44 +1,44 @@
 #include "stdafx.h"
 #include "ImageProc.h"
 #include "SImgProc_ex.h"
-
-bool ConvertImageToStr(CImage* cimage, CString sSeparater, CString* sImage)
+#include "CommonFunction.h"
+bool ConvertImageToStr(CImage* cImageSrc, CString sSeparater, CString* sImage)
 {
-	int iWidth  = cimage->GetWidth();
-	int iHeight = cimage->GetHeight();
-	int iBitsPerPixel= cimage->GetBPP();
-	int iPitch = cimage->GetPitch();
-    BYTE* bySrcData = (BYTE*)cimage->GetBits();
+	int iSrcWidth  = cImageSrc->GetWidth();
+	int iSrcHeight = cImageSrc->GetHeight();
+	int iSrcBPP= cImageSrc->GetBPP();
+	int iSrcPitch = cImageSrc->GetPitch();
+    BYTE* bySrcData = (BYTE*)cImageSrc->GetBits();
 
-	if(iWidth <= 0){return FALSE;}
-	if(iHeight == 0){return FALSE;}
-	if(iBitsPerPixel == 0){return FALSE;}
+	if(iSrcWidth <= 0){return FALSE;}
+	if(iSrcHeight == 0){return FALSE;}
+	if(iSrcBPP == 0){return FALSE;}
 
 	CString sImageLocal=_T("");
-	if(iBitsPerPixel==24)
+	if(iSrcBPP==24)
 	{
-		for(int r=0; r<cimage->GetHeight(); r++)
+		for(int r=0; r<iSrcHeight; r++)
 		{
 			CString sLine=_T("");;
 			CString sPixel;
-			for(int c=0; c<cimage->GetWidth(); c++)
+			for(int c=0; c<iSrcWidth; c++)
 			{
-				sPixel.Format(_T("%d%s"),bySrcData[r*iPitch+c*3+2],sSeparater);
+				sPixel.Format(_T("%d%s"),bySrcData[r*iSrcPitch+c*3+2],sSeparater);
 				sLine+=sPixel;
 			}
 			sLine+=sSeparater;
-			for(int c=0; c<cimage->GetWidth(); c++)
+			for(int c=0; c<iSrcWidth; c++)
 			{
-				sPixel.Format(_T("%d%s"),bySrcData[r*iPitch+c*3+1],sSeparater);
+				sPixel.Format(_T("%d%s"),bySrcData[r*iSrcPitch+c*3+1],sSeparater);
 				sLine+=sPixel;
 			}
 			sLine+=sSeparater;
-			for(int c=0; c<cimage->GetWidth()-1; c++)
+			for(int c=0; c<iSrcWidth-1; c++)
 			{
-				sPixel.Format(_T("%d%s"),bySrcData[r*iPitch+c*3+0],sSeparater);
+				sPixel.Format(_T("%d%s"),bySrcData[r*iSrcPitch+c*3+0],sSeparater);
 				sLine+=sPixel;
 			}
-			sPixel.Format(_T("%d\n"),bySrcData[r*iPitch+(cimage->GetWidth()-1)*3+0]);
+			sPixel.Format(_T("%d\n"),bySrcData[r*iSrcPitch+(iSrcWidth-1)*3+0]);
 			sLine+=sPixel;
 			sImageLocal+=sLine;
 		}
@@ -46,18 +46,18 @@ bool ConvertImageToStr(CImage* cimage, CString sSeparater, CString* sImage)
 		return true;
 	}
 
-	if(iBitsPerPixel==8)
+	if(iSrcBPP==8)
 	{
 		RGBQUAD* pSrcTable=NULL;
-		int iColors = cimage->GetMaxColorTableEntries();
-		if (iColors > 0) 
+		int iColorCount = cImageSrc->GetMaxColorTableEntries();
+		if (iColorCount > 0) 
 		{
-			pSrcTable = new RGBQUAD[iColors];
-			cimage->GetColorTable(0, iColors, pSrcTable);
+			pSrcTable = new RGBQUAD[iColorCount];
+			cImageSrc->GetColorTable(0, iColorCount, pSrcTable);
 		}
 
 		bool bGrayScale=true;
-		for(int i=0; i<iColors; i++)
+		for(int i=0; i<iColorCount; i++)
 		{
 			if(pSrcTable[i].rgbBlue != pSrcTable[i].rgbRed){bGrayScale=false; break;}
 			if(pSrcTable[i].rgbBlue != pSrcTable[i].rgbGreen){bGrayScale=false; break;}
@@ -65,17 +65,17 @@ bool ConvertImageToStr(CImage* cimage, CString sSeparater, CString* sImage)
 
 		if(bGrayScale==true)
 		{
-			for(int r=0; r<cimage->GetHeight(); r++)
+			for(int r=0; r<iSrcHeight; r++)
 			{
 				CString sLine=_T("");;
 				CString sPixel;
 
-				for(int c=0; c<cimage->GetWidth()-1; c++)
+				for(int c=0; c<iSrcWidth-1; c++)
 				{
-					sPixel.Format(_T("%d%s"),(BYTE)(((RGBQUAD*)(&(pSrcTable[bySrcData[r*iPitch+c]])))->rgbBlue),sSeparater);
+					sPixel.Format(_T("%d%s"),(BYTE)(((RGBQUAD*)(&(pSrcTable[bySrcData[r*iSrcPitch+c]])))->rgbBlue),sSeparater);
 					sLine+=sPixel;
 				}
-				sPixel.Format(_T("%d\n"),(BYTE)(((RGBQUAD*)(&(pSrcTable[bySrcData[r*iPitch+(cimage->GetWidth()-1)]])))->rgbBlue));
+				sPixel.Format(_T("%d\n"),(BYTE)(((RGBQUAD*)(&(pSrcTable[bySrcData[r*iSrcPitch+(iSrcWidth-1)]])))->rgbBlue));
 				sLine+=sPixel;
 				sImageLocal+=sLine;
 			}
@@ -84,28 +84,28 @@ bool ConvertImageToStr(CImage* cimage, CString sSeparater, CString* sImage)
 			return true;
 		}
 
-		for(int r=0; r<cimage->GetHeight(); r++)
+		for(int r=0; r<iSrcHeight; r++)
 		{
 			CString sLine=_T("");;
 			CString sPixel;
-			for(int c=0; c<cimage->GetWidth(); c++)
+			for(int c=0; c<iSrcWidth; c++)
 			{
-				sPixel.Format(_T("%d%s"),(BYTE)(((RGBQUAD*)(&(pSrcTable[bySrcData[r*iPitch+c]])))->rgbRed),sSeparater);
+				sPixel.Format(_T("%d%s"),(BYTE)(((RGBQUAD*)(&(pSrcTable[bySrcData[r*iSrcPitch+c]])))->rgbRed),sSeparater);
 				sLine+=sPixel;
 			}
 			sLine+=sSeparater;
-			for(int c=0; c<cimage->GetWidth(); c++)
+			for(int c=0; c<iSrcWidth; c++)
 			{
-				sPixel.Format(_T("%d%s"),(BYTE)(((RGBQUAD*)(&(pSrcTable[bySrcData[r*iPitch+c]])))->rgbGreen),sSeparater);
+				sPixel.Format(_T("%d%s"),(BYTE)(((RGBQUAD*)(&(pSrcTable[bySrcData[r*iSrcPitch+c]])))->rgbGreen),sSeparater);
 				sLine+=sPixel;
 			}
 			sLine+=sSeparater;
-			for(int c=0; c<cimage->GetWidth()-1; c++)
+			for(int c=0; c<iSrcWidth-1; c++)
 			{
-				sPixel.Format(_T("%d%s"),(BYTE)(((RGBQUAD*)(&(pSrcTable[bySrcData[r*iPitch+c]])))->rgbBlue),sSeparater);
+				sPixel.Format(_T("%d%s"),(BYTE)(((RGBQUAD*)(&(pSrcTable[bySrcData[r*iSrcPitch+c]])))->rgbBlue),sSeparater);
 				sLine+=sPixel;
 			}
-			sPixel.Format(_T("%d\n"),(BYTE)(((RGBQUAD*)(&(pSrcTable[bySrcData[r*iPitch+(cimage->GetWidth()-1)]])))->rgbBlue));
+			sPixel.Format(_T("%d\n"),(BYTE)(((RGBQUAD*)(&(pSrcTable[bySrcData[r*iSrcPitch+(iSrcWidth-1)]])))->rgbBlue));
 			sLine+=sPixel;
 			sImageLocal+=sLine;
 		}
@@ -115,36 +115,36 @@ bool ConvertImageToStr(CImage* cimage, CString sSeparater, CString* sImage)
 	}
 
 
-	if(iBitsPerPixel==32)
+	if(iSrcBPP==32)
 	{
-		for(int r=0; r<cimage->GetHeight(); r++)
+		for(int r=0; r<iSrcHeight; r++)
 		{
 			CString sLine=_T("");;
 			CString sPixel;
-			for(int c=0; c<cimage->GetWidth(); c++)
+			for(int c=0; c<iSrcWidth; c++)
 			{
-				sPixel.Format(_T("%d%s"),bySrcData[r*iPitch+c*4+2],sSeparater);
+				sPixel.Format(_T("%d%s"),bySrcData[r*iSrcPitch+c*4+2],sSeparater);
 				sLine+=sPixel;
 			}
 			sLine+=sSeparater;
-			for(int c=0; c<cimage->GetWidth(); c++)
+			for(int c=0; c<iSrcWidth; c++)
 			{
-				sPixel.Format(_T("%d%s"),bySrcData[r*iPitch+c*4+1],sSeparater);
+				sPixel.Format(_T("%d%s"),bySrcData[r*iSrcPitch+c*4+1],sSeparater);
 				sLine+=sPixel;
 			}
 			sLine+=sSeparater;
-			for(int c=0; c<cimage->GetWidth(); c++)
+			for(int c=0; c<iSrcWidth; c++)
 			{
-				sPixel.Format(_T("%d%s"),bySrcData[r*iPitch+c*4+0],sSeparater);
+				sPixel.Format(_T("%d%s"),bySrcData[r*iSrcPitch+c*4+0],sSeparater);
 				sLine+=sPixel;
 			}
 			sLine+=sSeparater;
-			for(int c=0; c<cimage->GetWidth()-1; c++)
+			for(int c=0; c<iSrcWidth-1; c++)
 			{
-				sPixel.Format(_T("%d%s"),bySrcData[r*iPitch+c*4+3],sSeparater);
+				sPixel.Format(_T("%d%s"),bySrcData[r*iSrcPitch+c*4+3],sSeparater);
 				sLine+=sPixel;
 			}
-			sPixel.Format(_T("%d\n"),bySrcData[r*iPitch+(cimage->GetWidth()-1)*4+3]);
+			sPixel.Format(_T("%d\n"),bySrcData[r*iSrcPitch+(iSrcWidth-1)*4+3]);
 			sLine+=sPixel;
 			sImageLocal+=sLine;
 		}
@@ -236,13 +236,13 @@ bool ClipImage( CImage* imgOriginal, CImage* imgClipped, int iR0, int iC0, int i
 	if (iClipWidth<= 0){return false;}
 	if (iClipHeight<= 0){return false;}
 
-    int iBitsPerPixel = imgOriginal->GetBPP();
-    if (iBitsPerPixel == 0) {return false;}
+    int iSrcBPP = imgOriginal->GetBPP();
+    if (iSrcBPP == 0) {return false;}
 
-	HRESULT hr = imgClipped->Create(iClipWidth, iClipHeight, iBitsPerPixel);
+	HRESULT hr = imgClipped->Create(iClipWidth, iClipHeight, iSrcBPP);
     if (FAILED(hr)) {return false;}
 
-    if (iBitsPerPixel <= 8) 
+    if (iSrcBPP <= 8) 
 	{
         int nColors = imgOriginal->GetMaxColorTableEntries();
         if (nColors > 0) 
@@ -263,57 +263,57 @@ bool ClipImage( CImage* imgOriginal, CImage* imgClipped, int iR0, int iC0, int i
     bool bSrcBottomUp = (iSrcPitch > 0);
     bool bDstBottomUp = (iDstPitch > 0);
 
-    int iBytesPerPixel = iBitsPerPixel / 8;
+	int iSrcByPP = iSrcBPP / 8;
 
-    for (int r = 0; r < iClipHeight; r++) 
+	for (int r = 0; r < iClipHeight; r++) 
 	{
-        BYTE* pSrcLine = nullptr;
-        BYTE* pDstLine = nullptr;
+		BYTE* pSrcLine = nullptr;
+		BYTE* pDstLine = nullptr;
 
-        if (bSrcBottomUp) 
+		if (bSrcBottomUp == true) 
 		{
-            pSrcLine = &(bySrcData[(imgOriginal->GetHeight() - 1 - (iR0+r)) * iSrcPitch + iC0 * iBytesPerPixel]);
-        }
+			pSrcLine = &(bySrcData[(iImgHeight - 1 - (iR0+r)) * iSrcPitch + iC0 * iSrcByPP]);
+		}
 		else 
 		{
-            pSrcLine = &(bySrcData[(iR0+r) * iSrcPitch + iC0 * iBytesPerPixel]);
-        }
+			pSrcLine = &(bySrcData[(iR0+r) * iSrcPitch + iC0 * iSrcByPP]);
+		}
 
-        if (bDstBottomUp)
+		if (bDstBottomUp == true)
 		{
-            pDstLine = &(byDstData[(imgClipped->GetHeight() - 1 - r) * iDstPitch]);
-        }
+			pDstLine = &(byDstData[(iClipHeight - 1 - r) * iDstPitch]);
+		}
 		else
 		{
-            pDstLine = &(byDstData[r * iDstPitch]);
-        }
+			pDstLine = &(byDstData[r * iDstPitch]);
+		}
 
-        memcpy(pDstLine, pSrcLine, iClipWidth * iBytesPerPixel);
-    }
-    return false;
+		memcpy(pDstLine, pSrcLine, iClipWidth * iSrcByPP);
+	}
+	return false;
 }
 
-BOOL CopyToClipBoardImg(CImage* img)
+BOOL CopyToClipBoardImg(CImage* cImageSrc)
 {
-	if (img->IsNull() == true){return false;}
+	if (cImageSrc->IsNull() == true){return false;}
 
-	int iWidth = img->GetWidth();
-	int iHeight = img->GetHeight();
-	int iBitsPerPixel = img->GetBPP();
+	int iSrcWidth = cImageSrc->GetWidth();
+	int iSrcHeight = cImageSrc->GetHeight();
+	int iSrcBPP = cImageSrc->GetBPP();
 
     int iHeaderSize = sizeof(BITMAPINFOHEADER);
 
     int iColorCount = 0;
-    if (iBitsPerPixel <= 8) 
+    if (iSrcBPP <= 8) 
 	{
-        iColorCount = img->GetMaxColorTableEntries();
+        iColorCount = cImageSrc->GetMaxColorTableEntries();
     }
     int iPaletteSize = iColorCount * sizeof(RGBQUAD);
 
-	int iBytesPerLine = ((iWidth * iBitsPerPixel + 31) / 32) * 4;
+	int iBytesPerLine = ((iSrcWidth * iSrcBPP + 31) / 32) * 4;
 	
 
-    int iTotalSize = iHeaderSize + iPaletteSize + ( iBytesPerLine * iHeight);
+    int iTotalSize = iHeaderSize + iPaletteSize + ( iBytesPerLine * iSrcHeight);
 	
 	HGLOBAL hGL;
 	BYTE* pbyDib ;
@@ -330,35 +330,35 @@ BOOL CopyToClipBoardImg(CImage* img)
 
     BITMAPINFOHEADER* bih = (BITMAPINFOHEADER*)pbyDib;
     bih->biSize          = sizeof(BITMAPINFOHEADER);
-    bih->biWidth         = iWidth;
-    bih->biHeight        = iHeight;
+    bih->biWidth         = iSrcWidth;
+    bih->biHeight        = iSrcHeight;
     bih->biPlanes        = 1;
-    bih->biBitCount      = (WORD)iBitsPerPixel;
+    bih->biBitCount      = (WORD)iSrcBPP;
     bih->biCompression   = BI_RGB;
-    bih->biSizeImage     = iBytesPerLine * iHeight;
+    bih->biSizeImage     = iBytesPerLine * iSrcHeight;
     bih->biXPelsPerMeter = 0;
     bih->biYPelsPerMeter = 0;
-    bih->biClrUsed       = ((iBitsPerPixel <= 8) ? iColorCount : 0);
+    bih->biClrUsed       = ((iSrcBPP <= 8) ? iColorCount : 0);
     bih->biClrImportant  = 0;
 
     BYTE* pPalette = pbyDib + iHeaderSize;
     BYTE* pBits    = pPalette + iPaletteSize;
 
-    if ((iBitsPerPixel <= 8) && (iColorCount > 0) )
+    if ((iSrcBPP <= 8) && (iColorCount > 0) )
 	{
         RGBQUAD* rgbqTable = new RGBQUAD[iColorCount];
-        img->GetColorTable(0, iColorCount, rgbqTable);
+        cImageSrc->GetColorTable(0, iColorCount, rgbqTable);
 
         memcpy(pPalette, rgbqTable, iPaletteSize);
         delete[] rgbqTable;
     }
 
 
-    BYTE* bySrcData = (BYTE*)img->GetBits();
-    int iSrcPitch   = img->GetPitch();
+    BYTE* bySrcData = (BYTE*)cImageSrc->GetBits();
+    int iSrcPitch   = cImageSrc->GetPitch();
     bool bBottomUp  = (iSrcPitch > 0);
 
-    for (int r = 0; r < iHeight; r++) 
+    for (int r = 0; r < iSrcHeight; r++) 
 	{
 
         BYTE* pSrcLine = nullptr;
@@ -366,7 +366,7 @@ BOOL CopyToClipBoardImg(CImage* img)
 
         if (bBottomUp = true)
 		{
-            pSrcLine = &(bySrcData[(iHeight - 1 -r) * iSrcPitch]);
+            pSrcLine = &(bySrcData[(iSrcHeight - 1 -r) * iSrcPitch]);
         } 
 		else 
 		{
@@ -397,7 +397,7 @@ BOOL CopyToClipBoardImg(CImage* img)
 	return true;
 }
 
-BOOL CopyFromClipBoardImg(CImage* img)
+BOOL CopyFromClipBoardImg(CImage* cImageDst)
 {
 	BOOL bRet;
 
@@ -422,26 +422,26 @@ BOOL CopyFromClipBoardImg(CImage* img)
 	GlobalUnlock(hResult);
 
 	bRet = CloseClipboard();
-	if(bRet == FALSE){return FALSE;}
+	if(bRet == FALSE){SAFE_DELETE(byData); return FALSE;}
 
 
     BITMAPINFOHEADER* bih = (BITMAPINFOHEADER*)byData;
 
     int iWidth  = bih->biWidth;
     int iHeight = bih->biHeight;
-    int iBitsPerPixel= bih->biBitCount;
+    int iSrcBPP= bih->biBitCount;
 
-	if(iWidth <= 0){return FALSE;}
-	if(iHeight == 0){return FALSE;}
-	if(iBitsPerPixel == 0){return FALSE;}
+	if(iWidth <= 0){SAFE_DELETE(byData); return FALSE;}
+	if(iHeight == 0){SAFE_DELETE(byData); return FALSE;}
+	if(iSrcBPP == 0){SAFE_DELETE(byData); return FALSE;}
 
     int iColorCount = 0;
-    if (iBitsPerPixel <= 8) 
+    if (iSrcBPP <= 8) 
 	{
         iColorCount = bih->biClrUsed;
         if (iColorCount == 0) 
 		{
-            iColorCount = 1 << iBitsPerPixel ;
+            iColorCount = 1 << iSrcBPP ;
         }
     }
 
@@ -450,21 +450,23 @@ BOOL CopyFromClipBoardImg(CImage* img)
     BYTE* pPalette = &(byData[sizeof(BITMAPINFOHEADER)]);
     BYTE* bySrcData    = &(byData[sizeof(BITMAPINFOHEADER)+iPaletteSize ]);;
 
-    HRESULT hr = img->Create(iWidth, abs(iHeight), iBitsPerPixel);
-    if (FAILED(hr)) {return FALSE;}
+	if(cImageDst->IsNull() != true){cImageDst->Destroy();}
 
-    if ((iBitsPerPixel <= 8) && (iColorCount > 0))
+    HRESULT hr = cImageDst->Create(iWidth, abs(iHeight), iSrcBPP);
+    if (FAILED(hr)) {SAFE_DELETE(byData); return FALSE;}
+
+    if ((iSrcBPP <= 8) && (iColorCount > 0))
 	{
-        img->SetColorTable(0, iColorCount, (RGBQUAD*)pPalette);
+        cImageDst->SetColorTable(0, iColorCount, (RGBQUAD*)pPalette);
     }
 
-    int iDstPitch = img->GetPitch();
-    BYTE* byDstData = (BYTE*)img->GetBits();
+    int iDstPitch = cImageDst->GetPitch();
+    BYTE* byDstData = (BYTE*)cImageDst->GetBits();
 
     bool bDstBottomUp = (iDstPitch > 0);
     bool bSrcBottomUp = (iHeight > 0); 
 
-	int iBytesPerLine = ((iWidth * iBitsPerPixel + 31) / 32) * 4;
+	int iBytesPerLine = ((iWidth * iSrcBPP + 31) / 32) * 4;
     int iAbsHeight = abs(iHeight);
 
     for (int r = 0; r < iAbsHeight; r++)
@@ -493,29 +495,29 @@ BOOL CopyFromClipBoardImg(CImage* img)
 
         memcpy(pDstLine, pSrcLine, iBytesPerLine);
     }
-
+	SAFE_DELETE(byData); 
 	return TRUE;
 }
 
 BOOL ConvertImage(CImage* cimage, ImgRGB* imgRGB)
 {
-	int iWidth = cimage->GetWidth();
-	imgRGB->Set(iWidth,cimage->GetHeight(),CHANNEL_3_8RGB);
+	int iSrcWidth = cimage->GetWidth();
+	int iSrcHeight = cimage->GetHeight();
+	imgRGB->Set(iSrcWidth,iSrcHeight,CHANNEL_3_8RGB);
 	
 	int iBPP = cimage->GetBPP();
 	BYTE* src = (BYTE*)cimage->GetBits();
-	int iPitch=cimage->GetPitch();
+	int iSrcPitch=cimage->GetPitch();
 	int iIncR;
-	//	if(iPitch<0){iIncR=-1;iPitch=iPitch*-1;}else{iIncR=+1;}
 	if(iBPP==24)
 	{
-		for(int r=0; r<cimage->GetHeight(); r++)
+		for(int r=0; r<iSrcHeight; r++)
 		{
-			for(int c=0; c<cimage->GetWidth(); c++)
+			for(int c=0; c<iSrcWidth; c++)
 			{
-				imgRGB->byImgR[r*imgRGB->iWidth+c]=src[r*iPitch+c*3+2];
-				imgRGB->byImgG[r*imgRGB->iWidth+c]=src[r*iPitch+c*3+1];
-				imgRGB->byImgB[r*imgRGB->iWidth+c]=src[r*iPitch+c*3+0];
+				imgRGB->byImgR[r*imgRGB->iWidth+c]=src[r*iSrcPitch+c*3+2];
+				imgRGB->byImgG[r*imgRGB->iWidth+c]=src[r*iSrcPitch+c*3+1];
+				imgRGB->byImgB[r*imgRGB->iWidth+c]=src[r*iSrcPitch+c*3+0];
 			}
 		}
 		return TRUE;
@@ -530,13 +532,13 @@ BOOL ConvertImage(CImage* cimage, ImgRGB* imgRGB)
             pSrcTable = new RGBQUAD[nColors];
             cimage->GetColorTable(0, nColors, pSrcTable);
         }
-		for(int r=0; r<cimage->GetHeight(); r++)
+		for(int r=0; r<iSrcHeight; r++)
 		{
-			for(int c=0; c<cimage->GetWidth(); c++)
+			for(int c=0; c<iSrcWidth; c++)
 			{
-				imgRGB->byImgR[r*imgRGB->iWidth+c]=(BYTE)(((RGBQUAD*)(&(pSrcTable[src[r*iPitch+c]])))->rgbRed);
-				imgRGB->byImgG[r*imgRGB->iWidth+c]=(BYTE)(((RGBQUAD*)(&(pSrcTable[src[r*iPitch+c]])))->rgbGreen);
-				imgRGB->byImgB[r*imgRGB->iWidth+c]=(BYTE)(((RGBQUAD*)(&(pSrcTable[src[r*iPitch+c]])))->rgbBlue);
+				imgRGB->byImgR[r*imgRGB->iWidth+c]=(BYTE)(((RGBQUAD*)(&(pSrcTable[src[r*iSrcPitch+c]])))->rgbRed);
+				imgRGB->byImgG[r*imgRGB->iWidth+c]=(BYTE)(((RGBQUAD*)(&(pSrcTable[src[r*iSrcPitch+c]])))->rgbGreen);
+				imgRGB->byImgB[r*imgRGB->iWidth+c]=(BYTE)(((RGBQUAD*)(&(pSrcTable[src[r*iSrcPitch+c]])))->rgbBlue);
 			}
 		}
 		if(pSrcTable != NULL){delete [] pSrcTable;}
@@ -545,13 +547,13 @@ BOOL ConvertImage(CImage* cimage, ImgRGB* imgRGB)
 	
 	if(iBPP==32)
 	{
-		for(int r=0; r<cimage->GetHeight(); r++)
+		for(int r=0; r<iSrcHeight; r++)
 		{
-			for(int c=0; c<cimage->GetWidth(); c++)
+			for(int c=0; c<iSrcWidth; c++)
 			{
-				imgRGB->byImgR[r*imgRGB->iWidth+c]=src[r*iPitch+c*4+2];
-				imgRGB->byImgG[r*imgRGB->iWidth+c]=src[r*iPitch+c*4+1];
-				imgRGB->byImgB[r*imgRGB->iWidth+c]=src[r*iPitch+c*4+0];
+				imgRGB->byImgR[r*imgRGB->iWidth+c]=src[r*iSrcPitch+c*4+2];
+				imgRGB->byImgG[r*imgRGB->iWidth+c]=src[r*iSrcPitch+c*4+1];
+				imgRGB->byImgB[r*imgRGB->iWidth+c]=src[r*iSrcPitch+c*4+0];
 			}
 		}
 		return TRUE;
@@ -562,24 +564,25 @@ BOOL ConvertImage(CImage* cimage, ImgRGB* imgRGB)
 
 
 
-BOOL ConvertImage(ImgRGB* imgRGB, CImage* cimage)
+BOOL ConvertImage(ImgRGB* imgRGB, CImage* cImageDst)
 {
-	if(cimage->IsNull() != true){cimage->Destroy();}
-	cimage->Create(imgRGB->iWidth, imgRGB->iHeight, 24);
+	if(cImageDst->IsNull() != true){cImageDst->Destroy();}
+	int iSrcWidth = imgRGB->iWidth;;
+	int iSrcHeight= imgRGB->iHeight;;
 
-	int iWidth = imgRGB->iWidth;;
+	cImageDst->Create(iSrcWidth, iSrcHeight, 24);
 
-	BYTE* src = (BYTE*)cimage->GetBits();
-	int iPitch=cimage->GetPitch();
+
+	BYTE* byDstData = (BYTE*)cImageDst->GetBits();
+	int iDstPitch=cImageDst->GetPitch();
 	int iIncR;
-//	if(iPitch<0){iIncR=-1;iPitch=iPitch*-1;}else{iIncR=+1;}
-	for(int r=0; r<cimage->GetHeight(); r++)
+	for(int r=0; r<iSrcHeight; r++)
 	{
-		for(int c=0; c<cimage->GetWidth(); c++)
+		for(int c=0; c<iSrcWidth; c++)
 		{
-			src[r*iPitch+c*3+2]=imgRGB->byImgR[r*imgRGB->iWidth+c];
-			src[r*iPitch+c*3+1]=imgRGB->byImgG[r*imgRGB->iWidth+c];
-			src[r*iPitch+c*3+0]=imgRGB->byImgB[r*imgRGB->iWidth+c];
+			byDstData[r*iDstPitch+c*3+2]=imgRGB->byImgR[r*iSrcWidth+c];
+			byDstData[r*iDstPitch+c*3+1]=imgRGB->byImgG[r*iSrcWidth+c];
+			byDstData[r*iDstPitch+c*3+0]=imgRGB->byImgB[r*iSrcWidth+c];
 		}
 	}
 	return TRUE;
@@ -711,38 +714,6 @@ BOOL ZoomImage(CImage* imgSrc, CImage* imgDst, const double iR0_Src, const doubl
 		}
 		if(pSrcTable != NULL){delete [] pSrcTable;}
 		return TRUE;
-	}
-	return TRUE;
-}
-
-bool CopyToClipBoardStr(const CString sValue)
-{
-	BOOL bRet;
-	bRet = OpenClipboard(NULL);
-	if(bRet == FALSE){return FALSE;}
-
-	bRet = EmptyClipboard();
-	if(bRet == FALSE){return FALSE;}
-	
-	HGLOBAL hGL;
-	hGL = GlobalAlloc(GPTR, (sValue.GetLength()+1)*sizeof(TCHAR) );
-	if(hGL==NULL){return FALSE;}
-
-	_stprintf_s((TCHAR*)hGL,(sValue.GetLength()+1), _T("%s"), sValue);
-	
-	HANDLE hResult;
-	hResult = SetClipboardData(CF_UNICODETEXT, hGL);
-	if(hResult == NULL)
-	{
-		GlobalFree(hGL);
-		return FALSE;
-	}
-
-	bRet = CloseClipboard();
-	if(bRet == FALSE)
-	{
-		GlobalFree(hGL);
-		return FALSE;
 	}
 	return TRUE;
 }

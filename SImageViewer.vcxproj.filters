@@ -13,6 +13,12 @@
       <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
       <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
     </Filter>
+    <Filter Include="ソース ファイル\Dlg">
+      <UniqueIdentifier>{ccf3efc6-83d5-4f2a-b6e9-2eaeba6c212a}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="ヘッダー ファイル\Dlg">
+      <UniqueIdentifier>{e07f45a4-9684-4e11-becd-973a6768d703}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <None Include="ReadMe.txt" />
@@ -63,13 +69,16 @@
     <ClInclude Include="ImageProc.h">
       <Filter>ヘッダー ファイル</Filter>
     </ClInclude>
+    <ClInclude Include="CopyAsDlg.h">
+      <Filter>ヘッダー ファイル\Dlg</Filter>
+    </ClInclude>
     <ClInclude Include="ImageModifyDlg.h">
-      <Filter>ヘッダー ファイル</Filter>
+      <Filter>ヘッダー ファイル\Dlg</Filter>
     </ClInclude>
     <ClInclude Include="SetSelectionDlg.h">
-      <Filter>ヘッダー ファイル</Filter>
+      <Filter>ヘッダー ファイル\Dlg</Filter>
     </ClInclude>
-    <ClInclude Include="CopyAsDlg.h">
+    <ClInclude Include="CommonFunction.h">
       <Filter>ヘッダー ファイル</Filter>
     </ClInclude>
   </ItemGroup>
@@ -92,13 +101,16 @@
     <ClCompile Include="ImageProc.cpp">
       <Filter>ソース ファイル</Filter>
     </ClCompile>
+    <ClCompile Include="CopyAsDlg.cpp">
+      <Filter>ソース ファイル\Dlg</Filter>
+    </ClCompile>
     <ClCompile Include="ImageModifyDlg.cpp">
-      <Filter>ソース ファイル</Filter>
+      <Filter>ソース ファイル\Dlg</Filter>
     </ClCompile>
     <ClCompile Include="SetSelectionDlg.cpp">
-      <Filter>ソース ファイル</Filter>
+      <Filter>ソース ファイル\Dlg</Filter>
     </ClCompile>
-    <ClCompile Include="CopyAsDlg.cpp">
+    <ClCompile Include="CommonFunction.cpp">
       <Filter>ソース ファイル</Filter>
     </ClCompile>
   </ItemGroup>

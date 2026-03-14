@@ -16,6 +16,7 @@
 #include "ImageModifyDlg.h"
 #include "SetSelectionDlg.h"
 #include "CopyAsDlg.h"
+#include "CommonFunction.h"
 #ifdef _DEBUG
 #define new DEBUG_NEW
 #endif
@@ -111,9 +112,9 @@ IMPLEMENT_DYNCREATE(CSImageViewerView, CView)
 
 		INT_PTR iRet = copyAsdlg.DoModal();
 		if(iRet != IDOK){return;}
-		
-				CImage imgClipped;
-				ClipImage(&m_imageProcessed[m_iImgIndex],&imgClipped, m_Rect_i.top,m_Rect_i.left, m_Rect_i.bottom, m_Rect_i.right); 
+
+		CImage imgClipped;
+		ClipImage(&m_imageProcessed[m_iImgIndex],&imgClipped, m_Rect_i.top,m_Rect_i.left, m_Rect_i.bottom, m_Rect_i.right); 
 		switch(copyAsdlg.m_enumCopyMode)
 		{
 		case COPY_AS_IMAGE:
@@ -125,14 +126,14 @@ IMPLEMENT_DYNCREATE(CSImageViewerView, CView)
 			{
 				CString sImage;
 				bool bRet = ConvertImageToStr(&imgClipped,_T(","), &sImage);
- CopyToClipBoardStr(sImage);
+				CopyToClipBoardStr(sImage);
 				break;
 			}
 		case COPY_AS_TSV:
 			{
 				CString sImage;
 				bool bRet = ConvertImageToStr(&imgClipped,_T("	"), &sImage);
- CopyToClipBoardStr(sImage);
+				CopyToClipBoardStr(sImage);
 				break;
 			}
 		}
@@ -338,7 +339,7 @@ IMPLEMENT_DYNCREATE(CSImageViewerView, CView)
 		ResetImage();
 		return true;
 	}
-	
+
 	bool CSImageViewerView::SaveImage(CImage* image)
 	{
 		CFileDialog cf(FALSE);
@@ -346,7 +347,7 @@ IMPLEMENT_DYNCREATE(CSImageViewerView, CView)
 		if(cf.DoModal()!=IDOK){ return false;}
 		CString sFilePath;
 		sFilePath.Format(_T("%s"),cf.GetPathName());
-		
+
 		CFileFind cff;
 		BOOL bRet = cff.FindFile(sFilePath);
 		if(bRet = FALSE)
@@ -360,7 +361,7 @@ IMPLEMENT_DYNCREATE(CSImageViewerView, CView)
 
 		return true;
 	}
-	
+
 	void CSImageViewerView::OnFileSave()
 	{
 		SaveImage(&m_image);
@@ -486,7 +487,7 @@ IMPLEMENT_DYNCREATE(CSImageViewerView, CView)
 		{
 
 			double dScalePre=g_dScale[m_iScaleIndex];
-			
+
 			int iOldCenterC_i = (dOldDispOriginC_tv +iWidth_v/2.0)/g_dScale[iNewZoom];
 			dNewDispOriginC_tv = iOldCenterC_i*g_dScale[iNewZoom] - iWidth_v/2.0;
 		}
@@ -508,7 +509,7 @@ IMPLEMENT_DYNCREATE(CSImageViewerView, CView)
 		{
 			dNewDispOriginR_tv = 0;
 		}
-			m_iScaleIndex=iNewZoom;
+		m_iScaleIndex=iNewZoom;
 
 
 		SetScrollPos(dNewDispOriginR_tv, dNewDispOriginC_tv);
@@ -532,11 +533,11 @@ IMPLEMENT_DYNCREATE(CSImageViewerView, CView)
 
 		int iMousePosR_tv=iMousePosR_v + GetDispOriginR_tv();
 		int iMousePosC_tv=iMousePosC_v + GetDispOriginC_tv();
-		
+
 		int iMousePosR_i=iMousePosR_tv/g_dScale[m_iScaleIndex];
 		int iMousePosC_i=iMousePosC_tv/g_dScale[m_iScaleIndex];
-		
-		
+
+
 		int iHeight_v=GetClientHeight();
 		int iWidth_v=GetClientWidth();
 		double dOldDispOriginR_tv = GetDispOriginR_tv();
@@ -550,7 +551,7 @@ IMPLEMENT_DYNCREATE(CSImageViewerView, CView)
 		double dNewDispOriginC_tv;
 		double dNewDispOriginR_tv;
 		m_iScaleIndex+=iChange;		
-			SetScroll();
+		SetScroll();
 		if(iWidth_tv>iWidth_v)
 		{
 
@@ -621,7 +622,7 @@ IMPLEMENT_DYNCREATE(CSImageViewerView, CView)
 		m_iScaleIndex = iNewScaleIndex;
 		if(m_iScaleIndex>=SCALE_VAR_NUM-1){m_iScaleIndex=SCALE_VAR_NUM-1;}
 		if(m_iScaleIndex<=0){m_iScaleIndex=0;}
-		
+
 		SetScroll();
 
 		double dNewCenterR_i = (iR0_i + iR1_i)/2.0;
@@ -968,7 +969,7 @@ IMPLEMENT_DYNCREATE(CSImageViewerView, CView)
 					ResetImage();
 					return TRUE;
 				}
-			
+
 				if(pMsg->wParam == 'A')
 				{
 					FullDomain();
@@ -993,7 +994,7 @@ IMPLEMENT_DYNCREATE(CSImageViewerView, CView)
 					return TRUE; 
 				}
 			}
-			
+
 			if(GetKeyState(VK_SHIFT)<0)
 			{
 				if(pMsg->wParam == 'U'){OperateEquHistImage();return TRUE;}
