@@ -448,7 +448,22 @@ BOOL CopyFromClipBoardImg(CImage* cImageDst)
     int iPaletteSize = iColorCount * sizeof(RGBQUAD);
 
     BYTE* pPalette = &(byData[sizeof(BITMAPINFOHEADER)]);
-    BYTE* bySrcData    = &(byData[sizeof(BITMAPINFOHEADER)+iPaletteSize ]);;
+    BYTE* bySrcData;
+	if((iSrcBPP == 24) || (iSrcBPP == 32))
+	{
+		if(dataSize == sizeof(BITMAPINFOHEADER) + iPaletteSize + iWidth*abs(iHeight)*iSrcBPP/8)
+		{
+			bySrcData = &(byData[sizeof(BITMAPINFOHEADER)+iPaletteSize ]);
+		}
+		else
+		{
+			bySrcData = &(byData[dataSize - iWidth*abs(iHeight)*iSrcBPP/8 ]);
+		}
+	}
+	else
+	{
+		bySrcData = &(byData[sizeof(BITMAPINFOHEADER)+iPaletteSize ]);;
+	}
 
 	if(cImageDst->IsNull() != true){cImageDst->Destroy();}
 
