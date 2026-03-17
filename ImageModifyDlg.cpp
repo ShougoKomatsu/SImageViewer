@@ -156,7 +156,7 @@ void CImageModifyDlg::OnKillfocusEditImageModifyBrightness()
 {
 	UpdateData(TRUE);
 
-	m_iBrightness=_ttoi(m_sEditBrightness)-255;
+	m_iBrightness=_ttoi(m_sEditBrightness);
 
 	if(m_iBrightness<=-255){m_iBrightness=-255;}
 	if(m_iBrightness>=255){m_iBrightness=255;}
