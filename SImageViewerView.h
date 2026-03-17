@@ -52,7 +52,7 @@ public:
 	bool ZoomChange(int iChange);
 	bool ZoomChange(int iMousePosR_v, int iMousePosC_v,int iChange);
 	bool ZoomChange(int iR0_i, int iC0_i, int iR1_i, int iC1_i);
-	void SetScrollPos(int iR, int iC);
+	void SetScrollPos(double iR, double iC);
 	double GetDispOriginR_tv();
 	double GetDispOriginC_tv();
 

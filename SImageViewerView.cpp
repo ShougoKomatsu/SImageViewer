@@ -490,6 +490,7 @@ IMPLEMENT_DYNCREATE(CSImageViewerView, CView)
 
 			int iOldCenterC_i = (dOldDispOriginC_tv +iWidth_v/2.0)/g_dScale[iNewZoom];
 			dNewDispOriginC_tv = iOldCenterC_i*g_dScale[iNewZoom] - iWidth_v/2.0;
+			if(dNewDispOriginC_tv<=0){dNewDispOriginC_tv=0;}
 		}
 		else
 		{
@@ -503,6 +504,7 @@ IMPLEMENT_DYNCREATE(CSImageViewerView, CView)
 			double dScalePre=g_dScale[m_iScaleIndex];
 
 			dNewDispOriginR_tv = iOldCenterR_i*g_dScale[iNewZoom] - iHeight_v/2.0;
+			if(dNewDispOriginR_tv<=0){dNewDispOriginR_tv=0;}
 
 		}
 		else
@@ -555,7 +557,7 @@ IMPLEMENT_DYNCREATE(CSImageViewerView, CView)
 		if(iWidth_tv>iWidth_v)
 		{
 			double dNewMousePosC_tv = iMousePosC_i*g_dScale[m_iScaleIndex];
-			dNewDispOriginC_tv = dNewMousePosC_tv-iMousePosC_v;
+			dNewDispOriginC_tv = int(g_dScale[m_iScaleIndex]*int(((dNewMousePosC_tv-iMousePosC_v)/g_dScale[m_iScaleIndex])));
 		}
 		else
 		{
@@ -565,7 +567,7 @@ IMPLEMENT_DYNCREATE(CSImageViewerView, CView)
 		if(iHeight_tv>iHeight_v)
 		{
 			double dNewMousePosR_tv = iMousePosR_i*g_dScale[m_iScaleIndex];
-			dNewDispOriginR_tv= dNewMousePosR_tv-iMousePosR_v;
+			dNewDispOriginR_tv = int(g_dScale[m_iScaleIndex]*int(((dNewMousePosR_tv-iMousePosR_v)/g_dScale[m_iScaleIndex])));
 		}
 		else
 		{
@@ -584,17 +586,17 @@ IMPLEMENT_DYNCREATE(CSImageViewerView, CView)
 	}
 
 
-	void CSImageViewerView::SetScrollPos(int iR, int iC)
+	void CSImageViewerView::SetScrollPos(double iR, double iC)
 	{		
 		SCROLLINFO si;
 
 		GetScrollInfo(SB_VERT, &si);
-		m_dDispOriginR_tv = min(si.nMax,max(si.nMin,iR) );
+		m_dDispOriginR_tv = (int)(min(si.nMax,max(si.nMin,iR) ));
 		si.nPos = m_dDispOriginR_tv; 
 		SetScrollInfo(SB_VERT, &si, TRUE);
 
 		GetScrollInfo(SB_HORZ, &si);
-		m_dDispOriginC_tv = min(si.nMax,max(si.nMin,iC) );
+		m_dDispOriginC_tv = (int)(min(si.nMax,max(si.nMin,iC) ));
 		si.nPos = m_dDispOriginC_tv; 
 		SetScrollInfo(SB_HORZ, &si, TRUE);
 
@@ -711,8 +713,8 @@ IMPLEMENT_DYNCREATE(CSImageViewerView, CView)
 
 		CPoint pointInView(point.x + iScrC, point.y + iScrR);
 
-		int iC_img_Local = (int)((pointInView.x-1) / g_dScale[m_iScaleIndex]);
-		int iR_img_Local = (int)((pointInView.y-1) / g_dScale[m_iScaleIndex]);
+		int iC_img_Local = (int)((pointInView.x) / g_dScale[m_iScaleIndex]);
+		int iR_img_Local = (int)((pointInView.y) / g_dScale[m_iScaleIndex]);
 
 
 		if (iC_img_Local < 0){return false;}
@@ -1042,17 +1044,22 @@ IMPLEMENT_DYNCREATE(CSImageViewerView, CView)
 			pdNewPos=&m_dDispOriginC_tv;
 		}
 
-		int iPageSize=si.nPage;
+		int iPageSize=int(g_dScale[m_iScaleIndex]*int((si.nPage/g_dScale[m_iScaleIndex])));
 		int iMin=si.nMin;
 		int iMax=si.nMax;
+		int iTrackPos =int(g_dScale[m_iScaleIndex]*int(( si.nTrackPos/g_dScale[m_iScaleIndex])));
+
+		int iStep;
+		if(g_dScale[m_iScaleIndex]==64)	{iStep=64;}
+		else{iStep=max(int(g_dScale[m_iScaleIndex]),iPageSize/8.0);}
 
 		switch (nSBCode)
 		{
-		case SB_LINEUP:		{*pdNewPos=max(iMin, iOldPos-iPageSize/8.0); break;}
-		case SB_LINEDOWN:	{*pdNewPos=min(iMax-iPageSize, iOldPos+iPageSize/8.0); break;}
+		case SB_LINEUP:		{*pdNewPos=max(iMin, iOldPos-iStep); break;}
+		case SB_LINEDOWN:	{*pdNewPos=min(iMax-iPageSize, iOldPos+iStep); break;}
 		case SB_PAGEUP:		{*pdNewPos=max(iMin, iOldPos-iPageSize); break;}
 		case SB_PAGEDOWN:	{*pdNewPos=min(iMax-iPageSize, iOldPos+iPageSize); break;}
-		case SB_THUMBTRACK:	{*pdNewPos=max(iMin,min(iMax-iPageSize , si.nTrackPos)); break;}
+		case SB_THUMBTRACK:	{*pdNewPos=max(iMin,min(iMax-iPageSize , iTrackPos)); break;}
 		default:
 			{
 				return;
