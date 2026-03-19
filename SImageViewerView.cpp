@@ -1053,6 +1053,10 @@ IMPLEMENT_DYNCREATE(CSImageViewerView, CView)
 
 	void CSImageViewerView::OnScroll(int iSB, int nSBCode, int nPos)
 	{
+		if((iSB==SB_VERT) && (m_bRBar== false)){return ;}
+		if((iSB==SB_HORZ) && (m_bCBar== false)){return ;}
+		
+
 		int iHeight_v=GetClientHeight();
 		int iWidth_v=GetClientWidth();
 
