@@ -33,7 +33,8 @@ public:
 	RECT m_rectPreserved;
 	DWORD m_dwStylePreserved;
 	DWORD m_dwExStylePreserved;	
-
+	bool m_bCBar;
+	bool m_bRBar;
 	bool m_bDragging; 
 	CPoint m_PointStart; 
 	CRect m_Rect_v;
@@ -52,7 +53,7 @@ public:
 	bool ZoomChange(int iChange);
 	bool ZoomChange(int iMousePosR_v, int iMousePosC_v,int iChange);
 	bool ZoomChange(int iR0_i, int iC0_i, int iR1_i, int iC1_i);
-	void SetScrollPos(double iR, double iC);
+	void SetScrollPos(int iR, int iC);
 	double GetDispOriginR_tv();
 	double GetDispOriginC_tv();
 
@@ -63,7 +64,7 @@ public:
 	void OperateEquHistImage();
 
 	bool GetColorAtCursor(CPoint point, int* iR_img, int* iC_img, BYTE* byR, BYTE* byG, BYTE* bYB);
-	void OnScroll(int iSB, int nSBCode);
+	void OnScroll(int iSB, int nSBCode, int nPos);
 	void DispStatus(CPoint point);
 // ëÄçÏ
 public:

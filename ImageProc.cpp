@@ -604,7 +604,7 @@ BOOL ConvertImage(ImgRGB* imgRGB, CImage* cImageDst)
 }
 
 
-BOOL ZoomImage(CImage* imgSrc, CImage* imgDst, const double iR0_Src, const double iC0_Src, const double dScale, const int iWidth_Dst, const int iHeight_Dst)
+BOOL ZoomImage(CImage* imgSrc, CImage* imgDst, const double dR0_Src, const double dC0_Src, const double dScale, const int iWidth_Dst, const int iHeight_Dst)
 {
 
 	int iWidthSrc = imgSrc->GetWidth();
@@ -623,7 +623,7 @@ BOOL ZoomImage(CImage* imgSrc, CImage* imgDst, const double iR0_Src, const doubl
 	{
 	for(int r=0; r<iHeight_Dst; r++)
 	{
-		int ir_Src=r/dScale+iR0_Src;
+		int ir_Src=r/dScale+dR0_Src;
 	
 		if((ir_Src<0)||(ir_Src>=iHeightSrc))
 		{
@@ -638,7 +638,7 @@ BOOL ZoomImage(CImage* imgSrc, CImage* imgDst, const double iR0_Src, const doubl
 
 		for(int c=0; c<iWidth_Dst; c++)
 		{
-			int ic_Src=c/dScale+iC0_Src;
+			int ic_Src=c/dScale+dC0_Src;
 			if((ic_Src<0)||(ic_Src>=iWidthSrc))
 			{
 				dst[r*iPitch_dst+c*3+2]=127;
@@ -657,7 +657,7 @@ BOOL ZoomImage(CImage* imgSrc, CImage* imgDst, const double iR0_Src, const doubl
 	{
 	for(int r=0; r<iHeight_Dst; r++)
 	{
-		int ir_Src=r/dScale+iR0_Src;
+		int ir_Src=r/dScale+dR0_Src;
 	
 		if((ir_Src<0)||(ir_Src>=iHeightSrc))
 		{
@@ -672,7 +672,7 @@ BOOL ZoomImage(CImage* imgSrc, CImage* imgDst, const double iR0_Src, const doubl
 
 		for(int c=0; c<iWidth_Dst; c++)
 		{
-			int ic_Src=c/dScale+iC0_Src;
+			int ic_Src=c/dScale+dC0_Src;
 			if((ic_Src<0)||(ic_Src>=iWidthSrc))
 			{
 				dst[r*iPitch_dst+c*3+2]=127;
@@ -698,7 +698,7 @@ BOOL ZoomImage(CImage* imgSrc, CImage* imgDst, const double iR0_Src, const doubl
 		}
 		for(int r=0; r<iHeight_Dst; r++)
 		{
-			int ir_Src=r/dScale+iR0_Src;
+			int ir_Src=r/dScale+dR0_Src;
 
 			if((ir_Src<0)||(ir_Src>=iHeightSrc))
 			{
@@ -713,7 +713,7 @@ BOOL ZoomImage(CImage* imgSrc, CImage* imgDst, const double iR0_Src, const doubl
 
 			for(int c=0; c<iWidth_Dst; c++)
 			{
-				int ic_Src=c/dScale+iC0_Src;
+				int ic_Src=c/dScale+dC0_Src;
 				if((ic_Src<0)||(ic_Src>=iWidthSrc))
 				{
 					dst[r*iPitch_dst+c*3+2]=127;

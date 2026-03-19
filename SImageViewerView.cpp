@@ -90,6 +90,8 @@ IMPLEMENT_DYNCREATE(CSImageViewerView, CView)
 		m_iUnDoAvailableCount=0;
 		m_iReDoAvailableCount=0;
 		m_iScaleIndex=8;
+	 m_bCBar=false;
+	m_bRBar=false;
 		m_sFilePath=_T("");
 		if(g_sParam.GetLength()>0){m_sFilePath.Format(_T("%s"), g_sParam);}
 	}
@@ -187,20 +189,20 @@ IMPLEMENT_DYNCREATE(CSImageViewerView, CView)
 		bufferBmp.CreateCompatibleBitmap(pDC, iWidth_v, iHeight_v);
 		CBitmap* pOldBmp = memDC.SelectObject(&bufferBmp);
 
-		int iDispOriginR_tv = GetDispOriginR_tv();
-		int iDispOriginC_tv = GetDispOriginC_tv();
+		double dDispOriginR_tv = GetDispOriginR_tv();
+		double dDispOriginC_tv = GetDispOriginC_tv();
 
-		int iR0_i = iDispOriginR_tv/g_dScale[m_iScaleIndex];
-		int iC0_i = iDispOriginC_tv/g_dScale[m_iScaleIndex];
+		double dR0_i = (dDispOriginR_tv/g_dScale[m_iScaleIndex]);
+		double dC0_i = (dDispOriginC_tv/g_dScale[m_iScaleIndex]);
 
 		ZoomImage(&(m_imageProcessed[m_iImgIndex]),&imgZoomed,
-			iR0_i,
-			iC0_i,
+			dR0_i,
+			dC0_i,
 			g_dScale[m_iScaleIndex],
 			iWidth_v,iHeight_v);
 
 
-		imgZoomed.BitBlt( memDC.GetSafeHdc(), 1, 1,imgZoomed.GetWidth(), imgZoomed.GetHeight(), 0, 0  );
+		imgZoomed.BitBlt( memDC.GetSafeHdc(), 0, 0,imgZoomed.GetWidth(), imgZoomed.GetHeight(), 0, 0  );
 
 		pDC->BitBlt(0, 0, iWidth_v, iHeight_v, &memDC, 0, 0,SRCCOPY);
 
@@ -272,26 +274,49 @@ IMPLEMENT_DYNCREATE(CSImageViewerView, CView)
 
 		int iWidth_tv = iWidth_i*g_dScale[m_iScaleIndex];
 		int iHeight_tv= iHeight_i*g_dScale[m_iScaleIndex];
-
-		if(iWidth_tv<=iWidth_v){iBarWidth=0;}
-		if(iHeight_tv<=iHeight_v){iBarHeight=0;}
-
-
-
+		
 		SCROLLINFO si = { 0 };
-		si.cbSize = sizeof(SCROLLINFO);
-		si.fMask = SIF_PAGE | SIF_RANGE | SIF_POS;
 
+		
+		int iHeightIfNoBar_v=GetClientHeight()+(m_bCBar ? iBarHeight : 0);
+		int iWidthIfNoBar_v=GetClientWidth()+(m_bRBar ? iBarWidth : 0);
+
+		bool bRBar=false;
+		bool bCBar=false;
+		if(iWidth_tv>iWidthIfNoBar_v)
+		{
+			bCBar=true;
+			if(iHeight_tv>iHeightIfNoBar_v-iBarHeight)
+			{
+				bRBar=true;
+			}
+		}
+		else
+		{
+			if(iHeight_tv>iHeightIfNoBar_v)
+			{
+				bRBar=true;
+			}
+			if(iWidth_tv>iWidthIfNoBar_v-iBarWidth)
+			{
+				bCBar=true;
+			}
+		}	
+
+
+			
 		GetScrollInfo(SB_VERT, &si);
 		si.nMin=0;
-		si.nMax=iHeight_tv;
-		si.nPage = iHeight_v-1-iBarHeight;
+		si.nMax=(iHeight_tv-(iHeightIfNoBar_v-(bCBar ? iBarHeight:0)));
+		si.nPage =1;//min(si.nMax,(  iHeight_v));
+		if(si.nPage>0){m_bRBar = true;}else{m_bRBar = false;}
 		SetScrollInfo(SB_VERT, &si, TRUE);
 
 		GetScrollInfo(SB_HORZ, &si);
 		si.nMin=0;
-		si.nMax=iWidth_tv;
-		si.nPage = iWidth_v-1-iBarWidth;
+		si.nMax=(iWidth_tv-(iWidthIfNoBar_v-(bRBar ? iBarWidth :0)));
+		si.nPage =1;//min(si.nMax, (iWidth_v));
+		if(si.nPage>0){m_bCBar = true;}else{m_bCBar = false;}
 		SetScrollInfo(SB_HORZ, &si, TRUE);
 
 	}
@@ -478,18 +503,18 @@ IMPLEMENT_DYNCREATE(CSImageViewerView, CView)
 		int iWidth_i =max(0,m_imageProcessed[m_iImgIndex].GetWidth());
 		int iHeight_i =max(0,m_imageProcessed[m_iImgIndex].GetHeight());
 
-		int iWidth_tv = iWidth_i*g_dScale[m_iScaleIndex];
-		int iHeight_tv= iHeight_i*g_dScale[m_iScaleIndex];
+		double dWidth_tv = iWidth_i*g_dScale[m_iScaleIndex];
+		double dHeight_tv= iHeight_i*g_dScale[m_iScaleIndex];
 		double dNewDispOriginC_tv;
 		double dNewDispOriginR_tv;
 		int iNewZoom = m_iScaleIndex+=iChange;
-		if(iWidth_tv>iWidth_v)
+		if(dWidth_tv>iWidth_v)
 		{
 
 			double dScalePre=g_dScale[m_iScaleIndex];
 
-			int iOldCenterC_i = (dOldDispOriginC_tv +iWidth_v/2.0)/g_dScale[iNewZoom];
-			dNewDispOriginC_tv = iOldCenterC_i*g_dScale[iNewZoom] - iWidth_v/2.0;
+			double dOldCenterC_i = (dOldDispOriginC_tv +iWidth_v/2.0)/g_dScale[iNewZoom];
+			dNewDispOriginC_tv = dOldCenterC_i*g_dScale[iNewZoom] - iWidth_v/2.0;
 			if(dNewDispOriginC_tv<=0){dNewDispOriginC_tv=0;}
 		}
 		else
@@ -497,13 +522,13 @@ IMPLEMENT_DYNCREATE(CSImageViewerView, CView)
 			dNewDispOriginC_tv = 0;
 		}
 
-		if(iHeight_tv>iHeight_v)
+		if(dHeight_tv>iHeight_v)
 		{
-			int iOldCenterR_i = (dOldDispOriginR_tv +iHeight_v/2.0)/g_dScale[iNewZoom];
+			double dOldCenterR_i = (dOldDispOriginR_tv +iHeight_v/2.0)/g_dScale[iNewZoom];
 
 			double dScalePre=g_dScale[m_iScaleIndex];
 
-			dNewDispOriginR_tv = iOldCenterR_i*g_dScale[iNewZoom] - iHeight_v/2.0;
+			dNewDispOriginR_tv = dOldCenterR_i*g_dScale[iNewZoom] - iHeight_v/2.0;
 			if(dNewDispOriginR_tv<=0){dNewDispOriginR_tv=0;}
 
 		}
@@ -533,11 +558,11 @@ IMPLEMENT_DYNCREATE(CSImageViewerView, CView)
 		if((m_iScaleIndex>=SCALE_VAR_NUM-1)&&(iChange>0)){return false;}
 		if((m_iScaleIndex<=0)&&(iChange<0)){return false;}
 
-		int iMousePosR_tv=iMousePosR_v + GetDispOriginR_tv();
-		int iMousePosC_tv=iMousePosC_v + GetDispOriginC_tv();
+		double dMousePosR_tv=iMousePosR_v + GetDispOriginR_tv();
+		double dMousePosC_tv=iMousePosC_v + GetDispOriginC_tv();
 
-		int iMousePosR_i=iMousePosR_tv/g_dScale[m_iScaleIndex];
-		int iMousePosC_i=iMousePosC_tv/g_dScale[m_iScaleIndex];
+		double dMousePosR_i=dMousePosR_tv/g_dScale[m_iScaleIndex];
+		double dMousePosC_i=dMousePosC_tv/g_dScale[m_iScaleIndex];
 
 
 		int iHeight_v=GetClientHeight();
@@ -548,26 +573,26 @@ IMPLEMENT_DYNCREATE(CSImageViewerView, CView)
 		int iWidth_i =max(0,m_imageProcessed[m_iImgIndex].GetWidth());
 		int iHeight_i =max(0,m_imageProcessed[m_iImgIndex].GetHeight());
 
-		int iWidth_tv = iWidth_i*g_dScale[m_iScaleIndex];
-		int iHeight_tv= iHeight_i*g_dScale[m_iScaleIndex];
+		double dWidth_tv = iWidth_i*g_dScale[m_iScaleIndex];
+		double dHeight_tv= iHeight_i*g_dScale[m_iScaleIndex];
 		double dNewDispOriginC_tv;
 		double dNewDispOriginR_tv;
 		m_iScaleIndex+=iChange;		
 		SetScroll();
-		if(iWidth_tv>iWidth_v)
+		if(dWidth_tv>iWidth_v)
 		{
-			double dNewMousePosC_tv = iMousePosC_i*g_dScale[m_iScaleIndex];
-			dNewDispOriginC_tv = int(g_dScale[m_iScaleIndex]*int(((dNewMousePosC_tv-iMousePosC_v)/g_dScale[m_iScaleIndex])));
+			double dNewMousePosC_tv = dMousePosC_i*g_dScale[m_iScaleIndex];
+			dNewDispOriginC_tv = (dNewMousePosC_tv-iMousePosC_v);
 		}
 		else
 		{
 			dNewDispOriginC_tv =0;
 		}
 
-		if(iHeight_tv>iHeight_v)
+		if(dHeight_tv>iHeight_v)
 		{
-			double dNewMousePosR_tv = iMousePosR_i*g_dScale[m_iScaleIndex];
-			dNewDispOriginR_tv = int(g_dScale[m_iScaleIndex]*int(((dNewMousePosR_tv-iMousePosR_v)/g_dScale[m_iScaleIndex])));
+			double dNewMousePosR_tv = dMousePosR_i*g_dScale[m_iScaleIndex];
+			dNewDispOriginR_tv = dNewMousePosR_tv-iMousePosR_v;
 		}
 		else
 		{
@@ -586,7 +611,7 @@ IMPLEMENT_DYNCREATE(CSImageViewerView, CView)
 	}
 
 
-	void CSImageViewerView::SetScrollPos(double iR, double iC)
+	void CSImageViewerView::SetScrollPos(int iR, int iC)
 	{		
 		SCROLLINFO si;
 
@@ -704,14 +729,11 @@ IMPLEMENT_DYNCREATE(CSImageViewerView, CView)
 		if(m_image.IsNull()==true){return false;}
 
 
-		SCROLLINFO si;
-		GetScrollInfo(SB_HORZ,&si);
-		int iScrC=si.nPos;
-		GetScrollInfo(SB_VERT,&si);
-		int iScrR=si.nPos;
+		
+		int iDispOriginR_tv = GetDispOriginR_tv();
+		int iDispOriginC_tv = GetDispOriginC_tv();
 
-
-		CPoint pointInView(point.x + iScrC, point.y + iScrR);
+		CPoint pointInView(point.x + iDispOriginC_tv, point.y + iDispOriginR_tv);
 
 		int iC_img_Local = (int)((pointInView.x) / g_dScale[m_iScaleIndex]);
 		int iR_img_Local = (int)((pointInView.y) / g_dScale[m_iScaleIndex]);
@@ -940,8 +962,8 @@ IMPLEMENT_DYNCREATE(CSImageViewerView, CView)
 				return TRUE;
 			}
 
-			if(iDelta>0){OnScroll(SB_VERT, SB_LINEUP);}
-			else{OnScroll(SB_VERT, SB_LINEDOWN);}
+			if(iDelta>0){OnScroll(SB_VERT, SB_LINEUP,0);}
+			else{OnScroll(SB_VERT, SB_LINEDOWN,0);}
 
 			return TRUE;
 		}
@@ -1013,12 +1035,12 @@ IMPLEMENT_DYNCREATE(CSImageViewerView, CView)
 
 			if(pMsg->wParam == VK_ADD){ZoomChange(1);return TRUE;}
 			if(pMsg->wParam == VK_SUBTRACT){ZoomChange(-1);return TRUE;}
-			if(pMsg->wParam == VK_LEFT){OnScroll(SB_HORZ,SB_LINEUP);return TRUE; }
-			if(pMsg->wParam == VK_RIGHT){OnScroll(SB_HORZ,SB_LINEDOWN); return TRUE; }
-			if(pMsg->wParam == VK_UP){OnScroll(SB_VERT,SB_LINEUP);return TRUE; }
-			if(pMsg->wParam == VK_DOWN){OnScroll(SB_VERT,SB_LINEDOWN); return TRUE; }
-			if(pMsg->wParam == VK_PRIOR){OnScroll(SB_VERT,SB_PAGEUP);return TRUE; }
-			if(pMsg->wParam == VK_NEXT){OnScroll(SB_VERT,SB_PAGEDOWN);return TRUE; }
+			if(pMsg->wParam == VK_LEFT){OnScroll(SB_HORZ,SB_LINEUP,0);return TRUE; }
+			if(pMsg->wParam == VK_RIGHT){OnScroll(SB_HORZ,SB_LINEDOWN,0); return TRUE; }
+			if(pMsg->wParam == VK_UP){OnScroll(SB_VERT,SB_LINEUP,0);return TRUE; }
+			if(pMsg->wParam == VK_DOWN){OnScroll(SB_VERT,SB_LINEDOWN,0); return TRUE; }
+			if(pMsg->wParam == VK_PRIOR){OnScroll(SB_VERT,SB_PAGEUP,0);return TRUE; }
+			if(pMsg->wParam == VK_NEXT){OnScroll(SB_VERT,SB_PAGEDOWN,0);return TRUE; }
 			if(pMsg->wParam == VK_ADD){ZoomChange(1);}
 			if(pMsg->wParam == VK_SUBTRACT){ZoomChange(-1);}
 		}
@@ -1027,8 +1049,26 @@ IMPLEMENT_DYNCREATE(CSImageViewerView, CView)
 	}
 
 
-	void CSImageViewerView::OnScroll(int iSB, int nSBCode)
+	void CSImageViewerView::OnScroll(int iSB, int nSBCode, int nPos)
 	{
+		int iHeight_v=GetClientHeight();
+		int iWidth_v=GetClientWidth();
+
+		int iBarWidth= ::GetSystemMetrics(SM_CYHSCROLL);
+		int iBarHeight= ::GetSystemMetrics(SM_CXVSCROLL);
+
+		int iWidth_i =max(0,m_imageProcessed[m_iImgIndex].GetWidth());
+		int iHeight_i =max(0,m_imageProcessed[m_iImgIndex].GetHeight());
+
+		int iWidth_tv = iWidth_i*g_dScale[m_iScaleIndex];
+		int iHeight_tv= iHeight_i*g_dScale[m_iScaleIndex];
+		
+
+		
+		int iHeightIfNoBar_v=GetClientHeight()+(m_bCBar ? iBarHeight : 0);
+		int iWidthIfNoBar_v=GetClientWidth()+(m_bRBar ? iBarWidth : 0);
+
+
 		SCROLLINFO si;
 		GetScrollInfo(iSB,&si);
 		int iOldPos;
@@ -1048,6 +1088,8 @@ IMPLEMENT_DYNCREATE(CSImageViewerView, CView)
 		int iMin=si.nMin;
 		int iMax=si.nMax;
 		int iTrackPos =int(g_dScale[m_iScaleIndex]*int(( si.nTrackPos/g_dScale[m_iScaleIndex])));
+		if(iTrackPos<iMax/100.0){iTrackPos=0;}
+		if(iMax-iTrackPos<iMax/100.0){iTrackPos=iMax;}
 
 		int iStep;
 		if(g_dScale[m_iScaleIndex]==64)	{iStep=64;}
@@ -1056,16 +1098,16 @@ IMPLEMENT_DYNCREATE(CSImageViewerView, CView)
 		switch (nSBCode)
 		{
 		case SB_LINEUP:		{*pdNewPos=max(iMin, iOldPos-iStep); break;}
-		case SB_LINEDOWN:	{*pdNewPos=min(iMax-iPageSize, iOldPos+iStep); break;}
+		case SB_LINEDOWN:	{*pdNewPos=min(iMax, iOldPos+iStep); break;}
 		case SB_PAGEUP:		{*pdNewPos=max(iMin, iOldPos-iPageSize); break;}
-		case SB_PAGEDOWN:	{*pdNewPos=min(iMax-iPageSize, iOldPos+iPageSize); break;}
-		case SB_THUMBTRACK:	{*pdNewPos=max(iMin,min(iMax-iPageSize , iTrackPos)); break;}
+		case SB_PAGEDOWN:	{*pdNewPos=min(iMax, iOldPos+iPageSize); break;}
+		case SB_THUMBTRACK:	{*pdNewPos=max(iMin,min(iMax , iTrackPos)); break;}
 		default:
 			{
 				return;
 			}
 		}
-		si.nPos = *pdNewPos; 
+		si.nPos = (*pdNewPos); 
 		SetScrollInfo(iSB, &si, TRUE);
 		Invalidate();
 	}
@@ -1073,13 +1115,13 @@ IMPLEMENT_DYNCREATE(CSImageViewerView, CView)
 
 	void CSImageViewerView::OnHScroll(UINT nSBCode, UINT nPos, CScrollBar* pScrollBar)
 	{
-		OnScroll(SB_HORZ, nSBCode);
+		OnScroll(SB_HORZ, nSBCode,nPos);
 	}
 
 
 	void CSImageViewerView::OnVScroll(UINT nSBCode, UINT nPos, CScrollBar* pScrollBar)
 	{
-		OnScroll(SB_VERT, nSBCode);
+		OnScroll(SB_VERT, nSBCode,nPos);
 	}
 
 
