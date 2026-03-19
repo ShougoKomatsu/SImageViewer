@@ -308,14 +308,14 @@ IMPLEMENT_DYNCREATE(CSImageViewerView, CView)
 		GetScrollInfo(SB_VERT, &si);
 		si.nMin=0;
 		si.nMax=(iHeight_tv-(iHeightIfNoBar_v-(bCBar ? iBarHeight:0)));
-		si.nPage =1;//min(si.nMax,(  iHeight_v));
+		si.nPage =min(si.nMax,(  iHeight_v));
 		if(si.nPage>0){m_bRBar = true;}else{m_bRBar = false;}
 		SetScrollInfo(SB_VERT, &si, TRUE);
 
 		GetScrollInfo(SB_HORZ, &si);
 		si.nMin=0;
 		si.nMax=(iWidth_tv-(iWidthIfNoBar_v-(bRBar ? iBarWidth :0)));
-		si.nPage =1;//min(si.nMax, (iWidth_v));
+		si.nPage =min(si.nMax, (iWidth_v));
 		if(si.nPage>0){m_bCBar = true;}else{m_bCBar = false;}
 		SetScrollInfo(SB_HORZ, &si, TRUE);
 
@@ -582,7 +582,7 @@ IMPLEMENT_DYNCREATE(CSImageViewerView, CView)
 		if(dWidth_tv>iWidth_v)
 		{
 			double dNewMousePosC_tv = dMousePosC_i*g_dScale[m_iScaleIndex];
-			dNewDispOriginC_tv = (dNewMousePosC_tv-iMousePosC_v);
+			dNewDispOriginC_tv = max(0, (dNewMousePosC_tv-iMousePosC_v));
 		}
 		else
 		{
@@ -592,7 +592,7 @@ IMPLEMENT_DYNCREATE(CSImageViewerView, CView)
 		if(dHeight_tv>iHeight_v)
 		{
 			double dNewMousePosR_tv = dMousePosR_i*g_dScale[m_iScaleIndex];
-			dNewDispOriginR_tv = dNewMousePosR_tv-iMousePosR_v;
+			dNewDispOriginR_tv = max(0, dNewMousePosR_tv-iMousePosR_v);
 		}
 		else
 		{
@@ -611,18 +611,20 @@ IMPLEMENT_DYNCREATE(CSImageViewerView, CView)
 	}
 
 
-	void CSImageViewerView::SetScrollPos(int iR, int iC)
+	void CSImageViewerView::SetScrollPos(int iR_tv, int iC_tv)
 	{		
 		SCROLLINFO si;
 
 		GetScrollInfo(SB_VERT, &si);
-		m_dDispOriginR_tv = (int)(min(si.nMax,max(si.nMin,iR) ));
-		si.nPos = m_dDispOriginR_tv; 
+		int iNewPos_scl=iR_tv*(si.nMax-si.nPage+1.0)/(si.nMax *1.0);
+		m_dDispOriginR_tv = iR_tv;
+		si.nPos = (int)(max(si.nMin,min(si.nMax-si.nPage+1.0,iNewPos_scl) ));;
 		SetScrollInfo(SB_VERT, &si, TRUE);
 
 		GetScrollInfo(SB_HORZ, &si);
-		m_dDispOriginC_tv = (int)(min(si.nMax,max(si.nMin,iC) ));
-		si.nPos = m_dDispOriginC_tv; 
+		iNewPos_scl=iC_tv*(si.nMax-si.nPage+1.0)/(si.nMax *1.0);
+		m_dDispOriginC_tv = iC_tv;
+		si.nPos = (int)(max(si.nMin,min(si.nMax-si.nPage+1.0, iNewPos_scl) )); 
 		SetScrollInfo(SB_HORZ, &si, TRUE);
 
 	}
@@ -910,8 +912,8 @@ IMPLEMENT_DYNCREATE(CSImageViewerView, CView)
 			return rect_i;
 		}
 
-		int iCOrigin_tv = GetScrollPos(SB_HORZ);
-		int iROrigin_tv = GetScrollPos(SB_VERT);
+		int iCOrigin_tv = GetDispOriginC_tv();
+		int iROrigin_tv = GetDispOriginR_tv();
 
 		rect_i.SetRect(
 			(int)(((rect_v->left+ iCOrigin_tv) / g_dScale[m_iScaleIndex])   +0.5)
@@ -931,8 +933,8 @@ IMPLEMENT_DYNCREATE(CSImageViewerView, CView)
 			return rect_v;
 		}
 
-		int iCOrigin_tv = GetScrollPos(SB_HORZ);
-		int iROrigin_tv = GetScrollPos(SB_VERT);
+		int iCOrigin_tv = GetDispOriginC_tv();
+		int iROrigin_tv = GetDispOriginR_tv();
 
 		rect_v.SetRect(
 			(int)((rect_i->left   ) * g_dScale[m_iScaleIndex])-iCOrigin_tv
@@ -1071,43 +1073,48 @@ IMPLEMENT_DYNCREATE(CSImageViewerView, CView)
 
 		SCROLLINFO si;
 		GetScrollInfo(iSB,&si);
-		int iOldPos;
-		double* pdNewPos;
+		int iPageSize=si.nPage;
+		int iMin=si.nMin;
+		int iMax=si.nMax;
+		int iTrackPos =si.nTrackPos ;
+		int iOldPos_scl;
 		if(iSB==SB_VERT)
 		{
-			iOldPos=GetDispOriginR_tv();
-			pdNewPos=&m_dDispOriginR_tv;
+			iOldPos_scl=GetDispOriginR_tv()*(iMax-iPageSize+1.0)/(iMax*1.0);
 		}
 		else
 		{
-			iOldPos=GetDispOriginC_tv();
-			pdNewPos=&m_dDispOriginC_tv;
+			iOldPos_scl=GetDispOriginC_tv()*(iMax-iPageSize+1.0)/(iMax*1.0);
 		}
 
-		int iPageSize=int(g_dScale[m_iScaleIndex]*int((si.nPage/g_dScale[m_iScaleIndex])));
-		int iMin=si.nMin;
-		int iMax=si.nMax;
-		int iTrackPos =int(g_dScale[m_iScaleIndex]*int(( si.nTrackPos/g_dScale[m_iScaleIndex])));
-		if(iTrackPos<iMax/100.0){iTrackPos=0;}
-		if(iMax-iTrackPos<iMax/100.0){iTrackPos=iMax;}
 
 		int iStep;
 		if(g_dScale[m_iScaleIndex]==64)	{iStep=64;}
 		else{iStep=max(int(g_dScale[m_iScaleIndex]),iPageSize/8.0);}
 
+		int iNewPos_scl;
 		switch (nSBCode)
 		{
-		case SB_LINEUP:		{*pdNewPos=max(iMin, iOldPos-iStep); break;}
-		case SB_LINEDOWN:	{*pdNewPos=min(iMax, iOldPos+iStep); break;}
-		case SB_PAGEUP:		{*pdNewPos=max(iMin, iOldPos-iPageSize); break;}
-		case SB_PAGEDOWN:	{*pdNewPos=min(iMax, iOldPos+iPageSize); break;}
-		case SB_THUMBTRACK:	{*pdNewPos=max(iMin,min(iMax , iTrackPos)); break;}
+		case SB_LINEUP:		{iNewPos_scl=max(iMin, iOldPos_scl-iStep); break;}
+		case SB_LINEDOWN:	{iNewPos_scl=min(iMax-iPageSize+1, iOldPos_scl+iStep); break;}
+		case SB_PAGEUP:		{iNewPos_scl=max(iMin, iOldPos_scl-iPageSize); break;}
+		case SB_PAGEDOWN:	{iNewPos_scl=min(iMax-iPageSize+1, iOldPos_scl+iPageSize); break;}
+		case SB_THUMBTRACK:	{iNewPos_scl=max(iMin,min(iMax-iPageSize+1 , iTrackPos)); break;}
 		default:
 			{
 				return;
 			}
 		}
-		si.nPos = (*pdNewPos); 
+		
+		if(iSB==SB_VERT)
+		{
+			m_dDispOriginR_tv = max(0, iMax*(iNewPos_scl*1.0)/(iMax-iPageSize+1.0));
+		}
+		else
+		{
+			m_dDispOriginC_tv= max(0, iMax*(iNewPos_scl*1.0)/(iMax-iPageSize+1.0));
+		}
+		si.nPos = (iNewPos_scl); 
 		SetScrollInfo(iSB, &si, TRUE);
 		Invalidate();
 	}
