@@ -25,7 +25,7 @@ public:
 	int m_iReDoAvailableCount;
 
 	int m_iScaleIndex;
-	int m_iCurSor;
+	int m_iMouseMode;
 	double m_dDispOriginR_tv;
 	double m_dDispOriginC_tv;
 

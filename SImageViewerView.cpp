@@ -54,8 +54,17 @@ double g_dScale[SCALE_VAR_NUM]=
 
 enum MOUSE_CURSOR
 {
-	CURSOR_CROSS=0,
-	CURSOR_ZOOMUP=1
+	CHANGE_NONE=0,
+	CHANGE_ZOOMUP=1,
+	CHANGE_L=2,
+	CHANGE_R=3,
+	CHANGE_U=4,
+	CHANGE_B=5,
+	CHANGE_LU=6,
+	CHANGE_RU=7,
+	CHANGE_LB=8,
+	CHANGE_RB=9,
+
 };
 // CSImageViewerView
 
@@ -337,7 +346,7 @@ IMPLEMENT_DYNCREATE(CSImageViewerView, CView)
 		SetScrollInfo(SB_HORZ, &si, TRUE);
 		SetScrollInfo(SB_VERT, &si, TRUE);
 
-		m_iCurSor=0;
+		m_iMouseMode=0;
 		m_Rect_i.SetRectEmpty();
 		Invalidate();
 
@@ -406,8 +415,8 @@ IMPLEMENT_DYNCREATE(CSImageViewerView, CView)
 	}
 	void CSImageViewerView::OperateEquHistImage()
 	{
-		bool bAutoFull;
-		if(m_Rect_i.IsRectEmpty()==TRUE){bAutoFull=true;FullDomain();}
+		bool bAutoFull = false;
+		if(m_Rect_i.IsRectEmpty()==TRUE){bAutoFull=true; FullDomain();}
 
 		ImgRGB imgRGB;
 		ImgRGB imgMeaned;
@@ -424,7 +433,7 @@ IMPLEMENT_DYNCREATE(CSImageViewerView, CView)
 
 	void CSImageViewerView::OperateBrightnessContrastGamma()
 	{
-		bool bAutoFull;
+		bool bAutoFull = false;
 		if(m_Rect_i.IsRectEmpty()==TRUE){bAutoFull=true;FullDomain();}
 
 		CImageModifyDlg dlgModify;
@@ -775,7 +784,12 @@ IMPLEMENT_DYNCREATE(CSImageViewerView, CView)
 		}
 		AfxGetMainWnd()->SetWindowText(sCaption);
 	}
-
+	bool isNearTheBoarder(double d, double dBoarder, double dMergin)
+	{
+		if(d<dBoarder-dMergin){return false;}
+		if(d>dBoarder+dMergin){return false;}
+		return true;
+	}
 	void CSImageViewerView::OnMouseMove(UINT nFlags, CPoint point)
 	{
 
@@ -791,7 +805,24 @@ IMPLEMENT_DYNCREATE(CSImageViewerView, CView)
 				pDC->DrawFocusRect(&m_Rect_v);
 			}
 
-			m_Rect_v = CRect(m_PointStart, point);
+			switch(m_iMouseMode)
+			{
+			case CHANGE_U: {CRect rectTemp = i_to_v(&m_Rect_i); m_Rect_v = CRect(CPoint(rectTemp.left,point.y), CPoint(rectTemp.right,rectTemp.bottom)); break;}
+			case CHANGE_B: {CRect rectTemp = i_to_v(&m_Rect_i); m_Rect_v = CRect(CPoint(rectTemp.left,rectTemp.top), CPoint(rectTemp.right,point.y)); break;}
+			case CHANGE_L: {CRect rectTemp = i_to_v(&m_Rect_i); m_Rect_v = CRect(CPoint(point.x,rectTemp.top), CPoint(rectTemp.right,rectTemp.bottom)); break;}
+			case CHANGE_R: {CRect rectTemp = i_to_v(&m_Rect_i); m_Rect_v = CRect(CPoint(rectTemp.left, rectTemp.top), CPoint(point.x,rectTemp.bottom)); break;}
+			case CHANGE_LU: {CRect rectTemp = i_to_v(&m_Rect_i); m_Rect_v = CRect(CPoint(point.x, point.y), CPoint(rectTemp.right,rectTemp.bottom)); break;}
+			case CHANGE_RU: {CRect rectTemp = i_to_v(&m_Rect_i); m_Rect_v = CRect(CPoint(rectTemp.left, point.y), CPoint(point.x,rectTemp.bottom)); break;}
+			case CHANGE_LB: {CRect rectTemp = i_to_v(&m_Rect_i); m_Rect_v = CRect(CPoint(point.x, rectTemp.top), CPoint(rectTemp.right,point.y)); break;}
+			case CHANGE_RB: {CRect rectTemp = i_to_v(&m_Rect_i); m_Rect_v = CRect(CPoint(rectTemp.left, rectTemp.top), CPoint(point.x,point.y)); break;}
+			default :
+				{
+					m_Rect_v = CRect(m_PointStart, point);
+				}
+			}
+
+
+
 			m_Rect_v.NormalizeRect();
 			pDC->DrawFocusRect(&m_Rect_v); 
 			ReleaseDC(pDC);
@@ -802,13 +833,63 @@ IMPLEMENT_DYNCREATE(CSImageViewerView, CView)
 
 		CRect rect_v;
 		rect_v = i_to_v(&m_Rect_i);
+		if(isNearTheBoarder(point.y, rect_v.top,10) == true)
+		{
+			if(isNearTheBoarder(point.x, rect_v.left,10) == true)
+			{
+				m_iMouseMode=CHANGE_LU;
+				CView::OnMouseMove(nFlags, point);
+				return;
+			}
+			if(isNearTheBoarder(point.x, rect_v.right,10) == true)
+			{
+				m_iMouseMode=CHANGE_RU;
+				CView::OnMouseMove(nFlags, point);
+				return;
+			}
+			m_iMouseMode=CHANGE_U;
+			CView::OnMouseMove(nFlags, point);
+			return;
+		}
+		if(isNearTheBoarder(point.y, rect_v.bottom,10) == true)
+		{
+			if(isNearTheBoarder(point.x, rect_v.left,10) == true)
+			{
+				m_iMouseMode=CHANGE_LB;
+				CView::OnMouseMove(nFlags, point);
+				return;
+			}
+			if(isNearTheBoarder(point.x, rect_v.right,10) == true)
+			{
+				m_iMouseMode=CHANGE_RB;
+				CView::OnMouseMove(nFlags, point);
+				return;
+			}
+			m_iMouseMode=CHANGE_B;
+			CView::OnMouseMove(nFlags, point);
+				return;
+		}
+		if(isNearTheBoarder(point.x, rect_v.left,10) == true)
+		{
+			m_iMouseMode=CHANGE_L;
+			CView::OnMouseMove(nFlags, point);
+				return;
+		}
+
+		if(isNearTheBoarder(point.x, rect_v.right,10) == true)
+		{
+			m_iMouseMode=CHANGE_R;
+			CView::OnMouseMove(nFlags, point);
+				return;
+		}
+
 		if((point.y>=rect_v.top)&&(point.y<=rect_v.bottom)&&(point.x>=rect_v.left)&&(point.x<=rect_v.right))
 		{
-			m_iCurSor=CURSOR_ZOOMUP;
+			m_iMouseMode=CHANGE_ZOOMUP;
 		}
 		else
 		{
-			m_iCurSor=CURSOR_CROSS;
+			m_iMouseMode=CHANGE_NONE;
 		}
 
 		CView::OnMouseMove(nFlags, point);
@@ -878,25 +959,20 @@ IMPLEMENT_DYNCREATE(CSImageViewerView, CView)
 
 	BOOL CSImageViewerView::OnSetCursor(CWnd* pWnd, UINT nHitTest, UINT message)
 	{
-		switch(m_iCurSor)
+		if (nHitTest == HTCLIENT) 
 		{
-		case CURSOR_CROSS:
+			switch(m_iMouseMode)
 			{
-				if (nHitTest == HTCLIENT) 
-				{
-					SetCursor(AfxGetApp()->LoadStandardCursor(IDC_CROSS));
-					return TRUE;
-				}
-				break;
-			}
-		case CURSOR_ZOOMUP:
-			{
-				if (nHitTest == HTCLIENT) 
-				{
-					SetCursor(AfxGetApp()->LoadCursorW(IDC_CURSOR_ZOOMIN));
-					return TRUE;
-				}
-				break;
+			case CHANGE_NONE:{SetCursor(AfxGetApp()->LoadStandardCursor(IDC_CROSS));return TRUE;}
+			case CHANGE_L:{SetCursor(AfxGetApp()->LoadStandardCursor(IDC_SIZEWE));return TRUE;}
+			case CHANGE_R:{SetCursor(AfxGetApp()->LoadStandardCursor(IDC_SIZEWE));return TRUE;}
+			case CHANGE_U:{SetCursor(AfxGetApp()->LoadStandardCursor(IDC_SIZENS));return TRUE;}
+			case CHANGE_B:{SetCursor(AfxGetApp()->LoadStandardCursor(IDC_SIZENS));return TRUE;}
+			case CHANGE_LU:{SetCursor(AfxGetApp()->LoadStandardCursor(IDC_SIZENWSE));return TRUE;}
+			case CHANGE_RB:{SetCursor(AfxGetApp()->LoadStandardCursor(IDC_SIZENWSE));return TRUE;}
+			case CHANGE_RU:{SetCursor(AfxGetApp()->LoadStandardCursor(IDC_SIZENESW));return TRUE;}
+			case CHANGE_LB:{SetCursor(AfxGetApp()->LoadStandardCursor(IDC_SIZENESW));return TRUE;}
+			case CHANGE_ZOOMUP:{SetCursor(AfxGetApp()->LoadCursorW(IDC_CURSOR_ZOOMIN));return TRUE;}
 			}
 		}
 
