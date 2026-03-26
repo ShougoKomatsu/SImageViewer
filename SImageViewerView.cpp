@@ -51,7 +51,7 @@ double g_dScale[SCALE_VAR_NUM]=
 	49.350746,
 	64.000000,
 };
-
+#define RECT_CHANGE_MARGIN_PIX (10)
 enum MOUSE_CURSOR
 {
 	CHANGE_NONE=0,
@@ -784,10 +784,10 @@ IMPLEMENT_DYNCREATE(CSImageViewerView, CView)
 		}
 		AfxGetMainWnd()->SetWindowText(sCaption);
 	}
-	bool isNearTheBoarder(double d, double dBoarder, double dMergin)
+	bool isNearTheBoarder(double d, double dBoarder, double dMargin)
 	{
-		if(d<dBoarder-dMergin){return false;}
-		if(d>dBoarder+dMergin){return false;}
+		if(d<dBoarder-dMargin){return false;}
+		if(d>dBoarder+dMargin){return false;}
 		return true;
 	}
 	void CSImageViewerView::OnMouseMove(UINT nFlags, CPoint point)
@@ -807,21 +807,19 @@ IMPLEMENT_DYNCREATE(CSImageViewerView, CView)
 
 			switch(m_iMouseMode)
 			{
-			case CHANGE_U: {CRect rectTemp = i_to_v(&m_Rect_i); m_Rect_v = CRect(CPoint(rectTemp.left,point.y), CPoint(rectTemp.right,rectTemp.bottom)); break;}
-			case CHANGE_B: {CRect rectTemp = i_to_v(&m_Rect_i); m_Rect_v = CRect(CPoint(rectTemp.left,rectTemp.top), CPoint(rectTemp.right,point.y)); break;}
-			case CHANGE_L: {CRect rectTemp = i_to_v(&m_Rect_i); m_Rect_v = CRect(CPoint(point.x,rectTemp.top), CPoint(rectTemp.right,rectTemp.bottom)); break;}
-			case CHANGE_R: {CRect rectTemp = i_to_v(&m_Rect_i); m_Rect_v = CRect(CPoint(rectTemp.left, rectTemp.top), CPoint(point.x,rectTemp.bottom)); break;}
-			case CHANGE_LU: {CRect rectTemp = i_to_v(&m_Rect_i); m_Rect_v = CRect(CPoint(point.x, point.y), CPoint(rectTemp.right,rectTemp.bottom)); break;}
-			case CHANGE_RU: {CRect rectTemp = i_to_v(&m_Rect_i); m_Rect_v = CRect(CPoint(rectTemp.left, point.y), CPoint(point.x,rectTemp.bottom)); break;}
-			case CHANGE_LB: {CRect rectTemp = i_to_v(&m_Rect_i); m_Rect_v = CRect(CPoint(point.x, rectTemp.top), CPoint(rectTemp.right,point.y)); break;}
-			case CHANGE_RB: {CRect rectTemp = i_to_v(&m_Rect_i); m_Rect_v = CRect(CPoint(rectTemp.left, rectTemp.top), CPoint(point.x,point.y)); break;}
+			case CHANGE_U: {CRect rectTemp_v = i_to_v(&m_Rect_i); m_Rect_v = CRect(CPoint(rectTemp_v.left,point.y), CPoint(rectTemp_v.right,rectTemp_v.bottom)); break;}
+			case CHANGE_B: {CRect rectTemp_v = i_to_v(&m_Rect_i); m_Rect_v = CRect(CPoint(rectTemp_v.left,rectTemp_v.top), CPoint(rectTemp_v.right,point.y)); break;}
+			case CHANGE_L: {CRect rectTemp_v = i_to_v(&m_Rect_i); m_Rect_v = CRect(CPoint(point.x,rectTemp_v.top), CPoint(rectTemp_v.right,rectTemp_v.bottom)); break;}
+			case CHANGE_R: {CRect rectTemp_v = i_to_v(&m_Rect_i); m_Rect_v = CRect(CPoint(rectTemp_v.left, rectTemp_v.top), CPoint(point.x,rectTemp_v.bottom)); break;}
+			case CHANGE_LU: {CRect rectTemp_v = i_to_v(&m_Rect_i); m_Rect_v = CRect(CPoint(point.x, point.y), CPoint(rectTemp_v.right,rectTemp_v.bottom)); break;}
+			case CHANGE_RU: {CRect rectTemp_v = i_to_v(&m_Rect_i); m_Rect_v = CRect(CPoint(rectTemp_v.left, point.y), CPoint(point.x,rectTemp_v.bottom)); break;}
+			case CHANGE_LB: {CRect rectTemp_v = i_to_v(&m_Rect_i); m_Rect_v = CRect(CPoint(point.x, rectTemp_v.top), CPoint(rectTemp_v.right,point.y)); break;}
+			case CHANGE_RB: {CRect rectTemp_v = i_to_v(&m_Rect_i); m_Rect_v = CRect(CPoint(rectTemp_v.left, rectTemp_v.top), CPoint(point.x,point.y)); break;}
 			default :
 				{
 					m_Rect_v = CRect(m_PointStart, point);
 				}
 			}
-
-
 
 			m_Rect_v.NormalizeRect();
 			pDC->DrawFocusRect(&m_Rect_v); 
@@ -831,59 +829,28 @@ IMPLEMENT_DYNCREATE(CSImageViewerView, CView)
 		} 
 
 
-		CRect rect_v;
-		rect_v = i_to_v(&m_Rect_i);
-		if(isNearTheBoarder(point.y, rect_v.top,10) == true)
-		{
-			if(isNearTheBoarder(point.x, rect_v.left,10) == true)
-			{
-				m_iMouseMode=CHANGE_LU;
-				CView::OnMouseMove(nFlags, point);
-				return;
-			}
-			if(isNearTheBoarder(point.x, rect_v.right,10) == true)
-			{
-				m_iMouseMode=CHANGE_RU;
-				CView::OnMouseMove(nFlags, point);
-				return;
-			}
-			m_iMouseMode=CHANGE_U;
-			CView::OnMouseMove(nFlags, point);
-			return;
-		}
-		if(isNearTheBoarder(point.y, rect_v.bottom,10) == true)
-		{
-			if(isNearTheBoarder(point.x, rect_v.left,10) == true)
-			{
-				m_iMouseMode=CHANGE_LB;
-				CView::OnMouseMove(nFlags, point);
-				return;
-			}
-			if(isNearTheBoarder(point.x, rect_v.right,10) == true)
-			{
-				m_iMouseMode=CHANGE_RB;
-				CView::OnMouseMove(nFlags, point);
-				return;
-			}
-			m_iMouseMode=CHANGE_B;
-			CView::OnMouseMove(nFlags, point);
-				return;
-		}
-		if(isNearTheBoarder(point.x, rect_v.left,10) == true)
-		{
-			m_iMouseMode=CHANGE_L;
-			CView::OnMouseMove(nFlags, point);
-				return;
-		}
+		CRect rectTemp_v;
+		rectTemp_v = i_to_v(&m_Rect_i);
 
-		if(isNearTheBoarder(point.x, rect_v.right,10) == true)
-		{
-			m_iMouseMode=CHANGE_R;
-			CView::OnMouseMove(nFlags, point);
-				return;
-		}
+		int iBoarder=0;
+		if(isNearTheBoarder(point.y, rectTemp_v.top,RECT_CHANGE_MARGIN_PIX) == true){iBoarder += 1;}
+		if(isNearTheBoarder(point.x, rectTemp_v.left,RECT_CHANGE_MARGIN_PIX) == true){iBoarder += 2;}
+		if(isNearTheBoarder(point.x, rectTemp_v.right,RECT_CHANGE_MARGIN_PIX) == true){iBoarder += 4;}
+		if(isNearTheBoarder(point.y, rectTemp_v.bottom,RECT_CHANGE_MARGIN_PIX) == true){iBoarder += 8;}
 
-		if((point.y>=rect_v.top)&&(point.y<=rect_v.bottom)&&(point.x>=rect_v.left)&&(point.x<=rect_v.right))
+		switch(iBoarder)
+		{
+		case 1:{m_iMouseMode=CHANGE_U; CView::OnMouseMove(nFlags, point); return;}
+		case 2:{m_iMouseMode=CHANGE_L; CView::OnMouseMove(nFlags, point); return;}
+		case 4:{m_iMouseMode=CHANGE_R; CView::OnMouseMove(nFlags, point); return;}
+		case 8:{m_iMouseMode=CHANGE_B; CView::OnMouseMove(nFlags, point); return;}
+		case 3:{m_iMouseMode=CHANGE_LU; CView::OnMouseMove(nFlags, point); return;}
+		case 5:{m_iMouseMode=CHANGE_RU; CView::OnMouseMove(nFlags, point); return;}
+		case 10:{m_iMouseMode=CHANGE_LB; CView::OnMouseMove(nFlags, point); return;}
+		case 12:{m_iMouseMode=CHANGE_RB; CView::OnMouseMove(nFlags, point); return;}
+		default:{break;}
+		}
+		if((point.y>=rectTemp_v.top)&&(point.y<=rectTemp_v.bottom)&&(point.x>=rectTemp_v.left)&&(point.x<=rectTemp_v.right))
 		{
 			m_iMouseMode=CHANGE_ZOOMUP;
 		}
@@ -963,7 +930,7 @@ IMPLEMENT_DYNCREATE(CSImageViewerView, CView)
 		{
 			switch(m_iMouseMode)
 			{
-			case CHANGE_NONE:{SetCursor(AfxGetApp()->LoadStandardCursor(IDC_CROSS));return TRUE;}
+			case CHANGE_NONE:{SetCursor(AfxGetApp()->LoadCursorW(IDC_CURSOR_CROSS));return TRUE;}
 			case CHANGE_L:{SetCursor(AfxGetApp()->LoadStandardCursor(IDC_SIZEWE));return TRUE;}
 			case CHANGE_R:{SetCursor(AfxGetApp()->LoadStandardCursor(IDC_SIZEWE));return TRUE;}
 			case CHANGE_U:{SetCursor(AfxGetApp()->LoadStandardCursor(IDC_SIZENS));return TRUE;}

@@ -16,7 +16,8 @@ public:
 
 // 操作
 public:
-
+	
+	void LaunchNewInstance(CString sFilePath);
 // オーバーライド
 public:
 	virtual BOOL PreCreateWindow(CREATESTRUCT& cs);
@@ -49,5 +50,6 @@ public:
 	afx_msg void OnUpdateAfxIdpCommandFailure(CCmdUI *pCmdUI);
 	afx_msg void OnZoomdown();
 	afx_msg void OnZoomup();
+	afx_msg void OnDropFiles(HDROP hDropInfo);
 };
 

@@ -97,7 +97,11 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <None Include="ReadMe.txt" />
+    <None Include="res\cur00001.cur" />
     <None Include="res\cursor1.cur" />
+    <None Include="res\cursor_zoomin.cur" />
+    <None Include="res\cur_cross.cur" />
+    <None Include="res\cur_crosscur.cur" />
     <None Include="res\SImageViewer.ico" />
     <None Include="res\SImageViewer.rc2" />
     <None Include="res\SImageViewerDoc.ico" />

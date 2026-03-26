@@ -59,7 +59,7 @@ public:
 
 	void EnterFullScreen();
 	void ExitFullScreen();
-
+	
 	void OperateBrightnessContrastGamma();
 	void OperateEquHistImage();
 

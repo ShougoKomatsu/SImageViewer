@@ -28,6 +28,7 @@ BEGIN_MESSAGE_MAP(CMainFrame, CFrameWndEx)
 ON_UPDATE_COMMAND_UI(AFX_IDP_COMMAND_FAILURE, &CMainFrame::OnUpdateAfxIdpCommandFailure)
 ON_COMMAND(IDM_ZOOMDOWN, &CMainFrame::OnZoomdown)
 ON_COMMAND(IDM_ZOOMUP, &CMainFrame::OnZoomup)
+ON_WM_DROPFILES()
 END_MESSAGE_MAP()
 
 static UINT indicators[] =
@@ -105,8 +106,7 @@ int CMainFrame::OnCreate(LPCREATESTRUCT lpCreateStruct)
 	EnableDocking(CBRS_ALIGN_ANY);
 	DockPane(&m_wndMenuBar);
 	DockPane(&m_wndToolBar);
-
-
+	DragAcceptFiles(TRUE);
 	// Visual Studio 2005 スタイルのドッキング ウィンドウ動作を有効にします
 	CDockingManager::SetDockingMode(DT_SMART);
 	// Visual Studio 2005 スタイルのドッキング ウィンドウの自動非表示動作を有効にします
@@ -342,9 +342,38 @@ void CMainFrame::OnZoomdown()
 
 void CMainFrame::OnZoomup()
 {
-    CView* pView = GetActiveView();
-    if (pView != nullptr)
-    {
-        ((CSImageViewerView*)pView)->ZoomChange(1);
-    }
+	CView* pView = GetActiveView();
+	if (pView != nullptr)
+	{
+		((CSImageViewerView*)pView)->ZoomChange(1);
+	}
+}
+void CMainFrame::LaunchNewInstance(CString sFilePath)
+{
+	TCHAR tszExePath[MAX_PATH];
+	::GetModuleFileName(NULL, tszExePath, MAX_PATH);
+
+	CString sCommand;
+	sCommand.Format(_T("\"%s\" \"%s\""), tszExePath, sFilePath);
+
+	STARTUPINFO si = { sizeof(si) };
+	PROCESS_INFORMATION pi;
+
+	BOOL bRet = CreateProcess(NULL,sCommand.GetBuffer(),NULL,NULL,FALSE,0,NULL,NULL,&si,&pi);
+	if (bRet = TRUE)
+	{
+		CloseHandle(pi.hProcess);
+		CloseHandle(pi.hThread);
+	}
+}
+
+void CMainFrame::OnDropFiles(HDROP hDropInfo)
+{
+	TCHAR tchFilePath[MAX_PATH];
+	DragQueryFile(hDropInfo, 0, tchFilePath, MAX_PATH);
+
+	LaunchNewInstance(tchFilePath);
+
+	DragFinish(hDropInfo);
+	CFrameWndEx::OnDropFiles(hDropInfo);
 }
