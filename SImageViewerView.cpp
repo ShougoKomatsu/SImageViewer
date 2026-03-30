@@ -680,8 +680,8 @@ IMPLEMENT_DYNCREATE(CSImageViewerView, CView)
 		double dNewCenterC_tv = dNewCenterC_i*g_dScale[m_iScaleIndex];
 
 
-		int iNewScrollR_tv = int(dNewCenterR_tv-iHeight_v/2.0);
-		int iNewScrollC_tv = int(dNewCenterC_tv-iWidth_v/2.0);
+		int iNewScrollR_tv = max(0,int(dNewCenterR_tv-iHeight_v/2.0));
+		int iNewScrollC_tv = max(0,int(dNewCenterC_tv-iWidth_v/2.0));
 
 		SetScrollPos(iNewScrollR_tv, iNewScrollC_tv);
 
@@ -913,6 +913,8 @@ IMPLEMENT_DYNCREATE(CSImageViewerView, CView)
 				m_Rect_v.SetRectEmpty();
 			}
 			m_Rect_i = v_to_i(&m_Rect_v);
+			m_Rect_i.left=max(0,m_Rect_i.left);
+			m_Rect_i.top=max(0,m_Rect_i.top);
 			m_Rect_v.SetRectEmpty();
 			Invalidate();
 		}
@@ -1043,7 +1045,7 @@ IMPLEMENT_DYNCREATE(CSImageViewerView, CView)
 			}
 
 			if(iDelta>0){OnScroll(SB_HORZ, SB_LINEDOWN,0);}
-			else{OnScroll(SB_HORZ, SB_LINEUP,0);}
+			else{OnScroll(SB_HORZ, SB_LINEUP	,0);}
 
 			return TRUE;
 		}
