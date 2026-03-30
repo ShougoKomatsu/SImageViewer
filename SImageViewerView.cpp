@@ -333,6 +333,20 @@ IMPLEMENT_DYNCREATE(CSImageViewerView, CView)
 	{
 		m_imageProcessed[m_iImgIndex]=m_image;
 		m_iScaleIndex =8;
+
+		CRect rectClientTemp;
+		CRect rectTemp;
+		GetWindowRect(&rectTemp);
+		GetClientRect(&rectClientTemp);
+
+		int iX0=rectTemp.left;
+		int iY0=rectTemp.top;
+		int iWidth=rectTemp.Width();
+		int iHeight=rectTemp.Height();
+		//rectTemp.left, rectTemp.top, rectTemp.Width()-rectClientTemp.Width()-m_image.GetWidth(),rectTemp.Height()-rectClientTemp.Height()-m_image.GetHeight()
+	CMainFrame* pFrame = (CMainFrame*)AfxGetMainWnd();
+		pFrame->MoveWindow(iX0, iY0, iWidth, iHeight);
+
 		SetScroll();
 
 		m_iImgIndex=0;
@@ -353,7 +367,7 @@ IMPLEMENT_DYNCREATE(CSImageViewerView, CView)
 		CString sImageSize;
 		sImageSize.Format(_T("%d x %d"), m_image.GetWidth(),m_image.GetHeight());
 
-		CMainFrame* pFrame = (CMainFrame*)AfxGetMainWnd();
+	//	CMainFrame* pFrame = (CMainFrame*)AfxGetMainWnd();
 		if (pFrame != nullptr)	{pFrame->SetStatusMessage(sImageSize);}
 
 	}
@@ -1012,6 +1026,29 @@ IMPLEMENT_DYNCREATE(CSImageViewerView, CView)
 
 			return TRUE;
 		}
+
+		if(pMsg->message==WM_MOUSEHWHEEL)
+		{
+			int iDelta;
+			iDelta = GET_WHEEL_DELTA_WPARAM(pMsg->wParam);
+			if(GetKeyState(VK_CONTROL)<0)
+			{
+				CPoint point;
+				::GetCursorPos(&point);
+				this->ScreenToClient(&point);
+
+				if(iDelta>0){ZoomChange(point.y, point.x,1);}
+				else{ZoomChange(point.y, point.x,-1);}
+				return TRUE;
+			}
+
+			if(iDelta>0){OnScroll(SB_HORZ, SB_LINEDOWN,0);}
+			else{OnScroll(SB_HORZ, SB_LINEUP,0);}
+
+			return TRUE;
+		}
+
+
 
 		if (pMsg->message == WM_KEYDOWN)
 		{	
