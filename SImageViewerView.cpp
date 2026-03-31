@@ -795,9 +795,17 @@ IMPLEMENT_DYNCREATE(CSImageViewerView, CView)
 		BYTE byR,byG,byB;
 		CString sCaption;
 		bool bRet = GetColorAtCursor(point,&iR_img,&iC_img, &byR, &byG, &byB);
+
+		CString sRect=_T("");
+		if(m_Rect_i.IsRectEmpty()==false)
+		{
+			sRect.Format(_T("| (%d, %d) - (%d, %d) : %d x %d "), m_Rect_i.left,m_Rect_i.top,m_Rect_i.right,m_Rect_i.bottom,m_Rect_i.right-m_Rect_i.left+1,m_Rect_i.bottom-m_Rect_i.top+1	);	
+		}
+
+
 		if(bRet == true)
 		{
-			sCaption.Format(_T("%s | (%d, %d) (R, G, B)= (%d, %d, %d) | %.3f%%"), sFileName, iC_img, iR_img, byR, byG, byB,100*g_dScale[m_iScaleIndex]);
+			sCaption.Format(_T("%s | (%d, %d) (R, G, B)= (%d, %d, %d) %s | %.3f%%"), sFileName, iC_img, iR_img, byR, byG, byB,sRect,100*g_dScale[m_iScaleIndex]);
 		}
 		else
 		{
