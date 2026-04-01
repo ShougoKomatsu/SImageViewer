@@ -99,8 +99,8 @@ IMPLEMENT_DYNCREATE(CSImageViewerView, CView)
 		m_iUnDoAvailableCount=0;
 		m_iReDoAvailableCount=0;
 		m_iScaleIndex=8;
-	 m_bCBar=false;
-	m_bRBar=false;
+		m_bCBar=false;
+		m_bRBar=false;
 		m_sFilePath=_T("");
 		if(g_sParam.GetLength()>0){m_sFilePath.Format(_T("%s"), g_sParam);}
 	}
@@ -235,16 +235,16 @@ IMPLEMENT_DYNCREATE(CSImageViewerView, CView)
 
 	}
 
-	void CSImageViewerView::OnRButtonUp(UINT /* nFlags */, CPoint point)
+	void CSImageViewerView::OnRButtonUp(UINT /* nFlags */, CPoint point_v)
 	{
-		ClientToScreen(&point);
-		OnContextMenu(this, point);
+		ClientToScreen(&point_v);
+		OnContextMenu(this, point_v);
 	}
 
-	void CSImageViewerView::OnContextMenu(CWnd* /* pWnd */, CPoint point)
+	void CSImageViewerView::OnContextMenu(CWnd* /* pWnd */, CPoint point_v)
 	{
 #ifndef SHARED_HANDLERS
-		theApp.GetContextMenuManager()->ShowPopupMenu(IDR_POPUP_EDIT, point.x, point.y, this, TRUE);
+		theApp.GetContextMenuManager()->ShowPopupMenu(IDR_POPUP_EDIT, point_v.x, point_v.y, this, TRUE);
 #endif
 	}
 
@@ -283,12 +283,12 @@ IMPLEMENT_DYNCREATE(CSImageViewerView, CView)
 
 		int iWidth_tv = iWidth_i*g_dScale[m_iScaleIndex];
 		int iHeight_tv= iHeight_i*g_dScale[m_iScaleIndex];
-		
+
 		SCROLLINFO si = { 0 };
 
-		
-		int iHeightIfNoBar_v=GetClientHeight()+(m_bCBar ? iBarHeight : 0);
-		int iWidthIfNoBar_v=GetClientWidth()+(m_bRBar ? iBarWidth : 0);
+
+		int iHeightIfNoBar_v=iHeight_v+(m_bCBar ? iBarHeight : 0);
+		int iWidthIfNoBar_v=iWidth_v+(m_bRBar ? iBarWidth : 0);
 
 		bool bRBar=false;
 		bool bCBar=false;
@@ -314,7 +314,7 @@ IMPLEMENT_DYNCREATE(CSImageViewerView, CView)
 
 		int iPageR=(iHeightIfNoBar_v-(bCBar ? iBarHeight:0))/10;
 		int iPageC=(iWidthIfNoBar_v-(bRBar ? iBarWidth :0))/10;
-			
+
 		GetScrollInfo(SB_VERT, &si);
 		si.nMin=0;
 		si.nMax=max(0,(iHeight_tv-(iHeightIfNoBar_v-(bCBar ? iBarHeight:0)))+1);
@@ -375,7 +375,7 @@ IMPLEMENT_DYNCREATE(CSImageViewerView, CView)
 		CString sImageSize;
 		sImageSize.Format(_T("%d x %d"), m_image.GetWidth(),m_image.GetHeight());
 
-	//	CMainFrame* pFrame = (CMainFrame*)AfxGetMainWnd();
+		//	CMainFrame* pFrame = (CMainFrame*)AfxGetMainWnd();
 		if (pFrame != nullptr)	{pFrame->SetStatusMessage(sImageSize);}
 
 	}
@@ -577,10 +577,10 @@ IMPLEMENT_DYNCREATE(CSImageViewerView, CView)
 		SetScroll();
 		Invalidate();
 
-		CPoint point;
-		GetCursorPos(&point);
-		ScreenToClient(&point);
-		DispStatus(point);
+		CPoint point_v;
+		GetCursorPos(&point_v);
+		ScreenToClient(&point_v);
+		DispStatus(point_v);
 		return true; 
 	}
 
@@ -634,10 +634,10 @@ IMPLEMENT_DYNCREATE(CSImageViewerView, CView)
 
 		Invalidate();
 
-		CPoint point;
-		GetCursorPos(&point);
-		ScreenToClient(&point);
-		DispStatus(point);
+		CPoint point_v;
+		GetCursorPos(&point_v);
+		ScreenToClient(&point_v);
+		DispStatus(point_v);
 		return true; 
 	}
 
@@ -696,10 +696,10 @@ IMPLEMENT_DYNCREATE(CSImageViewerView, CView)
 
 		Invalidate();
 
-		CPoint point;
-		GetCursorPos(&point);
-		ScreenToClient(&point);
-		DispStatus(point);
+		CPoint point_v;
+		GetCursorPos(&point_v);
+		ScreenToClient(&point_v);
+		DispStatus(point_v);
 		return true; 
 	}
 
@@ -756,20 +756,14 @@ IMPLEMENT_DYNCREATE(CSImageViewerView, CView)
 	}
 
 
-	bool CSImageViewerView::GetColorAtCursor(CPoint point, int* iR_img, int* iC_img, BYTE* byR, BYTE* byG, BYTE* byB)
+	bool CSImageViewerView::GetColorAtCursor(CPoint point_v, int* iR_img, int* iC_img, BYTE* byR, BYTE* byG, BYTE* byB)
 	{
-
 		if(m_image.IsNull()==true){return false;}
 
+		CPoint point_tv(point_v.x + GetDispOriginR_tv(), point_v.y +  GetDispOriginC_tv());
 
-		
-		int iDispOriginR_tv = GetDispOriginR_tv();
-		int iDispOriginC_tv = GetDispOriginC_tv();
-
-		CPoint pointInView(point.x + iDispOriginC_tv, point.y + iDispOriginR_tv);
-
-		int iC_img_Local = (int)((pointInView.x) / g_dScale[m_iScaleIndex]);
-		int iR_img_Local = (int)((pointInView.y) / g_dScale[m_iScaleIndex]);
+		int iC_img_Local = (int)((point_tv.x) / g_dScale[m_iScaleIndex]);
+		int iR_img_Local = (int)((point_tv.y) / g_dScale[m_iScaleIndex]);
 
 
 		if (iC_img_Local < 0){return false;}
@@ -788,14 +782,14 @@ IMPLEMENT_DYNCREATE(CSImageViewerView, CView)
 		return true;
 	}
 
-	void CSImageViewerView::DispStatus(CPoint point)
+	void CSImageViewerView::DispStatus(CPoint point_v)
 	{
 		CString sFileName = m_sFilePath.Mid(m_sFilePath.ReverseFind('\\') + 1);
 
 		int iR_img,iC_img;
 		BYTE byR,byG,byB;
 		CString sCaption;
-		bool bRet = GetColorAtCursor(point,&iR_img,&iC_img, &byR, &byG, &byB);
+		bool bRet = GetColorAtCursor(point_v, &iR_img, &iC_img, &byR, &byG, &byB);
 
 		CString sRect=_T("");
 		if(m_Rect_i.IsRectEmpty()==false)
@@ -820,12 +814,12 @@ IMPLEMENT_DYNCREATE(CSImageViewerView, CView)
 		if(d>dBoarder+dMargin){return false;}
 		return true;
 	}
-	void CSImageViewerView::OnMouseMove(UINT nFlags, CPoint point)
+	void CSImageViewerView::OnMouseMove(UINT nFlags, CPoint point_v)
 	{
 
 		if(m_imageProcessed[m_iImgIndex].IsNull()==true){return;}
 
-		DispStatus(point);
+		DispStatus(point_v);
 
 		if (m_bDragging==true) 
 		{ 
@@ -837,24 +831,24 @@ IMPLEMENT_DYNCREATE(CSImageViewerView, CView)
 
 			switch(m_iMouseMode)
 			{
-			case CHANGE_U: {CRect rectTemp_v = i_to_v(&m_Rect_i); m_Rect_v = CRect(CPoint(rectTemp_v.left,point.y), CPoint(rectTemp_v.right,rectTemp_v.bottom)); break;}
-			case CHANGE_B: {CRect rectTemp_v = i_to_v(&m_Rect_i); m_Rect_v = CRect(CPoint(rectTemp_v.left,rectTemp_v.top), CPoint(rectTemp_v.right,point.y)); break;}
-			case CHANGE_L: {CRect rectTemp_v = i_to_v(&m_Rect_i); m_Rect_v = CRect(CPoint(point.x,rectTemp_v.top), CPoint(rectTemp_v.right,rectTemp_v.bottom)); break;}
-			case CHANGE_R: {CRect rectTemp_v = i_to_v(&m_Rect_i); m_Rect_v = CRect(CPoint(rectTemp_v.left, rectTemp_v.top), CPoint(point.x,rectTemp_v.bottom)); break;}
-			case CHANGE_LU: {CRect rectTemp_v = i_to_v(&m_Rect_i); m_Rect_v = CRect(CPoint(point.x, point.y), CPoint(rectTemp_v.right,rectTemp_v.bottom)); break;}
-			case CHANGE_RU: {CRect rectTemp_v = i_to_v(&m_Rect_i); m_Rect_v = CRect(CPoint(rectTemp_v.left, point.y), CPoint(point.x,rectTemp_v.bottom)); break;}
-			case CHANGE_LB: {CRect rectTemp_v = i_to_v(&m_Rect_i); m_Rect_v = CRect(CPoint(point.x, rectTemp_v.top), CPoint(rectTemp_v.right,point.y)); break;}
-			case CHANGE_RB: {CRect rectTemp_v = i_to_v(&m_Rect_i); m_Rect_v = CRect(CPoint(rectTemp_v.left, rectTemp_v.top), CPoint(point.x,point.y)); break;}
+			case CHANGE_U: {CRect rectTemp_v = i_to_v(&m_Rect_i); m_Rect_v = CRect(CPoint(rectTemp_v.left,point_v.y), CPoint(rectTemp_v.right,rectTemp_v.bottom)); break;}
+			case CHANGE_B: {CRect rectTemp_v = i_to_v(&m_Rect_i); m_Rect_v = CRect(CPoint(rectTemp_v.left,rectTemp_v.top), CPoint(rectTemp_v.right,point_v.y)); break;}
+			case CHANGE_L: {CRect rectTemp_v = i_to_v(&m_Rect_i); m_Rect_v = CRect(CPoint(point_v.x,rectTemp_v.top), CPoint(rectTemp_v.right,rectTemp_v.bottom)); break;}
+			case CHANGE_R: {CRect rectTemp_v = i_to_v(&m_Rect_i); m_Rect_v = CRect(CPoint(rectTemp_v.left, rectTemp_v.top), CPoint(point_v.x,rectTemp_v.bottom)); break;}
+			case CHANGE_LU: {CRect rectTemp_v = i_to_v(&m_Rect_i); m_Rect_v = CRect(CPoint(point_v.x, point_v.y), CPoint(rectTemp_v.right,rectTemp_v.bottom)); break;}
+			case CHANGE_RU: {CRect rectTemp_v = i_to_v(&m_Rect_i); m_Rect_v = CRect(CPoint(rectTemp_v.left, point_v.y), CPoint(point_v.x,rectTemp_v.bottom)); break;}
+			case CHANGE_LB: {CRect rectTemp_v = i_to_v(&m_Rect_i); m_Rect_v = CRect(CPoint(point_v.x, rectTemp_v.top), CPoint(rectTemp_v.right,point_v.y)); break;}
+			case CHANGE_RB: {CRect rectTemp_v = i_to_v(&m_Rect_i); m_Rect_v = CRect(CPoint(rectTemp_v.left, rectTemp_v.top), CPoint(point_v.x,point_v.y)); break;}
 			default :
 				{
-					m_Rect_v = CRect(m_PointStart, point);
+					m_Rect_v = CRect(m_PointStart_v, point_v);
 				}
 			}
 
 			m_Rect_v.NormalizeRect();
 			pDC->DrawFocusRect(&m_Rect_v); 
 			ReleaseDC(pDC);
-			CView::OnMouseMove(nFlags, point);
+			CView::OnMouseMove(nFlags, point_v);
 			return;
 		} 
 
@@ -863,24 +857,24 @@ IMPLEMENT_DYNCREATE(CSImageViewerView, CView)
 		rectTemp_v = i_to_v(&m_Rect_i);
 
 		int iBoarder=0;
-		if(isNearTheBoarder(point.y, rectTemp_v.top,RECT_CHANGE_MARGIN_PIX) == true){iBoarder += 1;}
-		if(isNearTheBoarder(point.x, rectTemp_v.left,RECT_CHANGE_MARGIN_PIX) == true){iBoarder += 2;}
-		if(isNearTheBoarder(point.x, rectTemp_v.right,RECT_CHANGE_MARGIN_PIX) == true){iBoarder += 4;}
-		if(isNearTheBoarder(point.y, rectTemp_v.bottom,RECT_CHANGE_MARGIN_PIX) == true){iBoarder += 8;}
+		if(isNearTheBoarder(point_v.y, rectTemp_v.top,RECT_CHANGE_MARGIN_PIX) == true){iBoarder += 1;}
+		if(isNearTheBoarder(point_v.x, rectTemp_v.left,RECT_CHANGE_MARGIN_PIX) == true){iBoarder += 2;}
+		if(isNearTheBoarder(point_v.x, rectTemp_v.right,RECT_CHANGE_MARGIN_PIX) == true){iBoarder += 4;}
+		if(isNearTheBoarder(point_v.y, rectTemp_v.bottom,RECT_CHANGE_MARGIN_PIX) == true){iBoarder += 8;}
 
 		switch(iBoarder)
 		{
-		case 1:{m_iMouseMode=CHANGE_U; CView::OnMouseMove(nFlags, point); return;}
-		case 2:{m_iMouseMode=CHANGE_L; CView::OnMouseMove(nFlags, point); return;}
-		case 4:{m_iMouseMode=CHANGE_R; CView::OnMouseMove(nFlags, point); return;}
-		case 8:{m_iMouseMode=CHANGE_B; CView::OnMouseMove(nFlags, point); return;}
-		case 3:{m_iMouseMode=CHANGE_LU; CView::OnMouseMove(nFlags, point); return;}
-		case 5:{m_iMouseMode=CHANGE_RU; CView::OnMouseMove(nFlags, point); return;}
-		case 10:{m_iMouseMode=CHANGE_LB; CView::OnMouseMove(nFlags, point); return;}
-		case 12:{m_iMouseMode=CHANGE_RB; CView::OnMouseMove(nFlags, point); return;}
+		case 1:{m_iMouseMode=CHANGE_U; CView::OnMouseMove(nFlags, point_v); return;}
+		case 2:{m_iMouseMode=CHANGE_L; CView::OnMouseMove(nFlags, point_v); return;}
+		case 4:{m_iMouseMode=CHANGE_R; CView::OnMouseMove(nFlags, point_v); return;}
+		case 8:{m_iMouseMode=CHANGE_B; CView::OnMouseMove(nFlags, point_v); return;}
+		case 3:{m_iMouseMode=CHANGE_LU; CView::OnMouseMove(nFlags, point_v); return;}
+		case 5:{m_iMouseMode=CHANGE_RU; CView::OnMouseMove(nFlags, point_v); return;}
+		case 10:{m_iMouseMode=CHANGE_LB; CView::OnMouseMove(nFlags, point_v); return;}
+		case 12:{m_iMouseMode=CHANGE_RB; CView::OnMouseMove(nFlags, point_v); return;}
 		default:{break;}
 		}
-		if((point.y>=rectTemp_v.top)&&(point.y<=rectTemp_v.bottom)&&(point.x>=rectTemp_v.left)&&(point.x<=rectTemp_v.right))
+		if((point_v.y>=rectTemp_v.top)&&(point_v.y<=rectTemp_v.bottom)&&(point_v.x>=rectTemp_v.left)&&(point_v.x<=rectTemp_v.right))
 		{
 			m_iMouseMode=CHANGE_ZOOMUP;
 		}
@@ -889,21 +883,21 @@ IMPLEMENT_DYNCREATE(CSImageViewerView, CView)
 			m_iMouseMode=CHANGE_NONE;
 		}
 
-		CView::OnMouseMove(nFlags, point);
+		CView::OnMouseMove(nFlags, point_v);
 	}
 
 
-	void CSImageViewerView::OnLButtonDown(UINT nFlags, CPoint point)
+	void CSImageViewerView::OnLButtonDown(UINT nFlags, CPoint point_v)
 	{
 		SetCapture(); 
 		m_bDragging = true;
-		m_PointStart.SetPoint(point.x,point.y); 
+		m_PointStart_v.SetPoint(point_v.x,point_v.y); 
 
-		CView::OnLButtonDown(nFlags, point);
+		CView::OnLButtonDown(nFlags, point_v);
 	}
 
 
-	void CSImageViewerView::OnLButtonUp(UINT nFlags, CPoint point)
+	void CSImageViewerView::OnLButtonUp(UINT nFlags, CPoint point_v)
 	{
 		if (m_bDragging==TRUE) 
 		{
@@ -915,11 +909,11 @@ IMPLEMENT_DYNCREATE(CSImageViewerView, CView)
 				pDC->DrawFocusRect(&m_Rect_v); 
 				ReleaseDC(pDC); 
 			} 
-			if(m_PointStart==point)
+			if(m_PointStart_v==point_v)
 			{
 				CRect rect_v;
 				rect_v = i_to_v(&m_Rect_i);
-				if((point.y>=rect_v.top)&&(point.y<=rect_v.bottom)&&(point.x>=rect_v.left)&&(point.x<=rect_v.right))
+				if((point_v.y>=rect_v.top)&&(point_v.y<=rect_v.bottom)&&(point_v.x>=rect_v.left)&&(point_v.x<=rect_v.right))
 				{
 					ZoomChange(m_Rect_i.top, m_Rect_i.left, m_Rect_i.bottom,m_Rect_i.right);
 					m_Rect_v.SetRectEmpty();
@@ -935,7 +929,7 @@ IMPLEMENT_DYNCREATE(CSImageViewerView, CView)
 			Invalidate();
 		}
 
-		CView::OnLButtonUp(nFlags, point);
+		CView::OnLButtonUp(nFlags, point_v);
 	}
 
 
@@ -1030,12 +1024,12 @@ IMPLEMENT_DYNCREATE(CSImageViewerView, CView)
 			iDelta = GET_WHEEL_DELTA_WPARAM(pMsg->wParam);
 			if(GetKeyState(VK_CONTROL)<0)
 			{
-				CPoint point;
-				::GetCursorPos(&point);
-				this->ScreenToClient(&point);
+				CPoint point_v;
+				::GetCursorPos(&point_v);
+				this->ScreenToClient(&point_v);
 
-				if(iDelta>0){ZoomChange(point.y, point.x,1);}
-				else{ZoomChange(point.y, point.x,-1);}
+				if(iDelta>0){ZoomChange(point_v.y, point_v.x,1);}
+				else{ZoomChange(point_v.y, point_v.x,-1);}
 				return TRUE;
 			}
 
@@ -1051,12 +1045,12 @@ IMPLEMENT_DYNCREATE(CSImageViewerView, CView)
 			iDelta = GET_WHEEL_DELTA_WPARAM(pMsg->wParam);
 			if(GetKeyState(VK_CONTROL)<0)
 			{
-				CPoint point;
-				::GetCursorPos(&point);
-				this->ScreenToClient(&point);
+				CPoint point_v;
+				::GetCursorPos(&point_v);
+				this->ScreenToClient(&point_v);
 
-				if(iDelta>0){ZoomChange(point.y, point.x,1);}
-				else{ZoomChange(point.y, point.x,-1);}
+				if(iDelta>0){ZoomChange(point_v.y, point_v.x,1);}
+				else{ZoomChange(point_v.y, point_v.x,-1);}
 				return TRUE;
 			}
 
@@ -1153,7 +1147,7 @@ IMPLEMENT_DYNCREATE(CSImageViewerView, CView)
 	{
 		if((iSB==SB_VERT) && (m_bRBar== false)){return ;}
 		if((iSB==SB_HORZ) && (m_bCBar== false)){return ;}
-		
+
 
 		int iHeight_v=GetClientHeight();
 		int iWidth_v=GetClientWidth();
@@ -1166,11 +1160,11 @@ IMPLEMENT_DYNCREATE(CSImageViewerView, CView)
 
 		int iWidth_tv = iWidth_i*g_dScale[m_iScaleIndex];
 		int iHeight_tv= iHeight_i*g_dScale[m_iScaleIndex];
-		
 
-		
-		int iHeightIfNoBar_v=GetClientHeight()+(m_bCBar ? iBarHeight : 0);
-		int iWidthIfNoBar_v=GetClientWidth()+(m_bRBar ? iBarWidth : 0);
+
+
+		int iHeightIfNoBar_v=iHeight_v+(m_bCBar ? iBarHeight : 0);
+		int iWidthIfNoBar_v=iWidth_v+(m_bRBar ? iBarWidth : 0);
 
 
 		SCROLLINFO si;
@@ -1202,12 +1196,9 @@ IMPLEMENT_DYNCREATE(CSImageViewerView, CView)
 		case SB_PAGEUP:		{iNewPos_scl=max(iMin, iOldPos_scl-iPageSize); break;}
 		case SB_PAGEDOWN:	{iNewPos_scl=min(iMax-iPageSize+1, iOldPos_scl+iPageSize); break;}
 		case SB_THUMBTRACK:	{iNewPos_scl=max(iMin,min(iMax-iPageSize+1 , iTrackPos)); break;}
-		default:
-			{
-				return;
-			}
+		default:{return;}
 		}
-		
+
 		if(iSB==SB_VERT)
 		{
 			m_dDispOriginR_tv = max(0, iMax*(iNewPos_scl*1.0)/(iMax-iPageSize+1.0));

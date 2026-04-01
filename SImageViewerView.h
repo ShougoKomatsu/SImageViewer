@@ -36,7 +36,7 @@ public:
 	bool m_bCBar;
 	bool m_bRBar;
 	bool m_bDragging; 
-	CPoint m_PointStart; 
+	CPoint m_PointStart_v; 
 	CRect m_Rect_v;
 	CRect m_Rect_i;
 
