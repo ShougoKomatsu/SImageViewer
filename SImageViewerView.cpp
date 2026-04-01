@@ -312,19 +312,20 @@ IMPLEMENT_DYNCREATE(CSImageViewerView, CView)
 			}
 		}	
 
-
+		int iPageR=(iHeightIfNoBar_v-(bCBar ? iBarHeight:0))/10;
+		int iPageC=(iWidthIfNoBar_v-(bRBar ? iBarWidth :0))/10;
 			
 		GetScrollInfo(SB_VERT, &si);
 		si.nMin=0;
-		si.nMax=(iHeight_tv-(iHeightIfNoBar_v-(bCBar ? iBarHeight:0)));
-		si.nPage =min(si.nMax,(  iHeight_v));
+		si.nMax=max(0,(iHeight_tv-(iHeightIfNoBar_v-(bCBar ? iBarHeight:0)))+1);
+		si.nPage =min(si.nMax,iPageR);
 		if(si.nPage>0){m_bRBar = true;}else{m_bRBar = false;}
 		SetScrollInfo(SB_VERT, &si, TRUE);
 
 		GetScrollInfo(SB_HORZ, &si);
 		si.nMin=0;
-		si.nMax=(iWidth_tv-(iWidthIfNoBar_v-(bRBar ? iBarWidth :0)));
-		si.nPage =min(si.nMax, (iWidth_v));
+		si.nMax=max(0,(iWidth_tv-(iWidthIfNoBar_v-(bRBar ? iBarWidth :0)))+1);
+		si.nPage =min(si.nMax, iPageC);
 		if(si.nPage>0){m_bCBar = true;}else{m_bCBar = false;}
 		SetScrollInfo(SB_HORZ, &si, TRUE);
 
