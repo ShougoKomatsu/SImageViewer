@@ -269,6 +269,39 @@ IMPLEMENT_DYNCREATE(CSImageViewerView, CView)
 	}
 #endif //_DEBUG
 
+	void CheckIfScrollBarsAreNeeded(int iWidth_tv, int iHeight_tv, int iWidthIfNoBar_v, int iHeightIfNoBar_v, int iBarWidth, int iBarHeight, bool* bRBar, bool* bCBar)
+	{
+
+		if((iWidth_tv<=iWidthIfNoBar_v)&&(iHeight_tv<=iHeightIfNoBar_v))
+		{
+			*bRBar=false;
+			*bCBar=false;
+			return;
+		}
+
+		if(iWidth_tv>iWidthIfNoBar_v)
+		{
+			*bCBar=true;
+
+			if(iHeight_tv<=iHeightIfNoBar_v-iBarHeight)
+			{
+				*bRBar=false;
+				return;
+			}
+			*bRBar=true;
+			return;
+		}
+
+		*bRBar=true;
+		if(iWidth_tv<=iWidthIfNoBar_v-iBarWidth)
+		{
+			*bCBar=false;
+			return;
+		}
+		*bCBar=true;
+		return;
+
+	}
 	void CSImageViewerView::SetScroll()
 	{
 
@@ -285,51 +318,64 @@ IMPLEMENT_DYNCREATE(CSImageViewerView, CView)
 		int iHeight_tv= iHeight_i*g_dScale[m_iScaleIndex];
 
 		SCROLLINFO si = { 0 };
-
+		int iPageV, iPageH;
+		GetScrollInfo(SB_VERT, &si);
+		if(si.nPage==0){m_bRBar=false;}
+		iPageV = si.nPage;
+		
+		GetScrollInfo(SB_HORZ, &si);
+		if(si.nPage==0){m_bCBar=false;}
+		iPageH = si.nPage;
 
 		int iHeightIfNoBar_v=iHeight_v+(m_bCBar ? iBarHeight : 0);
 		int iWidthIfNoBar_v=iWidth_v+(m_bRBar ? iBarWidth : 0);
 
 		bool bRBar=false;
 		bool bCBar=false;
-		if(iWidth_tv>iWidthIfNoBar_v)
+
+
+
+		if(bRBar==true)
 		{
-			bCBar=true;
-			if(iHeight_tv>iHeightIfNoBar_v-iBarHeight)
-			{
-				bRBar=true;
-			}
+			GetScrollInfo(SB_VERT, &si);
+			int iPageR=(iHeightIfNoBar_v-(bCBar ? iBarHeight:0))/10;
+			si.nMin=0;
+			si.nMax=max(0,(iHeight_tv-(iHeightIfNoBar_v-(bCBar ? iBarHeight:0)))+1);
+			si.nPage =min(si.nMax,iPageR);
+			if(si.nPage>0){m_bRBar = true;}else{m_bRBar = false;}
+			SetScrollInfo(SB_VERT, &si, TRUE);
 		}
 		else
 		{
-			if(iHeight_tv>iHeightIfNoBar_v)
-			{
-				bRBar=true;
-			}
-			if(iWidth_tv>iWidthIfNoBar_v-iBarWidth)
-			{
-				bCBar=true;
-			}
-		}	
+			si.nMin=0;
+			si.nMax=0;
+			si.nPage =0;
+			m_bRBar = false;
+			SetScrollInfo(SB_VERT, &si, TRUE);
+		}
 
-		int iPageR=(iHeightIfNoBar_v-(bCBar ? iBarHeight:0))/10;
-		int iPageC=(iWidthIfNoBar_v-(bRBar ? iBarWidth :0))/10;
-
-		GetScrollInfo(SB_VERT, &si);
-		si.nMin=0;
-		si.nMax=max(0,(iHeight_tv-(iHeightIfNoBar_v-(bCBar ? iBarHeight:0)))+1);
-		si.nPage =min(si.nMax,iPageR);
-		if(si.nPage>0){m_bRBar = true;}else{m_bRBar = false;}
-		SetScrollInfo(SB_VERT, &si, TRUE);
-
-		GetScrollInfo(SB_HORZ, &si);
-		si.nMin=0;
-		si.nMax=max(0,(iWidth_tv-(iWidthIfNoBar_v-(bRBar ? iBarWidth :0)))+1);
-		si.nPage =min(si.nMax, iPageC);
-		if(si.nPage>0){m_bCBar = true;}else{m_bCBar = false;}
-		SetScrollInfo(SB_HORZ, &si, TRUE);
+		if(bCBar==true)
+		{
+			int iPageC=(iWidthIfNoBar_v-(bRBar ? iBarWidth :0))/10;
+			GetScrollInfo(SB_HORZ, &si);
+			si.nMin=0;
+			si.nMax=max(0,(iWidth_tv-(iWidthIfNoBar_v-(bRBar ? iBarWidth :0)))+1);
+			si.nPage =min(si.nMax, iPageC);
+			if(si.nPage>0){m_bCBar = true;}else{m_bCBar = false;}
+			SetScrollInfo(SB_HORZ, &si, TRUE);
+		}
+		else
+		{
+			si.nMin=0;
+			si.nMax=0;
+			si.nPage =0;
+			m_bRBar = false;
+			SetScrollInfo(SB_HORZ, &si, TRUE);
+		}
 
 	}
+
+
 	void CSImageViewerView::ResetImage()
 	{
 		m_imageProcessed[m_iImgIndex]=m_image;
@@ -354,7 +400,34 @@ IMPLEMENT_DYNCREATE(CSImageViewerView, CView)
 
 		pFrame->MoveWindow(iX0, iY0, rect.Width(), rect.Height()+iCaptionHeight);
 		*/
+		CRect rectClient;
+		GetClientRect(&rectClient);
+		
+		int iHeight_v=GetClientHeight();
+		int iWidth_v=GetClientWidth();
+
+		int iBarWidth= ::GetSystemMetrics(SM_CYHSCROLL);
+		int iBarHeight= ::GetSystemMetrics(SM_CXVSCROLL);
+
+		int iWidth_i =max(0,m_imageProcessed[m_iImgIndex].GetWidth());
+		int iHeight_i =max(0,m_imageProcessed[m_iImgIndex].GetHeight());
+
+		int iWidth_tv = iWidth_i*g_dScale[m_iScaleIndex];
+		int iHeight_tv= iHeight_i*g_dScale[m_iScaleIndex];
+
+		SCROLLINFO si = { 0 };
+		
+		GetScrollInfo(SB_VERT, &si);
+		if(si.nPage==0){m_bRBar=false;}
+		
+		GetScrollInfo(SB_HORZ, &si);
+		if(si.nPage==0){m_bCBar=false;}
+
+		int iHeightIfNoBar_v=iHeight_v+(m_bCBar ? iBarHeight : 0);
+		int iWidthIfNoBar_v=iWidth_v+(m_bRBar ? iBarWidth : 0);
+
 		CMainFrame* pFrame = (CMainFrame*)AfxGetMainWnd();
+		pFrame->AdjustViewClientSize(m_image.GetWidth(), m_image.GetHeight(),iWidthIfNoBar_v, iHeightIfNoBar_v);
 		SetScroll();
 
 		m_iImgIndex=0;
@@ -363,11 +436,19 @@ IMPLEMENT_DYNCREATE(CSImageViewerView, CView)
 		m_dDispOriginC_tv=0;
 		m_dDispOriginR_tv=0;
 
-		SCROLLINFO si;
+		GetScrollInfo(SB_HORZ, &si);
+		if(si.nPage>0)
+		{
 		si.nPos = 0; 
 		SetScrollInfo(SB_HORZ, &si, TRUE);
-		SetScrollInfo(SB_VERT, &si, TRUE);
+		}
 
+		GetScrollInfo(SB_VERT, &si);
+		if(si.nPage>0)
+		{
+			si.nPos = 0; 
+		SetScrollInfo(SB_VERT, &si, TRUE);
+		}
 		m_iMouseMode=0;
 		m_Rect_i.SetRectEmpty();
 		Invalidate();
@@ -647,17 +728,22 @@ IMPLEMENT_DYNCREATE(CSImageViewerView, CView)
 		SCROLLINFO si;
 
 		GetScrollInfo(SB_VERT, &si);
-		int iNewPos_scl=iR_tv*(si.nMax-si.nPage+1.0)/(si.nMax *1.0);
+		if(si.nPage>0)
+		{
+			int iNewPos_scl=iR_tv*(si.nMax-si.nPage+1.0)/(si.nMax *1.0);
 		m_dDispOriginR_tv = iR_tv;
 		si.nPos = (int)(max(si.nMin,min(si.nMax-si.nPage+1.0,iNewPos_scl) ));;
 		SetScrollInfo(SB_VERT, &si, TRUE);
+		}
 
 		GetScrollInfo(SB_HORZ, &si);
-		iNewPos_scl=iC_tv*(si.nMax-si.nPage+1.0)/(si.nMax *1.0);
+		if(si.nPage>0)
+		{
+			int iNewPos_scl=iC_tv*(si.nMax-si.nPage+1.0)/(si.nMax *1.0);
 		m_dDispOriginC_tv = iC_tv;
 		si.nPos = (int)(max(si.nMin,min(si.nMax-si.nPage+1.0, iNewPos_scl) )); 
 		SetScrollInfo(SB_HORZ, &si, TRUE);
-
+		}
 	}
 	bool CSImageViewerView::ZoomChange(int iR0_i, int iC0_i, int iR1_i, int iC1_i)
 	{
@@ -1169,6 +1255,8 @@ IMPLEMENT_DYNCREATE(CSImageViewerView, CView)
 
 		SCROLLINFO si;
 		GetScrollInfo(iSB,&si);
+		if(si.nPage==0){return ;}
+
 		int iPageSize=si.nPage;
 		int iMin=si.nMin;
 		int iMax=si.nMax;

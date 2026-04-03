@@ -377,3 +377,29 @@ void CMainFrame::OnDropFiles(HDROP hDropInfo)
 	DragFinish(hDropInfo);
 	CFrameWndEx::OnDropFiles(hDropInfo);
 }
+
+void CMainFrame::AdjustViewClientSize(int iNewClientWidth, int iNewClientHeight,int iCurrentClientWidth, int iCurrentClientHeight)
+{
+	ShowWindow(SW_NORMAL);
+
+	CRect rectWindow;
+    GetWindowRect(&rectWindow);
+
+	CRect rectScreen;
+    ::SystemParametersInfo(SPI_GETWORKAREA, 0, &rectScreen, 0);
+
+    int iNewWindowWidth = rectWindow.Width() +  iNewClientWidth  - iCurrentClientWidth;
+    int iNewWindowHeight = rectWindow.Height() + iNewClientHeight - iCurrentClientHeight;
+
+    if ((iNewWindowWidth > rectScreen.Width()) ||(iNewWindowHeight > rectScreen.Height()))
+    {
+        ShowWindow(SW_MAXIMIZE);
+        return;
+    }
+
+	int iC0 = rectWindow.left + min(0, rectScreen.right- (rectWindow.left + iNewWindowWidth)  );
+	int iR0 = rectWindow.top + min(0, rectScreen.bottom - (rectWindow.top + iNewWindowHeight) );
+
+	MoveWindow(iC0, iR0, iNewWindowWidth, iNewWindowHeight, TRUE);
+}
+

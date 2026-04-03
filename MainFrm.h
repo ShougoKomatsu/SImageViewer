@@ -16,7 +16,8 @@ public:
 
 // 操作
 public:
-	
+		void AdjustViewClientSize(int desiredClientWidth, int desiredClientHeight,int iNowWidth, int iNowHeight);
+
 	void LaunchNewInstance(CString sFilePath);
 // オーバーライド
 public:
