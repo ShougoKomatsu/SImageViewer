@@ -53,13 +53,12 @@ CMainFrame::~CMainFrame()
 
 int CMainFrame::OnCreate(LPCREATESTRUCT lpCreateStruct)
 {
-	if (CFrameWndEx::OnCreate(lpCreateStruct) == -1)
-		return -1;
+	if (CFrameWndEx::OnCreate(lpCreateStruct) == -1){return -1;}
 
 	BOOL bNameValid;
 	// 固定値に基づいてビジュアル マネージャーと visual スタイルを設定します
 	OnApplicationLook(theApp.m_nAppLook);
-
+	
 	if (!m_wndMenuBar.Create(this))
 	{
 		TRACE0("メニュー バーを作成できませんでした\n");
@@ -158,6 +157,11 @@ int CMainFrame::OnCreate(LPCREATESTRUCT lpCreateStruct)
 
 	return 0;
 }
+	void CMainFrame::ShowNormal()
+	{
+		ShowWindow(SW_SHOWNORMAL);
+	}
+
 
 BOOL CMainFrame::PreCreateWindow(CREATESTRUCT& cs)
 {
@@ -403,3 +407,98 @@ void CMainFrame::AdjustViewClientSize(int iNewClientWidth, int iNewClientHeight,
 	MoveWindow(iC0, iR0, iNewWindowWidth, iNewWindowHeight, TRUE);
 }
 
+
+void CMainFrame::EnterFullScreen()
+{
+	
+	if (m_bBingFullScreen == true) {return;}
+
+	GetWindowRect(&m_rectPreserved);
+	m_dwStylePreserved = GetStyle();
+	m_dwExStylePreserved = GetExStyle();
+
+
+	ModifyStyle(WS_OVERLAPPEDWINDOW, WS_POPUP);
+	ModifyStyleEx(WS_EX_CLIENTEDGE, 0);
+
+	HMONITOR hMon = MonitorFromWindow(m_hWnd, MONITOR_DEFAULTTONEAREST);
+	MONITORINFO mi = { sizeof(mi) };
+	GetMonitorInfo(hMon, &mi);
+
+
+	CBasePane* basePane=DYNAMIC_DOWNCAST(CBasePane, GetMenuBar());	
+	if (basePane != NULL)
+	{
+
+		basePane->ShowPane(FALSE, FALSE, FALSE);
+	}
+
+	CMFCToolBar* pToolBar = DYNAMIC_DOWNCAST(CMFCToolBar, GetControlBar(AFX_IDW_TOOLBAR));
+	if (pToolBar != NULL)
+	{
+		pToolBar->ShowPane(FALSE, FALSE, FALSE);
+	}
+
+	CMFCStatusBar* pStatusBar = DYNAMIC_DOWNCAST(CMFCStatusBar, GetControlBar(AFX_IDW_STATUS_BAR));
+	if (pStatusBar != NULL)
+	{
+		pStatusBar->ShowPane(FALSE, FALSE, FALSE);
+	}
+
+
+	ModifyStyle(WS_OVERLAPPEDWINDOW, WS_POPUP);
+	ModifyStyleEx(WS_EX_CLIENTEDGE, 0);
+
+
+	SetWindowPos(
+		NULL,
+		mi.rcMonitor.left,
+		mi.rcMonitor.top,
+		mi.rcMonitor.right - mi.rcMonitor.left,
+		mi.rcMonitor.bottom - mi.rcMonitor.top,
+		SWP_FRAMECHANGED | SWP_SHOWWINDOW
+		);
+	}
+
+	void CMainFrame::ExitFullScreen()
+	{
+		if (m_bBingFullScreen != false){ return;}
+
+		m_bBingFullScreen = FALSE;
+	
+	CBasePane* basePane=DYNAMIC_DOWNCAST(CBasePane, GetMenuBar());	
+	if (basePane != NULL)
+	{
+
+		basePane->ShowPane(TRUE, FALSE, FALSE);
+	}
+
+	CMFCToolBar* pToolBar = DYNAMIC_DOWNCAST(CMFCToolBar, GetControlBar(AFX_IDW_TOOLBAR));
+	if (pToolBar != NULL)
+	{
+		pToolBar->ShowPane(TRUE, FALSE, FALSE);
+	}
+
+	CMFCStatusBar* pStatusBar = DYNAMIC_DOWNCAST(CMFCStatusBar, GetControlBar(AFX_IDW_STATUS_BAR));
+	if (pStatusBar != NULL)
+	{
+		pStatusBar->ShowPane(TRUE, FALSE, FALSE);
+	}
+
+
+	ModifyStyle(WS_OVERLAPPEDWINDOW, WS_POPUP);
+	ModifyStyleEx(WS_EX_CLIENTEDGE, 0);
+
+
+		ModifyStyle(WS_POPUP, m_dwStylePreserved);
+		ModifyStyleEx(0, m_dwExStylePreserved);
+
+		SetWindowPos(
+			NULL,
+			m_rectPreserved.left,
+			m_rectPreserved.top,
+			m_rectPreserved.right - m_rectPreserved.left,
+			m_rectPreserved.bottom - m_rectPreserved.top,
+			SWP_FRAMECHANGED | SWP_SHOWWINDOW
+			);
+	}

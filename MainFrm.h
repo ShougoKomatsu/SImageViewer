@@ -13,9 +13,15 @@ protected: // ƒVƒŠƒAƒ‹‰»‚©‚ç‚Ì‚İì¬‚µ‚Ü‚·B
 
 // ‘®«
 public:
-
+	bool m_bBingFullScreen;
+	CRect m_rectPreserved;
+	DWORD m_dwStylePreserved;
+	DWORD m_dwExStylePreserved ;
 // ‘€ì
 public:
+	void ShowNormal();
+	void EnterFullScreen();
+	void CMainFrame::ExitFullScreen();
 		void AdjustViewClientSize(int desiredClientWidth, int desiredClientHeight,int iNowWidth, int iNowHeight);
 
 	void LaunchNewInstance(CString sFilePath);

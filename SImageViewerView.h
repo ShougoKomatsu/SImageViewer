@@ -30,9 +30,6 @@ public:
 	double m_dDispOriginC_tv;
 
 	bool m_bBingFullScreen;
-	RECT m_rectPreserved;
-	DWORD m_dwStylePreserved;
-	DWORD m_dwExStylePreserved;	
 	bool m_bCBar;
 	bool m_bRBar;
 	bool m_bDragging; 

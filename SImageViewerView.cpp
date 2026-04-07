@@ -334,6 +334,7 @@ IMPLEMENT_DYNCREATE(CSImageViewerView, CView)
 		bool bCBar=false;
 
 
+	CheckIfScrollBarsAreNeeded(iWidth_tv, iHeight_tv, iWidthIfNoBar_v, iHeightIfNoBar_v, iBarWidth, iBarHeight, &bRBar, &bCBar);
 
 		if(bRBar==true)
 		{
@@ -580,8 +581,7 @@ IMPLEMENT_DYNCREATE(CSImageViewerView, CView)
 	void CSImageViewerView::OnInitialUpdate()
 	{
 		CView::OnInitialUpdate();
-
-
+		
 		m_imageProcessed[m_iImgIndex].Create(100,100,0);
 
 		m_bBingFullScreen = false;
@@ -791,54 +791,19 @@ IMPLEMENT_DYNCREATE(CSImageViewerView, CView)
 
 	void CSImageViewerView::EnterFullScreen()
 	{
-		if (m_bBingFullScreen == true) {return;}
+		CMainFrame* pFrame = (CMainFrame*)AfxGetMainWnd();
+		if (pFrame==NULL) {return;}
+		pFrame->EnterFullScreen();
+		m_bBingFullScreen=true;
 
-		CFrameWnd* pFrame = GetParentFrame();
-		if (pFrame == NULL) {return;}
-
-		m_bBingFullScreen = true;
-
-		pFrame->GetWindowRect(&m_rectPreserved);
-		m_dwStylePreserved = pFrame->GetStyle();
-		m_dwExStylePreserved = pFrame->GetExStyle();
-
-		pFrame->ModifyStyle(WS_OVERLAPPEDWINDOW, WS_POPUP);
-		pFrame->ModifyStyleEx(WS_EX_CLIENTEDGE, 0);
-
-		HMONITOR hMon = MonitorFromWindow(pFrame->m_hWnd, MONITOR_DEFAULTTONEAREST);
-		MONITORINFO mi = { sizeof(mi) };
-		GetMonitorInfo(hMon, &mi);
-
-		pFrame->SetWindowPos(
-			NULL,
-			mi.rcMonitor.left,
-			mi.rcMonitor.top,
-			mi.rcMonitor.right - mi.rcMonitor.left,
-			mi.rcMonitor.bottom - mi.rcMonitor.top,
-			SWP_FRAMECHANGED | SWP_SHOWWINDOW
-			);
 	}
 
 	void CSImageViewerView::ExitFullScreen()
 	{
-		if (m_bBingFullScreen != true){ return;}
-
-		CFrameWnd* pFrame = GetParentFrame();
+		CMainFrame* pFrame = (CMainFrame*)AfxGetMainWnd();
 		if (pFrame==NULL) {return;}
-
-		m_bBingFullScreen = FALSE;
-
-		pFrame->ModifyStyle(WS_POPUP, m_dwStylePreserved);
-		pFrame->ModifyStyleEx(0, m_dwExStylePreserved);
-
-		pFrame->SetWindowPos(
-			NULL,
-			m_rectPreserved.left,
-			m_rectPreserved.top,
-			m_rectPreserved.right - m_rectPreserved.left,
-			m_rectPreserved.bottom - m_rectPreserved.top,
-			SWP_FRAMECHANGED | SWP_SHOWWINDOW
-			);
+		pFrame->ExitFullScreen();
+		m_bBingFullScreen=false;
 	}
 
 
@@ -1024,6 +989,10 @@ IMPLEMENT_DYNCREATE(CSImageViewerView, CView)
 		if(nIDEvent==TIMER_INIT)
 		{
 			KillTimer(TIMER_INIT);
+			
+		CMainFrame* pFrame = (CMainFrame*)AfxGetMainWnd();
+		if (pFrame==NULL) {return;}
+		pFrame->ShowNormal();
 			if(m_sFilePath.GetLength()>0)
 			{
 				ReadImage(m_sFilePath);
