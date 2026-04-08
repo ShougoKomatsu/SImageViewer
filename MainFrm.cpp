@@ -392,8 +392,8 @@ void CMainFrame::AdjustViewClientSize(int iNewClientWidth, int iNewClientHeight,
 	CRect rectScreen;
     ::SystemParametersInfo(SPI_GETWORKAREA, 0, &rectScreen, 0);
 
-    int iNewWindowWidth = rectWindow.Width() +  iNewClientWidth  - iCurrentClientWidth;
-    int iNewWindowHeight = rectWindow.Height() + iNewClientHeight - iCurrentClientHeight;
+    int iNewWindowWidth = max(400, rectWindow.Width() +  iNewClientWidth  - iCurrentClientWidth);
+    int iNewWindowHeight = max(300,rectWindow.Height() + iNewClientHeight - iCurrentClientHeight);
 
     if ((iNewWindowWidth > rectScreen.Width()) ||(iNewWindowHeight > rectScreen.Height()))
     {
