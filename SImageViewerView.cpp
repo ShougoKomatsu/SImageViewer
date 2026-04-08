@@ -269,7 +269,7 @@ IMPLEMENT_DYNCREATE(CSImageViewerView, CView)
 	}
 #endif //_DEBUG
 
-	void CheckIfScrollBarsAreNeeded(int iWidth_tv, int iHeight_tv, int iWidthIfNoBar_v, int iHeightIfNoBar_v, int iBarWidth, int iBarHeight, bool* bRBar, bool* bCBar)
+	void CheckIfScrollBarsAreNeeded(const int iWidth_tv, const int iHeight_tv, const int iWidthIfNoBar_v, const int iHeightIfNoBar_v, const int iBarWidth, const int iBarHeight, bool* bRBar, bool* bCBar)
 	{
 
 		if((iWidth_tv<=iWidthIfNoBar_v)&&(iHeight_tv<=iHeightIfNoBar_v))
@@ -334,7 +334,7 @@ IMPLEMENT_DYNCREATE(CSImageViewerView, CView)
 		bool bCBar=false;
 
 
-	CheckIfScrollBarsAreNeeded(iWidth_tv, iHeight_tv, iWidthIfNoBar_v, iHeightIfNoBar_v, iBarWidth, iBarHeight, &bRBar, &bCBar);
+		CheckIfScrollBarsAreNeeded(iWidth_tv, iHeight_tv, iWidthIfNoBar_v, iHeightIfNoBar_v, iBarWidth, iBarHeight, &bRBar, &bCBar);
 
 		if(bRBar==true)
 		{
@@ -614,35 +614,33 @@ IMPLEMENT_DYNCREATE(CSImageViewerView, CView)
 
 		int iWidth_i =max(0,m_imageProcessed[m_iImgIndex].GetWidth());
 		int iHeight_i =max(0,m_imageProcessed[m_iImgIndex].GetHeight());
-
-		double dWidth_tv = iWidth_i*g_dScale[m_iScaleIndex];
-		double dHeight_tv= iHeight_i*g_dScale[m_iScaleIndex];
+		
+		int iOldZoom = m_iScaleIndex;
+		double dOldWidth_tv = iWidth_i*g_dScale[iOldZoom];
+		double dOldHeight_tv= iHeight_i*g_dScale[iOldZoom];
 		double dNewDispOriginC_tv;
 		double dNewDispOriginR_tv;
 		int iNewZoom = m_iScaleIndex+=iChange;
-		if(dWidth_tv>iWidth_v)
+		double dNewWidth_tv = iWidth_i*g_dScale[iNewZoom];
+		double dNewHeight_tv= iHeight_i*g_dScale[iNewZoom];
+
+
+		if(dNewWidth_tv>iWidth_v)
 		{
-
-			double dScalePre=g_dScale[m_iScaleIndex];
-
-			double dOldCenterC_i = (dOldDispOriginC_tv +iWidth_v/2.0)/g_dScale[iNewZoom];
-			dNewDispOriginC_tv = dOldCenterC_i*g_dScale[iNewZoom] - iWidth_v/2.0;
-			if(dNewDispOriginC_tv<=0){dNewDispOriginC_tv=0;}
+			double dOldCenterC_i = (dOldDispOriginC_tv +iWidth_v/2.0)/g_dScale[iOldZoom];
+			double dOldEndC_i = (dOldDispOriginC_tv +iWidth_v)/g_dScale[iOldZoom];
+			dNewDispOriginC_tv = max(0, min(dOldCenterC_i*g_dScale[iNewZoom] - iWidth_v/2.0, dOldEndC_i*g_dScale[iNewZoom]-iWidth_v));
 		}
 		else
 		{
 			dNewDispOriginC_tv = 0;
 		}
 
-		if(dHeight_tv>iHeight_v)
+		if(dNewHeight_tv>iHeight_v)
 		{
-			double dOldCenterR_i = (dOldDispOriginR_tv +iHeight_v/2.0)/g_dScale[iNewZoom];
-
-			double dScalePre=g_dScale[m_iScaleIndex];
-
-			dNewDispOriginR_tv = dOldCenterR_i*g_dScale[iNewZoom] - iHeight_v/2.0;
-			if(dNewDispOriginR_tv<=0){dNewDispOriginR_tv=0;}
-
+			double dOldCenterR_i = (dOldDispOriginR_tv +iHeight_v/2.0)/g_dScale[iOldZoom];
+			double dOldEndR_i = (dOldDispOriginR_tv +iHeight_v)/g_dScale[iOldZoom];
+			dNewDispOriginR_tv = max(0, min(dOldCenterR_i*g_dScale[iNewZoom] - iHeight_v/2.0, dOldEndR_i*g_dScale[iNewZoom]-iHeight_v));
 		}
 		else
 		{
