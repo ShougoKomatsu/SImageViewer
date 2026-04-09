@@ -808,8 +808,7 @@ IMPLEMENT_DYNCREATE(CSImageViewerView, CView)
 	bool CSImageViewerView::GetColorAtCursor(CPoint point_v, int* iR_img, int* iC_img, BYTE* byR, BYTE* byG, BYTE* byB)
 	{
 		if(m_image.IsNull()==true){return false;}
-
-		CPoint point_tv(point_v.x + GetDispOriginR_tv(), point_v.y +  GetDispOriginC_tv());
+		CPoint point_tv(point_v.x + GetDispOriginC_tv(), point_v.y +  GetDispOriginR_tv());
 
 		int iC_img_Local = (int)((point_tv.x) / g_dScale[m_iScaleIndex]);
 		int iR_img_Local = (int)((point_tv.y) / g_dScale[m_iScaleIndex]);
