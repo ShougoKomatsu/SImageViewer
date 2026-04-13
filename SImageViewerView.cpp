@@ -370,7 +370,7 @@ IMPLEMENT_DYNCREATE(CSImageViewerView, CView)
 			si.nMin=0;
 			si.nMax=0;
 			si.nPage =0;
-			m_bRBar = false;
+			m_bCBar = false;
 			SetScrollInfo(SB_HORZ, &si, TRUE);
 		}
 
@@ -515,7 +515,7 @@ IMPLEMENT_DYNCREATE(CSImageViewerView, CView)
 	}
 	void CSImageViewerView::FullDomain()
 	{
-		m_Rect_i.SetRect(0, 0, m_image.GetWidth()-1,m_image.GetHeight()-1);
+		m_Rect_i.SetRect(0, 0, m_imageProcessed[m_iImgIndex].GetWidth()-1,m_imageProcessed[m_iImgIndex].GetHeight()-1);
 	}
 	void CSImageViewerView::OperateEquHistImage()
 	{
@@ -532,6 +532,23 @@ IMPLEMENT_DYNCREATE(CSImageViewerView, CView)
 		m_iUnDoAvailableCount++;
 		if(m_iUnDoAvailableCount>=MAX_IMG_BUF-1){m_iUnDoAvailableCount=MAX_IMG_BUF-1;}
 		ConvertImage(&imgMeaned,&m_imageProcessed[(m_iImgIndex % MAX_IMG_BUF)]);
+		Invalidate();
+	}
+	
+	void CSImageViewerView::OperateRotaateImage(enumRotate rotate)
+	{
+		bool bAutoFull = false;
+	
+		ImgRGB imgRGB;
+		ImgRGB imgResult;
+		ConvertImage(&m_imageProcessed[m_iImgIndex], &imgRGB);
+
+		RotateImage(&imgRGB, &imgResult, rotate);
+		m_iImgIndex++;
+		m_iUnDoAvailableCount++;
+		if(m_iUnDoAvailableCount>=MAX_IMG_BUF-1){m_iUnDoAvailableCount=MAX_IMG_BUF-1;}
+		ConvertImage(&imgResult,&m_imageProcessed[(m_iImgIndex % MAX_IMG_BUF)]);
+		SetScroll();
 		Invalidate();
 	}
 
@@ -1175,6 +1192,7 @@ IMPLEMENT_DYNCREATE(CSImageViewerView, CView)
 				}
 				ResetImage();
 			}
+			if(pMsg->wParam == 'R'){OperateRotaateImage(ROTATE_CW90);return TRUE;}
 
 			if(pMsg->wParam == VK_RETURN) { if(m_bBingFullScreen==true){ ExitFullScreen(); return TRUE;} EnterFullScreen(); return TRUE; } 
 			if(pMsg->wParam == VK_ESCAPE) { if(m_bBingFullScreen==true){ ExitFullScreen(); return TRUE;} ::PostQuitMessage( 0 );}

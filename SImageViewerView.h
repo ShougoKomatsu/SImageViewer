@@ -6,7 +6,7 @@
 #define MAX_IMG_BUF (32)
 
 #include "SImageViewerDoc.h"
-
+#include "SImgProc_ex.h"
 class CSImageViewerView : public CView
 {
 protected: // ÉVÉäÉAÉãâªÇ©ÇÁÇÃÇ›çÏê¨ÇµÇ‹Ç∑ÅB
@@ -59,6 +59,7 @@ public:
 	void ExitFullScreen();
 	
 	void OperateBrightnessContrastGamma();
+	void OperateRotaateImage(enumRotate rotate);
 	void OperateEquHistImage();
 
 	bool GetColorAtCursor(CPoint point, int* iR_img, int* iC_img, BYTE* byR, BYTE* byG, BYTE* bYB);
