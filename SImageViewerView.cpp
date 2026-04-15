@@ -472,6 +472,11 @@ IMPLEMENT_DYNCREATE(CSImageViewerView, CView)
 		if(m_image.IsNull()!=true){m_image.Destroy();}
 
 		HRESULT hResult = m_image.Load(m_sFilePath);
+//		int iBPP = m_image.GetBPP();
+//		CString sss;
+//		sss.Format(_T("%d"), iBPP);
+//		AfxMessageBox(sss);
+		
 		if(hResult != S_OK){return false;}
 
 		ResetImage();

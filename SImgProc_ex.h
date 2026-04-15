@@ -183,6 +183,17 @@ BOOL DLL_IE EquHistImage(const ImgRGB* imgIn, ImgRGB* imgResult, const int r0, c
 BOOL DLL_IE BrightnessContrast(const ImgRGB* imgIn, ImgRGB* imgResult, const int r0, const int c0, const int r1, const int c1, const double dBrightness, const double dContrastAngleDegree);
 BOOL DLL_IE Gamma(const ImgRGB* imgIn, ImgRGB* imgResult, const int r0, const int c0, const int r1, const int c1, const double dGamma);
 
+enum enumRotate
+{
+	ROTATE_NONE = 0,
+	ROTATE_CW90 = 1,
+	ROTATE_CW180 = 2,
+	ROTATE_CW270 = 3,
+	FLIP_UD = 4,
+	FLIP_LR = 5
+};
+BOOL DLL_IE RotateImage(const ImgRGB* imgIn, ImgRGB* imgResult, const enumRotate);
+
 struct DLL_IE Camera
 {
 	Camera(){}

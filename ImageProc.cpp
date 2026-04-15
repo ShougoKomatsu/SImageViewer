@@ -621,73 +621,73 @@ BOOL ZoomImage(CImage* imgSrc, CImage* imgDst, const double dR0_Src, const doubl
 	int iBPP = imgSrc->GetBPP();
 	if(iBPP==24)
 	{
-	for(int r=0; r<iHeight_Dst; r++)
-	{
-		int ir_Src=r/dScale+dR0_Src;
-	
-		if((ir_Src<0)||(ir_Src>=iHeightSrc))
+		for(int r=0; r<iHeight_Dst; r++)
 		{
+			int ir_Src=r/dScale+dR0_Src;
+
+			if((ir_Src<0)||(ir_Src>=iHeightSrc))
+			{
+				for(int c=0; c<iWidth_Dst; c++)
+				{
+					dst[r*iPitch_dst+c*3+2]=127;
+					dst[r*iPitch_dst+c*3+1]=127;
+					dst[r*iPitch_dst+c*3+0]=127;
+				}
+				continue;
+			}
+
 			for(int c=0; c<iWidth_Dst; c++)
 			{
-				dst[r*iPitch_dst+c*3+2]=127;
-				dst[r*iPitch_dst+c*3+1]=127;
-				dst[r*iPitch_dst+c*3+0]=127;
+				int ic_Src=c/dScale+dC0_Src;
+				if((ic_Src<0)||(ic_Src>=iWidthSrc))
+				{
+					dst[r*iPitch_dst+c*3+2]=127;
+					dst[r*iPitch_dst+c*3+1]=127;
+					dst[r*iPitch_dst+c*3+0]=127;
+					continue;
+				}
+				dst[r*iPitch_dst+c*3+2]=src[ir_Src*iPitch_src+ic_Src*3+2];
+				dst[r*iPitch_dst+c*3+1]=src[ir_Src*iPitch_src+ic_Src*3+1];
+				dst[r*iPitch_dst+c*3+0]=src[ir_Src*iPitch_src+ic_Src*3+0];
 			}
-				continue;
 		}
-
-		for(int c=0; c<iWidth_Dst; c++)
-		{
-			int ic_Src=c/dScale+dC0_Src;
-			if((ic_Src<0)||(ic_Src>=iWidthSrc))
-			{
-				dst[r*iPitch_dst+c*3+2]=127;
-				dst[r*iPitch_dst+c*3+1]=127;
-				dst[r*iPitch_dst+c*3+0]=127;
-				continue;
-			}
-			dst[r*iPitch_dst+c*3+2]=src[ir_Src*iPitch_src+ic_Src*3+2];
-			dst[r*iPitch_dst+c*3+1]=src[ir_Src*iPitch_src+ic_Src*3+1];
-			dst[r*iPitch_dst+c*3+0]=src[ir_Src*iPitch_src+ic_Src*3+0];
-		}
-	}
-	return TRUE;
+		return TRUE;
 	}
 	if(iBPP==32)
 	{
-	for(int r=0; r<iHeight_Dst; r++)
-	{
-		int ir_Src=r/dScale+dR0_Src;
-	
-		if((ir_Src<0)||(ir_Src>=iHeightSrc))
+		for(int r=0; r<iHeight_Dst; r++)
 		{
+			int ir_Src=r/dScale+dR0_Src;
+
+			if((ir_Src<0)||(ir_Src>=iHeightSrc))
+			{
+				for(int c=0; c<iWidth_Dst; c++)
+				{
+					dst[r*iPitch_dst+c*3+2]=127;
+					dst[r*iPitch_dst+c*3+1]=127;
+					dst[r*iPitch_dst+c*3+0]=127;
+				}
+				continue;
+			}
+
 			for(int c=0; c<iWidth_Dst; c++)
 			{
-				dst[r*iPitch_dst+c*3+2]=127;
-				dst[r*iPitch_dst+c*3+1]=127;
-				dst[r*iPitch_dst+c*3+0]=127;
+				int ic_Src=c/dScale+dC0_Src;
+				if((ic_Src<0)||(ic_Src>=iWidthSrc))
+				{
+					dst[r*iPitch_dst+c*3+2]=127;
+					dst[r*iPitch_dst+c*3+1]=127;
+					dst[r*iPitch_dst+c*3+0]=127;
+					continue;
+				}
+				dst[r*iPitch_dst+c*3+2]=src[ir_Src*iPitch_src+ic_Src*4+2];
+				dst[r*iPitch_dst+c*3+1]=src[ir_Src*iPitch_src+ic_Src*4+1];
+				dst[r*iPitch_dst+c*3+0]=src[ir_Src*iPitch_src+ic_Src*4+0];
 			}
-				continue;
 		}
-
-		for(int c=0; c<iWidth_Dst; c++)
-		{
-			int ic_Src=c/dScale+dC0_Src;
-			if((ic_Src<0)||(ic_Src>=iWidthSrc))
-			{
-				dst[r*iPitch_dst+c*3+2]=127;
-				dst[r*iPitch_dst+c*3+1]=127;
-				dst[r*iPitch_dst+c*3+0]=127;
-				continue;
-			}
-			dst[r*iPitch_dst+c*3+2]=src[ir_Src*iPitch_src+ic_Src*4+2];
-			dst[r*iPitch_dst+c*3+1]=src[ir_Src*iPitch_src+ic_Src*4+1];
-			dst[r*iPitch_dst+c*3+0]=src[ir_Src*iPitch_src+ic_Src*4+0];
-		}
+		return TRUE;
 	}
-	return TRUE;
-	}
-	if(iBPP==8)
+	if((iBPP==2) || (iBPP==4) || (iBPP==8))
 	{
 		RGBQUAD* pSrcTable=NULL;
 		int nColors = imgSrc->GetMaxColorTableEntries();
@@ -728,6 +728,45 @@ BOOL ZoomImage(CImage* imgSrc, CImage* imgDst, const double dR0_Src, const doubl
 			}
 		}
 		if(pSrcTable != NULL){delete [] pSrcTable;}
+		return TRUE;
+	}
+	if(iBPP==1) 
+	{
+		for(int r=0; r<iHeight_Dst; r++)
+		{
+			int ir_Src=r/dScale+dR0_Src;
+
+			if((ir_Src<0)||(ir_Src>=iHeightSrc))
+			{
+				for(int c=0; c<iWidth_Dst; c++)
+				{
+					dst[r*iPitch_dst+c*3+2]=127;
+					dst[r*iPitch_dst+c*3+1]=127;
+					dst[r*iPitch_dst+c*3+0]=127;
+				}
+				continue;
+			}
+
+			for(int c=0; c<iWidth_Dst; c++)
+			{
+				int ic_Src=c/dScale+dC0_Src;
+				if((ic_Src<0)||(ic_Src>=iWidthSrc))
+				{
+					dst[r*iPitch_dst+c*3+2]=127;
+					dst[r*iPitch_dst+c*3+1]=127;
+					dst[r*iPitch_dst+c*3+0]=127;
+					continue;
+				}
+				int iPosition= ir_Src*iPitch_src+ic_Src/8;
+				int iDigit = 8-(ic_Src%8)-1;
+				BYTE byValue = (( (src[iPosition] & (1<< iDigit)) == (1<< iDigit)) ? 255 : 0);
+
+				dst[r*iPitch_dst+c*3+2]=byValue;
+				dst[r*iPitch_dst+c*3+1]=byValue;
+				dst[r*iPitch_dst+c*3+0]=byValue;
+
+			}
+		}
 		return TRUE;
 	}
 	return TRUE;
