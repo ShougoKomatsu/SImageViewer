@@ -13,10 +13,5 @@ BOOL ZoomImage(CImage* imgSrc, CImage* imgDst, const double dR0_Src, const doubl
 BOOL CopyFromClipBoardImg(CImage* img);
 bool ConvertImageToStr(CImage* cimage, CString sSeparater, CString* sImage);
 
-enum ENUM_COLOR
-{
-	COLOR_RED,
-	COLOR_GREEN,
-	COLOR_BLUE,
-};
 bool ExtractChannel(CImage* imgSrc, CImage* imgDst, ENUM_COLOR enumColor);
+bool CopyImage(CImage* imgSrc, CImage* imgDst);

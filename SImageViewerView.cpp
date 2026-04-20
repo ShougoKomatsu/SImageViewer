@@ -1,5 +1,5 @@
 
-// SImageViewerView.cpp : CSImageViewerView クラスの実装
+se // SImageViewerView.cpp : CSImageViewerView クラスの実装
 //
 
 #include "stdafx.h"
@@ -18,6 +18,7 @@
 #include "CopyAsDlg.h"
 #include "CommonFunction.h"
 #include "ExtractChennelDlg.h"
+#include "SImgProc_ex.h"
 #ifdef _DEBUG
 #define new DEBUG_NEW
 #endif
@@ -78,7 +79,7 @@ IMPLEMENT_DYNCREATE(CSImageViewerView, CView)
 		ON_COMMAND(ID_FILE_SAVE_AS, &CSImageViewerView::OnFileSave)
 		ON_COMMAND(ID_SET_SELECTION, &CSImageViewerView::OnSetSelection)
 		ON_COMMAND(ID_COPY_AS, &CSImageViewerView::OnCopyAs)
-		ON_COMMAND(ID_EXTRACT_CHANNEL, &CSImageViewerView::OperateExrtractChannel)
+		ON_COMMAND(ID_CONVERT_COLOR_SPACE, &CSImageViewerView::OperateConvertColorSpace)
 		ON_WM_SIZE()
 		ON_WM_MOUSEMOVE()
 		ON_WM_LBUTTONDOWN()
@@ -541,7 +542,7 @@ IMPLEMENT_DYNCREATE(CSImageViewerView, CView)
 		ConvertImage(&imgMeaned,&m_imageProcessed[(m_iImgIndex % MAX_IMG_BUF)]);
 		Invalidate();
 	}
-void CSImageViewerView::OperateExrtractChannel()
+void CSImageViewerView::OperateConvertColorSpace()
 {
 	ENUM_COLOR color;
 		CExtractChennelDlg extractDlg;
@@ -551,11 +552,26 @@ void CSImageViewerView::OperateExrtractChannel()
 
 		color= extractDlg.m_enumColor;
 
-		CImage imgResult;
-		ExtractChannel(&m_imageProcessed[m_iImgIndex], &m_imageProcessed[((m_iImgIndex+1) % MAX_IMG_BUF)], color);
+		CImage imgSrc;
+		CopyImage(&m_imageProcessed[m_iImgIndex], &imgSrc);
 		m_iImgIndex++;
 		m_iUnDoAvailableCount++;
 		if(m_iUnDoAvailableCount>=MAX_IMG_BUF-1){m_iUnDoAvailableCount=MAX_IMG_BUF-1;}
+
+
+		if((color==COLOR_RED)||(color==COLOR_GREEN)||(color==COLOR_BLUE))
+		{
+		ExtractChannel(&imgSrc,&m_imageProcessed[m_iImgIndex], color);
+		Invalidate();
+		return;
+}
+		ImgRGB imgSrcRGB;
+		ImgRGB imgDstRGB;
+		ConvertImage(&imgSrc,&imgSrcRGB);
+		ConvertColorSpace(&imgSrcRGB,&imgDstRGB,color);
+		ConvertImage(&imgDstRGB,&m_imageProcessed[m_iImgIndex]);
+
+		
 //		 = imgResult;
 		Invalidate();
 		return;

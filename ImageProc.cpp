@@ -2,6 +2,54 @@
 #include "ImageProc.h"
 #include "SImgProc_ex.h"
 #include "CommonFunction.h"
+
+bool CopyImage(CImage* imgSrc, CImage* imgDst)
+{
+
+	int iWidth = imgSrc->GetWidth();
+	int iHeight = imgSrc->GetHeight();
+    if (imgDst->IsNull() != true) {imgDst->Destroy();}
+
+    if (imgSrc->IsNull()) {return false;}
+
+    HRESULT hr = imgDst->Create(imgSrc->GetWidth(),imgSrc->GetHeight(),imgSrc->GetBPP());
+	if (FAILED(hr)) {return false;}
+	BYTE* byDataSrc = (BYTE*)imgSrc->GetBits();
+	BYTE* byDataDst = (BYTE*)imgDst->GetBits();
+
+	int iBPP = imgSrc->GetBPP();
+
+	if((iBPP==2)||(iBPP==4)||(iBPP==8))
+	{
+		int iColors = imgSrc->GetMaxColorTableEntries();
+		RGBQUAD* pSrcTable = new RGBQUAD[iColors];
+		imgSrc->GetColorTable(0, iColors, pSrcTable);
+		HDC hDC = imgDst->GetDC();
+		SetDIBColorTable(hDC, 0, 256, pSrcTable);
+		imgDst->ReleaseDC();
+		SAFE_DELETE(pSrcTable);
+		pSrcTable = new RGBQUAD[iColors];
+		imgDst->GetColorTable(0, iColors, pSrcTable);
+		SAFE_DELETE(pSrcTable);
+	}
+	
+	int iSrcPitch = imgSrc->GetPitch();
+	int iDstPitch = imgDst->GetPitch();
+	int iLineLength = abs(iSrcPitch);
+	for(int r=0; r< imgSrc->GetHeight(); r++)
+	{
+		for(int c=0; c< iLineLength; c++)
+		{
+			byDataDst[r*iDstPitch+c] = byDataSrc[r*iSrcPitch+c];
+		}
+
+	}
+
+
+    return true;
+}
+
+
 bool ConvertImageToStr(CImage* cImageSrc, CString sSeparater, CString* sImage)
 {
 	int iSrcWidth  = cImageSrc->GetWidth();
@@ -585,21 +633,58 @@ BOOL ConvertImage(ImgRGB* imgRGB, CImage* cImageDst)
 	int iSrcWidth = imgRGB->iWidth;;
 	int iSrcHeight= imgRGB->iHeight;;
 
-	cImageDst->Create(iSrcWidth, iSrcHeight, 24);
-
-
-	BYTE* byDstData = (BYTE*)cImageDst->GetBits();
-	int iDstPitch=cImageDst->GetPitch();
-	int iIncR;
-	for(int r=0; r<iSrcHeight; r++)
+	if(imgRGB->iChannel==CHANNEL_3_8RGB)
 	{
-		for(int c=0; c<iSrcWidth; c++)
+		cImageDst->Create(iSrcWidth, iSrcHeight, 24);
+
+
+		BYTE* byDstData = (BYTE*)cImageDst->GetBits();
+		int iDstPitch=cImageDst->GetPitch();
+		int iIncR;
+		for(int r=0; r<iSrcHeight; r++)
 		{
-			byDstData[r*iDstPitch+c*3+2]=imgRGB->byImgR[r*iSrcWidth+c];
-			byDstData[r*iDstPitch+c*3+1]=imgRGB->byImgG[r*iSrcWidth+c];
-			byDstData[r*iDstPitch+c*3+0]=imgRGB->byImgB[r*iSrcWidth+c];
+			for(int c=0; c<iSrcWidth; c++)
+			{
+				byDstData[r*iDstPitch+c*3+2]=imgRGB->byImgR[r*iSrcWidth+c];
+				byDstData[r*iDstPitch+c*3+1]=imgRGB->byImgG[r*iSrcWidth+c];
+				byDstData[r*iDstPitch+c*3+0]=imgRGB->byImgB[r*iSrcWidth+c];
+			}
 		}
+		return TRUE;
 	}
+	
+	if(imgRGB->iChannel==CHANNEL_1_8)
+	{
+		cImageDst->Create(iSrcWidth, iSrcHeight, 8);
+		
+	RGBQUAD colorTable[256];
+	for(int i=0; i<256; i++)
+	{
+		colorTable[i].rgbBlue=i;
+		colorTable[i].rgbGreen=i;
+		colorTable[i].rgbRed=i;
+		colorTable[i].rgbReserved=255;
+	}
+	
+	HDC hDC = cImageDst->GetDC();
+	SetDIBColorTable(hDC, 0, 256, colorTable);
+	cImageDst->ReleaseDC();
+
+
+
+		BYTE* byDstData = (BYTE*)cImageDst->GetBits();
+		int iDstPitch=cImageDst->GetPitch();
+		int iIncR;
+		for(int r=0; r<iSrcHeight; r++)
+		{
+			for(int c=0; c<iSrcWidth; c++)
+			{
+				byDstData[r*iDstPitch+c]=imgRGB->byImg[r*iSrcWidth+c];
+			}
+		}
+		return TRUE;
+	}
+
 	return TRUE;
 }
 

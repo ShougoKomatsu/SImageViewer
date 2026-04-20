@@ -203,3 +203,14 @@ struct DLL_IE Camera
 	int GrabImage(ImgRGB* imgOut);
 	int SetParameter(CString sProp, CString sParam);
 };
+enum ENUM_COLOR
+{
+	COLOR_RED,
+	COLOR_GREEN,
+	COLOR_BLUE,
+	COLOR_HUE,
+	COLOR_HUE180,
+	COLOR_SATUATION,
+	COLOR_BRIGHTNESS,
+};
+BOOL DLL_IE ConvertColorSpace(const ImgRGB* imgIn, ImgRGB* imgResult, const ENUM_COLOR color);

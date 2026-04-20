@@ -62,7 +62,7 @@ public:
 	void OperateBrightnessContrastGamma();
 	void OperateRotaateImage(enumRotate rotate);
 	void OperateEquHistImage();
-	void OperateExrtractChannel();
+	void OperateConvertColorSpace();
 	bool GetColorAtCursor(CPoint point, int* iR_img, int* iC_img, BYTE* byR, BYTE* byG, BYTE* bYB);
 	void OnScroll(int iSB, int nSBCode, int nPos);
 	void DispStatus(CPoint point);
