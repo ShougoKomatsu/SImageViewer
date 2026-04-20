@@ -17,6 +17,7 @@
 #include "SetSelectionDlg.h"
 #include "CopyAsDlg.h"
 #include "CommonFunction.h"
+#include "ExtractChennelDlg.h"
 #ifdef _DEBUG
 #define new DEBUG_NEW
 #endif
@@ -77,6 +78,7 @@ IMPLEMENT_DYNCREATE(CSImageViewerView, CView)
 		ON_COMMAND(ID_FILE_SAVE_AS, &CSImageViewerView::OnFileSave)
 		ON_COMMAND(ID_SET_SELECTION, &CSImageViewerView::OnSetSelection)
 		ON_COMMAND(ID_COPY_AS, &CSImageViewerView::OnCopyAs)
+		ON_COMMAND(ID_EXTRACT_CHANNEL, &CSImageViewerView::OperateExrtractChannel)
 		ON_WM_SIZE()
 		ON_WM_MOUSEMOVE()
 		ON_WM_LBUTTONDOWN()
@@ -539,7 +541,25 @@ IMPLEMENT_DYNCREATE(CSImageViewerView, CView)
 		ConvertImage(&imgMeaned,&m_imageProcessed[(m_iImgIndex % MAX_IMG_BUF)]);
 		Invalidate();
 	}
-	
+void CSImageViewerView::OperateExrtractChannel()
+{
+	ENUM_COLOR color;
+		CExtractChennelDlg extractDlg;
+
+		INT_PTR iRet = extractDlg.DoModal();
+		if(iRet != IDOK){return;}
+
+		color= extractDlg.m_enumColor;
+
+		CImage imgResult;
+		ExtractChannel(&m_imageProcessed[m_iImgIndex], &m_imageProcessed[((m_iImgIndex+1) % MAX_IMG_BUF)], color);
+		m_iImgIndex++;
+		m_iUnDoAvailableCount++;
+		if(m_iUnDoAvailableCount>=MAX_IMG_BUF-1){m_iUnDoAvailableCount=MAX_IMG_BUF-1;}
+//		 = imgResult;
+		Invalidate();
+		return;
+}
 	void CSImageViewerView::OperateRotaateImage(enumRotate rotate)
 	{
 		bool bAutoFull = false;

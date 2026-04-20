@@ -55,6 +55,9 @@
     <None Include="res\cur_cross.cur">
       <Filter>リソース ファイル</Filter>
     </None>
+    <None Include="res\cursor_cross.cur">
+      <Filter>リソース ファイル</Filter>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="SImageViewer.h">
@@ -93,6 +96,9 @@
     <ClInclude Include="CommonFunction.h">
       <Filter>ヘッダー ファイル</Filter>
     </ClInclude>
+    <ClInclude Include="ExtractChennelDlg.h">
+      <Filter>ヘッダー ファイル\Dlg</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="SImageViewer.cpp">
@@ -124,6 +130,9 @@
     </ClCompile>
     <ClCompile Include="CommonFunction.cpp">
       <Filter>ソース ファイル</Filter>
+    </ClCompile>
+    <ClCompile Include="ExtractChennelDlg.cpp">
+      <Filter>ソース ファイル\Dlg</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

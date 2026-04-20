@@ -99,6 +99,7 @@
     <None Include="ReadMe.txt" />
     <None Include="res\cur00001.cur" />
     <None Include="res\cursor1.cur" />
+    <None Include="res\cursor_cross.cur" />
     <None Include="res\cursor_zoomin.cur" />
     <None Include="res\cur_cross.cur" />
     <None Include="res\cur_crosscur.cur" />
@@ -112,6 +113,7 @@
   <ItemGroup>
     <ClInclude Include="CommonFunction.h" />
     <ClInclude Include="CopyAsDlg.h" />
+    <ClInclude Include="ExtractChennelDlg.h" />
     <ClInclude Include="ImageModifyDlg.h" />
     <ClInclude Include="ImageProc.h" />
     <ClInclude Include="MainFrm.h" />
@@ -126,6 +128,7 @@
   <ItemGroup>
     <ClCompile Include="CommonFunction.cpp" />
     <ClCompile Include="CopyAsDlg.cpp" />
+    <ClCompile Include="ExtractChennelDlg.cpp" />
     <ClCompile Include="ImageModifyDlg.cpp" />
     <ClCompile Include="ImageProc.cpp" />
     <ClCompile Include="MainFrm.cpp" />

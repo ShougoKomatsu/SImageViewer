@@ -7,6 +7,7 @@
 
 #include "SImageViewerDoc.h"
 #include "SImgProc_ex.h"
+#include "ImageProc.h"
 class CSImageViewerView : public CView
 {
 protected: // ÉVÉäÉAÉãâªÇ©ÇÁÇÃÇ›çÏê¨ÇµÇ‹Ç∑ÅB
@@ -61,7 +62,7 @@ public:
 	void OperateBrightnessContrastGamma();
 	void OperateRotaateImage(enumRotate rotate);
 	void OperateEquHistImage();
-
+	void OperateExrtractChannel();
 	bool GetColorAtCursor(CPoint point, int* iR_img, int* iC_img, BYTE* byR, BYTE* byG, BYTE* bYB);
 	void OnScroll(int iSB, int nSBCode, int nPos);
 	void DispStatus(CPoint point);

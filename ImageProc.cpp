@@ -604,6 +604,79 @@ BOOL ConvertImage(ImgRGB* imgRGB, CImage* cImageDst)
 }
 
 
+bool ExtractChannel(CImage* imgSrc, CImage* imgDst, ENUM_COLOR color)
+{
+	if(imgDst->IsNull() != true){imgDst->Destroy();}
+	int iWidth = imgSrc->GetWidth();
+	int iHeight = imgSrc->GetHeight();
+	if(imgSrc->GetBPP()==8)
+	{
+		(*imgDst) = (*imgSrc);
+		return true;
+	}
+
+	imgDst->Create(iWidth, iHeight, 8);
+	RGBQUAD colorTable[256];
+	for(int i=0; i<256; i++)
+	{
+		colorTable[i].rgbBlue=i;
+		colorTable[i].rgbGreen=i;
+		colorTable[i].rgbRed=i;
+		colorTable[i].rgbReserved=255;
+	}
+	
+	HDC hDC = imgDst->GetDC();
+	SetDIBColorTable(hDC, 0, 256, colorTable);
+	imgDst->ReleaseDC();
+
+	ImgRGB imgRGB;
+	ConvertImage(imgSrc, &imgRGB);
+	int iDstPitch=imgDst->GetPitch();
+	BYTE* byDstData = (BYTE*)imgDst->GetBits();
+	switch(color)
+	{
+	case COLOR_RED: 
+		{
+			int iIncR;
+			for(int r=0; r<iHeight; r++)
+			{
+				for(int c=0; c<iWidth; c++)
+				{
+					byDstData[r*iDstPitch+c]=imgRGB.byImgR[r*iWidth+c];
+				}
+			}
+			return true;
+		}
+
+	case COLOR_GREEN: 
+		{
+			int iIncR;
+			for(int r=0; r<iHeight; r++)
+			{
+				for(int c=0; c<iWidth; c++)
+				{
+					byDstData[r*iDstPitch+c]=imgRGB.byImgG[r*iWidth+c];
+				}
+			}
+			return true;
+		}
+	case COLOR_BLUE: 
+		{
+			int iIncR;
+			for(int r=0; r<iHeight; r++)
+			{
+				for(int c=0; c<iWidth; c++)
+				{
+					byDstData[r*iDstPitch+c]=imgRGB.byImgB[r*iWidth+c];
+				}
+			}
+			return true;
+		}
+	}
+
+	return true;
+}
+
 BOOL ZoomImage(CImage* imgSrc, CImage* imgDst, const double dR0_Src, const double dC0_Src, const double dScale, const int iWidth_Dst, const int iHeight_Dst)
 {
 
@@ -771,3 +844,4 @@ BOOL ZoomImage(CImage* imgSrc, CImage* imgDst, const double dR0_Src, const doubl
 	}
 	return TRUE;
 }
+
