@@ -561,37 +561,37 @@ void CSImageViewerView::OperateConvertColorSpace()
 
 		if((color==COLOR_RED)||(color==COLOR_GREEN)||(color==COLOR_BLUE))
 		{
-		ExtractChannel(&imgSrc,&m_imageProcessed[m_iImgIndex], color);
-		Invalidate();
-		return;
-}
+			ExtractChannel(&imgSrc,&m_imageProcessed[m_iImgIndex], color);
+			Invalidate();
+			return;
+		}
 		ImgRGB imgSrcRGB;
 		ImgRGB imgDstRGB;
 		ConvertImage(&imgSrc,&imgSrcRGB);
 		ConvertColorSpace(&imgSrcRGB,&imgDstRGB,color);
 		ConvertImage(&imgDstRGB,&m_imageProcessed[m_iImgIndex]);
 
-		
-//		 = imgResult;
+
+		//		 = imgResult;
 		Invalidate();
 		return;
 }
-	void CSImageViewerView::OperateRotaateImage(enumRotate rotate)
-	{
-		bool bAutoFull = false;
-	
-		ImgRGB imgRGB;
-		ImgRGB imgResult;
-		ConvertImage(&m_imageProcessed[m_iImgIndex], &imgRGB);
+void CSImageViewerView::OperateRotaateImage(enumRotate rotate)
+{
+	bool bAutoFull = false;
 
-		RotateImage(&imgRGB, &imgResult, rotate);
-		m_iImgIndex++;
-		m_iUnDoAvailableCount++;
-		if(m_iUnDoAvailableCount>=MAX_IMG_BUF-1){m_iUnDoAvailableCount=MAX_IMG_BUF-1;}
-		ConvertImage(&imgResult,&m_imageProcessed[(m_iImgIndex % MAX_IMG_BUF)]);
-		SetScroll();
-		Invalidate();
-	}
+	ImgRGB imgRGB;
+	ImgRGB imgResult;
+	ConvertImage(&m_imageProcessed[m_iImgIndex], &imgRGB);
+
+	RotateImage(&imgRGB, &imgResult, rotate);
+	m_iImgIndex++;
+	m_iUnDoAvailableCount++;
+	if(m_iUnDoAvailableCount>=MAX_IMG_BUF-1){m_iUnDoAvailableCount=MAX_IMG_BUF-1;}
+	ConvertImage(&imgResult,&m_imageProcessed[(m_iImgIndex % MAX_IMG_BUF)]);
+	SetScroll();
+	Invalidate();
+}
 
 	void CSImageViewerView::OperateBrightnessContrastGamma()
 	{

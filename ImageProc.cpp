@@ -586,7 +586,7 @@ BOOL ConvertImage(CImage* cimage, ImgRGB* imgRGB)
 		return TRUE;
 	}
 
-	if(iBPP==8)
+	if((iBPP==2)||(iBPP==4)||(iBPP==8))
 	{
 		RGBQUAD* pSrcTable=NULL;
         int nColors = cimage->GetMaxColorTableEntries();
@@ -607,7 +607,25 @@ BOOL ConvertImage(CImage* cimage, ImgRGB* imgRGB)
 		if(pSrcTable != NULL){delete [] pSrcTable;}
 		return TRUE;
 	}
-	
+
+	if(iBPP==1) 
+	{
+		for(int r=0; r<iSrcHeight; r++)
+		{
+			for(int c=0; c<iSrcWidth; c++)
+			{
+				int iPosition= r*iSrcPitch+c/8;
+				int iDigit = 8-(c%8)-1;
+				BYTE byValue = (( (src[iPosition] & (1<< iDigit)) == (1<< iDigit)) ? 255 : 0);
+
+				imgRGB->byImgR[r*imgRGB->iWidth+c]=byValue;
+				imgRGB->byImgG[r*imgRGB->iWidth+c]=byValue;
+				imgRGB->byImgB[r*imgRGB->iWidth+c]=byValue;
+
+			}
+		}
+		return TRUE;
+	}
 	if(iBPP==32)
 	{
 		for(int r=0; r<iSrcHeight; r++)
