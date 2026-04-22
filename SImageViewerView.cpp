@@ -558,20 +558,9 @@ void CSImageViewerView::OperateConvertColorSpace()
 		m_iUnDoAvailableCount++;
 		if(m_iUnDoAvailableCount>=MAX_IMG_BUF-1){m_iUnDoAvailableCount=MAX_IMG_BUF-1;}
 
-
-		if((color==COLOR_RED)||(color==COLOR_GREEN)||(color==COLOR_BLUE))
-		{
 			ExtractChannel(&imgSrc,&m_imageProcessed[m_iImgIndex], color);
 			Invalidate();
 			return;
-		}
-		ImgRGB imgSrcRGB;
-		ImgRGB imgDstRGB;
-		ConvertImage(&imgSrc,&imgSrcRGB);
-		ConvertColorSpace(&imgSrcRGB,&imgDstRGB,color);
-		ConvertImage(&imgDstRGB,&m_imageProcessed[m_iImgIndex]);
-
-
 		//		 = imgResult;
 		Invalidate();
 		return;

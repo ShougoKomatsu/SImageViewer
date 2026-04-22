@@ -41,6 +41,11 @@ void CExtractChennelDlg::OnBnClickedOk()
 	if(((CButton*)GetDlgItem(IDC_EXTRACT_CHANNEL_RADIO_R))->GetCheck() == TRUE){m_enumColor=COLOR_RED;};
 	if(((CButton*)GetDlgItem(IDC_EXTRACT_CHANNEL_RADIO_G))->GetCheck() == TRUE){m_enumColor=COLOR_GREEN;};
 	if(((CButton*)GetDlgItem(IDC_EXTRACT_CHANNEL_RADIO_B))->GetCheck() == TRUE){m_enumColor=COLOR_BLUE;};
+	
+	if(((CButton*)GetDlgItem(IDC_EXTRACT_CHANNEL_RADIO_R_GRAY))->GetCheck() == TRUE){m_enumColor=COLOR_RED_GRAY;};
+	if(((CButton*)GetDlgItem(IDC_EXTRACT_CHANNEL_RADIO_G_GRAY))->GetCheck() == TRUE){m_enumColor=COLOR_GREEN_GRAY;};
+	if(((CButton*)GetDlgItem(IDC_EXTRACT_CHANNEL_RADIO_B_GRAY))->GetCheck() == TRUE){m_enumColor=COLOR_BLUE_GRAY;};
+
 
 	if(((CButton*)GetDlgItem(IDC_EXTRACT_CHANNEL_RADIO_HUE))->GetCheck() == TRUE){m_enumColor=COLOR_HUE;};
 	if(((CButton*)GetDlgItem(IDC_EXTRACT_CHANNEL_RADIO_HUE180))->GetCheck() == TRUE){m_enumColor=COLOR_HUE180;};
