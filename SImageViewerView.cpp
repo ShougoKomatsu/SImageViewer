@@ -18,6 +18,7 @@ se // SImageViewerView.cpp : CSImageViewerView ƒNƒ‰ƒX‚ÌŽÀ‘•
 #include "CopyAsDlg.h"
 #include "CommonFunction.h"
 #include "ExtractChennelDlg.h"
+#include "FormatSelectionoDlg.h"
 #include "SImgProc_ex.h"
 #ifdef _DEBUG
 #define new DEBUG_NEW
@@ -510,7 +511,7 @@ IMPLEMENT_DYNCREATE(CSImageViewerView, CView)
 
 	void CSImageViewerView::OnFileSave()
 	{
-		SaveImage(&m_image);
+		SaveImage(&m_imageProcessed[m_iImgIndex]);
 	}
 	void CSImageViewerView::OnFileOpen()
 	{
@@ -1165,6 +1166,13 @@ void CSImageViewerView::OperateRotaateImage(enumRotate rotate)
 		{	
 			if(GetKeyState(VK_CONTROL)<0)
 			{
+				if (pMsg->wParam == 'F') 
+				{
+					CFormatSelectionoDlg formatDlg;
+					formatDlg.m_bImageIsMonochrome= IsImageMonochrome(&m_image);
+					formatDlg.DoModal();
+					return TRUE;
+				}
 				if (pMsg->wParam == 'C') 
 				{ 
 					if(m_Rect_i.IsRectEmpty()==TRUE){return FALSE;}
