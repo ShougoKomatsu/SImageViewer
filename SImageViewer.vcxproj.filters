@@ -99,6 +99,9 @@
     <ClInclude Include="ExtractChennelDlg.h">
       <Filter>ヘッダー ファイル\Dlg</Filter>
     </ClInclude>
+    <ClInclude Include="FormatSelectionoDlg.h">
+      <Filter>ヘッダー ファイル</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="SImageViewer.cpp">
@@ -133,6 +136,9 @@
     </ClCompile>
     <ClCompile Include="ExtractChennelDlg.cpp">
       <Filter>ソース ファイル\Dlg</Filter>
+    </ClCompile>
+    <ClCompile Include="FormatSelectionoDlg.cpp">
+      <Filter>ソース ファイル</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

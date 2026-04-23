@@ -15,3 +15,6 @@ bool ConvertImageToStr(CImage* cimage, CString sSeparater, CString* sImage);
 
 bool ExtractChannel(CImage* imgSrc, CImage* imgDst, ENUM_COLOR enumColor);
 bool CopyImage(CImage* imgSrc, CImage* imgDst);
+
+bool IsImageMonochrome(CImage* imgSrc);
+bool ConvertImageBPPP1(CImage* imgSrc, CImage* imgDst, bool bLosslessOnly);

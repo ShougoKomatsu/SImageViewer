@@ -3,6 +3,85 @@
 #include "SImgProc_ex.h"
 #include "CommonFunction.h"
 
+bool IsColorTableMonoxheome(RGBQUAD* rgbTable, int iLength)
+{
+	for(int i=0; i< iLength; i++)
+	{
+		if(rgbTable[i].rgbBlue != rgbTable[i].rgbGreen){return false;} 
+		if(rgbTable[i].rgbBlue != rgbTable[i].rgbRed){return false;}
+	}
+	return true;
+}
+bool IsImageMonochrome(CImage* imgSrc)
+{
+	int iBPP = imgSrc->GetBPP();
+
+	switch(iBPP)
+	{
+	case 1:{return true;}
+	case 2:
+		{
+			int iColors = imgSrc->GetMaxColorTableEntries();
+			RGBQUAD* rgbqTable_src= new RGBQUAD[iColors];
+			imgSrc->GetColorTable(0, iColors, rgbqTable_src);
+			bool bMono = IsColorTableMonoxheome(rgbqTable_src, iColors);
+			SAFE_DELETE(rgbqTable_src);
+			return bMono;
+		}
+	case 4:
+		{
+			int iColors = imgSrc->GetMaxColorTableEntries();
+			RGBQUAD* rgbqTable_src= new RGBQUAD[iColors];
+			imgSrc->GetColorTable(0, iColors, rgbqTable_src);
+			bool bMono = IsColorTableMonoxheome(rgbqTable_src, iColors);
+			SAFE_DELETE(rgbqTable_src);
+			return bMono;
+		}
+	case 8:
+		{
+			int iColors = imgSrc->GetMaxColorTableEntries();
+			RGBQUAD* rgbqTable_src= new RGBQUAD[iColors];
+			imgSrc->GetColorTable(0, iColors, rgbqTable_src);
+			bool bMono = IsColorTableMonoxheome(rgbqTable_src, iColors);
+			SAFE_DELETE(rgbqTable_src);
+			return bMono;
+		}
+	case 24:
+		{
+			BYTE* byData_src = (BYTE*)imgSrc->GetBits();
+			int iWidth = imgSrc->GetWidth();
+			int iHeight= imgSrc->GetHeight();
+			int iPitch = imgSrc->GetPitch();
+			for(int r=0; r<iHeight; r++)
+			{
+				for(int c=0; c< iWidth; c++)
+				{
+					if(byData_src[r*iPitch+c*3+0] != byData_src[r*iPitch+c*3+1]){return false;}
+					if(byData_src[r*iPitch+c*3+0] != byData_src[r*iPitch+c*3+2]){return false;}
+				}
+			}
+			return true;
+		}
+	case 32:
+		{
+			BYTE* byData_src = (BYTE*)imgSrc->GetBits();
+			int iWidth = imgSrc->GetWidth();
+			int iHeight= imgSrc->GetHeight();
+			int iPitch = imgSrc->GetPitch();
+			for(int r=0; r<iHeight; r++)
+			{
+				for(int c=0; c< iWidth; c++)
+				{
+					if(byData_src[r*iPitch+c*4+0] != byData_src[r*iPitch+c*4+1]){return false;}
+					if(byData_src[r*iPitch+c*4+0] != byData_src[r*iPitch+c*4+2]){return false;}
+				}
+			}
+			return true;
+		}
+	}
+	return false;
+}
+
 bool CopyImage(CImage* imgSrc, CImage* imgDst)
 {
 
@@ -1026,3 +1105,77 @@ bool ExtractChannel(CImage* imgSrc, CImage* imgDst, ENUM_COLOR color)
 		ConvertColorSpace(&imgSrcRGB,&imgDstRGB,color);
 		return ConvertImage(&imgDstRGB,imgDst);
 }
+
+bool ConvertImageBPPP1(CImage* imgSrc, CImage* imgDst, bool bLosslessOnly)
+{
+	if (imgDst->IsNull() != true) {imgDst->Destroy();}
+	if(imgSrc->GetBPP()==1){return CopyImage(imgSrc, imgDst);}
+
+	int iWidth = imgSrc->GetWidth();
+	int iHeight = imgSrc->GetHeight();
+	int iPitch_src = imgSrc->GetPitch();
+	BYTE* pbyData_src = (BYTE*)imgSrc->GetBits();
+	int iBPP = imgSrc->GetBPP();
+	imgDst->Create(iWidth, iHeight, 1);
+	BYTE* pbyData_dst = (BYTE*)imgDst->GetBits();
+	int iPitch_dst = imgDst->GetPitch();
+
+	for(int r=0; r<iHeight; r++)
+	{
+		for(int pc=0; pc< (iWidth+7)/8; pc++)
+		{
+			pbyData_dst[r*iPitch_dst+pc]=0;
+		}
+	}
+	ImgRGB imgRGB;
+	ConvertImage(imgSrc,&imgRGB);
+
+
+	if(bLosslessOnly == true)
+	{
+		for(int r=0; r<iHeight; r++)
+		{
+			for(int c=0; c< iWidth; c++)
+			{
+				BYTE byDataR = imgRGB.byImgR[r*iWidth+c];
+				BYTE byDataG = imgRGB.byImgG[r*iWidth+c];
+				BYTE byDataB = imgRGB.byImgB[r*iWidth+c];
+				if((byDataR != byDataG) || (byDataR != byDataB)){imgDst->Destroy(); return false;}
+				if((byDataR != 0) && (byDataR != 255)){imgDst->Destroy(); return false;}
+				pbyData_dst[r*iPitch_dst+(c/8)]+=(byDataR/255)<<(7-(c%8));
+			}
+		}
+		return true;
+	}
+	for(int r=0; r<iHeight; r++)
+	{
+		for(int c=0; c< iWidth; c++)
+		{
+			int iDataSum = imgRGB.byImgR[r*iWidth+c];
+			iDataSum += imgRGB.byImgG[r*iWidth+c];
+			iDataSum += imgRGB.byImgB[r*iWidth+c];
+
+			pbyData_dst[r*iPitch_dst+(c/8)]+=(iDataSum/384)<<(7-(c%8));
+		}
+	}
+	return true;
+
+	return false;
+}
+
+/*
+bool ConvertImageUsingColorTableLossLess(CImage* imgSrc, CImage* imgDst, int iBPP, bool bLosslessOnly)
+{
+	switch(iBPP)
+	{
+	case 1:{return true;}
+	case 2:{return true;}
+	case 4:{return true;}
+	case 8:{return true;}
+	case 24:{return true;}
+	case 32:{return true;}
+	}
+	
+	if(
+}
+*/

@@ -1168,6 +1168,15 @@ void CSImageViewerView::OperateRotaateImage(enumRotate rotate)
 			{
 				if (pMsg->wParam == 'F') 
 				{
+					
+	CImage imgSrc;
+	CopyImage(&(m_imageProcessed[m_iImgIndex]),&imgSrc);
+		m_iImgIndex++;
+		m_iUnDoAvailableCount++;
+		ConvertImageBPPP1(&imgSrc,&m_imageProcessed[(m_iImgIndex % MAX_IMG_BUF)],false);
+		Invalidate();
+
+		return TRUE;
 					CFormatSelectionoDlg formatDlg;
 					formatDlg.m_bImageIsMonochrome= IsImageMonochrome(&m_image);
 					formatDlg.DoModal();

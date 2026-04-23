@@ -114,6 +114,7 @@
     <ClInclude Include="CommonFunction.h" />
     <ClInclude Include="CopyAsDlg.h" />
     <ClInclude Include="ExtractChennelDlg.h" />
+    <ClInclude Include="FormatSelectionoDlg.h" />
     <ClInclude Include="ImageModifyDlg.h" />
     <ClInclude Include="ImageProc.h" />
     <ClInclude Include="MainFrm.h" />
@@ -129,6 +130,7 @@
     <ClCompile Include="CommonFunction.cpp" />
     <ClCompile Include="CopyAsDlg.cpp" />
     <ClCompile Include="ExtractChennelDlg.cpp" />
+    <ClCompile Include="FormatSelectionoDlg.cpp" />
     <ClCompile Include="ImageModifyDlg.cpp" />
     <ClCompile Include="ImageProc.cpp" />
     <ClCompile Include="MainFrm.cpp" />
