@@ -489,7 +489,30 @@ IMPLEMENT_DYNCREATE(CSImageViewerView, CView)
 
 	bool CSImageViewerView::SaveImage(CImage* image)
 	{
-		CFileDialog cf(FALSE);
+
+		CFormatSelectionoDlg formatDlg;
+		formatDlg.m_bImageIsMonochrome= IsImageMonochrome(&m_image);
+		INT_PTR iRet = formatDlg.DoModal();
+		if(iRet != IDOK){return false;}
+		CImage imgSave;
+		CString sFileExt;
+		CString sFilter;
+		int iBPP = formatDlg.m_iBPP;
+		switch(iBPP)
+		{
+		case 1:{ConvertImageBPP1(image,&imgSave,true); break;}
+		case 8:{ConvertImageBPP8(image,&imgSave,true); break;}
+		case 24:{ConvertImageBPP24(image,&imgSave); break;}
+		case 32:{ConvertImageBPP32(image,&imgSave); break;}
+		}
+		switch(formatDlg.m_iFormat)
+		{
+		case 0:{sFileExt.Format(_T("bmp"));sFilter.Format(_T("BitMap|*.bmp"));break;}
+		case 1:{sFileExt.Format(_T("png"));sFilter.Format(_T("PNG|*.png"));break;}
+		}
+
+
+		CFileDialog cf(FALSE, (LPCTSTR)sFileExt,NULL, 0, (LPCTSTR)sFilter);
 		//		cf.m_ofn.lpstrInitialDir = sMacroFolderPath;
 		if(cf.DoModal()!=IDOK){ return false;}
 		CString sFilePath;
@@ -503,7 +526,9 @@ IMPLEMENT_DYNCREATE(CSImageViewerView, CView)
 			if(iRet != IDYES){return false;}
 		}
 
-		HRESULT hResult = image->Save(sFilePath);
+
+
+		HRESULT hResult = imgSave.Save(sFilePath);
 		if(hResult != S_OK){return false;}
 
 		return true;
@@ -1165,23 +1190,7 @@ void CSImageViewerView::OperateRotaateImage(enumRotate rotate)
 		if (pMsg->message == WM_KEYDOWN)
 		{	
 			if(GetKeyState(VK_CONTROL)<0)
-			{
-				if (pMsg->wParam == 'F') 
-				{
-					
-	CImage imgSrc;
-	CopyImage(&(m_imageProcessed[m_iImgIndex]),&imgSrc);
-		m_iImgIndex++;
-		m_iUnDoAvailableCount++;
-		ConvertImageBPPP1(&imgSrc,&m_imageProcessed[(m_iImgIndex % MAX_IMG_BUF)],false);
-		Invalidate();
-
-		return TRUE;
-					CFormatSelectionoDlg formatDlg;
-					formatDlg.m_bImageIsMonochrome= IsImageMonochrome(&m_image);
-					formatDlg.DoModal();
-					return TRUE;
-				}
+			{	
 				if (pMsg->wParam == 'C') 
 				{ 
 					if(m_Rect_i.IsRectEmpty()==TRUE){return FALSE;}

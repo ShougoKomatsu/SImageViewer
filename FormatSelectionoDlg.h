@@ -12,7 +12,8 @@ public:
 	bool m_bImageIsMonochrome;
 	CFormatSelectionoDlg(CWnd* pParent = NULL);   // 標準コンストラクター
 	virtual ~CFormatSelectionoDlg();
-
+	int m_iFormat;
+	int m_iBPP;
 // ダイアログ データ
 	enum { IDD = IDD_DIALOG_SELECT_FORMAT };
 
@@ -23,4 +24,5 @@ protected:
 public:
 	virtual BOOL OnInitDialog();
 	CString m_sEditIsMonochrome;
+	afx_msg void OnBnClickedOk();
 };

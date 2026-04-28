@@ -1106,16 +1106,112 @@ bool ExtractChannel(CImage* imgSrc, CImage* imgDst, ENUM_COLOR color)
 		return ConvertImage(&imgDstRGB,imgDst);
 }
 
-bool ConvertImageBPPP1(CImage* imgSrc, CImage* imgDst, bool bLosslessOnly)
+
+bool MakeColorTable(ImgRGB* imgRGB, RGBQUAD* rgbqTable, int iLength)
+{
+	int iWidth = imgRGB->iWidth;
+	RGBQUAD* rgbqTable_temp;
+	ULONGLONG* ullFrequency;
+	if(iLength>256){return false;}
+	rgbqTable_temp = new RGBQUAD[iLength];
+	ullFrequency = new ULONGLONG[iLength];
+	for(int i=0; i<iLength; i++)
+	{
+		ullFrequency[i]=0;
+	}
+
+	int iTableLength = 0;
+	for(int r=0; r<imgRGB->iHeight; r++)
+	{
+		for(int c=0; c<iWidth ; c++)
+		{
+			BYTE byDataR = imgRGB->byImgR[r*iWidth+c];
+			BYTE byDataG = imgRGB->byImgG[r*iWidth+c];
+			BYTE byDataB = imgRGB->byImgB[r*iWidth+c];
+			bool bFounud = false;
+			for(int iTableIndex=0; iTableIndex<iTableLength; iTableIndex++)
+			{
+				if((byDataR==rgbqTable_temp[iTableIndex].rgbRed)
+					&& (byDataG==rgbqTable_temp[iTableIndex].rgbGreen)
+					&& (byDataB==rgbqTable_temp[iTableIndex].rgbBlue))
+				{
+					bFounud = true;
+					ullFrequency[iTableIndex]++;
+					break;
+				}
+			}
+
+			if(bFounud==false)
+			{
+				if(iTableLength==iLength)
+				{
+					SAFE_DELETE(rgbqTable_temp);
+					SAFE_DELETE(ullFrequency);
+					return false;
+				}
+
+				rgbqTable_temp[iTableLength].rgbRed=byDataR;
+				rgbqTable_temp[iTableLength].rgbGreen=byDataG;
+				rgbqTable_temp[iTableLength].rgbBlue=byDataB;
+				rgbqTable_temp[iTableLength].rgbReserved=0;
+				ullFrequency[iTableLength]++;
+				iTableLength++;
+			}
+		}
+	}
+
+
+	bool bGrayScale=true;
+	for(int i=0; i<iLength; i++)
+	{
+		if(rgbqTable_temp[i].rgbBlue != rgbqTable_temp[i].rgbRed){bGrayScale=false; break;}
+		if(rgbqTable_temp[i].rgbBlue != rgbqTable_temp[i].rgbGreen){bGrayScale=false; break;}
+	}
+
+	if(bGrayScale==true)
+	{
+		for(int i=0; i<iLength; i++)
+		{
+			rgbqTable[i].rgbRed=i;
+			rgbqTable[i].rgbGreen=i;
+			rgbqTable[i].rgbBlue=i;
+		}
+	}
+	else
+	{
+		for(int i=0; i<iLength; i++)
+		{
+			rgbqTable[i].rgbRed=rgbqTable_temp[i].rgbRed;
+			rgbqTable[i].rgbGreen=rgbqTable_temp[i].rgbGreen;
+			rgbqTable[i].rgbBlue=rgbqTable_temp[i].rgbBlue;
+		}
+	}
+	SAFE_DELETE(rgbqTable_temp);
+	SAFE_DELETE(ullFrequency);
+	return true;
+}
+int GetTableIndex(BYTE byR, BYTE byG, BYTE byB, RGBQUAD* rgbqTable, int iLength)
+{
+	for(int i=0; i<iLength; i++)
+	{
+		if((rgbqTable[i].rgbRed==byR)&&(rgbqTable[i].rgbGreen==byG)&&(rgbqTable[i].rgbBlue==byB))
+		{
+			return i;
+		}
+	}
+	return -1;
+}
+bool ConvertImageBPP1(CImage* imgSrc, CImage* imgDst, bool bLosslessOnly)
 {
 	if (imgDst->IsNull() != true) {imgDst->Destroy();}
-	if(imgSrc->GetBPP()==1){return CopyImage(imgSrc, imgDst);}
+	int iBPP_src = imgSrc->GetBPP();
+	if(iBPP_src==1){return CopyImage(imgSrc, imgDst);}
 
 	int iWidth = imgSrc->GetWidth();
 	int iHeight = imgSrc->GetHeight();
 	int iPitch_src = imgSrc->GetPitch();
 	BYTE* pbyData_src = (BYTE*)imgSrc->GetBits();
-	int iBPP = imgSrc->GetBPP();
+
 	imgDst->Create(iWidth, iHeight, 1);
 	BYTE* pbyData_dst = (BYTE*)imgDst->GetBits();
 	int iPitch_dst = imgDst->GetPitch();
@@ -1159,8 +1255,168 @@ bool ConvertImageBPPP1(CImage* imgSrc, CImage* imgDst, bool bLosslessOnly)
 		}
 	}
 	return true;
+}
+bool ConvertImageBPP8(CImage* imgSrc, CImage* imgDst, bool bLosslessOnly)
+{
+	if (imgDst->IsNull() != true) {imgDst->Destroy();}
+	int iBPP_src = imgSrc->GetBPP();
+	if(iBPP_src==8){return CopyImage(imgSrc,imgDst);}
 
+	int iWidth = imgSrc->GetWidth();
+	int iHeight = imgSrc->GetHeight();
+	int iPitch_src = imgSrc->GetPitch();
+	BYTE* pbyData_src = (BYTE*)imgSrc->GetBits();
+
+	ImgRGB imgRGB;
+	ConvertImage(imgSrc,&imgRGB);
+
+
+	imgDst->Create(iWidth, iHeight, 8);
+
+	RGBQUAD rgbqTable_dst[256];
+	for(int i=0; i<256; i++)
+	{
+		rgbqTable_dst[i].rgbRed=0;
+		rgbqTable_dst[i].rgbGreen=0;
+		rgbqTable_dst[i].rgbBlue=0;
+		rgbqTable_dst[i].rgbReserved=0;
+	}
+	bool bLosslessable = false;
+
+	switch(iBPP_src)
+	{
+	case 1:
+		{
+			for(int i=0; i<256; i++)
+			{
+				rgbqTable_dst[i].rgbRed=i;
+				rgbqTable_dst[i].rgbGreen=i;
+				rgbqTable_dst[i].rgbBlue=i;
+			}
+			bLosslessable = true;
+			break;
+		}
+	case 2:
+	case 4:
+	case 8:
+		{
+			int iColors = imgSrc->GetMaxColorTableEntries();
+			RGBQUAD* rgbqTable_src= new RGBQUAD[iColors];
+			imgSrc->GetColorTable(0, iColors, rgbqTable_src);
+
+			for(int i=0; i<iColors; i++)
+			{
+				rgbqTable_dst[i].rgbRed=rgbqTable_src[i].rgbRed;
+				rgbqTable_dst[i].rgbGreen=rgbqTable_src[i].rgbGreen;
+				rgbqTable_dst[i].rgbBlue=rgbqTable_src[i].rgbBlue;
+				rgbqTable_dst[i].rgbReserved=rgbqTable_src[i].rgbReserved;
+			}
+			bLosslessable = true;
+			break;
+		}
+	case 24:
+	case 32:
+		{
+			bLosslessable = MakeColorTable(&imgRGB,rgbqTable_dst,256);
+			break;
+		}
+	}
+
+	if((bLosslessOnly == true) &&(bLosslessable == false))
+	{
+		return false;
+	}
+
+	if(bLosslessable == true)
+	{
+		HDC hDC = imgDst->GetDC();
+		SetDIBColorTable(hDC, 0, 256, rgbqTable_dst);
+		imgDst->ReleaseDC();
+
+		BYTE* pbyData_dst = (BYTE*)imgDst->GetBits();
+		int iPitch_dst = imgDst->GetPitch();
+
+
+		for(int r=0; r<iHeight; r++)
+		{
+			for(int c=0; c< iWidth; c++)
+			{
+				BYTE byDataR = imgRGB.byImgR[r*iWidth+c];
+				BYTE byDataG = imgRGB.byImgG[r*iWidth+c];
+				BYTE byDataB = imgRGB.byImgB[r*iWidth+c];
+
+				int iIndex = GetTableIndex(byDataR,byDataG,byDataB,rgbqTable_dst, 256);
+				if(iIndex<0)
+				{
+					return false;
+				}
+				pbyData_dst[r*iPitch_dst+c]=(BYTE)iIndex;
+
+			}
+		}
+		return true;
+	}
 	return false;
+}
+bool ConvertImageBPP24(CImage* imgSrc, CImage* imgDst)
+{
+	if (imgDst->IsNull() != true) {imgDst->Destroy();}
+	int iBPP_src = imgSrc->GetBPP();
+	if(iBPP_src==24){return CopyImage(imgSrc, imgDst);}
+
+	int iWidth = imgSrc->GetWidth();
+	int iHeight = imgSrc->GetHeight();
+	int iPitch_src = imgSrc->GetPitch();
+	BYTE* pbyData_src = (BYTE*)imgSrc->GetBits();
+
+	imgDst->Create(iWidth, iHeight, 24);
+	BYTE* pbyData_dst = (BYTE*)imgDst->GetBits();
+	int iPitch_dst = imgDst->GetPitch();
+
+	ImgRGB imgRGB;
+	ConvertImage(imgSrc,&imgRGB);
+
+	for(int r=0; r<iHeight; r++)
+	{
+		for(int c=0; c< iWidth; c++)
+		{
+			pbyData_dst[r*iPitch_dst+c*3+0]=imgRGB.byImgB[r*iWidth+c];
+			pbyData_dst[r*iPitch_dst+c*3+1]=imgRGB.byImgG[r*iWidth+c];
+			pbyData_dst[r*iPitch_dst+c*3+2]=imgRGB.byImgR[r*iWidth+c];
+		}
+	}
+	return true;
+}
+
+bool ConvertImageBPP32(CImage* imgSrc, CImage* imgDst)
+{
+	if (imgDst->IsNull() != true) {imgDst->Destroy();}
+	int iBPP_src = imgSrc->GetBPP();
+	if(iBPP_src==32){return CopyImage(imgSrc, imgDst);}
+
+	int iWidth = imgSrc->GetWidth();
+	int iHeight = imgSrc->GetHeight();
+	int iPitch_src = imgSrc->GetPitch();
+	BYTE* pbyData_src = (BYTE*)imgSrc->GetBits();
+
+	imgDst->Create(iWidth, iHeight, 32);
+	BYTE* pbyData_dst = (BYTE*)imgDst->GetBits();
+	int iPitch_dst = imgDst->GetPitch();
+
+	ImgRGB imgRGB;
+	ConvertImage(imgSrc,&imgRGB);
+
+	for(int r=0; r<iHeight; r++)
+	{
+		for(int c=0; c< iWidth; c++)
+		{
+			pbyData_dst[r*iPitch_dst+c*4+0]=imgRGB.byImgB[r*iWidth+c];
+			pbyData_dst[r*iPitch_dst+c*4+1]=imgRGB.byImgG[r*iWidth+c];
+			pbyData_dst[r*iPitch_dst+c*4+2]=imgRGB.byImgR[r*iWidth+c];
+			pbyData_dst[r*iPitch_dst+c*4+3]=0;
+		}
+	}
+	return true;
 }
 
 /*
