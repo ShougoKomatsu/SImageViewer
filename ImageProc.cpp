@@ -9,7 +9,7 @@ bool SetColorTable(CImage* img, const RGBQUAD* rgbTable, int iLength)
 	if(img==NULL){return false;}
 	if(rgbTable==NULL){return false;}
 	if(iLength<0){return false;}
-	if(iLength>=256){return false;}
+	if(iLength>256){return false;}
 	if(img->IsNull()==true){return false;}
 
 	HDC hDC = img->GetDC();
@@ -118,8 +118,8 @@ bool CopyImage(const CImage* imgSrc, CImage* imgDst)
 		int iColors = imgSrc->GetMaxColorTableEntries();
 		RGBQUAD* rgbqTable_src= new RGBQUAD[iColors];
 		imgSrc->GetColorTable(0, iColors, rgbqTable_src);
-		
-SetColorTable(imgDst, rgbqTable_src, 256);
+
+		SetColorTable(imgDst, rgbqTable_src, 256);
 
 		SAFE_DELETE(rgbqTable_src);
 	}
@@ -662,7 +662,6 @@ BOOL ConvertImage(const CImage* cimage, ImgRGB* imgRGB)
 	int iBPP = cimage->GetBPP();
 	BYTE* src = (BYTE*)cimage->GetBits();
 	int iPitch_stc=cimage->GetPitch();
-	int iIncR;
 	if(iBPP==24)
 	{
 		for(int r=0; r<iHeight_src; r++)
@@ -749,7 +748,6 @@ BOOL ConvertImage(const ImgRGB* imgRGB, CImage* cImageDst)
 
 		BYTE* byDstData = (BYTE*)cImageDst->GetBits();
 		int iPitch_dst=cImageDst->GetPitch();
-		int iIncR;
 		for(int r=0; r<iHeight_src; r++)
 		{
 			for(int c=0; c<iWidth_src; c++)
@@ -781,7 +779,6 @@ SetColorTable(cImageDst, colorTable, 256);
 
 		BYTE* byDstData = (BYTE*)cImageDst->GetBits();
 		int iPitch_dst=cImageDst->GetPitch();
-		int iIncR;
 		for(int r=0; r<iHeight_src; r++)
 		{
 			for(int c=0; c<iWidth_src; c++)
@@ -827,7 +824,6 @@ SetColorTable(imgDst, colorTable, 256);
 	{
 	case COLOR_RED_GRAY: 
 		{
-			int iIncR;
 			for(int r=0; r<iHeight; r++)
 			{
 				for(int c=0; c<iWidth; c++)
@@ -840,7 +836,6 @@ SetColorTable(imgDst, colorTable, 256);
 
 	case COLOR_GREEN_GRAY: 
 		{
-			int iIncR;
 			for(int r=0; r<iHeight; r++)
 			{
 				for(int c=0; c<iWidth; c++)
@@ -852,7 +847,6 @@ SetColorTable(imgDst, colorTable, 256);
 		}
 	case COLOR_BLUE_GRAY: 
 		{
-			int iIncR;
 			for(int r=0; r<iHeight; r++)
 			{
 				for(int c=0; c<iWidth; c++)
@@ -882,7 +876,6 @@ bool ExtractChannel_Color(CImage* imgSrc, CImage* imgDst, ENUM_COLOR color)
 	{
 	case COLOR_RED: 
 		{
-			int iIncR;
 			for(int r=0; r<iHeight; r++)
 			{
 				for(int c=0; c<iWidth; c++)
@@ -897,7 +890,6 @@ bool ExtractChannel_Color(CImage* imgSrc, CImage* imgDst, ENUM_COLOR color)
 
 	case COLOR_GREEN: 
 		{
-			int iIncR;
 			for(int r=0; r<iHeight; r++)
 			{
 				for(int c=0; c<iWidth; c++)
@@ -911,7 +903,6 @@ bool ExtractChannel_Color(CImage* imgSrc, CImage* imgDst, ENUM_COLOR color)
 		}
 	case COLOR_BLUE: 
 		{
-			int iIncR;
 			for(int r=0; r<iHeight; r++)
 			{
 				for(int c=0; c<iWidth; c++)
@@ -1512,7 +1503,7 @@ bool ConvertImageBPP32(const CImage* imgSrc, CImage* imgDst)
 int GetNearestColor(const RGBQUAD* rgbqTable, const int iLength, const RGBQUAD rgbqTarget)
 {
 	int iNearestIndex=-1;
-	ULONGLONG ullDelta=256*256*256+1;
+	UINT uiDelta=256*256*256+1;
 
 	BYTE byR_Target=rgbqTarget.rgbRed;
 	BYTE byG_Target=rgbqTarget.rgbGreen;
@@ -1523,12 +1514,12 @@ int GetNearestColor(const RGBQUAD* rgbqTable, const int iLength, const RGBQUAD r
 		BYTE byG_Table=rgbqTable[i].rgbGreen;
 		BYTE byB_Table=rgbqTable[i].rgbBlue;
 
-		ULONGLONG ullTemp = (byR_Table-byR_Target)*(byR_Table-byR_Target)
-			+1.0*(byG_Table-byG_Target)*(byG_Table-byG_Target)
-			+1.0*(byB_Table-byB_Target)*(byB_Table-byB_Target);
-		if(ullTemp <ullDelta)
+		UINT uiTemp = (byR_Table-byR_Target)*(byR_Table-byR_Target)
+			+(byG_Table-byG_Target)*(byG_Table-byG_Target)
+			+(byB_Table-byB_Target)*(byB_Table-byB_Target);
+		if(uiTemp <uiDelta)
 		{
-			ullDelta = ullTemp;
+			uiDelta = uiTemp;
 			iNearestIndex = i;
 		}
 	}
@@ -1672,21 +1663,74 @@ bool index_i(const ULONGLONG* iValues, const int iLength, int* iIndex)
 }
 
 
-inline ULONGLONG GetRGBDistanceSq(const RGBQUAD rgbqTable, const BYTE byR, const BYTE byG, const BYTE byB)
+inline UINT GetRGBDistanceSq(const RGBQUAD rgbqTable, const BYTE byR, const BYTE byG, const BYTE byB)
 {
 	return (rgbqTable.rgbRed-byR)*(rgbqTable.rgbRed-byR)
 		+(rgbqTable.rgbGreen-byG)*(rgbqTable.rgbGreen-byG)
 		+(rgbqTable.rgbBlue-byB)*(rgbqTable.rgbBlue-byB);
 }
-inline ULONGLONG GetRGBDistanceSq(const RGBQUAD rgbqTable,const RGBQUAD rgbqTable2)
+inline UINT GetRGBDistanceSq(const RGBQUAD rgbqTable,const RGBQUAD rgbqTable2)
 {
 	return (rgbqTable.rgbRed-rgbqTable2.rgbRed)*(rgbqTable.rgbRed-rgbqTable2.rgbRed)
 		+(rgbqTable.rgbGreen-rgbqTable2.rgbGreen)*(rgbqTable.rgbGreen-rgbqTable2.rgbGreen)
 		+(rgbqTable.rgbBlue-rgbqTable2.rgbBlue)*(rgbqTable.rgbBlue-rgbqTable2.rgbBlue);
 }
 
-bool K_mean_RGB_2Class(RGBQUAD* rgbqTable, ULONGLONG* ullFrequency, int iLength, BYTE byR1_in, BYTE byG1_in, BYTE byB1_in, BYTE byR2_in, BYTE byG2_in, BYTE byB2_in,BYTE* byR1_out, BYTE* byG1_out, BYTE* byB1_out, BYTE* byR2_out, BYTE* byG2_out, BYTE* byB2_out)
+void GetMinMaxValue(const RGBQUAD* rgbqTable, const int iLength,
+	BYTE* byR_Min_out,
+	BYTE* byG_Min_out,
+	BYTE* byB_Min_out,
+	BYTE* byR_Max_out,
+	BYTE* byG_Max_out,
+	BYTE* byB_Max_out)
 {
+
+	BYTE byR_Max=0;
+	BYTE byG_Max=0;
+	BYTE byB_Max=0;
+	BYTE byR_Min=255;
+	BYTE byG_Min=255;
+	BYTE byB_Min=255;
+
+	for(int i=0; i<iLength; i++)
+	{
+		if(byR_Max < rgbqTable[i].rgbRed){byR_Max = rgbqTable[i].rgbRed;}
+		if(byG_Max < rgbqTable[i].rgbGreen){byG_Max = rgbqTable[i].rgbGreen;}
+		if(byB_Max < rgbqTable[i].rgbBlue){byB_Max = rgbqTable[i].rgbBlue;}
+		if(byR_Min > rgbqTable[i].rgbRed){byR_Min = rgbqTable[i].rgbRed;}
+		if(byG_Min > rgbqTable[i].rgbGreen){byG_Min = rgbqTable[i].rgbGreen;}
+		if(byB_Min > rgbqTable[i].rgbBlue){byB_Min = rgbqTable[i].rgbBlue;}
+	}
+	*byR_Max_out=byR_Max;
+	*byG_Max_out=byG_Max;
+	*byB_Max_out=byB_Max;
+	*byR_Min_out=byR_Min;
+	*byG_Min_out=byG_Min;
+	*byB_Min_out=byB_Min;
+}
+
+void GetAverageValue(const RGBQUAD* rgbqTable, const int iLength,
+	BYTE* byR_out,
+	BYTE* byG_out,
+	BYTE* byB_out)
+{
+	ULONGLONG ullRSum=0;
+	ULONGLONG ullGSum=0;
+	ULONGLONG ullBSum=0;
+	for(int i=0; i<iLength; i++)
+	{
+		ullRSum+=rgbqTable[i].rgbRed;
+		ullGSum+=rgbqTable[i].rgbGreen;
+		ullBSum+=rgbqTable[i].rgbBlue;
+	}
+	*byR_out=max(0,min(255,(BYTE)ullRSum/iLength));
+	*byG_out=max(0,min(255,(BYTE)ullGSum/iLength));
+	*byB_out=max(0,min(255,(BYTE)ullBSum/iLength));
+}
+bool K_mean_RGB_2Class(const RGBQUAD* rgbqTable, const ULONGLONG* ullFrequency, const int iLength, const BYTE byR1_in, const BYTE byG1_in, const BYTE byB1_in, const BYTE byR2_in, const BYTE byG2_in, const BYTE byB2_in, BYTE* byR1_out, BYTE* byG1_out, BYTE* byB1_out, BYTE* byR2_out, BYTE* byG2_out, BYTE* byB2_out)
+{
+	if(iLength<=1){return false;}
+
 	BYTE byR1=byR1_in;
 	BYTE byG1=byG1_in;
 	BYTE byB1=byB1_in;
@@ -1697,10 +1741,11 @@ bool K_mean_RGB_2Class(RGBQUAD* rgbqTable, ULONGLONG* ullFrequency, int iLength,
 	int* iLabel;
 	iLabel=new int[iLength];
 	for(int i=0; i<iLength; i++){iLabel[i]=0;}
+
 	while(1)
 	{
-		int iNum1=0;
-		int iNum2=0;
+		ULONGLONG ullNum1=0;
+		ULONGLONG ullNum2=0;
 		bool bChanged = false;
 		for(int i=0; i<iLength; i++)
 		{
@@ -1708,13 +1753,13 @@ bool K_mean_RGB_2Class(RGBQUAD* rgbqTable, ULONGLONG* ullFrequency, int iLength,
 			ULONGLONG ullDistance2=GetRGBDistanceSq(rgbqTable[i], byR2, byG2, byB2);
 			if(ullDistance1<ullDistance2)
 			{
-				iNum1+=ullFrequency[i];
+				ullNum1+=ullFrequency[i];
 				if(iLabel[i] != 1){bChanged=true;}
 				iLabel[i]=1;
 			}
 			else
 			{
-				iNum2+=ullFrequency[i];
+				ullNum2+=ullFrequency[i];
 				if(iLabel[i] != 2){bChanged=true;}
 				iLabel[i]=2;
 			}
@@ -1743,35 +1788,35 @@ bool K_mean_RGB_2Class(RGBQUAD* rgbqTable, ULONGLONG* ullFrequency, int iLength,
 			}
 
 		}
-		if((iNum1==0)||(iNum2==0))
+
+
+		if((ullNum1==0)||(ullNum2==0))
 		{
 			SAFE_DELETE(iLabel);
-			ULONGLONG ullRSum=0;
-			ULONGLONG ullGSum=0;
-			ULONGLONG ullBSum=0;
-			for(int i=0; i<iLength; i++)
-			{
-				ullRSum+=rgbqTable[i].rgbRed;
-				ullGSum+=rgbqTable[i].rgbGreen;
-				ullBSum+=rgbqTable[i].rgbBlue;
-			}
-			byR1=max(0,ullRSum/iLength-1);
-			byG1=max(0,ullGSum/iLength-1);
-			byB1=max(0,ullBSum/iLength-1);
-			byR2=min(255,ullRSum/iLength+1);
-			byG2=min(255,ullGSum/iLength+1);
-			byB2=min(255,ullBSum/iLength+1);
-			K_mean_RGB_2Class(rgbqTable, ullFrequency, iLength, byR1, byG1, byB1, byR2, byG2, byB2, byR1_out, byG1_out, byB1_out, byR2_out, byG2_out, byB2_out);
-			return true;
+
+			BYTE byR;
+			BYTE byG;
+			BYTE byB;
+
+			GetAverageValue(rgbqTable, iLength, &byR, &byG, &byB);
+
+			byR1=max(0,(int)byR-1);
+			byG1=max(0,(int)byG-1);
+			byB1=max(0,(int)byB-1);
+			byR2=min(255,(int)byR+1);
+			byG2=min(255,(int)byG+1);
+			byB2=min(255,(int)byB+1);
+
+			return K_mean_RGB_2Class(rgbqTable, ullFrequency, iLength, byR1, byG1, byB1, byR2, byG2, byB2, byR1_out, byG1_out, byB1_out, byR2_out, byG2_out, byB2_out);
 		}
 
-		byR1=int(ullSumR1/(iNum1*1.0)+0.5);
-		byG1=int(ullSumG1/(iNum1*1.0)+0.5);
-		byB1=int(ullSumB1/(iNum1*1.0)+0.5);
+		byR1=int(ullSumR1/(ullNum1*1.0)+0.5);
+		byG1=int(ullSumG1/(ullNum1*1.0)+0.5);
+		byB1=int(ullSumB1/(ullNum1*1.0)+0.5);
 
-		byR2=int(ullSumR2/(iNum2*1.0)+0.5);
-		byG2=int(ullSumG2/(iNum2*1.0)+0.5);
-		byB2=int(ullSumB2/(iNum2*1.0)+0.5);
+		byR2=int(ullSumR2/(ullNum2*1.0)+0.5);
+		byG2=int(ullSumG2/(ullNum2*1.0)+0.5);
+		byB2=int(ullSumB2/(ullNum2*1.0)+0.5);
 		if(bChanged==false){break;}
 	}
 
@@ -1785,16 +1830,16 @@ bool K_mean_RGB_2Class(RGBQUAD* rgbqTable, ULONGLONG* ullFrequency, int iLength,
 	return true;
 }
 
-bool K_mean_RGB(RGBQUAD* rgbqTable, ULONGLONG* ullFrequency, int iLength, RGBQUAD* rgbqTable_classed, int iClassNum)
+bool K_mean_RGB(const RGBQUAD* rgbqTable, const ULONGLONG* ullFrequency, const int iLength, RGBQUAD* rgbqTable_classed, const int iClassNum)
 {
-	ULONGLONG* ullDistances;
-	ullDistances=new ULONGLONG[iClassNum];
+	UINT* uiDistanceSqs;
+	uiDistanceSqs=new UINT[iClassNum];
 
-	int* iLabel;
-	iLabel=new int[iLength];
+	int* iClasses;
+	iClasses=new int[iLength];
 
-	int* iNums;
-	iNums=new int[iClassNum];
+	ULONGLONG* ullNums;
+	ullNums=new ULONGLONG[iClassNum];
 
 	ULONGLONG* ullSumRs;
 	ULONGLONG* ullSumGs;
@@ -1802,54 +1847,77 @@ bool K_mean_RGB(RGBQUAD* rgbqTable, ULONGLONG* ullFrequency, int iLength, RGBQUA
 	ullSumRs=new ULONGLONG[iClassNum];
 	ullSumGs=new ULONGLONG[iClassNum];
 	ullSumBs=new ULONGLONG[iClassNum];
+
+	ULONGLONG ullNearestClassFistanceSq=256*256*256+1;
+
+	for(int iClass1=0; iClass1<iClassNum-1; iClass1++)
+	{
+		for(int iClass2=iClass1+1; iClass2<iClassNum; iClass2++)
+		{
+			ULONGLONG uiDistanceSq = GetRGBDistanceSq(rgbqTable_classed[iClass1], rgbqTable_classed[iClass2]);
+			if(ullNearestClassFistanceSq>uiDistanceSq){ullNearestClassFistanceSq=uiDistanceSq;}
+		}
+	}
+
 	while(1)
 	{
 		for(int iClass=0; iClass<iClassNum; iClass++)
 		{
-			iNums[iClass]=0;
+			ullNums[iClass]=0;
 			ullSumRs[iClass]=0;
 			ullSumGs[iClass]=0;
 			ullSumBs[iClass]=0;
 		}
+
 		bool bChanged = false;
+
 		for(int i=0; i<iLength; i++)
 		{
+			int iDirectMachClass = -1;
 			for(int iClass=0; iClass<iClassNum; iClass++)
 			{
-				ullDistances[iClass]=GetRGBDistanceSq(rgbqTable[i], rgbqTable_classed[iClass]);
+				uiDistanceSqs[iClass]=GetRGBDistanceSq(rgbqTable[i], rgbqTable_classed[iClass]);
+				if(uiDistanceSqs[iClass]<ullNearestClassFistanceSq/2){iDirectMachClass = iClass; break;}
 			}
-			int iMinDistance=256*256*256;
+			
+			if(iDirectMachClass >= 0)
+			{
+				ullNums[iDirectMachClass]+=ullFrequency[i];
+				if(iClasses[i] != iDirectMachClass){bChanged = true;}
+				iClasses[i]=iDirectMachClass;
+				continue;
+			}
 
-			int iMinClass;
+			int iMinClass=0;
+			UINT uiMinDistanceSq=256*256*256+1;
+
 			for(int iClass=0; iClass<iClassNum; iClass++)
 			{
-				if(ullDistances[iClass]<iMinDistance){iMinDistance=ullDistances[iClass]; iMinClass=iClass;}
-
+				if(uiDistanceSqs[iClass] < uiMinDistanceSq)
+				{
+					uiMinDistanceSq=uiDistanceSqs[iClass];
+					iMinClass=iClass;
+				}
 			}
-
-
-
-			iNums[iMinClass]+=ullFrequency[i];
-			if(iLabel[i] != iMinClass){bChanged=true;}
-			iLabel[i]=iMinClass;
-
+			ullNums[iMinClass]+=ullFrequency[i];
+			if(iClasses[i] != iMinClass){bChanged = true;}
+			iClasses[i]=iMinClass;
 		}
 
 
 		for(int i=0; i<iLength; i++)
 		{
-			ullSumRs[iLabel[i]]+=rgbqTable[i].rgbRed*ullFrequency[i];
-			ullSumGs[iLabel[i]]+=rgbqTable[i].rgbGreen*ullFrequency[i];
-			ullSumBs[iLabel[i]]+=rgbqTable[i].rgbBlue*ullFrequency[i];
-
+			ullSumRs[iClasses[i]]+=rgbqTable[i].rgbRed*ullFrequency[i];
+			ullSumGs[iClasses[i]]+=rgbqTable[i].rgbGreen*ullFrequency[i];
+			ullSumBs[iClasses[i]]+=rgbqTable[i].rgbBlue*ullFrequency[i];
 		}
 
 
 		for(int iClass=0; iClass<iClassNum; iClass++)
 		{
-			rgbqTable_classed[iClass].rgbRed=int(ullSumRs[iClass]/(iNums[iClass]*1.0)+0.5);
-			rgbqTable_classed[iClass].rgbGreen=int(ullSumGs[iClass]/(iNums[iClass]*1.0)+0.5);
-			rgbqTable_classed[iClass].rgbBlue=int(ullSumBs[iClass]/(iNums[iClass]*1.0)+0.5);
+			rgbqTable_classed[iClass].rgbRed=int(ullSumRs[iClass]/(ullNums[iClass]*1.0)+0.5);
+			rgbqTable_classed[iClass].rgbGreen=int(ullSumGs[iClass]/(ullNums[iClass]*1.0)+0.5);
+			rgbqTable_classed[iClass].rgbBlue=int(ullSumBs[iClass]/(ullNums[iClass]*1.0)+0.5);
 		}
 
 		if(bChanged==false){break;}
@@ -1857,12 +1925,48 @@ bool K_mean_RGB(RGBQUAD* rgbqTable, ULONGLONG* ullFrequency, int iLength, RGBQUA
 	SAFE_DELETE(ullSumRs);
 	SAFE_DELETE(ullSumGs);
 	SAFE_DELETE(ullSumBs);
-	SAFE_DELETE(iLabel);
-	SAFE_DELETE(iNums);
-	SAFE_DELETE(ullDistances);
+	SAFE_DELETE(iClasses);
+	SAFE_DELETE(ullNums);
+	SAFE_DELETE(uiDistanceSqs);
 	return true;
 }
-bool CalcDeviationForEachClass(RGBQUAD* rgbqTable, ULONGLONG* ullFrequency, int* iClasses, int iLength, RGBQUAD* rgbqTable_classed, int iClassNum, double* dDeviations, int* iMaxDeviationClass)
+bool GetLargestDeviationClass(const RGBQUAD* rgbqTable, const ULONGLONG* ullFrequency, int* iClasses, const int iLength, const RGBQUAD* rgbqTable_classed, const int iClassNum, int* iMaxDeviationClass)
+{
+	ULONGLONG* ullSumDistSq;
+	ULONGLONG* ullCount;
+	ullSumDistSq = new ULONGLONG[iClassNum];
+	ullCount = new ULONGLONG[iClassNum];
+	for(int iClass=0; iClass<iClassNum; iClass++)
+	{
+		ullSumDistSq[iClass]=0;ullCount[iClass]=0;
+	}
+
+	for(int i=0; i<iLength; i++)
+	{
+		int iMinDistanceSq=255*255*255;
+		int iMinDistanceClass=0;
+		for(int iClass=0; iClass<iClassNum; iClass++)
+		{
+			int iDistanceSq = GetRGBDistanceSq(rgbqTable[i], rgbqTable_classed[iClass].rgbRed, rgbqTable_classed[iClass].rgbGreen, rgbqTable_classed[iClass].rgbBlue);
+			if(iDistanceSq<iMinDistanceSq){iMinDistanceSq=iDistanceSq;iMinDistanceClass=iClass;}
+		}
+		iClasses[i]=iMinDistanceClass;
+		ullSumDistSq[iMinDistanceClass]+=iMinDistanceSq;
+		ullCount[iMinDistanceClass]+=ullFrequency[i];
+	}
+
+	double dDeviationMax=0;
+	for(int iClass=0; iClass<iClassNum; iClass++)
+	{
+		double dDeviation=ullSumDistSq[iClass]/(1.0*ullCount[iClass]);
+		if(dDeviation>dDeviationMax){dDeviationMax=dDeviation;*iMaxDeviationClass=iClass;}
+	}
+	SAFE_DELETE(ullSumDistSq);
+	SAFE_DELETE(ullCount);
+	return true;
+}
+
+bool CalcDeviationForEachClass(const RGBQUAD* rgbqTable, const ULONGLONG* ullFrequency, int* iClasses, const int iLength, const RGBQUAD* rgbqTable_classed, const int iClassNum, double* dDeviations, int* iMaxDeviationClass)
 {
 	ULONGLONG* ullSumDistSq;
 	ULONGLONG* ullCount;
@@ -1898,9 +2002,11 @@ bool CalcDeviationForEachClass(RGBQUAD* rgbqTable, ULONGLONG* ullFrequency, int*
 	SAFE_DELETE(ullCount);
 	return true;
 }
-bool K_mean(RGBQUAD* rgbqTable, ULONGLONG* ullFrequency, int* iClaaes_out, int iLength, RGBQUAD* rgbqResult)
+
+bool GetCluster_K_mean(RGBQUAD* rgbqTable, ULONGLONG* ullFrequency, int* iClaaes_out, int iLength, RGBQUAD* rgbqResult, const int iMaxClassNum)
 {
-	RGBQUAD rgbqTable_classed[256];
+	RGBQUAD* rgbqTable_classed;
+	rgbqTable_classed = new RGBQUAD[iMaxClassNum];
 
 	RGBQUAD* rgbqTable_temp;
 	rgbqTable_temp = new RGBQUAD[iLength];
@@ -1936,17 +2042,7 @@ bool K_mean(RGBQUAD* rgbqTable, ULONGLONG* ullFrequency, int* iClaaes_out, int i
 		BYTE byR_Min=255;
 		BYTE byG_Min=255;
 		BYTE byB_Min=255;
-
-		for(int i=0; i<iLength_temp; i++)
-		{
-			if(byR_Max < rgbqTable_temp[i].rgbRed){byR_Max = rgbqTable_temp[i].rgbRed;}
-			if(byG_Max < rgbqTable_temp[i].rgbGreen){byG_Max = rgbqTable_temp[i].rgbGreen;}
-			if(byB_Max < rgbqTable_temp[i].rgbBlue){byB_Max = rgbqTable_temp[i].rgbBlue;}
-			if(byR_Min > rgbqTable_temp[i].rgbRed){byR_Min = rgbqTable_temp[i].rgbRed;}
-			if(byG_Min > rgbqTable_temp[i].rgbGreen){byG_Min = rgbqTable_temp[i].rgbGreen;}
-			if(byB_Min > rgbqTable_temp[i].rgbBlue){byB_Min = rgbqTable_temp[i].rgbBlue;}
-		}
-
+		GetMinMaxValue(rgbqTable_temp, iLength_temp,&byR_Min,&byG_Min,&byB_Min,&byR_Max,&byG_Max,&byB_Max);
 
 		BYTE byR1;
 		BYTE byG1;
@@ -1954,7 +2050,6 @@ bool K_mean(RGBQUAD* rgbqTable, ULONGLONG* ullFrequency, int* iClaaes_out, int i
 		BYTE byR2;
 		BYTE byG2;
 		BYTE byB2;
-
 		K_mean_RGB_2Class(rgbqTable_temp, ullFrequency_temp, iLength_temp, byR_Min, byG_Min, byB_Min, byR_Max, byG_Max, byB_Max, &byR1, &byG1, &byB1, &byR2, &byG2, &byB2);
 
 		rgbqTable_classed[iTargetClass].rgbRed=byR1;
@@ -1966,9 +2061,8 @@ bool K_mean(RGBQUAD* rgbqTable, ULONGLONG* ullFrequency, int* iClaaes_out, int i
 
 		K_mean_RGB(rgbqTable, ullFrequency, iLength,rgbqTable_classed, iClassNum+1);
 		int iMaxDeviationClass=0;
-		double dDeviations[256];
-		CalcDeviationForEachClass(rgbqTable, ullFrequency, iClasses, iLength, rgbqTable_classed, iClassNum+1, dDeviations, &iMaxDeviationClass);
 
+		GetLargestDeviationClass(rgbqTable, ullFrequency, iClasses, iLength, rgbqTable_classed, iClassNum+1, &iMaxDeviationClass);
 
 		iTargetClass=iMaxDeviationClass;
 	}
@@ -1980,12 +2074,13 @@ bool K_mean(RGBQUAD* rgbqTable, ULONGLONG* ullFrequency, int* iClaaes_out, int i
 		iClaaes_out[i]=iClasses[i];
 	}
 	SAFE_DELETE(iClasses);
-	for(int i=0; i<256; i++)
+	for(int i=0; i<iMaxClassNum; i++)
 	{
 		rgbqResult[i].rgbRed=rgbqTable_classed[i].rgbRed;
 		rgbqResult[i].rgbGreen=rgbqTable_classed[i].rgbGreen;
 		rgbqResult[i].rgbBlue=rgbqTable_classed[i].rgbBlue;
 	}
+	SAFE_DELETE(rgbqTable_classed);
 
 	return true;
 }
@@ -2015,15 +2110,11 @@ bool ConvertImageBPP8_ByDeviation(const CImage* imgSrc, CImage* imgDst)
 	iConversionTable=new int[iColors];
 	RGBQUAD rgbqResult[256];
 
-	K_mean(rgbqTable, ullFrequency, iConversionTable, iColors, rgbqResult);
+	GetCluster_K_mean(rgbqTable, ullFrequency, iConversionTable, iColors, rgbqResult, 256);
 
 
 	imgDst->Create(iWidth, iHeight,8);
-
-
-	
-SetColorTable(imgDst, rgbqResult, 256);
-
+	SetColorTable(imgDst, rgbqResult, 256);
 
 	int iPitch_dst = imgDst->GetPitch();
 	BYTE* pbyData_dst = (BYTE*)imgDst->GetBits();
