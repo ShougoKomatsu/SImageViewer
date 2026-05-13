@@ -1877,7 +1877,7 @@ bool K_mean_RGB(const RGBQUAD* rgbqTable, const ULONGLONG* ullFrequency, const i
 			for(int iClass=0; iClass<iClassNum; iClass++)
 			{
 				uiDistanceSqs[iClass]=GetRGBDistanceSq(rgbqTable[i], rgbqTable_classed[iClass]);
-				if(uiDistanceSqs[iClass]<ullNearestClassFistanceSq/2){iDirectMachClass = iClass; break;}
+				if(uiDistanceSqs[iClass]<ullNearestClassFistanceSq/4){iDirectMachClass = iClass; break;}
 			}
 			
 			if(iDirectMachClass >= 0)
