@@ -19,6 +19,7 @@ se // SImageViewerView.cpp : CSImageViewerView ƒNƒ‰ƒX‚ÌŽÀ‘•
 #include "CommonFunction.h"
 #include "ExtractChennelDlg.h"
 #include "FormatSelectionoDlg.h"
+#include "ChangeColorDepthDlg.h"
 #include "SImgProc_ex.h"
 #ifdef _DEBUG
 #define new DEBUG_NEW
@@ -81,6 +82,7 @@ IMPLEMENT_DYNCREATE(CSImageViewerView, CView)
 		ON_COMMAND(ID_SET_SELECTION, &CSImageViewerView::OnSetSelection)
 		ON_COMMAND(ID_COPY_AS, &CSImageViewerView::OnCopyAs)
 		ON_COMMAND(ID_CONVERT_COLOR_SPACE, &CSImageViewerView::OperateConvertColorSpace)
+		ON_COMMAND(ID_CHANGE_COLOR_DEPTH, &CSImageViewerView::OperateChangeColorDepth)
 		ON_WM_SIZE()
 		ON_WM_MOUSEMOVE()
 		ON_WM_LBUTTONDOWN()
@@ -568,47 +570,65 @@ IMPLEMENT_DYNCREATE(CSImageViewerView, CView)
 		ConvertImage(&imgMeaned,&m_imageProcessed[(m_iImgIndex % MAX_IMG_BUF)]);
 		Invalidate();
 	}
-void CSImageViewerView::OperateConvertColorSpace()
-{
-	ENUM_COLOR color;
-		CExtractChennelDlg extractDlg;
+		void CSImageViewerView::OperateChangeColorDepth()
+		{
+			CChangeColorDepthDlg colorDepthDlg;
+			
+			INT_PTR iRet = colorDepthDlg.DoModal();
+			if(iRet != IDOK){return;}
 
-		INT_PTR iRet = extractDlg.DoModal();
-		if(iRet != IDOK){return;}
+			CImage imgSrc;
+			CopyImage(&m_imageProcessed[m_iImgIndex], &imgSrc);
+			m_iImgIndex++;
+			m_iUnDoAvailableCount++;
+			if(m_iUnDoAvailableCount>=MAX_IMG_BUF-1){m_iUnDoAvailableCount=MAX_IMG_BUF-1;}
+			switch(colorDepthDlg.m_iMode)
+			{
+			case 0:{ConvertImageBPP8(&imgSrc, &m_imageProcessed[m_iImgIndex], true);break;}
+			case 1:{ConvertImageBPP8_AreaCoverage(&imgSrc, &m_imageProcessed[m_iImgIndex]);break;}
+			case 2:{ConvertImageBPP8_ByDeviation(&imgSrc, &m_imageProcessed[m_iImgIndex]);break;}
+			}
+			Invalidate();
+		}
 
-		color= extractDlg.m_enumColor;
+		void CSImageViewerView::OperateConvertColorSpace()
+		{
+			ENUM_COLOR color;
+			CExtractChennelDlg extractDlg;
 
-		CImage imgSrc;
-		CopyImage(&m_imageProcessed[m_iImgIndex], &imgSrc);
-		m_iImgIndex++;
-		m_iUnDoAvailableCount++;
-		if(m_iUnDoAvailableCount>=MAX_IMG_BUF-1){m_iUnDoAvailableCount=MAX_IMG_BUF-1;}
+			INT_PTR iRet = extractDlg.DoModal();
+			if(iRet != IDOK){return;}
+
+			color= extractDlg.m_enumColor;
+
+			CImage imgSrc;
+			CopyImage(&m_imageProcessed[m_iImgIndex], &imgSrc);
+			m_iImgIndex++;
+			m_iUnDoAvailableCount++;
+			if(m_iUnDoAvailableCount>=MAX_IMG_BUF-1){m_iUnDoAvailableCount=MAX_IMG_BUF-1;}
 
 			ExtractChannel(&imgSrc,&m_imageProcessed[m_iImgIndex], color);
 			Invalidate();
 			return;
-		//		 = imgResult;
-		Invalidate();
-		return;
-}
-void CSImageViewerView::OperateRotaateImage(enumRotate rotate)
-{
-	bool bAutoFull = false;
+		}
+		void CSImageViewerView::OperateRotaateImage(enumRotate rotate)
+		{
+			bool bAutoFull = false;
 
-	ImgRGB imgRGB;
-	ImgRGB imgResult;
-	ConvertImage(&m_imageProcessed[m_iImgIndex], &imgRGB);
+			ImgRGB imgRGB;
+			ImgRGB imgResult;
+			ConvertImage(&m_imageProcessed[m_iImgIndex], &imgRGB);
 
-	RotateImage(&imgRGB, &imgResult, rotate);
-	m_iImgIndex++;
-	m_iUnDoAvailableCount++;
-	if(m_iUnDoAvailableCount>=MAX_IMG_BUF-1){m_iUnDoAvailableCount=MAX_IMG_BUF-1;}
-	ConvertImage(&imgResult,&m_imageProcessed[(m_iImgIndex % MAX_IMG_BUF)]);
-	SetScroll();
-	Invalidate();
-}
+			RotateImage(&imgRGB, &imgResult, rotate);
+			m_iImgIndex++;
+			m_iUnDoAvailableCount++;
+			if(m_iUnDoAvailableCount>=MAX_IMG_BUF-1){m_iUnDoAvailableCount=MAX_IMG_BUF-1;}
+			ConvertImage(&imgResult,&m_imageProcessed[(m_iImgIndex % MAX_IMG_BUF)]);
+			SetScroll();
+			Invalidate();
+		}
 
-	void CSImageViewerView::OperateBrightnessContrastGamma()
+		void CSImageViewerView::OperateBrightnessContrastGamma()
 	{
 		bool bAutoFull = false;
 		if(m_Rect_i.IsRectEmpty()==TRUE){bAutoFull=true;FullDomain();}
@@ -656,6 +676,27 @@ void CSImageViewerView::OperateRotaateImage(enumRotate rotate)
 		CView::OnInitialUpdate();
 		
 		m_imageProcessed[m_iImgIndex].Create(100,100,0);
+		/*
+		int ii[100];
+		for(int i=0; i<100; i++)
+		{
+			ii[i]=rand();
+		}
+		int iIndex[100];
+		index_i(ii,100,iIndex);
+
+		int i2[100];
+		for(int i=0; i<100; i++)
+		{
+			i2[i]=ii[iIndex[i]];
+		}
+		for(int i=0; i<99; i++)
+		{
+			if(ii[iIndex[i]]>ii[iIndex[i+1]])
+			{
+				break;
+			}
+		}*/
 
 		m_bBingFullScreen = false;
 		SetTimer(TIMER_INIT, 100, 0);
@@ -1193,6 +1234,15 @@ void CSImageViewerView::OperateRotaateImage(enumRotate rotate)
 			{	
 				if (pMsg->wParam == 'C') 
 				{ 
+					CImage imgResult;
+					ConvertImageBPP8_ByDeviation(&m_imageProcessed[m_iImgIndex], &imgResult);
+
+		m_iImgIndex++;
+		m_iUnDoAvailableCount++;
+					CopyImage(&imgResult,&m_imageProcessed[m_iImgIndex]);
+		Invalidate();
+					return TRUE;
+
 					if(m_Rect_i.IsRectEmpty()==TRUE){return FALSE;}
 
 					CImage imgClipped;

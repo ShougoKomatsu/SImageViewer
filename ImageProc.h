@@ -21,3 +21,6 @@ bool ConvertImageBPP1(CImage* imgSrc, CImage* imgDst, bool bLosslessOnly);
 bool ConvertImageBPP8(CImage* imgSrc, CImage* imgDst, bool bLosslessOnly);
 bool ConvertImageBPP24(CImage* imgSrc, CImage* imgDst);
 bool ConvertImageBPP32(CImage* imgSrc, CImage* imgDst);
+bool index_i(ULONGLONG* arr, int iLength, int* indx);
+bool ConvertImageBPP8_AreaCoverage(CImage* imgSrc, CImage* imgDst);
+bool ConvertImageBPP8_ByDeviation(CImage* imgSrc, CImage* imgDst);

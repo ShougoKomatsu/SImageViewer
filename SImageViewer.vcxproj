@@ -111,6 +111,7 @@
     <None Include="UserImages.bmp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="ChangeColorDepthDlg.h" />
     <ClInclude Include="CommonFunction.h" />
     <ClInclude Include="CopyAsDlg.h" />
     <ClInclude Include="ExtractChennelDlg.h" />
@@ -127,6 +128,7 @@
     <ClInclude Include="targetver.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="ChangeColorDepthDlg.cpp" />
     <ClCompile Include="CommonFunction.cpp" />
     <ClCompile Include="CopyAsDlg.cpp" />
     <ClCompile Include="ExtractChennelDlg.cpp" />

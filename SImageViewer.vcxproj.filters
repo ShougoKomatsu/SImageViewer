@@ -99,8 +99,11 @@
     <ClInclude Include="ExtractChennelDlg.h">
       <Filter>ヘッダー ファイル\Dlg</Filter>
     </ClInclude>
+    <ClInclude Include="ChangeColorDepthDlg.h">
+      <Filter>ヘッダー ファイル\Dlg</Filter>
+    </ClInclude>
     <ClInclude Include="FormatSelectionoDlg.h">
-      <Filter>ヘッダー ファイル</Filter>
+      <Filter>ヘッダー ファイル\Dlg</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -137,8 +140,11 @@
     <ClCompile Include="ExtractChennelDlg.cpp">
       <Filter>ソース ファイル\Dlg</Filter>
     </ClCompile>
+    <ClCompile Include="ChangeColorDepthDlg.cpp">
+      <Filter>ソース ファイル\Dlg</Filter>
+    </ClCompile>
     <ClCompile Include="FormatSelectionoDlg.cpp">
-      <Filter>ソース ファイル</Filter>
+      <Filter>ソース ファイル\Dlg</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
