@@ -1234,15 +1234,6 @@ IMPLEMENT_DYNCREATE(CSImageViewerView, CView)
 			{	
 				if (pMsg->wParam == 'C') 
 				{ 
-					CImage imgResult;
-					ConvertImageBPP8_ByDeviation(&m_imageProcessed[m_iImgIndex], &imgResult);
-
-		m_iImgIndex++;
-		m_iUnDoAvailableCount++;
-					CopyImage(&imgResult,&m_imageProcessed[m_iImgIndex]);
-		Invalidate();
-					return TRUE;
-
 					if(m_Rect_i.IsRectEmpty()==TRUE){return FALSE;}
 
 					CImage imgClipped;
