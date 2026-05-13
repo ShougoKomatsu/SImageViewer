@@ -2,8 +2,23 @@
 #include "ImageProc.h"
 #include "SImgProc_ex.h"
 #include "CommonFunction.h"
+#include "math.h"
 
-bool IsColorTableMonoxheome(RGBQUAD* rgbTable, int iLength)
+bool SetColorTable(CImage* img, const RGBQUAD* rgbTable, int iLength)
+{
+	if(img==NULL){return false;}
+	if(rgbTable==NULL){return false;}
+	if(iLength<0){return false;}
+	if(iLength>=256){return false;}
+	if(img->IsNull()==true){return false;}
+
+	HDC hDC = img->GetDC();
+	SetDIBColorTable(hDC, 0, iLength, rgbTable);
+	img->ReleaseDC();
+	return true;
+}
+
+bool IsColorTableMonochrome(RGBQUAD* rgbTable, int iLength)
 {
 	for(int i=0; i< iLength; i++)
 	{
@@ -12,7 +27,7 @@ bool IsColorTableMonoxheome(RGBQUAD* rgbTable, int iLength)
 	}
 	return true;
 }
-bool IsImageMonochrome(CImage* imgSrc)
+bool IsImageMonochrome(const CImage* imgSrc)
 {
 	int iBPP = imgSrc->GetBPP();
 
@@ -24,7 +39,7 @@ bool IsImageMonochrome(CImage* imgSrc)
 			int iColors = imgSrc->GetMaxColorTableEntries();
 			RGBQUAD* rgbqTable_src= new RGBQUAD[iColors];
 			imgSrc->GetColorTable(0, iColors, rgbqTable_src);
-			bool bMono = IsColorTableMonoxheome(rgbqTable_src, iColors);
+			bool bMono = IsColorTableMonochrome(rgbqTable_src, iColors);
 			SAFE_DELETE(rgbqTable_src);
 			return bMono;
 		}
@@ -33,7 +48,7 @@ bool IsImageMonochrome(CImage* imgSrc)
 			int iColors = imgSrc->GetMaxColorTableEntries();
 			RGBQUAD* rgbqTable_src= new RGBQUAD[iColors];
 			imgSrc->GetColorTable(0, iColors, rgbqTable_src);
-			bool bMono = IsColorTableMonoxheome(rgbqTable_src, iColors);
+			bool bMono = IsColorTableMonochrome(rgbqTable_src, iColors);
 			SAFE_DELETE(rgbqTable_src);
 			return bMono;
 		}
@@ -42,7 +57,7 @@ bool IsImageMonochrome(CImage* imgSrc)
 			int iColors = imgSrc->GetMaxColorTableEntries();
 			RGBQUAD* rgbqTable_src= new RGBQUAD[iColors];
 			imgSrc->GetColorTable(0, iColors, rgbqTable_src);
-			bool bMono = IsColorTableMonoxheome(rgbqTable_src, iColors);
+			bool bMono = IsColorTableMonochrome(rgbqTable_src, iColors);
 			SAFE_DELETE(rgbqTable_src);
 			return bMono;
 		}
@@ -82,7 +97,7 @@ bool IsImageMonochrome(CImage* imgSrc)
 	return false;
 }
 
-bool CopyImage(CImage* imgSrc, CImage* imgDst)
+bool CopyImage(const CImage* imgSrc, CImage* imgDst)
 {
 
 	int iWidth = imgSrc->GetWidth();
@@ -103,9 +118,9 @@ bool CopyImage(CImage* imgSrc, CImage* imgDst)
 		int iColors = imgSrc->GetMaxColorTableEntries();
 		RGBQUAD* rgbqTable_src= new RGBQUAD[iColors];
 		imgSrc->GetColorTable(0, iColors, rgbqTable_src);
-		HDC hDC = imgDst->GetDC();
-		SetDIBColorTable(hDC, 0, 256, rgbqTable_src);
-		imgDst->ReleaseDC();
+		
+SetColorTable(imgDst, rgbqTable_src, 256);
+
 		SAFE_DELETE(rgbqTable_src);
 	}
 
@@ -126,7 +141,7 @@ bool CopyImage(CImage* imgSrc, CImage* imgDst)
 }
 
 
-bool ConvertImageToStr(CImage* cImageSrc, CString sSeparater, CString* sImage)
+bool ConvertImageToStr(const CImage* cImageSrc, const CString sSeparater, CString* sImage)
 {
 	int iWidth_src  = cImageSrc->GetWidth();
 	int iHeight_src = cImageSrc->GetHeight();
@@ -638,7 +653,7 @@ BOOL CopyFromClipBoardImg(CImage* cImageDst)
 	return TRUE;
 }
 
-BOOL ConvertImage(CImage* cimage, ImgRGB* imgRGB)
+BOOL ConvertImage(const CImage* cimage, ImgRGB* imgRGB)
 {
 	int iWidth_src = cimage->GetWidth();
 	int iHeight_src = cimage->GetHeight();
@@ -721,7 +736,7 @@ BOOL ConvertImage(CImage* cimage, ImgRGB* imgRGB)
 
 
 
-BOOL ConvertImage(ImgRGB* imgRGB, CImage* cImageDst)
+BOOL ConvertImage(const ImgRGB* imgRGB, CImage* cImageDst)
 {
 	if(cImageDst->IsNull() != true){cImageDst->Destroy();}
 	int iWidth_src = imgRGB->iWidth;;
@@ -760,10 +775,8 @@ BOOL ConvertImage(ImgRGB* imgRGB, CImage* cImageDst)
 			colorTable[i].rgbReserved=255;
 		}
 
-		HDC hDC = cImageDst->GetDC();
-		SetDIBColorTable(hDC, 0, 256, colorTable);
-		cImageDst->ReleaseDC();
-
+		
+SetColorTable(cImageDst, colorTable, 256);
 
 
 		BYTE* byDstData = (BYTE*)cImageDst->GetBits();
@@ -804,9 +817,7 @@ bool ExtractChannel_Gray(CImage* imgSrc, CImage* imgDst, ENUM_COLOR color)
 		colorTable[i].rgbReserved=255;
 	}
 
-	HDC hDC = imgDst->GetDC();
-	SetDIBColorTable(hDC, 0, 256, colorTable);
-	imgDst->ReleaseDC();
+SetColorTable(imgDst, colorTable, 256);
 
 	ImgRGB imgRGB;
 	ConvertImage(imgSrc, &imgRGB);
@@ -1190,7 +1201,7 @@ bool MakeColorTable(ImgRGB* imgRGB, RGBQUAD* rgbqTable, ULONGLONG* ullFrequency,
 	if(iUsedColors != NULL){*iUsedColors = iTableLength;}
 	return true;
 }
-int GetTableIndex(BYTE byR, BYTE byG, BYTE byB, RGBQUAD* rgbqTable, int iLength)
+int GetTableIndex(const BYTE byR, const BYTE byG, const BYTE byB, const RGBQUAD* rgbqTable, const int iLength)
 {
 	for(int i=0; i<iLength; i++)
 	{
@@ -1201,7 +1212,18 @@ int GetTableIndex(BYTE byR, BYTE byG, BYTE byB, RGBQUAD* rgbqTable, int iLength)
 	}
 	return -1;
 }
-bool ConvertImageBPP1(CImage* imgSrc, CImage* imgDst, bool bLosslessOnly)
+int GetMonoTableIndex(const BYTE byValue, const RGBQUAD* rgbqTable, const int iLength)
+{
+	for(int i=0; i<iLength; i++)
+	{
+		if(rgbqTable[i].rgbRed==byValue)
+		{
+			return i;
+		}
+	}
+	return -1;
+}
+bool ConvertImageBPP1(const CImage* imgSrc, CImage* imgDst, const bool bLosslessOnly)
 {
 	if (imgDst->IsNull() != true) {imgDst->Destroy();}
 	int iBPP_src = imgSrc->GetBPP();
@@ -1256,7 +1278,93 @@ bool ConvertImageBPP1(CImage* imgSrc, CImage* imgDst, bool bLosslessOnly)
 	}
 	return true;
 }
-bool ConvertImageBPP8(CImage* imgSrc, CImage* imgDst, bool bLosslessOnly)
+
+bool Set8bitsColorTableImage(const CImage* imgSrc,const RGBQUAD* rgbqTable256, CImage* imgDst)
+{
+	if (imgDst->IsNull() != true) {imgDst->Destroy();}
+	int iWidth = imgSrc->GetWidth();
+	int iHeight = imgSrc->GetHeight();
+	int iPitch_dst = imgDst->GetPitch();
+
+	imgDst->Create(iWidth, iHeight, 8);
+
+SetColorTable(imgDst, rgbqTable256, 256);
+
+
+	ImgRGB imgRGB;
+	ConvertImage(imgSrc,&imgRGB);
+	
+	BYTE* pbyData_dst = (BYTE*)imgDst->GetBits();
+	for(int r=0; r<iHeight; r++)
+	{
+		for(int c=0; c< iWidth; c++)
+		{
+			BYTE byDataR = imgRGB.byImgR[r*iWidth+c];
+			BYTE byDataG = imgRGB.byImgG[r*iWidth+c];
+			BYTE byDataB = imgRGB.byImgB[r*iWidth+c];
+
+			int iIndex = GetTableIndex(byDataR,byDataG,byDataB,rgbqTable256, 256);
+			if(iIndex<0)
+			{
+				return false;
+			}
+			pbyData_dst[r*iPitch_dst+c]=(BYTE)iIndex;
+
+		}
+	}
+	return true;
+}
+bool SetAsc8bitsMonoColorTableImage(const CImage* imgSrc, CImage* imgDst)
+{
+	if(IsImageMonochrome(imgSrc)==false){return false;}
+
+	RGBQUAD* rgbqTable_src= new RGBQUAD[256];
+	imgSrc->GetColorTable(0, 256, rgbqTable_src);
+
+	CopyImage(imgSrc, imgDst);
+	
+	bool bAsc8bit=true;
+	for(int iColorIndex=0; iColorIndex<256; iColorIndex++)
+	{
+		if(rgbqTable_src[iColorIndex].rgbRed != iColorIndex){bAsc8bit = false; break;}
+	}
+	if(bAsc8bit==true){return true;}
+	
+	ImgRGB imgRGB;
+	ConvertImage(imgSrc,&imgRGB);
+
+	RGBQUAD rgbqMono[256];
+	for(int iColorIndex=0; iColorIndex<256; iColorIndex++)
+	{
+		rgbqMono[iColorIndex].rgbRed=iColorIndex;
+		rgbqMono[iColorIndex].rgbGreen=iColorIndex;
+		rgbqMono[iColorIndex].rgbBlue=iColorIndex;
+	}
+SetColorTable(imgDst, rgbqMono, 256);
+
+
+	BYTE* pbyData_dst = (BYTE*)imgDst->GetBits();
+	int iHeight = imgDst->GetHeight();
+	int iWidth = imgDst->GetWidth();
+	int iPitch_dst =imgDst->GetPitch();
+
+	for(int r=0; r<iHeight; r++)
+	{
+		for(int c=0; c< iWidth; c++)
+		{
+			BYTE byValue = imgRGB.byImgR[r*iWidth+c];
+
+			int iIndex = GetMonoTableIndex(byValue, rgbqTable_src, 256);
+			if(iIndex<0)
+			{
+				return false;
+			}
+			pbyData_dst[r*iPitch_dst+c]=rgbqTable_src[iIndex].rgbRed;
+		}
+	}
+	return true;
+}
+bool ConvertImageBPP8(const CImage* imgSrc, CImage* imgDst, const bool bLosslessOnly)
 {
 	if (imgDst->IsNull() != true) {imgDst->Destroy();}
 	int iBPP_src = imgSrc->GetBPP();
@@ -1329,36 +1437,18 @@ bool ConvertImageBPP8(CImage* imgSrc, CImage* imgDst, bool bLosslessOnly)
 
 	if(bLosslessable == true)
 	{
-		HDC hDC = imgDst->GetDC();
-		SetDIBColorTable(hDC, 0, 256, rgbqTable_dst);
-		imgDst->ReleaseDC();
-
-		BYTE* pbyData_dst = (BYTE*)imgDst->GetBits();
-		int iPitch_dst = imgDst->GetPitch();
-
-
-		for(int r=0; r<iHeight; r++)
+		//カラーテーブルを使わない問題があるソフトでも不具合を起こさないようにカラーテーブルを0から255の順に並べる
+		if( IsImageMonochrome(imgSrc) == true)
 		{
-			for(int c=0; c< iWidth; c++)
-			{
-				BYTE byDataR = imgRGB.byImgR[r*iWidth+c];
-				BYTE byDataG = imgRGB.byImgG[r*iWidth+c];
-				BYTE byDataB = imgRGB.byImgB[r*iWidth+c];
-
-				int iIndex = GetTableIndex(byDataR,byDataG,byDataB,rgbqTable_dst, 256);
-				if(iIndex<0)
-				{
-					return false;
-				}
-				pbyData_dst[r*iPitch_dst+c]=(BYTE)iIndex;
-
-			}
+			return SetAsc8bitsMonoColorTableImage(imgSrc, imgDst);
 		}
-		return true;
+
+		return Set8bitsColorTableImage(imgSrc,rgbqTable_dst, imgDst);
 	}
 	return false;
 }
-bool ConvertImageBPP24(CImage* imgSrc, CImage* imgDst)
+
+bool ConvertImageBPP24(const CImage* imgSrc, CImage* imgDst)
 {
 	if (imgDst->IsNull() != true) {imgDst->Destroy();}
 	int iBPP_src = imgSrc->GetBPP();
@@ -1388,7 +1478,7 @@ bool ConvertImageBPP24(CImage* imgSrc, CImage* imgDst)
 	return true;
 }
 
-bool ConvertImageBPP32(CImage* imgSrc, CImage* imgDst)
+bool ConvertImageBPP32(const CImage* imgSrc, CImage* imgDst)
 {
 	if (imgDst->IsNull() != true) {imgDst->Destroy();}
 	int iBPP_src = imgSrc->GetBPP();
@@ -1418,16 +1508,12 @@ bool ConvertImageBPP32(CImage* imgSrc, CImage* imgDst)
 	}
 	return true;
 }
-bool Index_ull(ULONGLONG* ullData, int iLength, int* iIndex)
-{
-	return true;
-}
 
-#include "math.h"
-int GetNearestColor(RGBQUAD* rgbqTable, int iLength, RGBQUAD rgbqTarget)
+int GetNearestColor(const RGBQUAD* rgbqTable, const int iLength, const RGBQUAD rgbqTarget)
 {
 	int iNearestIndex=-1;
-	double dDelta=10000000000;
+	ULONGLONG ullDelta=256*256*256+1;
+
 	BYTE byR_Target=rgbqTarget.rgbRed;
 	BYTE byG_Target=rgbqTarget.rgbGreen;
 	BYTE byB_Target=rgbqTarget.rgbBlue;
@@ -1437,33 +1523,33 @@ int GetNearestColor(RGBQUAD* rgbqTable, int iLength, RGBQUAD rgbqTarget)
 		BYTE byG_Table=rgbqTable[i].rgbGreen;
 		BYTE byB_Table=rgbqTable[i].rgbBlue;
 
-		double dTemp = sqrt(1.0*(byR_Table-byR_Target)*(byR_Table-byR_Target)
+		ULONGLONG ullTemp = (byR_Table-byR_Target)*(byR_Table-byR_Target)
 			+1.0*(byG_Table-byG_Target)*(byG_Table-byG_Target)
-			+1.0*(byB_Table-byB_Target)*(byB_Table-byB_Target));
-		if(dTemp<dDelta)
+			+1.0*(byB_Table-byB_Target)*(byB_Table-byB_Target);
+		if(ullTemp <ullDelta)
 		{
-			dDelta = dTemp;
+			ullDelta = ullTemp;
 			iNearestIndex = i;
 		}
 	}
 	return iNearestIndex;
 }
 
-bool GetConversionTable(RGBQUAD* rgbqTable, int* iIndex, int iLength, RGBQUAD* rgbqTable_Sorted, int iMax, int* iConversionTable)
+bool GetPopularColorConversionTable(const RGBQUAD* rgbqTable, const int* iPopularOrder, const int iLength, RGBQUAD* rgbqTable_Sorted, const int iMax, int* iConversionTable)
 {
-	if(iLength<=iMax)
+	if(iLength <= iMax)
 	{
 		for(int i=0; i<iLength; i++)
 		{
-			iConversionTable[i]=iIndex[i];
-			rgbqTable_Sorted[i]=rgbqTable[iIndex[i]];
+			iConversionTable[i]=iPopularOrder[i];
+			rgbqTable_Sorted[i]=rgbqTable[iPopularOrder[i]];
 		}
 		return true;
 	}
 
 	for(int i=0; i<iMax; i++)
 	{
-		rgbqTable_Sorted[i]=rgbqTable[iIndex[iLength-1-i]];
+		rgbqTable_Sorted[i]=rgbqTable[iPopularOrder[iLength-1-i]];
 	}
 
 	for(int i=0; i<iLength; i++)
@@ -1471,7 +1557,7 @@ bool GetConversionTable(RGBQUAD* rgbqTable, int* iIndex, int iLength, RGBQUAD* r
 		int iFound=0;
 		for(int j=0; j<iLength; j++)
 		{
-			if(iIndex[iLength-1-j]==i){iFound=j;break;}
+			if(iPopularOrder[iLength-1-j]==i){iFound=j;break;}
 		}
 		if(iFound<256){iConversionTable[i]=iFound; continue;}
 		int iNearest = GetNearestColor(rgbqTable_Sorted, iMax, rgbqTable[i]);
@@ -1480,7 +1566,8 @@ bool GetConversionTable(RGBQUAD* rgbqTable, int* iIndex, int iLength, RGBQUAD* r
 
 	return true;
 }
-int GetColorTableIndex(RGBQUAD* rgbqTable, int iLength, BYTE byR, BYTE byG, BYTE byB)
+
+int GetColorTableIndex(const RGBQUAD* rgbqTable, const int iLength, const BYTE byR, const BYTE byG, const BYTE byB)
 {
 	for(int i=0; i<iLength; i++)
 	{
@@ -1491,7 +1578,8 @@ int GetColorTableIndex(RGBQUAD* rgbqTable, int iLength, BYTE byR, BYTE byG, BYTE
 	}
 	return -1;
 }
-bool ConvertImageBPP8_AreaCoverage(CImage* imgSrc, CImage* imgDst)
+
+bool ConvertImageBPP8_AreaCoverage(const CImage* imgSrc, CImage* imgDst)
 {
 	if (imgDst->IsNull() != true) {imgDst->Destroy();}
 	int iBPP_src = imgSrc->GetBPP();
@@ -1510,22 +1598,21 @@ bool ConvertImageBPP8_AreaCoverage(CImage* imgSrc, CImage* imgDst)
 	int iColors;
 	MakeColorTable(&imgRGB, rgbqTable, ullFrequency, iWidth*iHeight, &iColors);
 
-	int* iIndex;
+	int* iPopularOrder;
 	int* iConversionTable;
-	iIndex=new int[iColors];
+	iPopularOrder=new int[iColors];
 	iConversionTable=new int[iColors];
 
-	index_i(ullFrequency, iColors, iIndex);
+	index_i(ullFrequency, iColors, iPopularOrder);
 
-	RGBQUAD rgbqTable_Sorted[256];
-	GetConversionTable(rgbqTable, iIndex, iColors, rgbqTable_Sorted, 256, iConversionTable);
+	RGBQUAD rgbqTablePopularOrder[256];
+	GetPopularColorConversionTable(rgbqTable, iPopularOrder, iColors, rgbqTablePopularOrder, 256, iConversionTable);
 
 	imgDst->Create(iWidth, iHeight,8);
 
 
-	HDC hDC = imgDst->GetDC();
-	SetDIBColorTable(hDC, 0, 256, rgbqTable_Sorted);
-	imgDst->ReleaseDC();
+
+	SetColorTable(imgDst, rgbqTablePopularOrder, 256);
 
 
 	int iPitch_dst = imgDst->GetPitch();
@@ -1540,7 +1627,7 @@ bool ConvertImageBPP8_AreaCoverage(CImage* imgSrc, CImage* imgDst)
 	}
 	SAFE_DELETE(rgbqTable);
 	SAFE_DELETE(ullFrequency);
-	SAFE_DELETE(iIndex);
+	SAFE_DELETE(iPopularOrder);
 	SAFE_DELETE(iConversionTable);
 
 	return true;
@@ -1553,7 +1640,7 @@ inline void SwapInt(int *a, int *b)
 	*b = iTemp;
 }
 
-void QuickSortIndex(ULONGLONG* iValues, int* iIndex, const int iL, const int iR)
+void QuickSortIndex(const ULONGLONG* iValues, int* iIndex, const int iL, const int iR)
 {
 	int iL_Local=iL;
 	int iR_Local=iR;
@@ -1576,7 +1663,7 @@ void QuickSortIndex(ULONGLONG* iValues, int* iIndex, const int iL, const int iR)
 	if (iL_Local < iR) {QuickSortIndex(iValues, iIndex, iL_Local, iR);}
 }
 
-bool index_i(ULONGLONG* iValues, const int iLength, int* iIndex)
+bool index_i(const ULONGLONG* iValues, const int iLength, int* iIndex)
 {
 	for (int i = 0; i < iLength; i++) {iIndex[i] = i;}
 
@@ -1585,20 +1672,20 @@ bool index_i(ULONGLONG* iValues, const int iLength, int* iIndex)
 }
 
 
-inline ULONGLONG GetRGBDistanceSq(RGBQUAD rgbqTable, BYTE byR, BYTE byG, BYTE byB)
+inline ULONGLONG GetRGBDistanceSq(const RGBQUAD rgbqTable, const BYTE byR, const BYTE byG, const BYTE byB)
 {
 	return (rgbqTable.rgbRed-byR)*(rgbqTable.rgbRed-byR)
 		+(rgbqTable.rgbGreen-byG)*(rgbqTable.rgbGreen-byG)
 		+(rgbqTable.rgbBlue-byB)*(rgbqTable.rgbBlue-byB);
 }
-inline ULONGLONG GetRGBDistanceSq(RGBQUAD rgbqTable,RGBQUAD rgbqTable2)
+inline ULONGLONG GetRGBDistanceSq(const RGBQUAD rgbqTable,const RGBQUAD rgbqTable2)
 {
 	return (rgbqTable.rgbRed-rgbqTable2.rgbRed)*(rgbqTable.rgbRed-rgbqTable2.rgbRed)
 		+(rgbqTable.rgbGreen-rgbqTable2.rgbGreen)*(rgbqTable.rgbGreen-rgbqTable2.rgbGreen)
 		+(rgbqTable.rgbBlue-rgbqTable2.rgbBlue)*(rgbqTable.rgbBlue-rgbqTable2.rgbBlue);
 }
 
-bool K_mean_RGB(RGBQUAD* rgbqTable, ULONGLONG* ullFrequency, int iLength, BYTE byR1_in, BYTE byG1_in, BYTE byB1_in, BYTE byR2_in, BYTE byG2_in, BYTE byB2_in,BYTE* byR1_out, BYTE* byG1_out, BYTE* byB1_out, BYTE* byR2_out, BYTE* byG2_out, BYTE* byB2_out)
+bool K_mean_RGB_2Class(RGBQUAD* rgbqTable, ULONGLONG* ullFrequency, int iLength, BYTE byR1_in, BYTE byG1_in, BYTE byB1_in, BYTE byR2_in, BYTE byG2_in, BYTE byB2_in,BYTE* byR1_out, BYTE* byG1_out, BYTE* byB1_out, BYTE* byR2_out, BYTE* byG2_out, BYTE* byB2_out)
 {
 	BYTE byR1=byR1_in;
 	BYTE byG1=byG1_in;
@@ -1674,7 +1761,7 @@ bool K_mean_RGB(RGBQUAD* rgbqTable, ULONGLONG* ullFrequency, int iLength, BYTE b
 			byR2=min(255,ullRSum/iLength+1);
 			byG2=min(255,ullGSum/iLength+1);
 			byB2=min(255,ullBSum/iLength+1);
-			K_mean_RGB(rgbqTable, ullFrequency, iLength, byR1, byG1, byB1, byR2, byG2, byB2, byR1_out, byG1_out, byB1_out, byR2_out, byG2_out, byB2_out);
+			K_mean_RGB_2Class(rgbqTable, ullFrequency, iLength, byR1, byG1, byB1, byR2, byG2, byB2, byR1_out, byG1_out, byB1_out, byR2_out, byG2_out, byB2_out);
 			return true;
 		}
 
@@ -1868,7 +1955,7 @@ bool K_mean(RGBQUAD* rgbqTable, ULONGLONG* ullFrequency, int* iClaaes_out, int i
 		BYTE byG2;
 		BYTE byB2;
 
-		K_mean_RGB(rgbqTable_temp, ullFrequency_temp, iLength_temp, byR_Min, byG_Min, byB_Min, byR_Max, byG_Max, byB_Max, &byR1, &byG1, &byB1, &byR2, &byG2, &byB2);
+		K_mean_RGB_2Class(rgbqTable_temp, ullFrequency_temp, iLength_temp, byR_Min, byG_Min, byB_Min, byR_Max, byG_Max, byB_Max, &byR1, &byG1, &byB1, &byR2, &byG2, &byB2);
 
 		rgbqTable_classed[iTargetClass].rgbRed=byR1;
 		rgbqTable_classed[iTargetClass].rgbGreen=byG1;
@@ -1903,7 +1990,7 @@ bool K_mean(RGBQUAD* rgbqTable, ULONGLONG* ullFrequency, int* iClaaes_out, int i
 	return true;
 }
 
-bool ConvertImageBPP8_ByDeviation(CImage* imgSrc, CImage* imgDst)
+bool ConvertImageBPP8_ByDeviation(const CImage* imgSrc, CImage* imgDst)
 {
 	if (imgDst->IsNull() != true) {imgDst->Destroy();}
 	int iBPP_src = imgSrc->GetBPP();
@@ -1934,9 +2021,8 @@ bool ConvertImageBPP8_ByDeviation(CImage* imgSrc, CImage* imgDst)
 	imgDst->Create(iWidth, iHeight,8);
 
 
-	HDC hDC = imgDst->GetDC();
-	SetDIBColorTable(hDC, 0, 256, rgbqResult);
-	imgDst->ReleaseDC();
+	
+SetColorTable(imgDst, rgbqResult, 256);
 
 
 	int iPitch_dst = imgDst->GetPitch();
