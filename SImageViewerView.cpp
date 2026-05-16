@@ -565,6 +565,15 @@ IMPLEMENT_DYNCREATE(CSImageViewerView, CView)
 	}
 	void CSImageViewerView::OperateChangeColorDepth()
 	{
+		ImgRGB imgRGB;
+		CImage imgTemp;
+		ConvertImage_LossLess(&m_imageProcessed[m_iImgIndex],24, &imgTemp);
+		m_iImgIndex++;
+		m_iUnDoAvailableCount++;
+	
+		CopyImage(&imgTemp, &m_imageProcessed[m_iImgIndex]);
+		return;
+
 		CChangeColorDepthDlg colorDepthDlg;
 
 		int iUsedColors;

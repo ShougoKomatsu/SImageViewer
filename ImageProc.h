@@ -7,8 +7,6 @@
 	bool ConvertImage(const ImgRGB* imgRGB, CImage* cimage);	
 
 	bool ConvertImage(const CImage* cimage, ImgRGB* imgRGB);
-bool CreateZoomedImage(CImage* imgOriginal, CImage* imgZoomed, const int iZoomFactor,  const int iCenterR, const int iCenterC);
-//bool CopyImage(CImage* imgSrc, CImage* imgDst);
 BOOL ZoomImage(CImage* imgSrc, CImage* imgDst, const double dR0_Src, const double dC0_Src, const double dScale, const int iWidth_Dst, const int iHeight_Dst);
 BOOL CopyFromClipBoardImg(CImage* img);
 bool ConvertImageToStr(const CImage* cimage, const CString sSeparater, CString* sImage);
@@ -22,6 +20,6 @@ bool ConvertImage_AreaCoverage(const CImage* imgSrc,const int iBPP, CImage* imgD
 bool ConvertImage_ByDeviation(const CImage* imgSrc,const int iBPP,  CImage* imgDst);
 bool ConvertImage_LossLess(const CImage* imgSrc, const int iBPP, CImage* imgDst);
 
-bool MakeColorTable(CImage* cImage, RGBQUAD* rgbqTable_out, ULONGLONG* ullFrequency_out, int iLength, int* iUsedColors_out, bool* bGrayScale_out);
+bool MakeColorTable(const CImage* cImage, RGBQUAD* rgbqTable_out, ULONGLONG* ullFrequency_out, int iLength, int* iUsedColors_out, bool* bGrayScale_out);
 
 
