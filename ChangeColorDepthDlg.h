@@ -6,7 +6,10 @@
 class CChangeColorDepthDlg : public CDialogEx
 {
 	DECLARE_DYNAMIC(CChangeColorDepthDlg)
+	int m_iBPP;
 	int m_iMode;
+	int m_iColors;
+	bool m_bGrayScale;
 public:
 	CChangeColorDepthDlg(CWnd* pParent = NULL);   // 標準コンストラクター
 	virtual ~CChangeColorDepthDlg();

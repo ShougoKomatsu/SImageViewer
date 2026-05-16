@@ -499,6 +499,7 @@ IMPLEMENT_DYNCREATE(CSImageViewerView, CView)
 		CImage imgSave;
 		CString sFileExt;
 		CString sFilter;
+		/*
 		int iBPP = formatDlg.m_iBPP;
 		switch(iBPP)
 		{
@@ -507,6 +508,7 @@ IMPLEMENT_DYNCREATE(CSImageViewerView, CView)
 		case 24:{ConvertImageBPP24(image,&imgSave); break;}
 		case 32:{ConvertImageBPP32(image,&imgSave); break;}
 		}
+		*/
 		switch(formatDlg.m_iFormat)
 		{
 		case 0:{sFileExt.Format(_T("bmp"));sFilter.Format(_T("BitMap|*.bmp"));break;}
@@ -570,65 +572,73 @@ IMPLEMENT_DYNCREATE(CSImageViewerView, CView)
 		ConvertImage(&imgMeaned,&m_imageProcessed[(m_iImgIndex % MAX_IMG_BUF)]);
 		Invalidate();
 	}
-		void CSImageViewerView::OperateChangeColorDepth()
+	void CSImageViewerView::OperateChangeColorDepth()
+	{
+		CChangeColorDepthDlg colorDepthDlg;
+
+		int iUsedColors;
+		bool bGrayScale;
+		MakeColorTable(&m_imageProcessed[m_iImgIndex],NULL,NULL,0,&iUsedColors, &bGrayScale);
+		
+	colorDepthDlg.m_iColors = iUsedColors;
+	colorDepthDlg.m_bGrayScale = bGrayScale;
+
+		INT_PTR iRet = colorDepthDlg.DoModal();
+		if(iRet != IDOK){return;}
+
+		CImage imgSrc;
+		CopyImage(&m_imageProcessed[m_iImgIndex], &imgSrc);
+		m_iImgIndex++;
+		m_iUnDoAvailableCount++;
+		if(m_iUnDoAvailableCount>=MAX_IMG_BUF-1){m_iUnDoAvailableCount=MAX_IMG_BUF-1;}
+
+		switch(colorDepthDlg.m_iMode)
 		{
-			CChangeColorDepthDlg colorDepthDlg;
-			
-			INT_PTR iRet = colorDepthDlg.DoModal();
-			if(iRet != IDOK){return;}
-
-			CImage imgSrc;
-			CopyImage(&m_imageProcessed[m_iImgIndex], &imgSrc);
-			m_iImgIndex++;
-			m_iUnDoAvailableCount++;
-			if(m_iUnDoAvailableCount>=MAX_IMG_BUF-1){m_iUnDoAvailableCount=MAX_IMG_BUF-1;}
-			switch(colorDepthDlg.m_iMode)
-			{
-			case 0:{ConvertImageBPP8(&imgSrc, &m_imageProcessed[m_iImgIndex], true);break;}
-			case 1:{ConvertImageBPP8_AreaCoverage(&imgSrc, &m_imageProcessed[m_iImgIndex]);break;}
-			case 2:{ConvertImageBPP8_ByDeviation(&imgSrc, &m_imageProcessed[m_iImgIndex]);break;}
-			}
-			Invalidate();
+		case 0:{ConvertImage_LossLess(&imgSrc, colorDepthDlg.m_iBPP, &m_imageProcessed[m_iImgIndex]);break;}
+		case 1:{ConvertImage_AreaCoverage(&imgSrc,colorDepthDlg.m_iBPP, &m_imageProcessed[m_iImgIndex]);break;}
+		case 2:{ConvertImage_ByDeviation(&imgSrc, colorDepthDlg.m_iBPP, &m_imageProcessed[m_iImgIndex]);break;}
 		}
+		Invalidate();
+	}
 
-		void CSImageViewerView::OperateConvertColorSpace()
-		{
-			ENUM_COLOR color;
-			CExtractChennelDlg extractDlg;
+	void CSImageViewerView::OperateConvertColorSpace()
+	{
+		ENUM_COLOR color;
+		CExtractChennelDlg extractDlg;
 
-			INT_PTR iRet = extractDlg.DoModal();
-			if(iRet != IDOK){return;}
+		INT_PTR iRet = extractDlg.DoModal();
+		if(iRet != IDOK){return;}
 
-			color= extractDlg.m_enumColor;
+		color= extractDlg.m_enumColor;
 
-			CImage imgSrc;
-			CopyImage(&m_imageProcessed[m_iImgIndex], &imgSrc);
-			m_iImgIndex++;
-			m_iUnDoAvailableCount++;
-			if(m_iUnDoAvailableCount>=MAX_IMG_BUF-1){m_iUnDoAvailableCount=MAX_IMG_BUF-1;}
+		CImage imgSrc;
+		CopyImage(&m_imageProcessed[m_iImgIndex], &imgSrc);
+		m_iImgIndex++;
+		m_iUnDoAvailableCount++;
+		if(m_iUnDoAvailableCount>=MAX_IMG_BUF-1){m_iUnDoAvailableCount=MAX_IMG_BUF-1;}
 
-			ExtractChannel(&imgSrc,&m_imageProcessed[m_iImgIndex], color);
-			Invalidate();
-			return;
-		}
-		void CSImageViewerView::OperateRotaateImage(enumRotate rotate)
-		{
-			bool bAutoFull = false;
+		ExtractChannel(&imgSrc,&m_imageProcessed[m_iImgIndex], color);
+		Invalidate();
+		return;
+	}
+	void CSImageViewerView::OperateRotaateImage(enumRotate rotate)
+	{
+		bool bAutoFull = false;
 
-			ImgRGB imgRGB;
-			ImgRGB imgResult;
-			ConvertImage(&m_imageProcessed[m_iImgIndex], &imgRGB);
+		ImgRGB imgRGB;
+		ImgRGB imgResult;
+		ConvertImage(&m_imageProcessed[m_iImgIndex], &imgRGB);
 
-			RotateImage(&imgRGB, &imgResult, rotate);
-			m_iImgIndex++;
-			m_iUnDoAvailableCount++;
-			if(m_iUnDoAvailableCount>=MAX_IMG_BUF-1){m_iUnDoAvailableCount=MAX_IMG_BUF-1;}
-			ConvertImage(&imgResult,&m_imageProcessed[(m_iImgIndex % MAX_IMG_BUF)]);
-			SetScroll();
-			Invalidate();
-		}
+		RotateImage(&imgRGB, &imgResult, rotate);
+		m_iImgIndex++;
+		m_iUnDoAvailableCount++;
+		if(m_iUnDoAvailableCount>=MAX_IMG_BUF-1){m_iUnDoAvailableCount=MAX_IMG_BUF-1;}
+		ConvertImage(&imgResult,&m_imageProcessed[(m_iImgIndex % MAX_IMG_BUF)]);
+		SetScroll();
+		Invalidate();
+	}
 
-		void CSImageViewerView::OperateBrightnessContrastGamma()
+	void CSImageViewerView::OperateBrightnessContrastGamma()
 	{
 		bool bAutoFull = false;
 		if(m_Rect_i.IsRectEmpty()==TRUE){bAutoFull=true;FullDomain();}

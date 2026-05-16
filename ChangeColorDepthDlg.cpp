@@ -37,8 +37,15 @@ END_MESSAGE_MAP()
 
 void CChangeColorDepthDlg::OnBnClickedOk()
 {
-	if(((CButton*)GetDlgItem(IDC_CHANGE_COLOR_DEPTH_8_LOSSLESS))->GetCheck()==TRUE){m_iMode=0;}
-	if(((CButton*)GetDlgItem(IDC_CHANGE_COLOR_DEPTH_8_AREA))->GetCheck()==TRUE){m_iMode=1;}
-	if(((CButton*)GetDlgItem(IDC_CHANGE_COLOR_DEPTH_8_DEVIATION))->GetCheck()==TRUE){m_iMode=2;}
+	if(((CButton*)GetDlgItem(IDC_CHANGE_COLOR_DEPTH_1))->GetCheck()==TRUE){m_iBPP=1;}
+	if(((CButton*)GetDlgItem(IDC_CHANGE_COLOR_DEPTH_2))->GetCheck()==TRUE){m_iBPP=2;}
+	if(((CButton*)GetDlgItem(IDC_CHANGE_COLOR_DEPTH_4))->GetCheck()==TRUE){m_iBPP=4;}
+	if(((CButton*)GetDlgItem(IDC_CHANGE_COLOR_DEPTH_8))->GetCheck()==TRUE){m_iBPP=8;}
+	if(((CButton*)GetDlgItem(IDC_CHANGE_COLOR_DEPTH_24))->GetCheck()==TRUE){m_iBPP=24;}
+	if(((CButton*)GetDlgItem(IDC_CHANGE_COLOR_DEPTH_32))->GetCheck()==TRUE){m_iBPP=32;}
+
+	if(((CButton*)GetDlgItem(IDC_CHANGE_COLOR_DEPTH_LOSSLESS))->GetCheck()==TRUE){m_iMode=0;}
+	if(((CButton*)GetDlgItem(IDC_CHANGE_COLOR_DEPTH_AREA))->GetCheck()==TRUE){m_iMode=1;}
+	if(((CButton*)GetDlgItem(IDC_CHANGE_COLOR_DEPTH_DEVIATION))->GetCheck()==TRUE){m_iMode=2;}
 	CDialogEx::OnOK();
 }
