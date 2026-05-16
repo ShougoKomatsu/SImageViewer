@@ -385,7 +385,7 @@ IMPLEMENT_DYNCREATE(CSImageViewerView, CView)
 
 	void CSImageViewerView::ResetImage()
 	{
-		m_imageProcessed[m_iImgIndex]=m_image;
+		CopyImage(&m_image,&(m_imageProcessed[m_iImgIndex]));
 		m_iScaleIndex =8;
 		/*
 		CRect rectClientTemp;
@@ -470,13 +470,10 @@ IMPLEMENT_DYNCREATE(CSImageViewerView, CView)
 
 	bool CSImageViewerView::ReadImage(CString sFilePath)
 	{
-		if(m_imageProcessed[m_iImgIndex].IsNull()!=true){m_imageProcessed[m_iImgIndex].Destroy();}
-
 		CFileFind cf;
 		BOOL bRet = cf.FindFile(sFilePath);
 		if(bRet != TRUE){return false;}
 		if(m_image.IsNull()!=true){m_image.Destroy();}
-
 		HRESULT hResult = m_image.Load(m_sFilePath);
 //		int iBPP = m_image.GetBPP();
 //		CString sss;
@@ -565,14 +562,6 @@ IMPLEMENT_DYNCREATE(CSImageViewerView, CView)
 	}
 	void CSImageViewerView::OperateChangeColorDepth()
 	{
-		ImgRGB imgRGB;
-		CImage imgTemp;
-		ConvertImage_LossLess(&m_imageProcessed[m_iImgIndex],24, &imgTemp);
-		m_iImgIndex++;
-		m_iUnDoAvailableCount++;
-	
-		CopyImage(&imgTemp, &m_imageProcessed[m_iImgIndex]);
-		return;
 
 		CChangeColorDepthDlg colorDepthDlg;
 
