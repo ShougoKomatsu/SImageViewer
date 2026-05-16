@@ -17,10 +17,6 @@ bool ExtractChannel(CImage* imgSrc, CImage* imgDst, ENUM_COLOR enumColor);
 bool CopyImage(const CImage* imgSrc, CImage* imgDst);
 
 bool IsImageMonochrome(const CImage* imgSrc);
-//bool ConvertImageBPP1(const CImage* imgSrc, CImage* imgDst, bool bLosslessOnly);
-//bool ConvertImageBPP8(const CImage* imgSrc, CImage* imgDst, bool bLosslessOnly);
-//bool ConvertImageBPP24(const CImage* imgSrc, CImage* imgDst);
-//bool ConvertImageBPP32(const CImage* imgSrc, CImage* imgDst);
 bool index_i(const ULONGLONG* arr, const int iLength, int* indx);
 bool ConvertImage_AreaCoverage(const CImage* imgSrc,const int iBPP, CImage* imgDst);
 bool ConvertImage_ByDeviation(const CImage* imgSrc,const int iBPP,  CImage* imgDst);

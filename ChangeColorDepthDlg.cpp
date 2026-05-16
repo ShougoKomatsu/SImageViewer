@@ -13,6 +13,9 @@ IMPLEMENT_DYNAMIC(CChangeColorDepthDlg, CDialogEx)
 
 CChangeColorDepthDlg::CChangeColorDepthDlg(CWnd* pParent /*=NULL*/)
 	: CDialogEx(CChangeColorDepthDlg::IDD, pParent)
+	, m_sEditBPP(_T(""))
+	, m_sEditColors(_T(""))
+	, m_sEditGrayScale(_T(""))
 {
 
 }
@@ -24,6 +27,9 @@ CChangeColorDepthDlg::~CChangeColorDepthDlg()
 void CChangeColorDepthDlg::DoDataExchange(CDataExchange* pDX)
 {
 	CDialogEx::DoDataExchange(pDX);
+	DDX_Text(pDX, IDC_COLOR_DEPTH_BPP, m_sEditBPP);
+	DDX_Text(pDX, IDC_COLOR_DEPTH_COLORS, m_sEditColors);
+	DDX_Text(pDX, IDC_COLOR_DEPTH_GRAYSCALE, m_sEditGrayScale);
 }
 
 
@@ -48,4 +54,39 @@ void CChangeColorDepthDlg::OnBnClickedOk()
 	if(((CButton*)GetDlgItem(IDC_CHANGE_COLOR_DEPTH_AREA))->GetCheck()==TRUE){m_iMode=1;}
 	if(((CButton*)GetDlgItem(IDC_CHANGE_COLOR_DEPTH_DEVIATION))->GetCheck()==TRUE){m_iMode=2;}
 	CDialogEx::OnOK();
+}
+
+
+BOOL CChangeColorDepthDlg::OnInitDialog()
+{
+	CDialogEx::OnInitDialog();
+	m_sEditBPP.Format(_T("%d"),m_iBPP);
+	m_sEditColors.Format(_T("%d"),m_iColors);
+	m_sEditGrayScale.Format(_T("%s"),(m_bGrayScale == true ? _T("true"): _T("false")));
+
+	((CButton*)GetDlgItem(IDC_CHANGE_COLOR_DEPTH_1))->SetCheck(false);
+	((CButton*)GetDlgItem(IDC_CHANGE_COLOR_DEPTH_2))->SetCheck(false);
+	((CButton*)GetDlgItem(IDC_CHANGE_COLOR_DEPTH_4))->SetCheck(false);
+	((CButton*)GetDlgItem(IDC_CHANGE_COLOR_DEPTH_8))->SetCheck(false);
+	((CButton*)GetDlgItem(IDC_CHANGE_COLOR_DEPTH_24))->SetCheck(false);
+	((CButton*)GetDlgItem(IDC_CHANGE_COLOR_DEPTH_32))->SetCheck(false);
+
+	
+	((CButton*)GetDlgItem(IDC_CHANGE_COLOR_DEPTH_LOSSLESS))->SetCheck(true);
+	((CButton*)GetDlgItem(IDC_CHANGE_COLOR_DEPTH_AREA))->SetCheck(false);
+	((CButton*)GetDlgItem(IDC_CHANGE_COLOR_DEPTH_DEVIATION))->SetCheck(false);
+	switch(m_iBPP)
+	{
+	case 1:{((CButton*)GetDlgItem(IDC_CHANGE_COLOR_DEPTH_1))->SetCheck(true);break;}
+	case 2:{((CButton*)GetDlgItem(IDC_CHANGE_COLOR_DEPTH_2))->SetCheck(true);break;}
+	case 4:{((CButton*)GetDlgItem(IDC_CHANGE_COLOR_DEPTH_4))->SetCheck(true);break;}
+	case 8:{((CButton*)GetDlgItem(IDC_CHANGE_COLOR_DEPTH_8))->SetCheck(true);break;}
+	case 24:{((CButton*)GetDlgItem(IDC_CHANGE_COLOR_DEPTH_24))->SetCheck(true);break;}
+	case 32:{((CButton*)GetDlgItem(IDC_CHANGE_COLOR_DEPTH_32))->SetCheck(true);break;}
+	}
+	UpdateData(FALSE);
+	// TODO:  ここに初期化を追加してください
+
+	return TRUE;  // return TRUE unless you set the focus to a control
+	// 例外 : OCX プロパティ ページは必ず FALSE を返します。
 }

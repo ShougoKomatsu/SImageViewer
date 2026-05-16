@@ -102,10 +102,10 @@ bool CopyImage(const CImage* imgSrc, CImage* imgDst)
 
 	int iWidth = imgSrc->GetWidth();
 	int iHeight = imgSrc->GetHeight();
-	if (imgDst->IsNull() != true) {imgDst->Destroy();}
 
 	if (imgSrc->IsNull()) {return false;}
-
+	
+	if (imgDst->IsNull() != true) {imgDst->Destroy();}
 	HRESULT hr = imgDst->Create(imgSrc->GetWidth(),imgSrc->GetHeight(),imgSrc->GetBPP());
 	if (FAILED(hr)) {return false;}
 	BYTE* pbyDataSrc = (BYTE*)imgSrc->GetBits();
@@ -377,7 +377,8 @@ bool ClipImage( CImage* imgOriginal, CImage* imgClipped, int iR0, int iC0, int i
 
 	int iBPP_src = imgOriginal->GetBPP();
 	if (iBPP_src == 0) {return false;}
-
+	
+	if (imgClipped->IsNull() != true){imgClipped->Destroy();}
 	HRESULT hr = imgClipped->Create(iClipWidth, iClipHeight, iBPP_src);
 	if (FAILED(hr)) {return false;}
 
@@ -605,7 +606,6 @@ BOOL CopyFromClipBoardImg(CImage* cImageDst)
 	}
 
 	if(cImageDst->IsNull() != true){cImageDst->Destroy();}
-
 	HRESULT hr = cImageDst->Create(iWidth, abs(iHeight), iBPP_src);
 	if (FAILED(hr)) {SAFE_DELETE(byData); return FALSE;}
 
@@ -710,12 +710,12 @@ bool ConvertImage(const CImage* cimage, ImgRGB* imgRGB)
 
 bool ConvertImage(const ImgRGB* imgRGB, CImage* cImageDst)
 {
-	if(cImageDst->IsNull() != true){cImageDst->Destroy();}
 	int iWidth_src = imgRGB->iWidth;;
 	int iHeight_src= imgRGB->iHeight;;
 
 	if(imgRGB->iChannel==CHANNEL_3_8RGB)
 	{
+		if(cImageDst->IsNull() != true){cImageDst->Destroy();}
 		cImageDst->Create(iWidth_src, iHeight_src, 24);
 
 
@@ -735,6 +735,7 @@ bool ConvertImage(const ImgRGB* imgRGB, CImage* cImageDst)
 
 	if(imgRGB->iChannel==CHANNEL_1_8)
 	{
+		if(cImageDst->IsNull() != true){cImageDst->Destroy();}
 		cImageDst->Create(iWidth_src, iHeight_src, 8);
 
 		RGBQUAD colorTable[256];
@@ -767,13 +768,13 @@ bool ConvertImage(const ImgRGB* imgRGB, CImage* cImageDst)
 
 bool ConvertImage_LossLess(const CImage* imgSrc, const int iBPP, CImage* imgDst)
 {
-	if(imgDst->IsNull() != true){imgDst->Destroy();}
 	if(imgSrc->GetBPP() == iBPP){return CopyImage(imgSrc,imgDst);}
 	if(imgSrc->GetBPP() > iBPP){return false;}
 
 	ImgRGB imgRGB;
 	ConvertImage(imgSrc,&imgRGB);
 
+	if(imgDst->IsNull() != true){imgDst->Destroy();}
 	imgDst->Create(imgRGB.iWidth, imgRGB.iHeight, iBPP);
 	BYTE* byDstData = (BYTE*)imgDst->GetBits();
 	int iPitch_dst=imgDst->GetPitch();
@@ -811,7 +812,6 @@ bool ConvertImage_LossLess(const CImage* imgSrc, const int iBPP, CImage* imgDst)
 
 bool ExtractChannel_Gray(CImage* imgSrc, CImage* imgDst, ENUM_COLOR color)
 {
-	if(imgDst->IsNull() != true){imgDst->Destroy();}
 	int iWidth = imgSrc->GetWidth();
 	int iHeight = imgSrc->GetHeight();
 	if(imgSrc->GetBPP()==8)
@@ -820,6 +820,7 @@ bool ExtractChannel_Gray(CImage* imgSrc, CImage* imgDst, ENUM_COLOR color)
 		return true;
 	}
 
+	if(imgDst->IsNull() != true){imgDst->Destroy();}
 	imgDst->Create(iWidth, iHeight, 8);
 	RGBQUAD colorTable[256];
 	for(int i=0; i<256; i++)
@@ -878,13 +879,13 @@ bool ExtractChannel_Gray(CImage* imgSrc, CImage* imgDst, ENUM_COLOR color)
 }
 bool ExtractChannel_Color(CImage* imgSrc, CImage* imgDst, ENUM_COLOR color)
 {
-	if(imgDst->IsNull() != true){imgDst->Destroy();}
 	int iWidth = imgSrc->GetWidth();
 	int iHeight = imgSrc->GetHeight();
 
 	ImgRGB imgRGB;
 	ConvertImage(imgSrc, &imgRGB);
 
+	if(imgDst->IsNull() != true){imgDst->Destroy();}
 	imgDst->Create(iWidth, iHeight, 24);
 	int iPitch_dst=imgDst->GetPitch();
 	BYTE* byDstData = (BYTE*)imgDst->GetBits();
@@ -1041,8 +1042,6 @@ BOOL ZoomImage(CImage* imgSrc, CImage* imgDst, const double dR0_Src, const doubl
 
 bool ExtractChannel(CImage* imgSrc, CImage* imgDst, ENUM_COLOR color)
 	{
-
-		if(imgDst->IsNull() != true){imgDst->Destroy();}
 		if((color==COLOR_RED)||(color==COLOR_GREEN)||(color==COLOR_BLUE))
 		{
 			return ExtractChannel_Color(imgSrc, imgDst , color);
@@ -1063,6 +1062,7 @@ bool ExtractChannel(CImage* imgSrc, CImage* imgDst, ENUM_COLOR color)
 	bool MakeColorTable(ImgRGB* imgRGB, RGBQUAD* rgbqTable_out, ULONGLONG* ullFrequency_out, int iLength, int* iUsedColors_out, bool* bGrayScale_out)
 	{
 		int iWidth = imgRGB->iWidth;
+		int iHeight = imgRGB->iHeight;
 		RGBQUAD* rgbqTable_temp;
 		//	if(iLength>256){return false;}
 		rgbqTable_temp = new RGBQUAD[iLength];
@@ -1074,7 +1074,7 @@ bool ExtractChannel(CImage* imgSrc, CImage* imgDst, ENUM_COLOR color)
 		}
 
 		int iTableLength = 0;
-		for(int r=0; r<imgRGB->iHeight; r++)
+		for(int r=0; r<iHeight; r++)
 		{
 			for(int c=0; c<iWidth ; c++)
 			{
@@ -1096,7 +1096,7 @@ bool ExtractChannel(CImage* imgSrc, CImage* imgDst, ENUM_COLOR color)
 
 				if(bFounud==false)
 				{
-					if(iTableLength==iLength)
+					if(iTableLength>=iLength)
 					{
 						SAFE_DELETE(rgbqTable_temp);
 						return false;
@@ -1108,13 +1108,13 @@ bool ExtractChannel(CImage* imgSrc, CImage* imgDst, ENUM_COLOR color)
 					rgbqTable_temp[iTableLength].rgbReserved=0;
 					if(ullFrequency != NULL){ullFrequency[iTableLength]++;}
 					iTableLength++;
-				}
+			 	}
 			}
 		}
 
 
 		bool bGrayScale=true;
-		for(int i=0; i<iLength; i++)
+		for(int i=0; i<iTableLength; i++)
 		{
 			if(rgbqTable_temp[i].rgbBlue != rgbqTable_temp[i].rgbRed){bGrayScale=false; break;}
 			if(rgbqTable_temp[i].rgbBlue != rgbqTable_temp[i].rgbGreen){bGrayScale=false; break;}
@@ -1156,6 +1156,7 @@ bool ExtractChannel(CImage* imgSrc, CImage* imgDst, ENUM_COLOR color)
 		if(bGrayScale_out != NULL){*bGrayScale_out = bGrayScale;}
 		return true;
 	}
+
 	bool MakeColorTable(CImage* cImage, RGBQUAD* rgbqTable_out, ULONGLONG* ullFrequency_out, int iLength, int* iUsedColors_out, bool* bGrayScale_out)
 	{
 		int iBPP = cImage->GetBPP();
@@ -1166,88 +1167,48 @@ bool ExtractChannel(CImage* imgSrc, CImage* imgDst, ENUM_COLOR color)
 			return MakeColorTable(&imgRGB, rgbqTable_out, ullFrequency_out, iLength, iUsedColors_out, bGrayScale_out);
 		}
 		RGBQUAD* rgbqTable;
+		int iColors = cImage->GetMaxColorTableEntries();
+		if (iColors <= 0){return false;}
 
-		rgbqTable = new RGBQUAD[1<<iBPP];
+		rgbqTable = new RGBQUAD[iColors];
+		cImage->GetColorTable(0, iColors, rgbqTable);
 
-		cImage->GetColorTable(0, 1<<iBPP, rgbqTable);
 		ULONGLONG* ullFrequency;
-		ullFrequency = new ULONGLONG[1<<iBPP];
+		ullFrequency = new ULONGLONG[iColors];
 		for(int i=0; i<1<<iBPP; i++)
 		{
 			ullFrequency[i]=0;
 		}
 
+		const BYTE byMasks[9]={0,1,3,0,15,0,0,0,255};
 		int iPitch = cImage->GetPitch();
 		BYTE* pbyBit = (BYTE*)cImage->GetBits();
-		int iWidth = cImage->GetHeight();
-		int iHeight = cImage->GetWidth();
-		switch(iBPP)
-		{
-		case 1:
-			{
-				for(int r=0; r<iHeight; r++)
-				{
-					for(int c=0; c<iWidth; c++)
-					{
-						int iPosition= r*iPitch+c/8;
-						int iDigit = 8-(c%8)-1;
-						BYTE byValue = (( (pbyBit[iPosition] & (1<< iDigit)) == (1<< iDigit)) ? 1 : 0);
-						ullFrequency[byValue]++;
-					}
-				}
-				break;
-			}
-		case 2:
-			{
-				for(int r=0; r<iHeight; r++)
-				{
-					for(int c=0; c<iWidth; c++)
-					{
-						int iPosition= r*iPitch+c/4;
-						int iDigit = 4-(c%4)-1;
-						BYTE byValue = (pbyBit[iPosition] & (3<< iDigit)) >> iDigit;
-						ullFrequency[byValue]++;
-					}
-				}
-				break;
-			}
-		case 4: 
-			{
-				for(int r=0; r<iHeight; r++)
-				{
-					for(int c=0; c<iWidth; c++)
-					{
-						int iPosition= r*iPitch+c/2;
-						int iDigit = 2-(c%2)-1;
-						BYTE byValue = (pbyBit[iPosition] & (15<< (iDigit*4))) >> (iDigit*4);
-						ullFrequency[byValue]++;
-					}
-				}
-				break;
-			}
-		case 8:
-			{
-				for(int r=0; r<cImage->GetHeight(); r++)
-				{
-					for(int c=0; c<cImage->GetWidth(); c++)
-					{
-						ullFrequency[pbyBit[r*iPitch+c]]++;
-					}
-				}
-				break;
-			}
-		}
-		int iColors=0;
-		for(int i=0; i<(i<<iBPP); i++)
-		{
-			if(ullFrequency[i] != 0){iColors++;}
-		}
+		int iHeight= cImage->GetHeight();
+		int iWidth = cImage->GetWidth();
 
-		bool bGrayScale=true;
-		for(int i=0; i<iLength; i++)
+		for(int r=0; r<iHeight; r++)
 		{
-			if(rgbqTable[i].rgbBlue != rgbqTable[i].rgbRed){bGrayScale=false; break;}
-			if(rgbqTable[i].rgbBlue != rgbqTable[i].rgbGreen){bGrayScale=false; break;}
+			for(int c=0; c<iWidth; c++)
+			{
+				int iPosition= r*iPitch + c/(8/iBPP);
+				int iDigit = (8/iBPP)-(c%(8/iBPP))-1;
+
+				BYTE byIndex = (pbyBit[iPosition] & (byMasks[iBPP]<< (iDigit*iBPP))) >> (iDigit*iBPP);
+				ullFrequency[byIndex]++;
+
+			}
+		}
+		int iUsedColors=0;
+		bool bGrayScale=true;
+		for(int i=0; i<iColors; i++)
+		{
+			if(ullFrequency[i] == 0){continue;}
+			iUsedColors++;
+			if(bGrayScale==true)
+			{
+				if(rgbqTable[i].rgbBlue != rgbqTable[i].rgbRed){bGrayScale=false; }
+				if(rgbqTable[i].rgbBlue != rgbqTable[i].rgbGreen){bGrayScale=false; }
+			}
 		}
 
 		if(rgbqTable_out != NULL)
@@ -1282,7 +1243,7 @@ bool ExtractChannel(CImage* imgSrc, CImage* imgDst, ENUM_COLOR color)
 		}
 		SAFE_DELETE(ullFrequency);
 
-		if(iUsedColors_out != NULL){*iUsedColors_out = (1<<iBPP);}
+		if(iUsedColors_out != NULL){*iUsedColors_out = iUsedColors;}
 		if(bGrayScale_out != NULL){*bGrayScale_out = bGrayScale;}
 
 		return true;
@@ -1309,70 +1270,13 @@ bool ExtractChannel(CImage* imgSrc, CImage* imgDst, ENUM_COLOR color)
 		}
 		return -1;
 	}
-	/*
-	bool ConvertImageBPP1(const CImage* imgSrc, CImage* imgDst, const bool bLosslessOnly)
-	{
-		if (imgDst->IsNull() != true) {imgDst->Destroy();}
-		int iBPP_src = imgSrc->GetBPP();
-		if(iBPP_src==1){return CopyImage(imgSrc, imgDst);}
-
-		int iWidth = imgSrc->GetWidth();
-		int iHeight = imgSrc->GetHeight();
-		int iPitch_src = imgSrc->GetPitch();
-		BYTE* pbyData_src = (BYTE*)imgSrc->GetBits();
-
-		imgDst->Create(iWidth, iHeight, 1);
-		BYTE* pbyData_dst = (BYTE*)imgDst->GetBits();
-		int iPitch_dst = imgDst->GetPitch();
-
-		for(int r=0; r<iHeight; r++)
-		{
-			for(int pc=0; pc< (iWidth+7)/8; pc++)
-			{
-				pbyData_dst[r*iPitch_dst+pc]=0;
-			}
-		}
-		ImgRGB imgRGB;
-		ConvertImage(imgSrc,&imgRGB);
-
-
-		if(bLosslessOnly == true)
-		{
-			for(int r=0; r<iHeight; r++)
-			{
-				for(int c=0; c< iWidth; c++)
-				{
-					BYTE byDataR = imgRGB.byImgR[r*iWidth+c];
-					BYTE byDataG = imgRGB.byImgG[r*iWidth+c];
-					BYTE byDataB = imgRGB.byImgB[r*iWidth+c];
-					if((byDataR != byDataG) || (byDataR != byDataB)){imgDst->Destroy(); return false;}
-					if((byDataR != 0) && (byDataR != 255)){imgDst->Destroy(); return false;}
-					pbyData_dst[r*iPitch_dst+(c/8)]+=(byDataR/255)<<(7-(c%8));
-				}
-			}
-			return true;
-		}
-		for(int r=0; r<iHeight; r++)
-		{
-			for(int c=0; c< iWidth; c++)
-			{
-				int iDataSum = imgRGB.byImgR[r*iWidth+c];
-				iDataSum += imgRGB.byImgG[r*iWidth+c];
-				iDataSum += imgRGB.byImgB[r*iWidth+c];
-
-				pbyData_dst[r*iPitch_dst+(c/8)]+=(iDataSum/384)<<(7-(c%8));
-			}
-		}
-		return true;
-	}
-	*/
 	bool Set8bitsColorTableImage(const CImage* imgSrc,const RGBQUAD* rgbqTable256, CImage* imgDst)
 	{
-		if (imgDst->IsNull() != true) {imgDst->Destroy();}
 		int iWidth = imgSrc->GetWidth();
 		int iHeight = imgSrc->GetHeight();
 		int iPitch_dst = imgDst->GetPitch();
 
+		if (imgDst->IsNull() != true) {imgDst->Destroy();}
 		imgDst->Create(iWidth, iHeight, 8);
 
 		SetColorTable(imgDst, rgbqTable256, 256);
@@ -1453,7 +1357,6 @@ bool ExtractChannel(CImage* imgSrc, CImage* imgDst, ENUM_COLOR color)
 	}
 	bool ConvertImageBPP8(const CImage* imgSrc, CImage* imgDst, const bool bLosslessOnly)
 	{
-		if (imgDst->IsNull() != true) {imgDst->Destroy();}
 		int iBPP_src = imgSrc->GetBPP();
 		if(iBPP_src==8){return CopyImage(imgSrc,imgDst);}
 
@@ -1466,6 +1369,7 @@ bool ExtractChannel(CImage* imgSrc, CImage* imgDst, ENUM_COLOR color)
 		ConvertImage(imgSrc,&imgRGB);
 
 
+		if (imgDst->IsNull() != true) {imgDst->Destroy();}
 		imgDst->Create(iWidth, iHeight, 8);
 
 		RGBQUAD rgbqTable_dst[256];
@@ -1537,7 +1441,6 @@ bool ExtractChannel(CImage* imgSrc, CImage* imgDst, ENUM_COLOR color)
 
 	bool ConvertImageBPP24(const CImage* imgSrc, CImage* imgDst)
 	{
-		if (imgDst->IsNull() != true) {imgDst->Destroy();}
 		int iBPP_src = imgSrc->GetBPP();
 		if(iBPP_src==24){return CopyImage(imgSrc, imgDst);}
 
@@ -1546,6 +1449,7 @@ bool ExtractChannel(CImage* imgSrc, CImage* imgDst, ENUM_COLOR color)
 		int iPitch_src = imgSrc->GetPitch();
 		BYTE* pbyData_src = (BYTE*)imgSrc->GetBits();
 
+		if (imgDst->IsNull() != true) {imgDst->Destroy();}
 		imgDst->Create(iWidth, iHeight, 24);
 		BYTE* pbyData_dst = (BYTE*)imgDst->GetBits();
 		int iPitch_dst = imgDst->GetPitch();
@@ -1567,7 +1471,6 @@ bool ExtractChannel(CImage* imgSrc, CImage* imgDst, ENUM_COLOR color)
 
 	bool ConvertImageBPP32(const CImage* imgSrc, CImage* imgDst)
 	{
-		if (imgDst->IsNull() != true) {imgDst->Destroy();}
 		int iBPP_src = imgSrc->GetBPP();
 		if(iBPP_src==32){return CopyImage(imgSrc, imgDst);}
 
@@ -1576,6 +1479,7 @@ bool ExtractChannel(CImage* imgSrc, CImage* imgDst, ENUM_COLOR color)
 		int iPitch_src = imgSrc->GetPitch();
 		BYTE* pbyData_src = (BYTE*)imgSrc->GetBits();
 
+		if (imgDst->IsNull() != true) {imgDst->Destroy();}
 		imgDst->Create(iWidth, iHeight, 32);
 		BYTE* pbyData_dst = (BYTE*)imgDst->GetBits();
 		int iPitch_dst = imgDst->GetPitch();
@@ -1668,7 +1572,6 @@ bool ExtractChannel(CImage* imgSrc, CImage* imgDst, ENUM_COLOR color)
 
 	bool ConvertImage_AreaCoverage(const CImage* imgSrc, const int iBPP, CImage* imgDst)
 	{
-		if (imgDst->IsNull() != true) {imgDst->Destroy();}
 		if(iBPP>=24)
 		{
 			return ConvertImage_LossLess(imgSrc, iBPP, imgDst);
@@ -1700,6 +1603,7 @@ bool ExtractChannel(CImage* imgSrc, CImage* imgDst, ENUM_COLOR color)
 		RGBQUAD rgbqTablePopularOrder[256];
 		GetPopularColorConversionTable(rgbqTable, iPopularOrder, iColors, rgbqTablePopularOrder, 256, iConversionTable);
 
+		if (imgDst->IsNull() != true) {imgDst->Destroy();}
 		imgDst->Create(iWidth, iHeight,8);
 
 
@@ -2188,7 +2092,6 @@ bool ExtractChannel(CImage* imgSrc, CImage* imgDst, ENUM_COLOR color)
 
 	bool ConvertImage_ByDeviation(const CImage* imgSrc, const int iBPP,CImage* imgDst)
 	{
-		if (imgDst->IsNull() != true) {imgDst->Destroy();}
 		if(iBPP>=24)
 		{
 			return ConvertImage_LossLess(imgSrc, iBPP, imgDst);
@@ -2219,6 +2122,7 @@ bool ExtractChannel(CImage* imgSrc, CImage* imgDst, ENUM_COLOR color)
 		GetCluster_K_mean(rgbqTable, ullFrequency, iConversionTable, iColors, rgbqResult, 1<<iBPP);
 
 
+		if (imgDst->IsNull() != true) {imgDst->Destroy();}
 		imgDst->Create(iWidth, iHeight,iBPP);
 		SetColorTable(imgDst, rgbqResult, 1<<iBPP);
 		SAFE_DELETE(rgbqResult);

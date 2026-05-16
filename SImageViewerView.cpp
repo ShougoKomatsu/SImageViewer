@@ -499,16 +499,7 @@ IMPLEMENT_DYNCREATE(CSImageViewerView, CView)
 		CImage imgSave;
 		CString sFileExt;
 		CString sFilter;
-		/*
-		int iBPP = formatDlg.m_iBPP;
-		switch(iBPP)
-		{
-		case 1:{ConvertImageBPP1(image,&imgSave,true); break;}
-		case 8:{ConvertImageBPP8(image,&imgSave,true); break;}
-		case 24:{ConvertImageBPP24(image,&imgSave); break;}
-		case 32:{ConvertImageBPP32(image,&imgSave); break;}
-		}
-		*/
+		
 		switch(formatDlg.m_iFormat)
 		{
 		case 0:{sFileExt.Format(_T("bmp"));sFilter.Format(_T("BitMap|*.bmp"));break;}
@@ -578,10 +569,11 @@ IMPLEMENT_DYNCREATE(CSImageViewerView, CView)
 
 		int iUsedColors;
 		bool bGrayScale;
-		MakeColorTable(&m_imageProcessed[m_iImgIndex],NULL,NULL,0,&iUsedColors, &bGrayScale);
+		MakeColorTable(&m_imageProcessed[m_iImgIndex],NULL,NULL, 1<<m_imageProcessed[m_iImgIndex].GetBPP(), &iUsedColors, &bGrayScale);
 		
 	colorDepthDlg.m_iColors = iUsedColors;
 	colorDepthDlg.m_bGrayScale = bGrayScale;
+	colorDepthDlg.m_iBPP = m_imageProcessed[m_iImgIndex].GetBPP();
 
 		INT_PTR iRet = colorDepthDlg.DoModal();
 		if(iRet != IDOK){return;}

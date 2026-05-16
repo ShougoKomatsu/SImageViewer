@@ -23,4 +23,8 @@ protected:
 	DECLARE_MESSAGE_MAP()
 public:
 	afx_msg void OnBnClickedOk();
+	virtual BOOL OnInitDialog();
+	CString m_sEditBPP;
+	CString m_sEditColors;
+	CString m_sEditGrayScale;
 };
