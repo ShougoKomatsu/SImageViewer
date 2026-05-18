@@ -383,7 +383,7 @@ BOOL CopyToClipBoardImg(CImage* imgSrc)
 	return true;
 }
 
-BOOL CopyFromClipBoardImg(CImage* cImageDst)
+BOOL CopyFromClipBoardImg(CImage* imgDst)
 {
 	BOOL bRet;
 
@@ -451,17 +451,17 @@ BOOL CopyFromClipBoardImg(CImage* cImageDst)
 		bySrcData = &(byData[sizeof(BITMAPINFOHEADER)+iPaletteSize ]);;
 	}
 
-	if(cImageDst->IsNull() != true){cImageDst->Destroy();}
-	HRESULT hr = cImageDst->Create(iWidth, abs(iHeight), iBPP_src);
+	if(imgDst->IsNull() != true){imgDst->Destroy();}
+	HRESULT hr = imgDst->Create(iWidth, abs(iHeight), iBPP_src);
 	if (FAILED(hr)) {SAFE_DELETE(byData); return FALSE;}
 
 	if ((iBPP_src <= 8) && (iColors > 0))
 	{
-		cImageDst->SetColorTable(0, iColors, (RGBQUAD*)pPalette);
+		SetColorTable(imgDst,(RGBQUAD*)pPalette,iColors);
 	}
 
-	int iPitch_dst = cImageDst->GetPitch();
-	BYTE* byDstData = (BYTE*)cImageDst->GetBits();
+	int iPitch_dst = imgDst->GetPitch();
+	BYTE* byDstData = (BYTE*)imgDst->GetBits();
 
 	bool bDstBottomUp = (iPitch_dst > 0);
 	bool bSrcBottomUp = (iHeight > 0); 
