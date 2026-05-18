@@ -119,7 +119,7 @@ bool CopyImage(const CImage* imgSrc, CImage* imgDst)
 		RGBQUAD* rgbqTable_src= new RGBQUAD[iColors];
 		imgSrc->GetColorTable(0, iColors, rgbqTable_src);
 
-		SetColorTable(imgDst, rgbqTable_src, 256);
+		SetColorTable(imgDst, rgbqTable_src, iColors);
 
 		SAFE_DELETE(rgbqTable_src);
 	}
@@ -234,7 +234,8 @@ bool ClipImage( CImage* imgOriginal, CImage* imgClipped, int iR0, int iC0, int i
 		{
 			RGBQUAD* pSrcTable = new RGBQUAD[iColors];
 			imgOriginal->GetColorTable(0, iColors, pSrcTable);
-			imgClipped->SetColorTable(0, iColors, pSrcTable);
+
+			SetColorTable(imgClipped, pSrcTable, iColors);
 			delete[] pSrcTable;
 		}
 	}
