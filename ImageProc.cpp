@@ -141,20 +141,19 @@ bool CopyImage(const CImage* imgSrc, CImage* imgDst)
 }
 
 
-bool ConvertImageToStr(const CImage* cImageSrc, const CString sSeparater, CString* sImage)
+bool ConvertImageToStr(const CImage* imgSrc, const CString sSeparater, CString* sImage)
 {
-	int iWidth_src  = cImageSrc->GetWidth();
-	int iHeight_src = cImageSrc->GetHeight();
-	int iBPP_src= cImageSrc->GetBPP();
-	int iPitch_src = cImageSrc->GetPitch();
-	BYTE* bySrcData = (BYTE*)cImageSrc->GetBits();
+	int iWidth_src  = imgSrc->GetWidth();
+	int iHeight_src = imgSrc->GetHeight();
 
 	if(iWidth_src <= 0){return FALSE;}
 	if(iHeight_src == 0){return FALSE;}
-	if(iBPP_src == 0){return FALSE;}
 
+	ImgRGB imgRGB;
+	ConvertImage(imgSrc,&imgRGB);
+	bool bMono = IsImageMonochrome(imgSrc);
 	CString sImageLocal=_T("");
-	if(iBPP_src==24)
+	if(bMono==false)
 	{
 		for(int r=0; r<iHeight_src; r++)
 		{
@@ -162,22 +161,22 @@ bool ConvertImageToStr(const CImage* cImageSrc, const CString sSeparater, CStrin
 			CString sPixel;
 			for(int c=0; c<iWidth_src; c++)
 			{
-				sPixel.Format(_T("%d%s"),bySrcData[r*iPitch_src+c*3+2],sSeparater);
+				sPixel.Format(_T("%d%s"),imgRGB.byImgR[r*iWidth_src+c],sSeparater);
 				sLine+=sPixel;
 			}
 			sLine+=sSeparater;
 			for(int c=0; c<iWidth_src; c++)
 			{
-				sPixel.Format(_T("%d%s"),bySrcData[r*iPitch_src+c*3+1],sSeparater);
+				sPixel.Format(_T("%d%s"),imgRGB.byImgG[r*iWidth_src+c],sSeparater);
 				sLine+=sPixel;
 			}
 			sLine+=sSeparater;
 			for(int c=0; c<iWidth_src-1; c++)
 			{
-				sPixel.Format(_T("%d%s"),bySrcData[r*iPitch_src+c*3+0],sSeparater);
+				sPixel.Format(_T("%d%s"),imgRGB.byImgB[r*iWidth_src+c],sSeparater);
 				sLine+=sPixel;
 			}
-			sPixel.Format(_T("%d\n"),bySrcData[r*iPitch_src+(iWidth_src-1)*3+0]);
+			sPixel.Format(_T("%d\n"),imgRGB.byImgR[r*iWidth_src+(iWidth_src-1)]);
 			sLine+=sPixel;
 			sImageLocal+=sLine;
 		}
@@ -185,111 +184,21 @@ bool ConvertImageToStr(const CImage* cImageSrc, const CString sSeparater, CStrin
 		return true;
 	}
 
-	if(iBPP_src==8)
+	for(int r=0; r<iHeight_src; r++)
 	{
-		RGBQUAD* pSrcTable=NULL;
-		int iColors = cImageSrc->GetMaxColorTableEntries();
-		if (iColors > 0) 
-		{
-			pSrcTable = new RGBQUAD[iColors];
-			cImageSrc->GetColorTable(0, iColors, pSrcTable);
-		}
+		CString sLine=_T("");;
+		CString sPixel;
 
-		bool bGrayScale=true;
-		for(int i=0; i<iColors; i++)
+		for(int c=0; c<iWidth_src-1; c++)
 		{
-			if(pSrcTable[i].rgbBlue != pSrcTable[i].rgbRed){bGrayScale=false; break;}
-			if(pSrcTable[i].rgbBlue != pSrcTable[i].rgbGreen){bGrayScale=false; break;}
-		}
-
-		if(bGrayScale==true)
-		{
-			for(int r=0; r<iHeight_src; r++)
-			{
-				CString sLine=_T("");;
-				CString sPixel;
-
-				for(int c=0; c<iWidth_src-1; c++)
-				{
-					sPixel.Format(_T("%d%s"),(BYTE)(((RGBQUAD*)(&(pSrcTable[bySrcData[r*iPitch_src+c]])))->rgbBlue),sSeparater);
-					sLine+=sPixel;
-				}
-				sPixel.Format(_T("%d\n"),(BYTE)(((RGBQUAD*)(&(pSrcTable[bySrcData[r*iPitch_src+(iWidth_src-1)]])))->rgbBlue));
-				sLine+=sPixel;
-				sImageLocal+=sLine;
-			}
-			(*sImage)=sImageLocal;
-			delete [] pSrcTable;
-			return true;
-		}
-
-		for(int r=0; r<iHeight_src; r++)
-		{
-			CString sLine=_T("");;
-			CString sPixel;
-			for(int c=0; c<iWidth_src; c++)
-			{
-				sPixel.Format(_T("%d%s"),(BYTE)(((RGBQUAD*)(&(pSrcTable[bySrcData[r*iPitch_src+c]])))->rgbRed),sSeparater);
-				sLine+=sPixel;
-			}
-			sLine+=sSeparater;
-			for(int c=0; c<iWidth_src; c++)
-			{
-				sPixel.Format(_T("%d%s"),(BYTE)(((RGBQUAD*)(&(pSrcTable[bySrcData[r*iPitch_src+c]])))->rgbGreen),sSeparater);
-				sLine+=sPixel;
-			}
-			sLine+=sSeparater;
-			for(int c=0; c<iWidth_src-1; c++)
-			{
-				sPixel.Format(_T("%d%s"),(BYTE)(((RGBQUAD*)(&(pSrcTable[bySrcData[r*iPitch_src+c]])))->rgbBlue),sSeparater);
-				sLine+=sPixel;
-			}
-			sPixel.Format(_T("%d\n"),(BYTE)(((RGBQUAD*)(&(pSrcTable[bySrcData[r*iPitch_src+(iWidth_src-1)]])))->rgbBlue));
+			sPixel.Format(_T("%d%s"),imgRGB.byImgR[r*iWidth_src+c],sSeparater);
 			sLine+=sPixel;
-			sImageLocal+=sLine;
 		}
-		(*sImage)=sImageLocal;
-		delete [] pSrcTable;
-		return true;
+		sPixel.Format(_T("%d\n"),imgRGB.byImgR[r*iWidth_src+(iWidth_src-1)]);
+		sLine+=sPixel;
+		sImageLocal+=sLine;
 	}
-
-
-	if(iBPP_src==32)
-	{
-		for(int r=0; r<iHeight_src; r++)
-		{
-			CString sLine=_T("");;
-			CString sPixel;
-			for(int c=0; c<iWidth_src; c++)
-			{
-				sPixel.Format(_T("%d%s"),bySrcData[r*iPitch_src+c*4+2],sSeparater);
-				sLine+=sPixel;
-			}
-			sLine+=sSeparater;
-			for(int c=0; c<iWidth_src; c++)
-			{
-				sPixel.Format(_T("%d%s"),bySrcData[r*iPitch_src+c*4+1],sSeparater);
-				sLine+=sPixel;
-			}
-			sLine+=sSeparater;
-			for(int c=0; c<iWidth_src; c++)
-			{
-				sPixel.Format(_T("%d%s"),bySrcData[r*iPitch_src+c*4+0],sSeparater);
-				sLine+=sPixel;
-			}
-			sLine+=sSeparater;
-			for(int c=0; c<iWidth_src-1; c++)
-			{
-				sPixel.Format(_T("%d%s"),bySrcData[r*iPitch_src+c*4+3],sSeparater);
-				sLine+=sPixel;
-			}
-			sPixel.Format(_T("%d\n"),bySrcData[r*iPitch_src+(iWidth_src-1)*4+3]);
-			sLine+=sPixel;
-			sImageLocal+=sLine;
-		}
-		(*sImage)=sImageLocal;
-		return true;
-	}
+	(*sImage)=sImageLocal;
 	return true;
 }
 
@@ -369,20 +278,20 @@ bool ClipImage( CImage* imgOriginal, CImage* imgClipped, int iR0, int iC0, int i
 	return false;
 }
 
-BOOL CopyToClipBoardImg(CImage* cImageSrc)
+BOOL CopyToClipBoardImg(CImage* imgSrc)
 {
-	if (cImageSrc->IsNull() == true){return false;}
+	if (imgSrc->IsNull() == true){return false;}
 
-	int iWidth_src = cImageSrc->GetWidth();
-	int iHeight_src = cImageSrc->GetHeight();
-	int iBPP_src = cImageSrc->GetBPP();
+	int iWidth_src = imgSrc->GetWidth();
+	int iHeight_src = imgSrc->GetHeight();
+	int iBPP_src = imgSrc->GetBPP();
 
 	int iHeaderSize = sizeof(BITMAPINFOHEADER);
 
 	int iColors = 0;
 	if (iBPP_src <= 8) 
 	{
-		iColors = cImageSrc->GetMaxColorTableEntries();
+		iColors = imgSrc->GetMaxColorTableEntries();
 	}
 	int iPaletteSize = iColors * sizeof(RGBQUAD);
 
@@ -423,15 +332,15 @@ BOOL CopyToClipBoardImg(CImage* cImageSrc)
 	if ((iBPP_src <= 8) && (iColors > 0) )
 	{
 		RGBQUAD* rgbqTable = new RGBQUAD[iColors];
-		cImageSrc->GetColorTable(0, iColors, rgbqTable);
+		imgSrc->GetColorTable(0, iColors, rgbqTable);
 
 		memcpy(pPalette, rgbqTable, iPaletteSize);
 		delete[] rgbqTable;
 	}
 
 
-	BYTE* bySrcData = (BYTE*)cImageSrc->GetBits();
-	int iPitch_src   = cImageSrc->GetPitch();
+	BYTE* bySrcData = (BYTE*)imgSrc->GetBits();
+	int iPitch_src   = imgSrc->GetPitch();
 	bool bBottomUp  = (iPitch_src > 0);
 
 	for (int r = 0; r < iHeight_src; r++) 
