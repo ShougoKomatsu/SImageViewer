@@ -113,7 +113,7 @@ bool CopyImage(const CImage* imgSrc, CImage* imgDst)
 
 	int iBPP = imgSrc->GetBPP();
 
-	if((iBPP==2)||(iBPP==4)||(iBPP==8))
+	if((iBPP==1)||(iBPP==2)||(iBPP==4)||(iBPP==8))
 	{
 		int iColors = imgSrc->GetMaxColorTableEntries();
 		RGBQUAD* rgbqTable_src= new RGBQUAD[iColors];
