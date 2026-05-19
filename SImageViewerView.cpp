@@ -490,10 +490,10 @@ IMPLEMENT_DYNCREATE(CSImageViewerView, CView)
 	{
 
 		CFormatSelectionoDlg formatDlg;
-		formatDlg.m_bImageIsMonochrome= IsImageMonochrome(&m_image);
+		formatDlg.m_iBPP = image->GetBPP();
+		formatDlg.m_bImageIsMonochrome= IsImageMonochrome(image);
 		INT_PTR iRet = formatDlg.DoModal();
 		if(iRet != IDOK){return false;}
-		CImage imgSave;
 		CString sFileExt;
 		CString sFilter;
 		
@@ -520,7 +520,7 @@ IMPLEMENT_DYNCREATE(CSImageViewerView, CView)
 
 
 
-		HRESULT hResult = imgSave.Save(sFilePath);
+		HRESULT hResult = image->Save(sFilePath);
 		if(hResult != S_OK){return false;}
 
 		return true;

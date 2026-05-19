@@ -14,6 +14,7 @@ IMPLEMENT_DYNAMIC(CFormatSelectionoDlg, CDialogEx)
 CFormatSelectionoDlg::CFormatSelectionoDlg(CWnd* pParent /*=NULL*/)
 	: CDialogEx(CFormatSelectionoDlg::IDD, pParent)
 	, m_sEditIsMonochrome(_T(""))
+	, m_sBPP(_T(""))
 {
 
 }
@@ -26,6 +27,7 @@ void CFormatSelectionoDlg::DoDataExchange(CDataExchange* pDX)
 {
 	CDialogEx::DoDataExchange(pDX);
 	DDX_Text(pDX, IDC_FORMAT_SELECT_MONO, m_sEditIsMonochrome);
+	DDX_Text(pDX, IDC_FORMAT_SELECT_BPP, m_sBPP);
 }
 
 
@@ -49,6 +51,7 @@ BOOL CFormatSelectionoDlg::OnInitDialog()
 	{
 		m_sEditIsMonochrome.Format(_T("No"));
 	}
+	m_sBPP.Format(_T("%d"),m_iBPP);
 
 	UpdateData(FALSE);
 	// TODO:  ‚±‚±‚É‰Šú‰»‚ð’Ç‰Á‚µ‚Ä‚­‚¾‚³‚¢
@@ -61,13 +64,6 @@ BOOL CFormatSelectionoDlg::OnInitDialog()
 void CFormatSelectionoDlg::OnBnClickedOk()
 {
 	if(((CButton*)GetDlgItem(IDC_FORMAT_SELECT_BMP24))->GetCheck()==TRUE){m_iFormat=0;m_iBPP=24;}
-	if(((CButton*)GetDlgItem(IDC_FORMAT_SELECT_BMP8))->GetCheck()==TRUE){m_iFormat=0;m_iBPP=8;}
-	if(((CButton*)GetDlgItem(IDC_FORMAT_SELECT_BMP4))->GetCheck()==TRUE){m_iFormat=0;m_iBPP=4;}
-	if(((CButton*)GetDlgItem(IDC_FORMAT_SELECT_BMP2))->GetCheck()==TRUE){m_iFormat=0;m_iBPP=2;}
-	if(((CButton*)GetDlgItem(IDC_FORMAT_SELECT_BMP1))->GetCheck()==TRUE){m_iFormat=0;m_iBPP=1;}
-	if(((CButton*)GetDlgItem(IDC_FORMAT_SELECT_PNG32))->GetCheck()==TRUE){m_iFormat=1;m_iBPP=32;}
 	if(((CButton*)GetDlgItem(IDC_FORMAT_SELECT_PNG24))->GetCheck()==TRUE){m_iFormat=1;m_iBPP=24;}
-	if(((CButton*)GetDlgItem(IDC_FORMAT_SELECT_PNG8))->GetCheck()==TRUE){m_iFormat=1;m_iBPP=8;}
-	
 	CDialogEx::OnOK();
 }

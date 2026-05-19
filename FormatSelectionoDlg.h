@@ -25,4 +25,5 @@ public:
 	virtual BOOL OnInitDialog();
 	CString m_sEditIsMonochrome;
 	afx_msg void OnBnClickedOk();
+	CString m_sBPP;
 };
