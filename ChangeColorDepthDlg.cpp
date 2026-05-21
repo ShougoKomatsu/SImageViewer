@@ -44,7 +44,6 @@ END_MESSAGE_MAP()
 void CChangeColorDepthDlg::OnBnClickedOk()
 {
 	if(((CButton*)GetDlgItem(IDC_CHANGE_COLOR_DEPTH_1))->GetCheck()==TRUE){m_iBPP=1;}
-	if(((CButton*)GetDlgItem(IDC_CHANGE_COLOR_DEPTH_2))->GetCheck()==TRUE){m_iBPP=2;}
 	if(((CButton*)GetDlgItem(IDC_CHANGE_COLOR_DEPTH_4))->GetCheck()==TRUE){m_iBPP=4;}
 	if(((CButton*)GetDlgItem(IDC_CHANGE_COLOR_DEPTH_8))->GetCheck()==TRUE){m_iBPP=8;}
 	if(((CButton*)GetDlgItem(IDC_CHANGE_COLOR_DEPTH_24))->GetCheck()==TRUE){m_iBPP=24;}
@@ -65,7 +64,6 @@ BOOL CChangeColorDepthDlg::OnInitDialog()
 	m_sEditGrayScale.Format(_T("%s"),(m_bGrayScale == true ? _T("true"): _T("false")));
 
 	((CButton*)GetDlgItem(IDC_CHANGE_COLOR_DEPTH_1))->SetCheck(false);
-	((CButton*)GetDlgItem(IDC_CHANGE_COLOR_DEPTH_2))->SetCheck(false);
 	((CButton*)GetDlgItem(IDC_CHANGE_COLOR_DEPTH_4))->SetCheck(false);
 	((CButton*)GetDlgItem(IDC_CHANGE_COLOR_DEPTH_8))->SetCheck(false);
 	((CButton*)GetDlgItem(IDC_CHANGE_COLOR_DEPTH_24))->SetCheck(false);
@@ -78,7 +76,6 @@ BOOL CChangeColorDepthDlg::OnInitDialog()
 	switch(m_iBPP)
 	{
 	case 1:{((CButton*)GetDlgItem(IDC_CHANGE_COLOR_DEPTH_1))->SetCheck(true);break;}
-	case 2:{((CButton*)GetDlgItem(IDC_CHANGE_COLOR_DEPTH_2))->SetCheck(true);break;}
 	case 4:{((CButton*)GetDlgItem(IDC_CHANGE_COLOR_DEPTH_4))->SetCheck(true);break;}
 	case 8:{((CButton*)GetDlgItem(IDC_CHANGE_COLOR_DEPTH_8))->SetCheck(true);break;}
 	case 24:{((CButton*)GetDlgItem(IDC_CHANGE_COLOR_DEPTH_24))->SetCheck(true);break;}

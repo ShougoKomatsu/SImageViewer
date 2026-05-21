@@ -588,6 +588,7 @@ IMPLEMENT_DYNCREATE(CSImageViewerView, CView)
 		case 1:{ConvertImage_AreaCoverage(&imgSrc,colorDepthDlg.m_iBPP, &m_imageProcessed[m_iImgIndex]);break;}
 		case 2:{ConvertImage_ByDeviation(&imgSrc, colorDepthDlg.m_iBPP, &m_imageProcessed[m_iImgIndex]);break;}
 		}
+//		m_imageProcessed[m_iImgIndex].Save(_T("D:\\test.bmp"));
 		Invalidate();
 	}
 
