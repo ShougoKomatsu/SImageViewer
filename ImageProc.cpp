@@ -264,107 +264,108 @@ bool ClipImage( CImage* imgOriginal, CImage* imgClipped, int iR0, int iC0, int i
 
 BOOL CopyToClipBoardImg(CImage* imgSrc)
 {
-	if (imgSrc->IsNull() == true){return false;}
+if (imgSrc->IsNull() == true){return false;}
 
-	int iWidth_src = imgSrc->GetWidth();
-	int iHeight_src = imgSrc->GetHeight();
-	int iBPP_src = imgSrc->GetBPP();
+int iWidth_src = imgSrc->GetWidth();
+int iHeight_src = imgSrc->GetHeight();
+int iBPP_src = imgSrc->GetBPP();
 
-	int iHeaderSize = sizeof(BITMAPINFOHEADER);
+int iHeaderSize = sizeof(BITMAPINFOHEADER);
 
-	int iColors = 0;
-	if (iBPP_src <= 8) 
-	{
-		iColors = imgSrc->GetMaxColorTableEntries();
-	}
-	int iPaletteSize = iColors * sizeof(RGBQUAD);
-
-	int iBytesPerLine = ((iWidth_src * iBPP_src + 31) / 32) * 4;
-
-
-	int iTotalSize = iHeaderSize + iPaletteSize + ( iBytesPerLine * iHeight_src);
-
-	HGLOBAL hGL;
-	BYTE* pbyDib ;
-
-	hGL = GlobalAlloc(GPTR, iTotalSize);
-	if (hGL == NULL){return false;}
-
-	pbyDib = (BYTE*)GlobalLock(hGL);
-	if (pbyDib == NULL)
-	{
-		GlobalFree(hGL);
-		return false;
-	}
-
-	BITMAPINFOHEADER* bih = (BITMAPINFOHEADER*)pbyDib;
-	bih->biSize          = sizeof(BITMAPINFOHEADER);
-	bih->biWidth         = iWidth_src;
-	bih->biHeight        = iHeight_src;
-	bih->biPlanes        = 1;
-	bih->biBitCount      = (WORD)iBPP_src;
-	bih->biCompression   = BI_RGB;
-	bih->biSizeImage     = iBytesPerLine * iHeight_src;
-	bih->biXPelsPerMeter = 0;
-	bih->biYPelsPerMeter = 0;
-	bih->biClrUsed       = ((iBPP_src <= 8) ? iColors : 0);
-	bih->biClrImportant  = 0;
-
-	BYTE* pPalette = pbyDib + iHeaderSize;
-	BYTE* pBits    = pPalette + iPaletteSize;
-
-	if ((iBPP_src <= 8) && (iColors > 0) )
-	{
-		RGBQUAD* rgbqTable = new RGBQUAD[iColors];
-		imgSrc->GetColorTable(0, iColors, rgbqTable);
-
-		memcpy(pPalette, rgbqTable, iPaletteSize);
-		delete[] rgbqTable;
-	}
-
-
-	BYTE* bySrcData = (BYTE*)imgSrc->GetBits();
-	int iPitch_src   = imgSrc->GetPitch();
-	bool bBottomUp  = (iPitch_src > 0);
-
-	for (int r = 0; r < iHeight_src; r++) 
-	{
-
-		BYTE* pSrcLine = nullptr;
-		BYTE* pDstLine = &(pBits[r * iBytesPerLine]);
-
-		if (bBottomUp = true)
-		{
-			pSrcLine = &(bySrcData[(iHeight_src - 1 -r) * iPitch_src]);
-		} 
-		else 
-		{
-			pSrcLine = &(bySrcData[r * iPitch_src]);
-		}
-
-		memcpy(pDstLine, pSrcLine, iBytesPerLine);
-	}
-
-
-	BOOL bRet;
-	bRet = GlobalUnlock(hGL);
-	if(bRet == FALSE){GlobalFree(hGL);return false;}
-
-	bRet = OpenClipboard(NULL);
-	if(bRet == FALSE){GlobalFree(hGL);return false;}
-
-	bRet = EmptyClipboard();
-	if(bRet == FALSE){CloseClipboard();GlobalFree(hGL);return false;}
-
-	HANDLE hResult;
-	hResult = SetClipboardData(CF_DIB, hGL);
-	if (hResult == NULL){CloseClipboard();GlobalFree(hGL);return false;}
-
-	bRet = CloseClipboard();
-	if(bRet != TRUE){return false;}
-
-	return true;
+int iColors = 0;
+if (iBPP_src <= 8) 
+{
+iColors = imgSrc->GetMaxColorTableEntries();
 }
+int iPaletteSize = iColors * sizeof(RGBQUAD);
+
+int iBytesPerLine = ((iWidth_src * iBPP_src + 31) / 32) * 4;
+
+
+int iTotalSize = iHeaderSize + iPaletteSize + ( iBytesPerLine * iHeight_src);
+
+HGLOBAL hGL;
+BYTE* pbyDib ;
+
+hGL = GlobalAlloc(GPTR, iTotalSize);
+if (hGL == NULL){return false;}
+
+pbyDib = (BYTE*)GlobalLock(hGL);
+if (pbyDib == NULL)
+{
+GlobalFree(hGL);
+return false;
+}
+
+BITMAPINFOHEADER* bih = (BITMAPINFOHEADER*)pbyDib;
+bih->biSize          = sizeof(BITMAPINFOHEADER);
+bih->biWidth         = iWidth_src;
+bih->biHeight        = iHeight_src;
+bih->biPlanes        = 1;
+bih->biBitCount      = (WORD)iBPP_src;
+bih->biCompression   = BI_RGB;
+bih->biSizeImage     = iBytesPerLine * iHeight_src;
+bih->biXPelsPerMeter = 0;
+bih->biYPelsPerMeter = 0;
+bih->biClrUsed       = ((iBPP_src <= 8) ? iColors : 0);
+bih->biClrImportant  = 0;
+
+BYTE* pPalette = pbyDib + iHeaderSize;
+BYTE* pBits    = pPalette + iPaletteSize;
+
+if ((iBPP_src <= 8) && (iColors > 0) )
+{
+RGBQUAD* rgbqTable = new RGBQUAD[iColors];
+imgSrc->GetColorTable(0, iColors, rgbqTable);
+
+memcpy(pPalette, rgbqTable, iPaletteSize);
+delete[] rgbqTable;
+}
+
+
+BYTE* bySrcData = (BYTE*)imgSrc->GetBits();
+int iPitch_src   = imgSrc->GetPitch();
+bool bBottomUp  = (iPitch_src > 0);
+
+for (int r = 0; r < iHeight_src; r++) 
+{
+
+BYTE* pSrcLine = nullptr;
+BYTE* pDstLine = &(pBits[r * iBytesPerLine]);
+
+if (bBottomUp = true)
+{
+	pSrcLine = &(bySrcData[(iHeight_src - 1 -r) * iPitch_src]);
+} 
+else 
+{
+	pSrcLine = &(bySrcData[r * iPitch_src]);
+}
+
+memcpy(pDstLine, pSrcLine, iBytesPerLine);
+}
+
+
+BOOL bRet;
+bRet = GlobalUnlock(hGL);
+if(bRet == FALSE){GlobalFree(hGL);return false;}
+
+bRet = OpenClipboard(NULL);
+if(bRet == FALSE){GlobalFree(hGL);return false;}
+
+bRet = EmptyClipboard();
+if(bRet == FALSE){CloseClipboard();GlobalFree(hGL);return false;}
+
+HANDLE hResult;
+hResult = SetClipboardData(CF_DIB, hGL);
+if (hResult == NULL){CloseClipboard();GlobalFree(hGL);return false;}
+
+bRet = CloseClipboard();
+if(bRet != TRUE){return false;}
+
+return true;
+}
+
 
 BOOL CopyFromClipBoardImg(CImage* imgDst)
 {
@@ -418,9 +419,10 @@ BOOL CopyFromClipBoardImg(CImage* imgDst)
 
 	BYTE* pPalette = &(byData[sizeof(BITMAPINFOHEADER)]);
 	BYTE* bySrcData;
+	int iBytesPerLine = ((iWidth * iBPP_src + 31) / 32) * 4;
 	if((iBPP_src == 24) || (iBPP_src == 32))
 	{
-		if(dataSize == sizeof(BITMAPINFOHEADER) + iPaletteSize + iWidth*abs(iHeight)*iBPP_src/8)
+		if(dataSize == sizeof(BITMAPINFOHEADER) + iPaletteSize + abs(iHeight)*iBytesPerLine)
 		{
 			bySrcData = &(byData[sizeof(BITMAPINFOHEADER)+iPaletteSize ]);
 		}
@@ -449,7 +451,6 @@ BOOL CopyFromClipBoardImg(CImage* imgDst)
 	bool bDstBottomUp = (iPitch_dst > 0);
 	bool bSrcBottomUp = (iHeight > 0); 
 
-	int iBytesPerLine = ((iWidth * iBPP_src + 31) / 32) * 4;
 	int iAbsHeight = abs(iHeight);
 
 	for (int r = 0; r < iAbsHeight; r++)
