@@ -567,6 +567,9 @@ IMPLEMENT_DYNCREATE(CSImageViewerView, CView)
 
 		int iUsedColors;
 		bool bGrayScale;
+		
+	CountColorNum(&m_imageProcessed[m_iImgIndex], &iUsedColors, NULL);
+
 		MakeColorTable(&m_imageProcessed[m_iImgIndex],NULL,NULL, 1<<m_imageProcessed[m_iImgIndex].GetBPP(), &iUsedColors, &bGrayScale);
 		
 	colorDepthDlg.m_iColors = iUsedColors;
@@ -675,13 +678,37 @@ IMPLEMENT_DYNCREATE(CSImageViewerView, CView)
 	void CSImageViewerView::OnInitialUpdate()
 	{
 		CView::OnInitialUpdate();
-		
+		/*
+		CImage imgTest;
+		imgTest.Create(16,16,8);
+		RGBQUAD colorTable[256];
+		for(int i=0; i<256; i++)
+		{
+		colorTable[i].rgbBlue=i;
+		colorTable[i].rgbGreen=i;
+		colorTable[i].rgbRed=i;
+		colorTable[i].rgbReserved=255;
+		}
+
+		SetColorTable(&imgTest, colorTable, 256);
+		int iPitch = imgTest.GetPitch();
+		BYTE* byData = (BYTE*)imgTest.GetBits();
+		for(int r=0; r<16; r++)
+		{
+		for(int c=0; c<16; c++)
+		{
+		byData[r*iPitch+c]=r*16+c;
+		}
+		}
+
+		imgTest.Save(_T("d:\\16_16_256.bmp"));
+		*/
 		m_imageProcessed[m_iImgIndex].Create(100,100,0);
 		/*
 		int ii[100];
 		for(int i=0; i<100; i++)
 		{
-			ii[i]=rand();
+		ii[i]=rand();
 		}
 		int iIndex[100];
 		index_i(ii,100,iIndex);

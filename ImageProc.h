@@ -19,7 +19,8 @@ bool index_i(const ULONGLONG* arr, const int iLength, int* indx);
 bool ConvertImage_AreaCoverage(const CImage* imgSrc,const int iBPP, CImage* imgDst);
 bool ConvertImage_ByDeviation(const CImage* imgSrc,const int iBPP,  CImage* imgDst);
 bool ConvertImage_LossLess(const CImage* imgSrc, const int iBPP, CImage* imgDst);
-
+bool CountColorNum(const CImage* imgSrc, int* iColorNum_out, UINT* uiMap_out);
 bool MakeColorTable(const CImage* cImage, RGBQUAD* rgbqTable_out, ULONGLONG* ullFrequency_out, int iLength, int* iUsedColors_out, bool* bGrayScale_out);
 
+bool SetColorTable(CImage* img, const RGBQUAD* rgbTable, int iLength);
 

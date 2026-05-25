@@ -1049,9 +1049,55 @@ BOOL ZoomImage(CImage* imgSrc, CImage* imgDst, const double dR0_Src, const doubl
 	return TRUE;
 }
 
+bool CountColorNum(ImgRGB* imgRGB, int* iColorNum_out, UINT* uiMap_out)
+{
+	int iWidth = imgRGB->iWidth;
+	int iHeight = imgRGB->iHeight;
+	BYTE* byMap;
+	byMap = new BYTE [256*256*32];
+	memset(byMap, 0, 256*256*32);
+	for(int r=0; r<iHeight; r++)
+	{
+		for(int c=0; c<iWidth ; c++)
+		{
+			BYTE byDigit = imgRGB->byImgB[r*iWidth+c] & (0x07);
+			UINT uiPosition = ((imgRGB->byImgR[r*iWidth+c])<<13) + ((imgRGB->byImgG[r*iWidth+c])<<5) + ((imgRGB->byImgB[r*iWidth+c] & (0xF8)) >> 3);
+			byMap[uiPosition] |= (1<<byDigit);
+		}
+	}
+	int iColorNum=0;
+	if(uiMap_out != NULL)
+	{
+		for(int i=0; i<256*256*256; i++)
+		{
+			uiMap_out[i]=0x1000000;
+		}
+	}
+	for(int i=0; i<256*256*32; i++)
+	{
+		for(int j=0; j<8; j++)
+		{
+			if((byMap[i] & (1<<j)) == (1<<j))
+			{
+				if(uiMap_out != NULL){uiMap_out[i*8+j]=iColorNum;}
+				iColorNum++;
+			}
+		}
+	}
+	SAFE_DELETE(byMap);
+	*iColorNum_out = iColorNum;
+	return TRUE;
+}
 
+bool CountColorNum(const CImage* imgSrc, int* iColorNum_out, UINT* uiMap_out)
+{
+	ImgRGB imgRGB;
+	ConvertImage(imgSrc, &imgRGB);
+	return CountColorNum(&imgRGB, iColorNum_out, uiMap_out);
+}
 bool MakeColorTable(ImgRGB* imgRGB, RGBQUAD* rgbqTable_out, ULONGLONG* ullFrequency_out, int iLength, int* iUsedColors_out, bool* bGrayScale_out)
 {
+
 	int iWidth = imgRGB->iWidth;
 	int iHeight = imgRGB->iHeight;
 	RGBQUAD* rgbqTable_temp;
@@ -1064,7 +1110,22 @@ bool MakeColorTable(ImgRGB* imgRGB, RGBQUAD* rgbqTable_out, ULONGLONG* ullFreque
 		ullFrequency[i]=0;
 	}
 
-	int iTableLength = 0;
+	int iColorNum;
+	UINT* uiMap;
+	uiMap = new UINT[256*256*256];
+
+	bool bRet = CountColorNum(imgRGB, &iColorNum, uiMap);
+	for(int i=0; i<256*256*256; i++)
+	{
+		if(uiMap[i]==0x1000000){continue;}
+		UINT uiIndex = uiMap[i];
+		rgbqTable_temp[uiIndex].rgbRed=(i>>16);
+		rgbqTable_temp[uiIndex].rgbGreen=((i>>8) & 0xFF);
+		rgbqTable_temp[uiIndex].rgbBlue=(i & 0xFF);
+		rgbqTable_temp[uiIndex].rgbReserved=0;
+
+	}
+	int iTableLength = iColorNum;
 	for(int r=0; r<iHeight; r++)
 	{
 		for(int c=0; c<iWidth ; c++)
@@ -1072,38 +1133,10 @@ bool MakeColorTable(ImgRGB* imgRGB, RGBQUAD* rgbqTable_out, ULONGLONG* ullFreque
 			BYTE byDataR = imgRGB->byImgR[r*iWidth+c];
 			BYTE byDataG = imgRGB->byImgG[r*iWidth+c];
 			BYTE byDataB = imgRGB->byImgB[r*iWidth+c];
-			bool bFounud = false;
-			for(int iTableIndex=0; iTableIndex<iTableLength; iTableIndex++)
-			{
-				if((byDataR==rgbqTable_temp[iTableIndex].rgbRed)
-					&& (byDataG==rgbqTable_temp[iTableIndex].rgbGreen)
-					&& (byDataB==rgbqTable_temp[iTableIndex].rgbBlue))
-				{
-					bFounud = true;
-					if(ullFrequency  != NULL){ullFrequency[iTableIndex]++;}
-					break;
-				}
-			}
-
-			if(bFounud==false)
-			{
-				if(iTableLength>=iLength)
-				{
-					SAFE_DELETE(rgbqTable_temp);
-					return false;
-				}
-
-				rgbqTable_temp[iTableLength].rgbRed=byDataR;
-				rgbqTable_temp[iTableLength].rgbGreen=byDataG;
-				rgbqTable_temp[iTableLength].rgbBlue=byDataB;
-				rgbqTable_temp[iTableLength].rgbReserved=0;
-				if(ullFrequency != NULL){ullFrequency[iTableLength]++;}
-				iTableLength++;
-			}
+			UINT uiIndex = uiMap[byDataR*256*256+byDataG*256+byDataB];
+			ullFrequency[uiIndex]++;
 		}
 	}
-
-
 	bool bGrayScale=true;
 	for(int i=0; i<iTableLength; i++)
 	{
