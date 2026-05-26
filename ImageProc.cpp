@@ -374,10 +374,10 @@ bool CopyFromClipBoardImg(CImage* imgDst)
 
 	HANDLE hResult;
 	hResult = GetClipboardData(CF_DIB);
-	if(hResult == NULL){return false;}
+	if(hResult == NULL){CloseClipboard();return false;}
 
 	LPVOID byDataTemp = GlobalLock(hResult);
-	if(byDataTemp==NULL){return false;}
+	if(byDataTemp==NULL){CloseClipboard();return false;}
 
 	SIZE_T dataSize = GlobalSize(hResult);
 	if (dataSize == 0) { GlobalUnlock(hResult);CloseClipboard(); return false;} 
@@ -1767,15 +1767,15 @@ bool GetLargestDeviationClass(const RGBQUAD* rgbqTable, const ULONGLONG* ullFreq
 
 	for(int i=0; i<iLength; i++)
 	{
-		int iMinDistanceSq=255*255*255;
+		UINT uiMinDistanceSq=255*255*255;
 		int iMinDistanceClass=0;
 		for(int iClass=0; iClass<iClassNum; iClass++)
 		{
-			int iDistanceSq = GetRGBDistanceSq(rgbqTable[i], rgbqTable_classed[iClass].rgbRed, rgbqTable_classed[iClass].rgbGreen, rgbqTable_classed[iClass].rgbBlue);
-			if(iDistanceSq<iMinDistanceSq){iMinDistanceSq=iDistanceSq;iMinDistanceClass=iClass;}
+			UINT uiDistanceSq = GetRGBDistanceSq(rgbqTable[i], rgbqTable_classed[iClass].rgbRed, rgbqTable_classed[iClass].rgbGreen, rgbqTable_classed[iClass].rgbBlue);
+			if(uiDistanceSq < uiMinDistanceSq){uiMinDistanceSq=uiDistanceSq;iMinDistanceClass=iClass;}
 		}
 		iClasses[i]=iMinDistanceClass;
-		ullSumDistSq[iMinDistanceClass]+=iMinDistanceSq;
+		ullSumDistSq[iMinDistanceClass]+=uiMinDistanceSq;
 		ullCount[iMinDistanceClass]+=ullFrequency[i];
 	}
 
@@ -1804,15 +1804,15 @@ bool CalcDeviationForEachClass(const RGBQUAD* rgbqTable, const ULONGLONG* ullFre
 
 	for(int i=0; i<iLength; i++)
 	{
-		int iMinDistanceSq=255*255*255;
+		UINT uiMinDistanceSq=255*255*255;
 		int iMinDistanceClass=0;
 		for(int iClass=0; iClass<iClassNum; iClass++)
 		{
-			int iDistanceSq = GetRGBDistanceSq(rgbqTable[i], rgbqTable_classed[iClass].rgbRed, rgbqTable_classed[iClass].rgbGreen, rgbqTable_classed[iClass].rgbBlue);
-			if(iDistanceSq<iMinDistanceSq){iMinDistanceSq=iDistanceSq;iMinDistanceClass=iClass;}
+			UINT uiDistanceSq = GetRGBDistanceSq(rgbqTable[i], rgbqTable_classed[iClass].rgbRed, rgbqTable_classed[iClass].rgbGreen, rgbqTable_classed[iClass].rgbBlue);
+			if(uiDistanceSq < uiMinDistanceSq){uiMinDistanceSq=uiDistanceSq;iMinDistanceClass=iClass;}
 		}
 		iClasses[i]=iMinDistanceClass;
-		ullSumDistSq[iMinDistanceClass]+=iMinDistanceSq;
+		ullSumDistSq[iMinDistanceClass]+=uiMinDistanceSq;
 		ullCount[iMinDistanceClass]+=ullFrequency[i];
 	}
 
