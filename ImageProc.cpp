@@ -794,6 +794,7 @@ bool ConvertImage_LossLess(const CImage* imgSrc, const int iBPPDst, CImage* imgD
 	}
 
 	SAFE_DELETE(rgbqTable);
+	SAFE_DELETE(rgbqTable_unsorted);
 	return true;
 }
 
