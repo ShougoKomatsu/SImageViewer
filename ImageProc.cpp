@@ -259,7 +259,7 @@ bool ClipImage(const CImage* imgOriginal, CImage* imgClipped, const int iR0, con
 
 		memcpy(pDstLine, pSrcLine, iClipWidth * iSrcByPP);
 	}
-	return false;
+	return true;
 }
 
 bool CopyToClipBoardImg(const CImage* imgSrc)
@@ -331,7 +331,7 @@ bool CopyToClipBoardImg(const CImage* imgSrc)
 		BYTE* pSrcLine = nullptr;
 		BYTE* pDstLine = &(pBits[r * iBytesPerLine]);
 
-		if (bBottomUp = true)
+		if (bBottomUp == true)
 		{
 			pSrcLine = &(bySrcData[(iHeight_src - 1 -r) * iPitch_src]);
 		} 
@@ -1239,18 +1239,18 @@ bool MakeColorTable(const CImage* imgSrc, RGBQUAD* rgbqTable_out, ULONGLONG* ull
 		{
 			for(int i=0; i<iLength; i++)
 			{
-				rgbqTable[i].rgbRed=i;
-				rgbqTable[i].rgbGreen=i;
-				rgbqTable[i].rgbBlue=i;
+				rgbqTable_out [i].rgbRed=i;
+				rgbqTable_out [i].rgbGreen=i;
+				rgbqTable_out [i].rgbBlue=i;
 			}
 		}
 		else
 		{
 			for(int i=0; i<iLength; i++)
 			{
-				rgbqTable[i].rgbRed=rgbqTable[i].rgbRed;
-				rgbqTable[i].rgbGreen=rgbqTable[i].rgbGreen;
-				rgbqTable[i].rgbBlue=rgbqTable[i].rgbBlue;
+				rgbqTable_out [i].rgbRed=rgbqTable[i].rgbRed;
+				rgbqTable_out [i].rgbGreen=rgbqTable[i].rgbGreen;
+				rgbqTable_out [i].rgbBlue=rgbqTable[i].rgbBlue;
 			}
 		}
 	}
