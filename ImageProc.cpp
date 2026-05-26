@@ -159,7 +159,7 @@ bool ConvertImageToStr(const CImage* imgSrc, const CString sSeparater, CString* 
 				sPixel.Format(_T("%d%s"),imgRGB.byImgB[r*iWidth_src+c],sSeparater);
 				sLine+=sPixel;
 			}
-			sPixel.Format(_T("%d\n"),imgRGB.byImgR[r*iWidth_src+(iWidth_src-1)]);
+			sPixel.Format(_T("%d\n"),imgRGB.byImgB[r*iWidth_src+(iWidth_src-1)]);
 			sLine+=sPixel;
 			sImageLocal+=sLine;
 		}
@@ -792,7 +792,7 @@ bool ConvertImage_LossLess(const CImage* imgSrc, const int iBPPDst, CImage* imgD
 			byDstData[iPosition] += iColorIndex<<(iDigit*iBPPDst);
 		}
 	}
-
+	SAFE_DELETE(ullFrequency);
 	SAFE_DELETE(rgbqTable);
 	SAFE_DELETE(rgbqTable_unsorted);
 	return true;
@@ -1043,7 +1043,7 @@ bool ZoomImage(CImage* imgSrc, CImage* imgDst, const double dR0_Src, const doubl
 			dst[r*iPitch_dst+c*3+0]=pSrcTable[byIndex].rgbBlue;
 		}
 	}
-	if(pSrcTable != NULL){delete [] pSrcTable;}
+	SAFE_DELETE(pSrcTable);
 
 	return true;
 }
