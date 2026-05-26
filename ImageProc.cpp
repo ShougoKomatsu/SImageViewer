@@ -380,7 +380,7 @@ bool CopyFromClipBoardImg(CImage* imgDst)
 	if(byDataTemp==NULL){return false;}
 
 	SIZE_T dataSize = GlobalSize(hResult);
-	if (dataSize == 0) { GlobalUnlock(hResult);CloseClipboard();}
+	if (dataSize == 0) { GlobalUnlock(hResult);CloseClipboard(); return false;} 
 
 	BYTE* byData;
 	byData = new BYTE[dataSize];
@@ -794,7 +794,7 @@ bool ConvertImage_LossLess(const CImage* imgSrc, const int iBPPDst, CImage* imgD
 	}
 
 	SAFE_DELETE(rgbqTable);
-	return false;
+	return true;
 }
 
 
@@ -1797,7 +1797,8 @@ bool CalcDeviationForEachClass(const RGBQUAD* rgbqTable, const ULONGLONG* ullFre
 	ullCount = new ULONGLONG[iClassNum];
 	for(int iClass=0; iClass<iClassNum; iClass++)
 	{
-		ullSumDistSq[iClass]=0;ullCount[iClass]=0;
+		ullSumDistSq[iClass]=0;
+		ullCount[iClass]=0;
 	}
 
 	for(int i=0; i<iLength; i++)
@@ -1817,7 +1818,7 @@ bool CalcDeviationForEachClass(const RGBQUAD* rgbqTable, const ULONGLONG* ullFre
 	double dDeviationMax=0;
 	for(int iClass=0; iClass<iClassNum; iClass++)
 	{
-		if(ullCount[iClass]==0){dDeviations[iClass]=-1;}
+		if(ullCount[iClass]==0){dDeviations[iClass]=-1; continue;}
 		dDeviations[iClass]=ullSumDistSq[iClass]/(1.0*ullCount[iClass]);
 		if(dDeviations[iClass]>dDeviationMax){dDeviationMax=dDeviations[iClass];*iMaxDeviationClass=iClass;}
 	}
