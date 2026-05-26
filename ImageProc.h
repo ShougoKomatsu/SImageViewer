@@ -2,13 +2,14 @@
 #include "stdafx.h"
 #pragma once
 #include "SImgProc_ex.h"
-	BOOL CopyToClipBoardImg(CImage* img);
-	bool ClipImage( CImage* src, CImage* dst, int iR0, int iC0, int iR1, int iC1);
-	bool ConvertImage(const ImgRGB* imgRGB, CImage* cimage);	
+bool CopyToClipBoardImg(const CImage* img);
+bool CopyFromClipBoardImg(CImage* img);
 
-	bool ConvertImage(const CImage* cimage, ImgRGB* imgRGB);
-BOOL ZoomImage(CImage* imgSrc, CImage* imgDst, const double dR0_Src, const double dC0_Src, const double dScale, const int iWidth_Dst, const int iHeight_Dst);
-BOOL CopyFromClipBoardImg(CImage* img);
+bool ClipImage(const CImage* imgOriginal, CImage* imgClipped, const int iR0, const int iC0, const int iR1, const int iC1);
+bool ConvertImage(const ImgRGB* imgRGB, CImage* cimage);	
+
+bool ConvertImage(const CImage* cimage, ImgRGB* imgRGB);
+bool ZoomImage(CImage* imgSrc, CImage* imgDst, const double dR0_Src, const double dC0_Src, const double dScale, const int iWidth_Dst, const int iHeight_Dst);
 bool ConvertImageToStr(const CImage* cimage, const CString sSeparater, CString* sImage);
 
 bool ExtractChannel(CImage* imgSrc, CImage* imgDst, ENUM_COLOR enumColor);
