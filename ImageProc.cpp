@@ -267,7 +267,7 @@ bool CopyToClipBoardImg(const CImage* imgSrc)
 	if (imgSrc->IsNull() == true){return false;}
 
 	int iWidth_src = imgSrc->GetWidth();
-	int iHeight_src = imgSrc->GetHeight();
+	int iHeight_src = (imgSrc->GetHeight() < 0 ? -1*imgSrc->GetHeight() : imgSrc->GetHeight());
 	int iBPP_src = imgSrc->GetBPP();
 
 	int iHeaderSize = sizeof(BITMAPINFOHEADER);
@@ -298,7 +298,7 @@ bool CopyToClipBoardImg(const CImage* imgSrc)
 	BITMAPINFOHEADER* bih = (BITMAPINFOHEADER*)pbyDib;
 	bih->biSize          = sizeof(BITMAPINFOHEADER);
 	bih->biWidth         = iWidth_src;
-	bih->biHeight        = iHeight_src;
+	bih->biHeight        = -1*iHeight_src;
 	bih->biPlanes        = 1;
 	bih->biBitCount      = (WORD)iBPP_src;
 	bih->biCompression   = BI_RGB;
