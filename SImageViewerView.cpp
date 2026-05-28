@@ -580,6 +580,8 @@ IMPLEMENT_DYNCREATE(CSImageViewerView, CView)
 		INT_PTR iRet = colorDepthDlg.DoModal();
 		if(iRet != IDOK){return;}
 
+		CImage imgSrc;
+		CopyImage(&m_imageProcessed[m_iImgIndex], &imgSrc);
 		m_iImgIndex++;
 		m_iUnDoAvailableCount++;
 		if(m_iUnDoAvailableCount>=MAX_IMG_BUF-1){m_iUnDoAvailableCount=MAX_IMG_BUF-1;}

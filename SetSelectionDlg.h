@@ -16,7 +16,7 @@ public:
 	int m_iC1;
 
 // ダイアログ データ
-	enum { IDD = IDD_DIALOG_SET_SELECTION };
+	enum { IDD = IDD_DLG_SET_SELECTION };
 
 protected:
 	virtual void DoDataExchange(CDataExchange* pDX);    // DDX/DDV サポート
