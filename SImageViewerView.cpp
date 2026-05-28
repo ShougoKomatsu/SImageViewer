@@ -386,6 +386,7 @@ IMPLEMENT_DYNCREATE(CSImageViewerView, CView)
 
 	void CSImageViewerView::ResetImage()
 	{
+		m_iImgIndex=0;
 		CopyImage(&m_image,&(m_imageProcessed[m_iImgIndex]));
 		m_iScaleIndex =8;
 		/*
@@ -438,7 +439,6 @@ IMPLEMENT_DYNCREATE(CSImageViewerView, CView)
 		pFrame->AdjustViewClientSize(m_image.GetWidth(), m_image.GetHeight(),iWidthIfNoBar_v, iHeightIfNoBar_v);
 		SetScroll();
 
-		m_iImgIndex=0;
 		m_iUnDoAvailableCount=0;
 		m_iReDoAvailableCount=0;
 		m_dDispOriginC_tv=0;
@@ -580,8 +580,6 @@ IMPLEMENT_DYNCREATE(CSImageViewerView, CView)
 		INT_PTR iRet = colorDepthDlg.DoModal();
 		if(iRet != IDOK){return;}
 
-		CImage imgSrc;
-		CopyImage(&m_imageProcessed[m_iImgIndex], &imgSrc);
 		m_iImgIndex++;
 		m_iUnDoAvailableCount++;
 		if(m_iUnDoAvailableCount>=MAX_IMG_BUF-1){m_iUnDoAvailableCount=MAX_IMG_BUF-1;}
