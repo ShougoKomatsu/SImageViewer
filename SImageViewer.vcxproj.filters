@@ -40,19 +40,7 @@
     <None Include="res\Toolbar256.bmp">
       <Filter>リソース ファイル</Filter>
     </None>
-    <None Include="res\cursor1.cur">
-      <Filter>リソース ファイル</Filter>
-    </None>
-    <None Include="res\cur00001.cur">
-      <Filter>リソース ファイル</Filter>
-    </None>
     <None Include="res\cursor_zoomin.cur">
-      <Filter>リソース ファイル</Filter>
-    </None>
-    <None Include="res\cur_crosscur.cur">
-      <Filter>リソース ファイル</Filter>
-    </None>
-    <None Include="res\cur_cross.cur">
       <Filter>リソース ファイル</Filter>
     </None>
     <None Include="res\cursor_cross.cur">
