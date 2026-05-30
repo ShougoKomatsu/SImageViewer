@@ -25,6 +25,7 @@ BEGIN_MESSAGE_MAP(CMainFrame, CFrameWndEx)
 	ON_REGISTERED_MESSAGE(AFX_WM_CREATETOOLBAR, &CMainFrame::OnToolbarCreateNew)
 //	ON_COMMAND_RANGE(ID_VIEW_APPLOOK_WIN_2000, ID_VIEW_APPLOOK_WINDOWS_7, &CMainFrame::OnApplicationLook)
 //	ON_UPDATE_COMMAND_UI_RANGE(ID_VIEW_APPLOOK_WIN_2000, ID_VIEW_APPLOOK_WINDOWS_7, &CMainFrame::OnUpdateApplicationLook)
+ON_COMMAND(ID_DISP_STATUS, &CMainFrame::OnDispStatus)
 ON_UPDATE_COMMAND_UI(AFX_IDP_COMMAND_FAILURE, &CMainFrame::OnUpdateAfxIdpCommandFailure)
 ON_COMMAND(IDM_ZOOMDOWN, &CMainFrame::OnZoomdown)
 ON_COMMAND(IDM_ZOOMUP, &CMainFrame::OnZoomup)
@@ -33,14 +34,20 @@ END_MESSAGE_MAP()
 
 static UINT indicators[] =
 {
-	ID_SEPARATOR,           // ステータス ライン インジケーター
-	ID_INDICATOR_CAPS,
-	ID_INDICATOR_NUM,
-	ID_INDICATOR_SCRL,
+	ID_TEST1,
+	ID_TEST2,
+	ID_TEST3,
 };
 
 // CMainFrame コンストラクション/デストラクション
+void CMainFrame::OnDispStatus()
+{
+	
+    m_wndStatusBar.SetPaneText(0, _T("aaa"));
+    m_wndStatusBar.SetPaneText(1, _T("bbb"));
+    m_wndStatusBar.SetPaneText(2, _T("ccc"));
 
+}
 CMainFrame::CMainFrame()
 {
 	// TODO: メンバー初期化コードをここに追加してください。
@@ -97,7 +104,15 @@ int CMainFrame::OnCreate(LPCREATESTRUCT lpCreateStruct)
 		TRACE0("ステータス バーの作成に失敗しました。\n");
 		return -1;      // 作成できない場合
 	}
-	m_wndStatusBar.SetIndicators(indicators, sizeof(indicators)/sizeof(UINT));
+	m_wndStatusBar.SetIndicators(indicators, _countof(indicators));
+	
+	m_wndStatusBar.SetPaneStyle(0, SBPS_NORMAL);
+    m_wndStatusBar.SetPaneInfo(0, ID_TEST1, SBPS_NORMAL, 100);
+    m_wndStatusBar.SetPaneInfo(1, ID_TEST2, SBPS_NORMAL, 100);
+    m_wndStatusBar.SetPaneInfo(2, ID_TEST3, SBPS_NORMAL, 100);
+
+
+
 
 	// TODO: ツール バーおよびメニュー バーをドッキング可能にしない場合は、この 5 つの行を削除します
 	m_wndMenuBar.EnableDocking(CBRS_ALIGN_ANY);

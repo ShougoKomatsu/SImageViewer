@@ -679,6 +679,8 @@ IMPLEMENT_DYNCREATE(CSImageViewerView, CView)
 	void CSImageViewerView::OnInitialUpdate()
 	{
 		CView::OnInitialUpdate();
+CMainFrame* pFrame = DYNAMIC_DOWNCAST(CMainFrame, GetParentFrame());
+pFrame->SendMessage(WM_COMMAND, ID_DISP_STATUS);
 		/*
 		CImage imgTest;
 		imgTest.Create(16,16,8);

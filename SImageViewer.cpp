@@ -52,7 +52,7 @@ CSImageViewerApp theApp;
 BOOL CSImageViewerApp::InitInstance()
 {
 	CWinAppEx::InitInstance();
-	
+
 	SetMenuDefaultItem(0, FALSE, 0);
 
 	EnableTaskbarInteraction(FALSE);
