@@ -994,6 +994,11 @@ IMPLEMENT_DYNCREATE(CSImageViewerView, CView)
 		CString sCaption;
 		bool bRet = GetColorAtCursor(point_v, &iR_img, &iC_img, &byR, &byG, &byB);
 
+		
+		CMainFrame* pFrame = (CMainFrame*)AfxGetMainWnd();
+		pFrame->m_sStatusMousePos.Format(_T("(%d, %d)"),iC_img, iR_img);
+		pFrame->SendMessage(WM_COMMAND, ID_DISP_STATUS_MOUSE_POS);
+
 		CString sRect=_T("");
 		if(m_Rect_i.IsRectEmpty()==false)
 		{

@@ -19,6 +19,7 @@ public:
 	DWORD m_dwExStylePreserved ;
 	CString m_sStatusSize;
 	CString m_sStatusBPP;
+	CString m_sStatusMousePos;
 // ëÄçÏ
 public:
 	void ShowNormal();
@@ -55,6 +56,7 @@ protected:
 	afx_msg void OnUpdateApplicationLook(CCmdUI* pCmdUI);
 	afx_msg void OnDispStatusSize();
 	afx_msg void OnDispStatusBPP();
+	afx_msg void OnDispStatusMousePos();
 	DECLARE_MESSAGE_MAP()
 
 public:

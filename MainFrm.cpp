@@ -27,6 +27,7 @@ BEGIN_MESSAGE_MAP(CMainFrame, CFrameWndEx)
 //	ON_UPDATE_COMMAND_UI_RANGE(ID_VIEW_APPLOOK_WIN_2000, ID_VIEW_APPLOOK_WINDOWS_7, &CMainFrame::OnUpdateApplicationLook)
 ON_COMMAND(ID_DISP_STATUS_SIZE, &CMainFrame::OnDispStatusSize)
 ON_COMMAND(ID_DISP_STATUS_BPP, &CMainFrame::OnDispStatusBPP)
+ON_COMMAND(ID_DISP_STATUS_MOUSE_POS, &CMainFrame::OnDispStatusMousePos)
 ON_UPDATE_COMMAND_UI(AFX_IDP_COMMAND_FAILURE, &CMainFrame::OnUpdateAfxIdpCommandFailure)
 ON_COMMAND(IDM_ZOOMDOWN, &CMainFrame::OnZoomdown)
 ON_COMMAND(IDM_ZOOMUP, &CMainFrame::OnZoomup)
@@ -37,21 +38,21 @@ static UINT indicators[] =
 {
 	ID_STATUS_SIZE,
 	ID_STATUS_BPP,
-	ID_TEST3,
+	ID_STATUS_MOUSE_POS,
 };
 
 // CMainFrame コンストラクション/デストラクション
 void CMainFrame::OnDispStatusSize()
 {
-	
     m_wndStatusBar.SetPaneText(0, m_sStatusSize);
-
 }
 void CMainFrame::OnDispStatusBPP()
 {
-	
     m_wndStatusBar.SetPaneText(1, m_sStatusBPP);
-
+}
+void CMainFrame::OnDispStatusMousePos()
+{
+    m_wndStatusBar.SetPaneText(2, m_sStatusMousePos);
 }
 CMainFrame::CMainFrame()
 {
@@ -111,11 +112,13 @@ int CMainFrame::OnCreate(LPCREATESTRUCT lpCreateStruct)
 	m_wndStatusBar.SetIndicators(indicators, _countof(indicators));
 	
 	m_wndStatusBar.SetPaneStyle(0, SBPS_NORMAL);
-    m_wndStatusBar.SetPaneInfo(0, ID_STATUS_SIZE, SBPS_NORMAL, 100);
-    m_wndStatusBar.SetPaneInfo(1, ID_STATUS_BPP, SBPS_NORMAL, 100);
-    m_wndStatusBar.SetPaneInfo(2, ID_TEST3, SBPS_NORMAL, 100);
+    m_wndStatusBar.SetPaneInfo(0, ID_STATUS_SIZE, SBPS_POPOUT, 80);
+    m_wndStatusBar.SetPaneInfo(1, ID_STATUS_BPP, SBPS_POPOUT, 40);
+    m_wndStatusBar.SetPaneInfo(2, ID_STATUS_MOUSE_POS, SBPS_POPOUT, 80);
+
 	m_wndStatusBar.SetPaneBackgroundColor(0, RGB(255, 255, 255));
 	m_wndStatusBar.SetPaneBackgroundColor(1, RGB(255, 255, 255));
+	m_wndStatusBar.SetPaneBackgroundColor(2, RGB(255, 255, 255));
 
 
 	// TODO: ツール バーおよびメニュー バーをドッキング可能にしない場合は、この 5 つの行を削除します
