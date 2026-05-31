@@ -23,6 +23,7 @@ public:
 	CString m_sStatusMousePos;
 	CString m_sStatusRGBOriginal;
 	CString m_sStatusRGBProcessed;
+	CString m_sStatusSelection;
 // ëÄçÏ
 public:
 	void ShowNormal();

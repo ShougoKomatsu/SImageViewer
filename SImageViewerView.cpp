@@ -1013,26 +1013,23 @@ IMPLEMENT_DYNCREATE(CSImageViewerView, CView)
 			iR_img=0;
 		}
 		pFrame->m_sStatusMousePos.Format(_T("(%d, %d)"),iC_img, iR_img);
-		pFrame->SendMessage(WM_COMMAND, ID_DISP_STATUS_MOUSE_POS);
 		
-		pFrame->m_sStatusZoom.Format(_T("%.3f%%"), 100*g_dScale[m_iScaleIndex]);
-		pFrame->SendMessage(WM_COMMAND, ID_DISP_STATUS_ZOOM);
-
-		CString sRect=_T("");
-		if(m_Rect_i.IsRectEmpty()==false)
+		if(m_Rect_i.IsRectEmpty()==true)
 		{
-			sRect.Format(_T("| (%d, %d) - (%d, %d) : %d x %d "), m_Rect_i.left,m_Rect_i.top,m_Rect_i.right,m_Rect_i.bottom,m_Rect_i.right-m_Rect_i.left+1,m_Rect_i.bottom-m_Rect_i.top+1);	
-		}
-
-
-		if(bRet_Original == true)
-		{
-			sCaption.Format(_T("%s | (%d, %d) (R, G, B)= (%d, %d, %d) %s | %.3f%%"), sFileName, iC_img, iR_img, byR, byG, byB,sRect,100*g_dScale[m_iScaleIndex]);
+			pFrame->m_sStatusSelection.Format(_T("not selected"));
 		}
 		else
 		{
-			sCaption.Format(sFileName);
+			pFrame->m_sStatusSelection.Format(_T("(%d, %d) - (%d, %d) : %d x %d "), m_Rect_i.left,m_Rect_i.top,m_Rect_i.right,m_Rect_i.bottom,m_Rect_i.right-m_Rect_i.left+1,m_Rect_i.bottom-m_Rect_i.top+1);	
 		}
+
+		pFrame->SendMessage(WM_COMMAND, ID_DISP_STATUS_MOUSE_POS);
+
+		pFrame->m_sStatusZoom.Format(_T("%.3f%%"), 100*g_dScale[m_iScaleIndex]);
+		pFrame->SendMessage(WM_COMMAND, ID_DISP_STATUS_ZOOM);
+
+
+		sCaption.Format(sFileName);
 		AfxGetMainWnd()->SetWindowText(sCaption);
 	}
 	bool isNearTheBoarder(double d, double dBoarder, double dMargin)

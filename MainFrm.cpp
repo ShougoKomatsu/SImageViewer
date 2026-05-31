@@ -43,6 +43,8 @@ static UINT indicators[] =
 	ID_STATUS_MOUSE_POS,
 	ID_STATUS_RGB_ORIGINAL,
 	ID_STATUS_RGB_PROCESSED,
+	ID_STATUS_SELECTION,
+	ID_SEPARATOR,
 };
 
 // CMainFrame コンストラクション/デストラクション
@@ -63,6 +65,7 @@ void CMainFrame::OnDispStatusMousePos()
     m_wndStatusBar.SetPaneText(3, m_sStatusMousePos);
 	m_wndStatusBar.SetPaneText(4, m_sStatusRGBOriginal);
     m_wndStatusBar.SetPaneText(5, m_sStatusRGBProcessed);
+	m_wndStatusBar.SetPaneText(6, m_sStatusSelection);
 }
 CMainFrame::CMainFrame()
 {
@@ -129,6 +132,8 @@ int CMainFrame::OnCreate(LPCREATESTRUCT lpCreateStruct)
     m_wndStatusBar.SetPaneInfo(3, ID_STATUS_MOUSE_POS, SBPS_POPOUT, 60);
 	m_wndStatusBar.SetPaneInfo(4, ID_STATUS_RGB_ORIGINAL, SBPS_POPOUT, 80);
 	m_wndStatusBar.SetPaneInfo(5, ID_STATUS_RGB_PROCESSED, SBPS_POPOUT, 80);
+	m_wndStatusBar.SetPaneInfo(6, ID_STATUS_SELECTION, SBPS_POPOUT, 200);
+	m_wndStatusBar.SetPaneInfo(7, ID_SEPARATOR, SBPS_STRETCH, 0);
 
 	m_wndStatusBar.SetPaneBackgroundColor(0, RGB(255, 255, 255));
 	m_wndStatusBar.SetPaneBackgroundColor(1, RGB(255, 255, 255));
@@ -136,6 +141,7 @@ int CMainFrame::OnCreate(LPCREATESTRUCT lpCreateStruct)
 	m_wndStatusBar.SetPaneBackgroundColor(3, RGB(255, 255, 255));
 	m_wndStatusBar.SetPaneBackgroundColor(4, RGB(255, 255, 255));
 	m_wndStatusBar.SetPaneBackgroundColor(5, RGB(255, 255, 255));
+	m_wndStatusBar.SetPaneBackgroundColor(6, RGB(255, 255, 255));
 
 
 	// TODO: ツール バーおよびメニュー バーをドッキング可能にしない場合は、この 5 つの行を削除します
@@ -431,7 +437,7 @@ void CMainFrame::AdjustViewClientSize(int iNewClientWidth, int iNewClientHeight,
 	CRect rectScreen;
     ::SystemParametersInfo(SPI_GETWORKAREA, 0, &rectScreen, 0);
 
-    int iNewWindowWidth = max(400, rectWindow.Width() +  iNewClientWidth  - iCurrentClientWidth);
+    int iNewWindowWidth = max(640, rectWindow.Width() +  iNewClientWidth  - iCurrentClientWidth);
     int iNewWindowHeight = max(300,rectWindow.Height() + iNewClientHeight - iCurrentClientHeight);
 
     if ((iNewWindowWidth > rectScreen.Width()) ||(iNewWindowHeight > rectScreen.Height()))
