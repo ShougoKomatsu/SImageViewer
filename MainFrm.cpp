@@ -27,6 +27,7 @@ BEGIN_MESSAGE_MAP(CMainFrame, CFrameWndEx)
 //	ON_UPDATE_COMMAND_UI_RANGE(ID_VIEW_APPLOOK_WIN_2000, ID_VIEW_APPLOOK_WINDOWS_7, &CMainFrame::OnUpdateApplicationLook)
 ON_COMMAND(ID_DISP_STATUS_SIZE, &CMainFrame::OnDispStatusSize)
 ON_COMMAND(ID_DISP_STATUS_BPP, &CMainFrame::OnDispStatusBPP)
+ON_COMMAND(ID_DISP_STATUS_ZOOM, &CMainFrame::OnDispStatusZoom)
 ON_COMMAND(ID_DISP_STATUS_MOUSE_POS, &CMainFrame::OnDispStatusMousePos)
 ON_UPDATE_COMMAND_UI(AFX_IDP_COMMAND_FAILURE, &CMainFrame::OnUpdateAfxIdpCommandFailure)
 ON_COMMAND(IDM_ZOOMDOWN, &CMainFrame::OnZoomdown)
@@ -38,6 +39,7 @@ static UINT indicators[] =
 {
 	ID_STATUS_SIZE,
 	ID_STATUS_BPP,
+	ID_STATUS_ZOOM,
 	ID_STATUS_MOUSE_POS,
 	ID_STATUS_RGB_ORIGINAL,
 	ID_STATUS_RGB_PROCESSED,
@@ -52,11 +54,15 @@ void CMainFrame::OnDispStatusBPP()
 {
     m_wndStatusBar.SetPaneText(1, m_sStatusBPP);
 }
+void CMainFrame::OnDispStatusZoom()
+{
+    m_wndStatusBar.SetPaneText(2, m_sStatusZoom);
+}
 void CMainFrame::OnDispStatusMousePos()
 {
-    m_wndStatusBar.SetPaneText(2, m_sStatusMousePos);
-	m_wndStatusBar.SetPaneText(3, m_sStatusRGBOriginal);
-    m_wndStatusBar.SetPaneText(4, m_sStatusRGBProcessed);
+    m_wndStatusBar.SetPaneText(3, m_sStatusMousePos);
+	m_wndStatusBar.SetPaneText(4, m_sStatusRGBOriginal);
+    m_wndStatusBar.SetPaneText(5, m_sStatusRGBProcessed);
 }
 CMainFrame::CMainFrame()
 {
@@ -118,15 +124,18 @@ int CMainFrame::OnCreate(LPCREATESTRUCT lpCreateStruct)
 	m_wndStatusBar.SetPaneStyle(0, SBPS_NORMAL);
     m_wndStatusBar.SetPaneInfo(0, ID_STATUS_SIZE, SBPS_POPOUT, 80);
     m_wndStatusBar.SetPaneInfo(1, ID_STATUS_BPP, SBPS_POPOUT, 40);
-    m_wndStatusBar.SetPaneInfo(2, ID_STATUS_MOUSE_POS, SBPS_POPOUT, 80);
-	m_wndStatusBar.SetPaneInfo(3, ID_STATUS_RGB_ORIGINAL, SBPS_POPOUT, 80);
-	m_wndStatusBar.SetPaneInfo(4, ID_STATUS_RGB_PROCESSED, SBPS_POPOUT, 80);
+    m_wndStatusBar.SetPaneInfo(2, ID_STATUS_ZOOM, SBPS_POPOUT, 50);
+
+    m_wndStatusBar.SetPaneInfo(3, ID_STATUS_MOUSE_POS, SBPS_POPOUT, 60);
+	m_wndStatusBar.SetPaneInfo(4, ID_STATUS_RGB_ORIGINAL, SBPS_POPOUT, 80);
+	m_wndStatusBar.SetPaneInfo(5, ID_STATUS_RGB_PROCESSED, SBPS_POPOUT, 80);
 
 	m_wndStatusBar.SetPaneBackgroundColor(0, RGB(255, 255, 255));
 	m_wndStatusBar.SetPaneBackgroundColor(1, RGB(255, 255, 255));
 	m_wndStatusBar.SetPaneBackgroundColor(2, RGB(255, 255, 255));
 	m_wndStatusBar.SetPaneBackgroundColor(3, RGB(255, 255, 255));
 	m_wndStatusBar.SetPaneBackgroundColor(4, RGB(255, 255, 255));
+	m_wndStatusBar.SetPaneBackgroundColor(5, RGB(255, 255, 255));
 
 
 	// TODO: ツール バーおよびメニュー バーをドッキング可能にしない場合は、この 5 つの行を削除します

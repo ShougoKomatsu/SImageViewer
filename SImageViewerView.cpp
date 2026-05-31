@@ -990,14 +990,22 @@ IMPLEMENT_DYNCREATE(CSImageViewerView, CView)
 		CString sFileName = m_sFilePath.Mid(m_sFilePath.ReverseFind('\\') + 1);
 
 		int iR_img,iC_img;
-		BYTE byR,byG,byB;
-		BYTE byR_Processed,byG_Processed,byB_Processed;
+		BYTE byR=0,byG=0,byB=0;
+		BYTE byR_Processed = 0,byG_Processed = 0,byB_Processed = 0;
 		CString sCaption;
 		CMainFrame* pFrame = (CMainFrame*)AfxGetMainWnd();
 
 		bool bRet_Original = GetColorAtCursor(&m_image, point_v, &iR_img, &iC_img, &byR, &byG, &byB);
-		bool bRet_Processed = GetColorAtCursor(&(m_imageProcessed[m_iImgIndex]), point_v, &iR_img, &iC_img, &byR_Processed, &byG_Processed, &byB_Processed);
+		pFrame->m_sStatusRGBOriginal.Format(_T("(%d, %d, %d)"), byR, byG, byB);
 
+
+		bool bRet_Processed=false;
+		pFrame->m_sStatusRGBProcessed.Format(_T("not processed"));
+		if(m_iImgIndex != 0)
+		{
+			bRet_Processed = GetColorAtCursor(&(m_imageProcessed[m_iImgIndex]), point_v, &iR_img, &iC_img, &byR_Processed, &byG_Processed, &byB_Processed);
+			pFrame->m_sStatusRGBProcessed.Format(_T("(%d, %d, %d)"), byR_Processed, byG_Processed, byB_Processed);
+		}
 
 		if((bRet_Original == false) && (bRet_Processed == false))
 		{
@@ -1005,30 +1013,10 @@ IMPLEMENT_DYNCREATE(CSImageViewerView, CView)
 			iR_img=0;
 		}
 		pFrame->m_sStatusMousePos.Format(_T("(%d, %d)"),iC_img, iR_img);
-
-
-		if(bRet_Original == true)
-		{
-			pFrame->m_sStatusRGBOriginal.Format(_T("(%d, %d, %d)"), byR, byG, byB);
-		}
-		else
-		{
-			pFrame->m_sStatusRGBOriginal.Format(_T("(%d, %d, %d)"), 0, 0, 0);
-		}
-
-
-		if(bRet_Processed == true)
-		{
-			pFrame->m_sStatusRGBProcessed.Format(_T("(%d, %d, %d)"), byR_Processed, byG_Processed, byB_Processed);
-		}
-		else
-		{
-			pFrame->m_sStatusRGBProcessed.Format(_T("(%d, %d, %d)"), 0, 0, 0);
-		}
-
-
-
 		pFrame->SendMessage(WM_COMMAND, ID_DISP_STATUS_MOUSE_POS);
+		
+		pFrame->m_sStatusZoom.Format(_T("%.3f%%"), 100*g_dScale[m_iScaleIndex]);
+		pFrame->SendMessage(WM_COMMAND, ID_DISP_STATUS_ZOOM);
 
 		CString sRect=_T("");
 		if(m_Rect_i.IsRectEmpty()==false)
