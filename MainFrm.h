@@ -17,6 +17,8 @@ public:
 	CRect m_rectPreserved;
 	DWORD m_dwStylePreserved;
 	DWORD m_dwExStylePreserved ;
+	CString m_sStatusSize;
+	CString m_sStatusBPP;
 // ëÄçÏ
 public:
 	void ShowNormal();
@@ -51,7 +53,8 @@ protected:
 	afx_msg LRESULT OnToolbarCreateNew(WPARAM wp, LPARAM lp);
 	afx_msg void OnApplicationLook(UINT id);
 	afx_msg void OnUpdateApplicationLook(CCmdUI* pCmdUI);
-	afx_msg void OnDispStatus();
+	afx_msg void OnDispStatusSize();
+	afx_msg void OnDispStatusBPP();
 	DECLARE_MESSAGE_MAP()
 
 public:

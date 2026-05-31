@@ -462,7 +462,15 @@ IMPLEMENT_DYNCREATE(CSImageViewerView, CView)
 		Invalidate();
 
 		CString sImageSize;
-		sImageSize.Format(_T("%d x %d"), m_image.GetWidth(),m_image.GetHeight());
+		sImageSize.Format(_T("W %d x H %d"), m_image.GetWidth(),m_image.GetHeight());
+		
+		CView::OnInitialUpdate();
+		pFrame->m_sStatusSize.Format(_T("%s"),sImageSize);
+		pFrame->SendMessage(WM_COMMAND, ID_DISP_STATUS_SIZE);
+
+		pFrame->m_sStatusBPP.Format(_T("%d BPP"),m_image.GetBPP());
+		pFrame->SendMessage(WM_COMMAND, ID_DISP_STATUS_BPP);
+
 
 		//	CMainFrame* pFrame = (CMainFrame*)AfxGetMainWnd();
 		if (pFrame != nullptr)	{pFrame->SetStatusMessage(sImageSize);}
@@ -675,12 +683,14 @@ IMPLEMENT_DYNCREATE(CSImageViewerView, CView)
 		Invalidate();
 	}
 
-
 	void CSImageViewerView::OnInitialUpdate()
 	{
 		CView::OnInitialUpdate();
-CMainFrame* pFrame = DYNAMIC_DOWNCAST(CMainFrame, GetParentFrame());
-pFrame->SendMessage(WM_COMMAND, ID_DISP_STATUS);
+		CMainFrame* pFrame = DYNAMIC_DOWNCAST(CMainFrame, GetParentFrame());
+		pFrame->m_sStatusSize.Format(_T("W 0 x H 0"));
+		pFrame->SendMessage(WM_COMMAND, ID_DISP_STATUS_SIZE);
+		pFrame->m_sStatusBPP.Format(_T("0 BPP"));
+		pFrame->SendMessage(WM_COMMAND, ID_DISP_STATUS_BPP);
 		/*
 		CImage imgTest;
 		imgTest.Create(16,16,8);
