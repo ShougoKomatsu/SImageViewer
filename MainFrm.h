@@ -6,12 +6,12 @@
 
 class CMainFrame : public CFrameWndEx
 {
-	
+
 protected: // シリアル化からのみ作成します。
 	CMainFrame();
 	DECLARE_DYNCREATE(CMainFrame)
 
-// 属性
+	// 属性
 public:
 	bool m_bBingFullScreen;
 	CRect m_rectPreserved;
@@ -24,20 +24,20 @@ public:
 	CString m_sStatusRGBOriginal;
 	CString m_sStatusRGBProcessed;
 	CString m_sStatusSelection;
-// 操作
+	// 操作
 public:
 	void ShowNormal();
 	void EnterFullScreen();
 	void CMainFrame::ExitFullScreen();
-		void AdjustViewClientSize(int desiredClientWidth, int desiredClientHeight,int iNowWidth, int iNowHeight);
+	void AdjustViewClientSize(int desiredClientWidth, int desiredClientHeight,int iNowWidth, int iNowHeight);
 
 	void LaunchNewInstance(CString sFilePath);
-// オーバーライド
+	// オーバーライド
 public:
 	virtual BOOL PreCreateWindow(CREATESTRUCT& cs);
 	virtual BOOL LoadFrame(UINT nIDResource, DWORD dwDefaultStyle = WS_OVERLAPPEDWINDOW | FWS_ADDTOTITLE, CWnd* pParentWnd = NULL, CCreateContext* pContext = NULL);
 	void SetStatusMessage(CString sMes);
-// 実装
+	// 実装
 public:
 	virtual ~CMainFrame();
 #ifdef _DEBUG
@@ -51,7 +51,7 @@ protected:  // コントロール バー用メンバー
 	CMFCStatusBar     m_wndStatusBar;
 	CMFCToolBarImages m_UserImages;
 
-// 生成された、メッセージ割り当て関数
+	// 生成された、メッセージ割り当て関数
 protected:
 	afx_msg int OnCreate(LPCREATESTRUCT lpCreateStruct);
 	afx_msg void OnViewCustomize();

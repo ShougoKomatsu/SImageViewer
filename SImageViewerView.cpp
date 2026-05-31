@@ -389,26 +389,6 @@ IMPLEMENT_DYNCREATE(CSImageViewerView, CView)
 		m_iImgIndex=0;
 		CopyImage(&m_image,&(m_imageProcessed[m_iImgIndex]));
 		m_iScaleIndex =8;
-		/*
-		CRect rectClientTemp;
-		CRect rectTemp;
-		GetWindowRect(&rectTemp);
-		GetClientRect(&rectClientTemp);
-
-		int iX0=rectTemp.left;
-		int iY0=rectTemp.top;
-		int iWidth=rectTemp.Width();
-		int iHeight=rectTemp.Height();
-		int iCaptionHeight = ::GetSystemMetrics(SM_CYCAPTION);
-
-		//rectTemp.left, rectTemp.top, rectTemp.Width()-rectClientTemp.Width()-m_image.GetWidth(),rectTemp.Height()-rectClientTemp.Height()-m_image.GetHeight()
-
-		CMainFrame* pFrame = (CMainFrame*)AfxGetMainWnd();
-		CRect rect;
-		pFrame->GetClientRect(&rect);
-
-		pFrame->MoveWindow(iX0, iY0, rect.Width(), rect.Height()+iCaptionHeight);
-		*/
 		CRect rectClient;
 		GetClientRect(&rectClient);
 		

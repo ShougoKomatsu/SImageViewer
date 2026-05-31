@@ -15,7 +15,7 @@
 
 IMPLEMENT_DYNCREATE(CMainFrame, CFrameWndEx)
 
-const int  iMaxUserToolbars = 10;
+	const int  iMaxUserToolbars = 10;
 const UINT uiFirstUserToolBarId = AFX_IDW_CONTROLBAR_FIRST + 40;
 const UINT uiLastUserToolBarId = uiFirstUserToolBarId + iMaxUserToolbars - 1;
 
@@ -23,16 +23,16 @@ BEGIN_MESSAGE_MAP(CMainFrame, CFrameWndEx)
 	ON_WM_CREATE()
 	ON_COMMAND(ID_VIEW_CUSTOMIZE, &CMainFrame::OnViewCustomize)
 	ON_REGISTERED_MESSAGE(AFX_WM_CREATETOOLBAR, &CMainFrame::OnToolbarCreateNew)
-//	ON_COMMAND_RANGE(ID_VIEW_APPLOOK_WIN_2000, ID_VIEW_APPLOOK_WINDOWS_7, &CMainFrame::OnApplicationLook)
-//	ON_UPDATE_COMMAND_UI_RANGE(ID_VIEW_APPLOOK_WIN_2000, ID_VIEW_APPLOOK_WINDOWS_7, &CMainFrame::OnUpdateApplicationLook)
-ON_COMMAND(ID_DISP_STATUS_SIZE, &CMainFrame::OnDispStatusSize)
-ON_COMMAND(ID_DISP_STATUS_BPP, &CMainFrame::OnDispStatusBPP)
-ON_COMMAND(ID_DISP_STATUS_ZOOM, &CMainFrame::OnDispStatusZoom)
-ON_COMMAND(ID_DISP_STATUS_MOUSE_POS, &CMainFrame::OnDispStatusMousePos)
-ON_UPDATE_COMMAND_UI(AFX_IDP_COMMAND_FAILURE, &CMainFrame::OnUpdateAfxIdpCommandFailure)
-ON_COMMAND(IDM_ZOOMDOWN, &CMainFrame::OnZoomdown)
-ON_COMMAND(IDM_ZOOMUP, &CMainFrame::OnZoomup)
-ON_WM_DROPFILES()
+	//	ON_COMMAND_RANGE(ID_VIEW_APPLOOK_WIN_2000, ID_VIEW_APPLOOK_WINDOWS_7, &CMainFrame::OnApplicationLook)
+	//	ON_UPDATE_COMMAND_UI_RANGE(ID_VIEW_APPLOOK_WIN_2000, ID_VIEW_APPLOOK_WINDOWS_7, &CMainFrame::OnUpdateApplicationLook)
+	ON_COMMAND(ID_DISP_STATUS_SIZE, &CMainFrame::OnDispStatusSize)
+	ON_COMMAND(ID_DISP_STATUS_BPP, &CMainFrame::OnDispStatusBPP)
+	ON_COMMAND(ID_DISP_STATUS_ZOOM, &CMainFrame::OnDispStatusZoom)
+	ON_COMMAND(ID_DISP_STATUS_MOUSE_POS, &CMainFrame::OnDispStatusMousePos)
+	ON_UPDATE_COMMAND_UI(AFX_IDP_COMMAND_FAILURE, &CMainFrame::OnUpdateAfxIdpCommandFailure)
+	ON_COMMAND(IDM_ZOOMDOWN, &CMainFrame::OnZoomdown)
+	ON_COMMAND(IDM_ZOOMUP, &CMainFrame::OnZoomup)
+	ON_WM_DROPFILES()
 END_MESSAGE_MAP()
 
 static UINT indicators[] =
@@ -50,21 +50,21 @@ static UINT indicators[] =
 // CMainFrame コンストラクション/デストラクション
 void CMainFrame::OnDispStatusSize()
 {
-    m_wndStatusBar.SetPaneText(0, m_sStatusSize);
+	m_wndStatusBar.SetPaneText(0, m_sStatusSize);
 }
 void CMainFrame::OnDispStatusBPP()
 {
-    m_wndStatusBar.SetPaneText(1, m_sStatusBPP);
+	m_wndStatusBar.SetPaneText(1, m_sStatusBPP);
 }
 void CMainFrame::OnDispStatusZoom()
 {
-    m_wndStatusBar.SetPaneText(2, m_sStatusZoom);
+	m_wndStatusBar.SetPaneText(2, m_sStatusZoom);
 }
 void CMainFrame::OnDispStatusMousePos()
 {
-    m_wndStatusBar.SetPaneText(3, m_sStatusMousePos);
+	m_wndStatusBar.SetPaneText(3, m_sStatusMousePos);
 	m_wndStatusBar.SetPaneText(4, m_sStatusRGBOriginal);
-    m_wndStatusBar.SetPaneText(5, m_sStatusRGBProcessed);
+	m_wndStatusBar.SetPaneText(5, m_sStatusRGBProcessed);
 	m_wndStatusBar.SetPaneText(6, m_sStatusSelection);
 }
 CMainFrame::CMainFrame()
@@ -83,7 +83,7 @@ int CMainFrame::OnCreate(LPCREATESTRUCT lpCreateStruct)
 	BOOL bNameValid;
 	// 固定値に基づいてビジュアル マネージャーと visual スタイルを設定します
 	OnApplicationLook(theApp.m_nAppLook);
-	
+
 	if (!m_wndMenuBar.Create(this))
 	{
 		TRACE0("メニュー バーを作成できませんでした\n");
@@ -95,14 +95,14 @@ int CMainFrame::OnCreate(LPCREATESTRUCT lpCreateStruct)
 
 	// アクティブになったときメニュー バーにフォーカスを移動しない
 	CMFCPopupMenu::SetForceMenuFocus(FALSE);
-	
+
 	if (!m_wndToolBar.CreateEx(this, TBSTYLE_FLAT, WS_CHILD | WS_VISIBLE | CBRS_TOP | CBRS_GRIPPER | CBRS_TOOLTIPS | CBRS_FLYBY | CBRS_SIZE_DYNAMIC) ||
 		!m_wndToolBar.LoadToolBar(theApp.m_bHiColorIcons ? IDR_MAINFRAME_256 : IDR_MAINFRAME))
 	{
 		TRACE0("ツール バーの作成に失敗しました。\n");
 		return -1;      // 作成できませんでした。
 	}
-	
+
 	CString strToolBarName;
 	bNameValid = strToolBarName.LoadString(IDS_TOOLBAR_STANDARD);
 	ASSERT(bNameValid);
@@ -115,7 +115,7 @@ int CMainFrame::OnCreate(LPCREATESTRUCT lpCreateStruct)
 
 
 	// ユーザー定義のツール バーの操作を許可します:
-//	InitUserToolbars(NULL, uiFirstUserToolBarId, uiLastUserToolBarId);
+	//	InitUserToolbars(NULL, uiFirstUserToolBarId, uiLastUserToolBarId);
 
 	if (!m_wndStatusBar.Create(this))
 	{
@@ -123,13 +123,13 @@ int CMainFrame::OnCreate(LPCREATESTRUCT lpCreateStruct)
 		return -1;      // 作成できない場合
 	}
 	m_wndStatusBar.SetIndicators(indicators, _countof(indicators));
-	
-	m_wndStatusBar.SetPaneStyle(0, SBPS_NORMAL);
-    m_wndStatusBar.SetPaneInfo(0, ID_STATUS_SIZE, SBPS_POPOUT, 80);
-    m_wndStatusBar.SetPaneInfo(1, ID_STATUS_BPP, SBPS_POPOUT, 40);
-    m_wndStatusBar.SetPaneInfo(2, ID_STATUS_ZOOM, SBPS_POPOUT, 50);
 
-    m_wndStatusBar.SetPaneInfo(3, ID_STATUS_MOUSE_POS, SBPS_POPOUT, 60);
+	m_wndStatusBar.SetPaneStyle(0, SBPS_NORMAL);
+	m_wndStatusBar.SetPaneInfo(0, ID_STATUS_SIZE, SBPS_POPOUT, 80);
+	m_wndStatusBar.SetPaneInfo(1, ID_STATUS_BPP, SBPS_POPOUT, 40);
+	m_wndStatusBar.SetPaneInfo(2, ID_STATUS_ZOOM, SBPS_POPOUT, 50);
+
+	m_wndStatusBar.SetPaneInfo(3, ID_STATUS_MOUSE_POS, SBPS_POPOUT, 60);
 	m_wndStatusBar.SetPaneInfo(4, ID_STATUS_RGB_ORIGINAL, SBPS_POPOUT, 80);
 	m_wndStatusBar.SetPaneInfo(5, ID_STATUS_RGB_PROCESSED, SBPS_POPOUT, 80);
 	m_wndStatusBar.SetPaneInfo(6, ID_STATUS_SELECTION, SBPS_POPOUT, 200);
@@ -202,10 +202,10 @@ int CMainFrame::OnCreate(LPCREATESTRUCT lpCreateStruct)
 
 	return 0;
 }
-	void CMainFrame::ShowNormal()
-	{
-		ShowWindow(SW_SHOWNORMAL);
-	}
+void CMainFrame::ShowNormal()
+{
+	ShowWindow(SW_SHOWNORMAL);
+}
 
 
 BOOL CMainFrame::PreCreateWindow(CREATESTRUCT& cs)
@@ -278,31 +278,31 @@ void CMainFrame::OnApplicationLook(UINT id)
 		CMFCVisualManager::SetDefaultManager(RUNTIME_CLASS(CMFCVisualManager));
 		break;
 		/*
-	case ID_VIEW_APPLOOK_OFF_XP:
+		case ID_VIEW_APPLOOK_OFF_XP:
 		CMFCVisualManager::SetDefaultManager(RUNTIME_CLASS(CMFCVisualManagerOfficeXP));
 		break;
 
-	case ID_VIEW_APPLOOK_WIN_XP:
+		case ID_VIEW_APPLOOK_WIN_XP:
 		CMFCVisualManagerWindows::m_b3DTabsXPTheme = TRUE;
 		CMFCVisualManager::SetDefaultManager(RUNTIME_CLASS(CMFCVisualManagerWindows));
 		break;
 
-	case ID_VIEW_APPLOOK_OFF_2003:
+		case ID_VIEW_APPLOOK_OFF_2003:
 		CMFCVisualManager::SetDefaultManager(RUNTIME_CLASS(CMFCVisualManagerOffice2003));
 		CDockingManager::SetDockingMode(DT_SMART);
 		break;
 
-	case ID_VIEW_APPLOOK_VS_2005:
+		case ID_VIEW_APPLOOK_VS_2005:
 		CMFCVisualManager::SetDefaultManager(RUNTIME_CLASS(CMFCVisualManagerVS2005));
 		CDockingManager::SetDockingMode(DT_SMART);
 		break;
 
-	case ID_VIEW_APPLOOK_VS_2008:
+		case ID_VIEW_APPLOOK_VS_2008:
 		CMFCVisualManager::SetDefaultManager(RUNTIME_CLASS(CMFCVisualManagerVS2008));
 		CDockingManager::SetDockingMode(DT_SMART);
 		break;
 
-	case ID_VIEW_APPLOOK_WINDOWS_7:
+		case ID_VIEW_APPLOOK_WINDOWS_7:
 		CMFCVisualManager::SetDefaultManager(RUNTIME_CLASS(CMFCVisualManagerWindows7));
 		CDockingManager::SetDockingMode(DT_SMART);
 		break;
@@ -312,20 +312,20 @@ void CMainFrame::OnApplicationLook(UINT id)
 		switch (theApp.m_nAppLook)
 		{
 		case ID_VIEW_APPLOOK_OFF_2007_BLUE:
-			CMFCVisualManagerOffice2007::SetStyle(CMFCVisualManagerOffice2007::Office2007_LunaBlue);
-			break;
+		CMFCVisualManagerOffice2007::SetStyle(CMFCVisualManagerOffice2007::Office2007_LunaBlue);
+		break;
 
 		case ID_VIEW_APPLOOK_OFF_2007_BLACK:
-			CMFCVisualManagerOffice2007::SetStyle(CMFCVisualManagerOffice2007::Office2007_ObsidianBlack);
-			break;
+		CMFCVisualManagerOffice2007::SetStyle(CMFCVisualManagerOffice2007::Office2007_ObsidianBlack);
+		break;
 
 		case ID_VIEW_APPLOOK_OFF_2007_SILVER:
-			CMFCVisualManagerOffice2007::SetStyle(CMFCVisualManagerOffice2007::Office2007_Silver);
-			break;
+		CMFCVisualManagerOffice2007::SetStyle(CMFCVisualManagerOffice2007::Office2007_Silver);
+		break;
 
 		case ID_VIEW_APPLOOK_OFF_2007_AQUA:
-			CMFCVisualManagerOffice2007::SetStyle(CMFCVisualManagerOffice2007::Office2007_Aqua);
-			break;
+		CMFCVisualManagerOffice2007::SetStyle(CMFCVisualManagerOffice2007::Office2007_Aqua);
+		break;
 		}
 		*/
 		CMFCVisualManager::SetDefaultManager(RUNTIME_CLASS(CMFCVisualManagerOffice2007));
@@ -374,18 +374,18 @@ BOOL CMainFrame::LoadFrame(UINT nIDResource, DWORD dwDefaultStyle, CWnd* pParent
 
 void CMainFrame::OnUpdateAfxIdpCommandFailure(CCmdUI *pCmdUI)
 {
-    pCmdUI->Enable(TRUE); 
+	pCmdUI->Enable(TRUE); 
 }
 
 #include "SImageViewerView.h"
 void CMainFrame::OnZoomdown()
 {
-	
-    CView* pView = GetActiveView();
-    if (pView != nullptr)
-    {
-        ((CSImageViewerView*)pView)->ZoomChange(-1);
-    }
+
+	CView* pView = GetActiveView();
+	if (pView != nullptr)
+	{
+		((CSImageViewerView*)pView)->ZoomChange(-1);
+	}
 }
 
 
@@ -432,19 +432,19 @@ void CMainFrame::AdjustViewClientSize(int iNewClientWidth, int iNewClientHeight,
 	ShowWindow(SW_NORMAL);
 
 	CRect rectWindow;
-    GetWindowRect(&rectWindow);
+	GetWindowRect(&rectWindow);
 
 	CRect rectScreen;
-    ::SystemParametersInfo(SPI_GETWORKAREA, 0, &rectScreen, 0);
+	::SystemParametersInfo(SPI_GETWORKAREA, 0, &rectScreen, 0);
 
-    int iNewWindowWidth = max(640, rectWindow.Width() +  iNewClientWidth  - iCurrentClientWidth);
-    int iNewWindowHeight = max(300,rectWindow.Height() + iNewClientHeight - iCurrentClientHeight);
+	int iNewWindowWidth = max(640, rectWindow.Width() +  iNewClientWidth  - iCurrentClientWidth);
+	int iNewWindowHeight = max(300,rectWindow.Height() + iNewClientHeight - iCurrentClientHeight);
 
-    if ((iNewWindowWidth > rectScreen.Width()) ||(iNewWindowHeight > rectScreen.Height()))
-    {
-        ShowWindow(SW_MAXIMIZE);
-        return;
-    }
+	if ((iNewWindowWidth > rectScreen.Width()) ||(iNewWindowHeight > rectScreen.Height()))
+	{
+		ShowWindow(SW_MAXIMIZE);
+		return;
+	}
 
 	int iC0 = rectWindow.left + min(0, rectScreen.right- (rectWindow.left + iNewWindowWidth)  );
 	int iR0 = rectWindow.top + min(0, rectScreen.bottom - (rectWindow.top + iNewWindowHeight) );
@@ -455,7 +455,7 @@ void CMainFrame::AdjustViewClientSize(int iNewClientWidth, int iNewClientHeight,
 
 void CMainFrame::EnterFullScreen()
 {
-	
+
 	if (m_bBingFullScreen == true) {return;}
 
 	GetWindowRect(&m_rectPreserved);
@@ -503,14 +503,14 @@ void CMainFrame::EnterFullScreen()
 		mi.rcMonitor.bottom - mi.rcMonitor.top,
 		SWP_FRAMECHANGED | SWP_SHOWWINDOW
 		);
-	}
+}
 
-	void CMainFrame::ExitFullScreen()
-	{
-		if (m_bBingFullScreen != false){ return;}
+void CMainFrame::ExitFullScreen()
+{
+	if (m_bBingFullScreen != false){ return;}
 
-		m_bBingFullScreen = FALSE;
-	
+	m_bBingFullScreen = FALSE;
+
 	CBasePane* basePane=DYNAMIC_DOWNCAST(CBasePane, GetMenuBar());	
 	if (basePane != NULL)
 	{
@@ -535,15 +535,15 @@ void CMainFrame::EnterFullScreen()
 	ModifyStyleEx(WS_EX_CLIENTEDGE, 0);
 
 
-		ModifyStyle(WS_POPUP, m_dwStylePreserved);
-		ModifyStyleEx(0, m_dwExStylePreserved);
+	ModifyStyle(WS_POPUP, m_dwStylePreserved);
+	ModifyStyleEx(0, m_dwExStylePreserved);
 
-		SetWindowPos(
-			NULL,
-			m_rectPreserved.left,
-			m_rectPreserved.top,
-			m_rectPreserved.right - m_rectPreserved.left,
-			m_rectPreserved.bottom - m_rectPreserved.top,
-			SWP_FRAMECHANGED | SWP_SHOWWINDOW
-			);
-	}
+	SetWindowPos(
+		NULL,
+		m_rectPreserved.left,
+		m_rectPreserved.top,
+		m_rectPreserved.right - m_rectPreserved.left,
+		m_rectPreserved.bottom - m_rectPreserved.top,
+		SWP_FRAMECHANGED | SWP_SHOWWINDOW
+		);
+}
