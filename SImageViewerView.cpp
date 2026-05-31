@@ -960,9 +960,9 @@ IMPLEMENT_DYNCREATE(CSImageViewerView, CView)
 	}
 
 
-	bool CSImageViewerView::GetColorAtCursor(CPoint point_v, int* iR_img, int* iC_img, BYTE* byR, BYTE* byG, BYTE* byB)
+	bool CSImageViewerView::GetColorAtCursor(CImage* img, CPoint point_v, int* iR_img, int* iC_img, BYTE* byR, BYTE* byG, BYTE* byB)
 	{
-		if(m_image.IsNull()==true){return false;}
+		if(img->IsNull()==true){return false;}
 		CPoint point_tv(point_v.x + GetDispOriginC_tv(), point_v.y +  GetDispOriginR_tv());
 
 		int iC_img_Local = (int)((point_tv.x) / g_dScale[m_iScaleIndex]);
@@ -971,10 +971,10 @@ IMPLEMENT_DYNCREATE(CSImageViewerView, CView)
 
 		if (iC_img_Local < 0){return false;}
 		if (iR_img_Local < 0){return false;}
-		if (iC_img_Local >= m_image.GetWidth()){return false;}
-		if (iR_img_Local >= m_image.GetHeight()){return false;}
+		if (iC_img_Local >= img->GetWidth()){return false;}
+		if (iR_img_Local >= img->GetHeight()){return false;}
 
-		COLORREF col = m_image.GetPixel(iC_img_Local,iR_img_Local);
+		COLORREF col = img->GetPixel(iC_img_Local,iR_img_Local);
 
 		*iR_img = iR_img_Local;
 		*iC_img = iC_img_Local;
@@ -991,22 +991,53 @@ IMPLEMENT_DYNCREATE(CSImageViewerView, CView)
 
 		int iR_img,iC_img;
 		BYTE byR,byG,byB;
+		BYTE byR_Processed,byG_Processed,byB_Processed;
 		CString sCaption;
-		bool bRet = GetColorAtCursor(point_v, &iR_img, &iC_img, &byR, &byG, &byB);
-
-		
 		CMainFrame* pFrame = (CMainFrame*)AfxGetMainWnd();
+
+		bool bRet_Original = GetColorAtCursor(&m_image, point_v, &iR_img, &iC_img, &byR, &byG, &byB);
+		bool bRet_Processed = GetColorAtCursor(&(m_imageProcessed[m_iImgIndex]), point_v, &iR_img, &iC_img, &byR_Processed, &byG_Processed, &byB_Processed);
+
+
+		if((bRet_Original == false) && (bRet_Processed == false))
+		{
+			iC_img=0;
+			iR_img=0;
+		}
 		pFrame->m_sStatusMousePos.Format(_T("(%d, %d)"),iC_img, iR_img);
+
+
+		if(bRet_Original == true)
+		{
+			pFrame->m_sStatusRGBOriginal.Format(_T("(%d, %d, %d)"), byR, byG, byB);
+		}
+		else
+		{
+			pFrame->m_sStatusRGBOriginal.Format(_T("(%d, %d, %d)"), 0, 0, 0);
+		}
+
+
+		if(bRet_Processed == true)
+		{
+			pFrame->m_sStatusRGBProcessed.Format(_T("(%d, %d, %d)"), byR_Processed, byG_Processed, byB_Processed);
+		}
+		else
+		{
+			pFrame->m_sStatusRGBProcessed.Format(_T("(%d, %d, %d)"), 0, 0, 0);
+		}
+
+
+
 		pFrame->SendMessage(WM_COMMAND, ID_DISP_STATUS_MOUSE_POS);
 
 		CString sRect=_T("");
 		if(m_Rect_i.IsRectEmpty()==false)
 		{
-			sRect.Format(_T("| (%d, %d) - (%d, %d) : %d x %d "), m_Rect_i.left,m_Rect_i.top,m_Rect_i.right,m_Rect_i.bottom,m_Rect_i.right-m_Rect_i.left+1,m_Rect_i.bottom-m_Rect_i.top+1	);	
+			sRect.Format(_T("| (%d, %d) - (%d, %d) : %d x %d "), m_Rect_i.left,m_Rect_i.top,m_Rect_i.right,m_Rect_i.bottom,m_Rect_i.right-m_Rect_i.left+1,m_Rect_i.bottom-m_Rect_i.top+1);	
 		}
 
 
-		if(bRet == true)
+		if(bRet_Original == true)
 		{
 			sCaption.Format(_T("%s | (%d, %d) (R, G, B)= (%d, %d, %d) %s | %.3f%%"), sFileName, iC_img, iR_img, byR, byG, byB,sRect,100*g_dScale[m_iScaleIndex]);
 		}

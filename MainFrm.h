@@ -20,6 +20,8 @@ public:
 	CString m_sStatusSize;
 	CString m_sStatusBPP;
 	CString m_sStatusMousePos;
+	CString m_sStatusRGBOriginal;
+	CString m_sStatusRGBProcessed;
 // ëÄçÏ
 public:
 	void ShowNormal();
