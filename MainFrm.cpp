@@ -124,24 +124,21 @@ int CMainFrame::OnCreate(LPCREATESTRUCT lpCreateStruct)
 	}
 	m_wndStatusBar.SetIndicators(indicators, _countof(indicators));
 
-	m_wndStatusBar.SetPaneStyle(0, SBPS_NORMAL);
-	m_wndStatusBar.SetPaneInfo(0, ID_STATUS_SIZE, SBPS_POPOUT, 80);
-	m_wndStatusBar.SetPaneInfo(1, ID_STATUS_BPP, SBPS_POPOUT, 40);
-	m_wndStatusBar.SetPaneInfo(2, ID_STATUS_ZOOM, SBPS_POPOUT, 50);
+	m_wndStatusBar.SetPaneInfo(0, ID_STATUS_SIZE, SBPS_NORMAL, 80);
+	m_wndStatusBar.SetPaneInfo(1, ID_STATUS_BPP, SBPS_NORMAL, 40);
+	m_wndStatusBar.SetPaneInfo(2, ID_STATUS_ZOOM, SBPS_NORMAL, 50);
 
-	m_wndStatusBar.SetPaneInfo(3, ID_STATUS_MOUSE_POS, SBPS_POPOUT, 60);
-	m_wndStatusBar.SetPaneInfo(4, ID_STATUS_RGB_ORIGINAL, SBPS_POPOUT, 80);
-	m_wndStatusBar.SetPaneInfo(5, ID_STATUS_RGB_PROCESSED, SBPS_POPOUT, 80);
-	m_wndStatusBar.SetPaneInfo(6, ID_STATUS_SELECTION, SBPS_POPOUT, 200);
-	m_wndStatusBar.SetPaneInfo(7, ID_SEPARATOR, SBPS_STRETCH, 0);
+	m_wndStatusBar.SetPaneInfo(3, ID_STATUS_MOUSE_POS, SBPS_NORMAL, 60);
+	m_wndStatusBar.SetPaneInfo(4, ID_STATUS_RGB_ORIGINAL, SBPS_NORMAL, 80);
+	m_wndStatusBar.SetPaneInfo(5, ID_STATUS_RGB_PROCESSED, SBPS_NORMAL, 80);
+	m_wndStatusBar.SetPaneInfo(6, ID_STATUS_SELECTION, SBPS_NORMAL, 200);
+	m_wndStatusBar.SetPaneInfo(7, ID_SEPARATOR, SBPS_STRETCH|SBPS_NOBORDERS, 0);
 
-	m_wndStatusBar.SetPaneBackgroundColor(0, RGB(255, 255, 255));
-	m_wndStatusBar.SetPaneBackgroundColor(1, RGB(255, 255, 255));
-	m_wndStatusBar.SetPaneBackgroundColor(2, RGB(255, 255, 255));
-	m_wndStatusBar.SetPaneBackgroundColor(3, RGB(255, 255, 255));
-	m_wndStatusBar.SetPaneBackgroundColor(4, RGB(255, 255, 255));
-	m_wndStatusBar.SetPaneBackgroundColor(5, RGB(255, 255, 255));
-	m_wndStatusBar.SetPaneBackgroundColor(6, RGB(255, 255, 255));
+	for(int i=0; i<=6; i++)
+	{
+		m_wndStatusBar.SetPaneTextColor(i, RGB(0,0,0));
+		m_wndStatusBar.SetPaneBackgroundColor(i, RGB(255, 255, 255));
+	}
 
 
 	// TODO: ツール バーおよびメニュー バーをドッキング可能にしない場合は、この 5 つの行を削除します
