@@ -976,15 +976,28 @@ IMPLEMENT_DYNCREATE(CSImageViewerView, CView)
 		CMainFrame* pFrame = (CMainFrame*)AfxGetMainWnd();
 
 		bool bRet_Original = GetColorAtCursor(&m_image, point_v, &iR_img, &iC_img, &byR, &byG, &byB);
-		pFrame->m_sStatusRGBOriginal.Format(_T("(%d, %d, %d)"), byR, byG, byB);
-
+		if(bRet_Original == false)
+		{
+			pFrame->m_sStatusRGBOriginal.Format(_T("out of range"));
+		}
+		else
+		{
+			pFrame->m_sStatusRGBOriginal.Format(_T("(%d, %d, %d)"), byR, byG, byB);
+		}
 
 		bool bRet_Processed=false;
 		pFrame->m_sStatusRGBProcessed.Format(_T("not processed"));
 		if(m_iImgIndex != 0)
 		{
 			bRet_Processed = GetColorAtCursor(&(m_imageProcessed[m_iImgIndex]), point_v, &iR_img, &iC_img, &byR_Processed, &byG_Processed, &byB_Processed);
-			pFrame->m_sStatusRGBProcessed.Format(_T("(%d, %d, %d)"), byR_Processed, byG_Processed, byB_Processed);
+			if(bRet_Processed == false)
+			{
+				pFrame->m_sStatusRGBProcessed.Format(_T("out of range"));
+			}
+			else
+			{
+				pFrame->m_sStatusRGBProcessed.Format(_T("(%d, %d, %d)"), byR_Processed, byG_Processed, byB_Processed);
+			}
 		}
 
 		if((bRet_Original == false) && (bRet_Processed == false))
@@ -994,6 +1007,20 @@ IMPLEMENT_DYNCREATE(CSImageViewerView, CView)
 		}
 		pFrame->m_sStatusMousePos.Format(_T("(%d, %d)"),iC_img, iR_img);
 		
+		if(m_bDragging == true)
+		{
+			if(m_Rect_v.IsRectEmpty()==true)
+			{
+			pFrame->m_sStatusSelection.Format(_T("not selected"));
+			}
+			else
+			{
+				CRect rectTemp = v_to_i(&m_Rect_v);
+				pFrame->m_sStatusSelection.Format(_T("(%d, %d) - (%d, %d) : %d x %d "), rectTemp.left,rectTemp.top,rectTemp.right,rectTemp.bottom,rectTemp.right-rectTemp.left+1,rectTemp.bottom-rectTemp.top+1);	
+			}
+		}
+		else
+		{
 		if(m_Rect_i.IsRectEmpty()==true)
 		{
 			pFrame->m_sStatusSelection.Format(_T("not selected"));
@@ -1002,6 +1029,7 @@ IMPLEMENT_DYNCREATE(CSImageViewerView, CView)
 		{
 			pFrame->m_sStatusSelection.Format(_T("(%d, %d) - (%d, %d) : %d x %d "), m_Rect_i.left,m_Rect_i.top,m_Rect_i.right,m_Rect_i.bottom,m_Rect_i.right-m_Rect_i.left+1,m_Rect_i.bottom-m_Rect_i.top+1);	
 		}
+}
 
 		pFrame->SendMessage(WM_COMMAND, ID_DISP_STATUS_MOUSE_POS);
 
