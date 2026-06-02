@@ -696,7 +696,14 @@ IMPLEMENT_DYNCREATE(CSImageViewerView, CView)
 
 		imgTest.Save(_T("d:\\16_16_256.bmp"));
 		*/
+		int iHeight_v=GetClientHeight();
+		int iWidth_v=GetClientWidth();
+		int iBarWidth= ::GetSystemMetrics(SM_CYHSCROLL);
+		int iBarHeight= ::GetSystemMetrics(SM_CXVSCROLL);
+		int iHeightIfNoBar_v=iHeight_v+(m_bCBar ? iBarHeight : 0);
+		int iWidthIfNoBar_v=iWidth_v+(m_bRBar ? iBarWidth : 0);
 		m_imageProcessed[m_iImgIndex].Create(100,100,0);
+		pFrame->AdjustViewClientSize(100, 100,iWidthIfNoBar_v, iHeightIfNoBar_v);
 		/*
 		int ii[100];
 		for(int i=0; i<100; i++)

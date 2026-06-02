@@ -33,6 +33,7 @@ BEGIN_MESSAGE_MAP(CMainFrame, CFrameWndEx)
 	ON_COMMAND(IDM_ZOOMDOWN, &CMainFrame::OnZoomdown)
 	ON_COMMAND(IDM_ZOOMUP, &CMainFrame::OnZoomup)
 	ON_WM_DROPFILES()
+	ON_WM_DESTROY()
 END_MESSAGE_MAP()
 
 static UINT indicators[] =
@@ -80,6 +81,20 @@ int CMainFrame::OnCreate(LPCREATESTRUCT lpCreateStruct)
 {
 	if (CFrameWndEx::OnCreate(lpCreateStruct) == -1){return -1;}
 
+	if (m_cfStatus.GetSafeHandle() != nullptr)
+	{
+		m_cfStatus.DeleteObject();
+	}
+	LOGFONT lf = {};
+    lf.lfHeight = -18;                     // 高さ（負値で論理単位）
+	lf.lfWeight = FW_NORMAL;                 // 太字
+    lf.lfCharSet = DEFAULT_CHARSET;
+    _tcscpy_s(lf.lfFaceName, _T("MS Gothic"));  // お好みのフォント名
+
+    m_cfStatus.CreateFontIndirect(&lf);
+
+
+
 	BOOL bNameValid;
 	// 固定値に基づいてビジュアル マネージャーと visual スタイルを設定します
 	OnApplicationLook(theApp.m_nAppLook);
@@ -122,16 +137,21 @@ int CMainFrame::OnCreate(LPCREATESTRUCT lpCreateStruct)
 		TRACE0("ステータス バーの作成に失敗しました。\n");
 		return -1;      // 作成できない場合
 	}
+        m_wndStatusBar.SetFont(&m_cfStatus);
+
+
+
+
 	m_wndStatusBar.SetIndicators(indicators, _countof(indicators));
 
-	m_wndStatusBar.SetPaneInfo(0, ID_STATUS_SIZE, SBPS_NORMAL, 80);
-	m_wndStatusBar.SetPaneInfo(1, ID_STATUS_BPP, SBPS_NORMAL, 40);
-	m_wndStatusBar.SetPaneInfo(2, ID_STATUS_ZOOM, SBPS_NORMAL, 50);
+	m_wndStatusBar.SetPaneInfo(0, ID_STATUS_SIZE, SBPS_NORMAL, 140);
+	m_wndStatusBar.SetPaneInfo(1, ID_STATUS_BPP, SBPS_NORMAL, 70);
+	m_wndStatusBar.SetPaneInfo(2, ID_STATUS_ZOOM, SBPS_NORMAL, 90);
 
-	m_wndStatusBar.SetPaneInfo(3, ID_STATUS_MOUSE_POS, SBPS_NORMAL, 60);
-	m_wndStatusBar.SetPaneInfo(4, ID_STATUS_RGB_ORIGINAL, SBPS_NORMAL, 80);
-	m_wndStatusBar.SetPaneInfo(5, ID_STATUS_RGB_PROCESSED, SBPS_NORMAL, 80);
-	m_wndStatusBar.SetPaneInfo(6, ID_STATUS_SELECTION, SBPS_NORMAL, 200);
+	m_wndStatusBar.SetPaneInfo(3, ID_STATUS_MOUSE_POS, SBPS_NORMAL, 105);
+	m_wndStatusBar.SetPaneInfo(4, ID_STATUS_RGB_ORIGINAL, SBPS_NORMAL, 140);
+	m_wndStatusBar.SetPaneInfo(5, ID_STATUS_RGB_PROCESSED, SBPS_NORMAL, 140);
+	m_wndStatusBar.SetPaneInfo(6, ID_STATUS_SELECTION, SBPS_NORMAL, 350);
 	m_wndStatusBar.SetPaneInfo(7, ID_SEPARATOR, SBPS_STRETCH|SBPS_NOBORDERS, 0);
 
 	for(int i=0; i<=6; i++)
@@ -434,7 +454,7 @@ void CMainFrame::AdjustViewClientSize(int iNewClientWidth, int iNewClientHeight,
 	CRect rectScreen;
 	::SystemParametersInfo(SPI_GETWORKAREA, 0, &rectScreen, 0);
 
-	int iNewWindowWidth = max(640, rectWindow.Width() +  iNewClientWidth  - iCurrentClientWidth);
+	int iNewWindowWidth = max(1120, rectWindow.Width() +  iNewClientWidth  - iCurrentClientWidth);
 	int iNewWindowHeight = max(300,rectWindow.Height() + iNewClientHeight - iCurrentClientHeight);
 
 	if ((iNewWindowWidth > rectScreen.Width()) ||(iNewWindowHeight > rectScreen.Height()))
@@ -543,4 +563,14 @@ void CMainFrame::ExitFullScreen()
 		m_rectPreserved.bottom - m_rectPreserved.top,
 		SWP_FRAMECHANGED | SWP_SHOWWINDOW
 		);
+}
+
+void CMainFrame::OnDestroy()
+{
+	if (m_cfStatus.GetSafeHandle() != nullptr)
+	{
+		m_cfStatus.DeleteObject();
+	}
+
+	CFrameWndEx::OnDestroy();
 }

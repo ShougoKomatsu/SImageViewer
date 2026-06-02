@@ -13,6 +13,7 @@ protected: // ƒVƒŠƒAƒ‹‰»‚©‚ç‚Ì‚İì¬‚µ‚Ü‚·B
 
 	// ‘®«
 public:
+	CFont m_cfStatus;
 	bool m_bBingFullScreen;
 	CRect m_rectPreserved;
 	DWORD m_dwStylePreserved;
@@ -69,5 +70,6 @@ public:
 	afx_msg void OnZoomdown();
 	afx_msg void OnZoomup();
 	afx_msg void OnDropFiles(HDROP hDropInfo);
+	afx_msg void OnDestroy();
 };
 
