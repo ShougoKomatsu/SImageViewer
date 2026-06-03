@@ -1009,11 +1009,12 @@ IMPLEMENT_DYNCREATE(CSImageViewerView, CView)
 
 		if((bRet_Original == false) && (bRet_Processed == false))
 		{
-			iC_img=0;
-			iR_img=0;
+			pFrame->m_sStatusMousePos.Format(_T("out of range"));
 		}
-		pFrame->m_sStatusMousePos.Format(_T("(%d, %d)"),iC_img, iR_img);
-		
+		else
+		{
+			pFrame->m_sStatusMousePos.Format(_T("(%d, %d)"),iC_img, iR_img);
+		}
 		if(m_bDragging == true)
 		{
 			if(m_Rect_v.IsRectEmpty()==true)

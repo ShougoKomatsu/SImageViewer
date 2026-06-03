@@ -144,14 +144,14 @@ int CMainFrame::OnCreate(LPCREATESTRUCT lpCreateStruct)
 
 	m_wndStatusBar.SetIndicators(indicators, _countof(indicators));
 
-	m_wndStatusBar.SetPaneInfo(0, ID_STATUS_SIZE, SBPS_NORMAL, 140);
-	m_wndStatusBar.SetPaneInfo(1, ID_STATUS_BPP, SBPS_NORMAL, 70);
-	m_wndStatusBar.SetPaneInfo(2, ID_STATUS_ZOOM, SBPS_NORMAL, 90);
+	m_wndStatusBar.SetPaneInfo(0, ID_STATUS_SIZE, SBPS_POPOUT, 140);
+	m_wndStatusBar.SetPaneInfo(1, ID_STATUS_BPP, SBPS_POPOUT, 70);
+	m_wndStatusBar.SetPaneInfo(2, ID_STATUS_ZOOM, SBPS_POPOUT, 90);
 
-	m_wndStatusBar.SetPaneInfo(3, ID_STATUS_MOUSE_POS, SBPS_NORMAL, 105);
-	m_wndStatusBar.SetPaneInfo(4, ID_STATUS_RGB_ORIGINAL, SBPS_NORMAL, 140);
-	m_wndStatusBar.SetPaneInfo(5, ID_STATUS_RGB_PROCESSED, SBPS_NORMAL, 140);
-	m_wndStatusBar.SetPaneInfo(6, ID_STATUS_SELECTION, SBPS_NORMAL, 350);
+	m_wndStatusBar.SetPaneInfo(3, ID_STATUS_MOUSE_POS, SBPS_POPOUT, 105);
+	m_wndStatusBar.SetPaneInfo(4, ID_STATUS_RGB_ORIGINAL, SBPS_POPOUT, 140);
+	m_wndStatusBar.SetPaneInfo(5, ID_STATUS_RGB_PROCESSED, SBPS_POPOUT, 140);
+	m_wndStatusBar.SetPaneInfo(6, ID_STATUS_SELECTION, SBPS_POPOUT, 350);
 	m_wndStatusBar.SetPaneInfo(7, ID_SEPARATOR, SBPS_STRETCH|SBPS_NOBORDERS, 0);
 
 	for(int i=0; i<=6; i++)
