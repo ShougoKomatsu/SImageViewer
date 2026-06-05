@@ -67,6 +67,7 @@ BOOL CSImageViewerApp::InitInstance()
 	// 設定が格納されているレジストリ キーを変更します。
 	// TODO: 会社名または組織名などの適切な文字列に
 	// この文字列を変更してください。
+	//RegDeleteTree(HKEY_CURRENT_USER, _T("Software\\ShougoKomatsu\\SImageViewer"));
 	SetRegistryKey(_T("ShougoKomatsu"));
 	LoadStdProfileSettings(4);  // 標準の INI ファイルのオプションをロードします (MRU を含む)
 

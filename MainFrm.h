@@ -13,6 +13,7 @@ protected: // ƒVƒŠƒAƒ‹‰»‚©‚ç‚Ì‚İì¬‚µ‚Ü‚·B
 
 	// ‘®«
 public:
+	bool m_bFileOpened;
 	CFont m_cfStatus;
 	bool m_bBingFullScreen;
 	CRect m_rectPreserved;
@@ -63,6 +64,7 @@ protected:
 	afx_msg void OnDispStatusBPP();
 	afx_msg void OnDispStatusZoom();
 	afx_msg void OnDispStatusMousePos();
+	afx_msg void OnUpdateMenu(CCmdUI* pCmdUI);
 	DECLARE_MESSAGE_MAP()
 
 public:

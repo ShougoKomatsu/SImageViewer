@@ -84,6 +84,8 @@ IMPLEMENT_DYNCREATE(CSImageViewerView, CView)
 		ON_COMMAND(ID_COPY_AS, &CSImageViewerView::OnCopyAs)
 		ON_COMMAND(ID_CONVERT_COLOR_SPACE, &CSImageViewerView::OperateConvertColorSpace)
 		ON_COMMAND(ID_CHANGE_COLOR_DEPTH, &CSImageViewerView::OperateChangeColorDepth)
+		ON_COMMAND(ID_COLOR_CORRECTON, &CSImageViewerView::OperateBrightnessContrastGamma)
+		ON_COMMAND(ID_EDIT_EQU_HIST, &CSImageViewerView::OperateEquHistImage)
 		ON_WM_SIZE()
 		ON_WM_MOUSEMOVE()
 		ON_WM_LBUTTONDOWN()
@@ -464,12 +466,12 @@ IMPLEMENT_DYNCREATE(CSImageViewerView, CView)
 		if(bRet != TRUE){return false;}
 		if(m_image.IsNull()!=true){m_image.Destroy();}
 		HRESULT hResult = m_image.Load(m_sFilePath);
-//		int iBPP = m_image.GetBPP();
-//		CString sss;
-//		sss.Format(_T("%d"), iBPP);
-//		AfxMessageBox(sss);
-		
 		if(hResult != S_OK){return false;}
+
+		
+		CMainFrame* pFrame = (CMainFrame*)AfxGetMainWnd();
+		pFrame->m_bFileOpened = true;
+
 
 		ResetImage();
 		return true;
@@ -1324,6 +1326,9 @@ IMPLEMENT_DYNCREATE(CSImageViewerView, CView)
 					BOOL bRet = CopyFromClipBoardImg(&m_image);
 					if(bRet != TRUE){return FALSE;}
 					m_sFilePath.Format(_T("Clipboard"));
+					
+					CMainFrame* pFrame = (CMainFrame*)AfxGetMainWnd();
+					pFrame->m_bFileOpened = true;
 					ResetImage();
 					return TRUE;
 				}
@@ -1355,8 +1360,8 @@ IMPLEMENT_DYNCREATE(CSImageViewerView, CView)
 
 			if(GetKeyState(VK_SHIFT)<0)
 			{
-				if(pMsg->wParam == 'U'){OperateEquHistImage();return TRUE;}
-				if(pMsg->wParam == 'G'){OperateBrightnessContrastGamma();return TRUE;}
+	//			if(pMsg->wParam == 'U'){OperateEquHistImage();return TRUE;}
+		//		if(pMsg->wParam == 'G'){OperateBrightnessContrastGamma();return TRUE;}
 			}	
 
 			if(pMsg->wParam==VK_F5)
