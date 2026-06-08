@@ -75,7 +75,6 @@ enum MOUSE_CURSOR
 IMPLEMENT_DYNCREATE(CSImageViewerView, CView)
 
 	BEGIN_MESSAGE_MAP(CSImageViewerView, CView)
-		ON_WM_CONTEXTMENU()
 		ON_WM_RBUTTONUP()
 		ON_COMMAND(ID_FILE_OPEN, &CSImageViewerView::OnFileOpen)
 		ON_COMMAND(ID_FILE_SAVE_AS, &CSImageViewerView::OnFileSave)
@@ -95,6 +94,7 @@ IMPLEMENT_DYNCREATE(CSImageViewerView, CView)
 		ON_WM_VSCROLL()
 		ON_WM_HSCROLL()
 		ON_WM_ERASEBKGND()
+		ON_WM_CONTEXTMENU()
 	END_MESSAGE_MAP()
 
 	// CSImageViewerView コンストラクション/デストラクション
@@ -250,12 +250,12 @@ IMPLEMENT_DYNCREATE(CSImageViewerView, CView)
 		OnContextMenu(this, point_v);
 	}
 
-	void CSImageViewerView::OnContextMenu(CWnd* /* pWnd */, CPoint point_v)
-	{
-#ifndef SHARED_HANDLERS
-		theApp.GetContextMenuManager()->ShowPopupMenu(IDR_POPUP_EDIT, point_v.x, point_v.y, this, TRUE);
-#endif
-	}
+//	void CSImageViewerView::OnContextMenu(CWnd* /* pWnd */, CPoint point_v)
+//	{
+//#ifndef SHARED_HANDLERS
+//		theApp.GetContextMenuManager()->ShowPopupMenu(IDR_POPUP_EDIT, point_v.x, point_v.y, this, TRUE);
+//#endif
+//	}
 
 
 	// CSImageViewerView 診断
@@ -1482,3 +1482,22 @@ IMPLEMENT_DYNCREATE(CSImageViewerView, CView)
 		return TRUE;
 		return CView::OnEraseBkgnd(pDC);
 	}
+
+
+	void CSImageViewerView::OnContextMenu(CWnd* pWnd, CPoint point)
+	{
+		
+    CMenu menu;
+    menu.LoadMenu(IDR_POPUP_EDIT);
+
+    CMenu* pPopup = menu.GetSubMenu(0);
+
+    // ★ ポップアップメニューの UI 更新を手動で実行
+    UpdateDialogControls(this, FALSE);
+
+    // ★ 必要なら個別に Enable/Disable
+	pPopup->EnableMenuItem(ID_COLOR_CORRECTON, MF_BYCOMMAND | MF_DISABLED);
+
+    pPopup->TrackPopupMenu(TPM_LEFTALIGN | TPM_RIGHTBUTTON,
+                           point.x, point.y, this);
+}
