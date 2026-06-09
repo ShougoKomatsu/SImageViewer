@@ -409,7 +409,7 @@ bool CopyFromClipBoardImg(CImage* imgDst)
 		iColors = bih->biClrUsed;
 		if (iColors == 0) 
 		{
-			iColors = 1 << iBPP_src ;
+			iColors = 1 << min(24, iBPP_src);
 		}
 	}
 
@@ -679,9 +679,9 @@ bool ConvertImage_LossLess(const CImage* imgSrc, const int iBPPDst, CImage* imgD
 
 	int iUsedColors;
 	bool bGrayScale;
-	MakeColorTable(imgSrc,NULL,NULL, 1<<imgSrc->GetBPP(), &iUsedColors, &bGrayScale);
+	MakeColorTable(imgSrc,NULL,NULL, 1<<min(24, imgSrc->GetBPP()), &iUsedColors, &bGrayScale);
 
-	if(iUsedColors > (1<<iBPPDst)){return false;}
+	if(iUsedColors > (1<<min(24, iBPPDst))){return false;}
 
 	ImgRGB imgRGB;
 	ConvertImage(imgSrc,&imgRGB);
@@ -723,10 +723,11 @@ bool ConvertImage_LossLess(const CImage* imgSrc, const int iBPPDst, CImage* imgD
 	RGBQUAD* rgbqTable;
 	RGBQUAD* rgbqTable_unsorted;
 	ULONGLONG* ullFrequency;
-	rgbqTable_unsorted = new RGBQUAD[1<<imgSrc->GetBPP()];
-	rgbqTable = new RGBQUAD[1<<imgSrc->GetBPP()];
-	ullFrequency = new ULONGLONG[1<<imgSrc->GetBPP()];
-	MakeColorTable(imgSrc, rgbqTable_unsorted, NULL, 1<<imgSrc->GetBPP(), &iUsedColors, &bGrayScale);
+	rgbqTable_unsorted = new RGBQUAD[1<<min(24, imgSrc->GetBPP())];
+	rgbqTable = new RGBQUAD[1<<min(24, imgSrc->GetBPP())];
+	ullFrequency = new ULONGLONG[min(24, 1<<imgSrc->GetBPP())];
+
+	MakeColorTable(imgSrc, rgbqTable_unsorted, NULL, 1<<min(24, imgSrc->GetBPP()), &iUsedColors, &bGrayScale);
 	const BYTE byMasks[9]={0,1,3,0,15,0,0,0,255};
 
 	if(bGrayScale==true)
@@ -760,9 +761,9 @@ bool ConvertImage_LossLess(const CImage* imgSrc, const int iBPPDst, CImage* imgD
 		SAFE_DELETE(iIndex);
 	}
 
-	SetColorTable(imgDst, rgbqTable, 1<<iBPPDst);
+	SetColorTable(imgDst, rgbqTable, 1<<min(24, iBPPDst));
 
-		for(int i=iUsedColors; i<(1<<iBPPDst); i++)
+		for(int i=iUsedColors; i<(1<<min(24, iBPPDst)); i++)
 	{
 		rgbqTable[i].rgbRed=255;
 		rgbqTable[i].rgbGreen=255;
@@ -785,7 +786,7 @@ bool ConvertImage_LossLess(const CImage* imgSrc, const int iBPPDst, CImage* imgD
 		for(int c=0; c<imgRGB.iWidth ; c++)
 		{
 
-			int iColorIndex = GetColorTableIndex(rgbqTable, 1<<iBPPDst, imgRGB.byImgR[r*imgRGB.iWidth+c], imgRGB.byImgG[r*imgRGB.iWidth+c], imgRGB.byImgB[r*imgRGB.iWidth+c]);
+			int iColorIndex = GetColorTableIndex(rgbqTable, 1<<min(24, iBPPDst), imgRGB.byImgR[r*imgRGB.iWidth+c], imgRGB.byImgG[r*imgRGB.iWidth+c], imgRGB.byImgB[r*imgRGB.iWidth+c]);
 
 			int iPosition= r*iPitch_dst+c/(8/iBPPDst);
 			int iDigit = (8/iBPPDst)-(c%(8/iBPPDst))-1;
@@ -1198,7 +1199,7 @@ bool MakeColorTable(const CImage* imgSrc, RGBQUAD* rgbqTable_out, ULONGLONG* ull
 
 	ULONGLONG* ullFrequency;
 	ullFrequency = new ULONGLONG[iColors];
-	for(int i=0; i<1<<iBPP; i++)
+	for(int i=0; i<1<<min(24, iBPP); i++)
 	{
 		ullFrequency[i]=0;
 	}
@@ -1410,15 +1411,15 @@ bool ConvertImage_AreaCoverage(const CImage* imgSrc, const int iBPP, CImage* img
 	index_i(ullFrequency, iColors, iPopularOrder);
 
 	RGBQUAD* rgbqTablePopularOrder;
-	rgbqTablePopularOrder = new RGBQUAD[1<<iBPP];
-	GetColorConversionTable(rgbqTable, iPopularOrder, iColors, rgbqTablePopularOrder, 1<<iBPP, iConversionTable);
+	rgbqTablePopularOrder = new RGBQUAD[1<<min(24, iBPP)];
+	GetColorConversionTable(rgbqTable, iPopularOrder, iColors, rgbqTablePopularOrder, 1<<min(24, iBPP), iConversionTable);
 
 	if (imgDst->IsNull() != true) {imgDst->Destroy();}
 	imgDst->Create(iWidth, iHeight,iBPP);
 
 
 
-	SetColorTable(imgDst, rgbqTablePopularOrder, 1<<iBPP);
+	SetColorTable(imgDst, rgbqTablePopularOrder, 1<<min(24, iBPP));
 
 	int iPitch_dst = imgDst->GetPitch();
 	BYTE* pbyData_dst = (BYTE*)imgDst->GetBits();
@@ -1937,14 +1938,14 @@ bool ConvertImage_ByDeviation(const CImage* imgSrc, const int iBPP,CImage* imgDs
 	iConversionTable=new int[iColors];
 
 	RGBQUAD* rgbqResult;
-	rgbqResult=new RGBQUAD[1<<iBPP];
+	rgbqResult=new RGBQUAD[1<<min(24, iBPP)];
 
-	GetCluster_K_mean(rgbqTable, ullFrequency, iConversionTable, iColors, rgbqResult, 1<<iBPP);
+	GetCluster_K_mean(rgbqTable, ullFrequency, iConversionTable, iColors, rgbqResult, 1<<min(24, iBPP));
 
 
 	if (imgDst->IsNull() != true) {imgDst->Destroy();}
 	imgDst->Create(iWidth, iHeight,iBPP);
-	SetColorTable(imgDst, rgbqResult, 1<<iBPP);
+	SetColorTable(imgDst, rgbqResult, 1<<min(24, iBPP));
 	SAFE_DELETE(rgbqResult);
 
 	int iPitch_dst = imgDst->GetPitch();

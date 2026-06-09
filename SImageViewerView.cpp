@@ -561,7 +561,7 @@ IMPLEMENT_DYNCREATE(CSImageViewerView, CView)
 		
 	CountColorNum(&m_imageProcessed[m_iImgIndex], &iUsedColors, NULL);
 
-		MakeColorTable(&m_imageProcessed[m_iImgIndex],NULL,NULL, 1<<m_imageProcessed[m_iImgIndex].GetBPP(), &iUsedColors, &bGrayScale);
+		MakeColorTable(&m_imageProcessed[m_iImgIndex],NULL,NULL, 1<<min(24, m_imageProcessed[m_iImgIndex].GetBPP()), &iUsedColors, &bGrayScale);
 		
 	colorDepthDlg.m_iColors = iUsedColors;
 	colorDepthDlg.m_bGrayScale = bGrayScale;
