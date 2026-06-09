@@ -1492,12 +1492,21 @@ IMPLEMENT_DYNCREATE(CSImageViewerView, CView)
 
     CMenu* pPopup = menu.GetSubMenu(0);
 
-    // ★ ポップアップメニューの UI 更新を手動で実行
     UpdateDialogControls(this, FALSE);
 
-    // ★ 必要なら個別に Enable/Disable
-	pPopup->EnableMenuItem(ID_COLOR_CORRECTON, MF_BYCOMMAND | MF_DISABLED);
+	CMainFrame* pFrame = (CMainFrame*)AfxGetMainWnd();
+	bool bFileOpened = pFrame ->m_bFileOpened;
+	
+	pPopup->EnableMenuItem(ID_EDIT_CUT, MF_BYCOMMAND | (( bFileOpened  == true) ? MF_ENABLED : MF_DISABLED));
+	pPopup->EnableMenuItem(ID_EDIT_COPY, MF_BYCOMMAND | (( bFileOpened  == true) ? MF_ENABLED : MF_DISABLED));
+	pPopup->EnableMenuItem(ID_EDIT_PASTE, MF_BYCOMMAND | (( bFileOpened  == true) ? MF_ENABLED : MF_DISABLED));
 
-    pPopup->TrackPopupMenu(TPM_LEFTALIGN | TPM_RIGHTBUTTON,
-                           point.x, point.y, this);
+	pPopup->EnableMenuItem(ID_EDIT_EQU_HIST, MF_BYCOMMAND | (( bFileOpened  == true) ? MF_ENABLED : MF_DISABLED));
+	pPopup->EnableMenuItem(ID_COPY_AS, MF_BYCOMMAND | (( bFileOpened  == true) ? MF_ENABLED : MF_DISABLED));
+	pPopup->EnableMenuItem(ID_CONVERT_COLOR_SPACE, MF_BYCOMMAND | (( bFileOpened  == true) ? MF_ENABLED : MF_DISABLED));
+	pPopup->EnableMenuItem(ID_CHANGE_COLOR_DEPTH, MF_BYCOMMAND | (( bFileOpened  == true) ? MF_ENABLED : MF_DISABLED));
+	pPopup->EnableMenuItem(ID_COLOR_CORRECTON, MF_BYCOMMAND | (( bFileOpened  == true) ? MF_ENABLED : MF_DISABLED));
+	pPopup->EnableMenuItem(ID_SET_SELECTION, MF_BYCOMMAND | (( bFileOpened  == true) ? MF_ENABLED : MF_DISABLED));
+
+    pPopup->TrackPopupMenu(TPM_LEFTALIGN | TPM_RIGHTBUTTON, point.x, point.y, this);
 }
