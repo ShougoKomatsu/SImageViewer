@@ -99,6 +99,8 @@ public:
 	virtual BOOL PreTranslateMessage(MSG* pMsg);
 	afx_msg void OnFileOpen();
 	afx_msg void OnFileSave();
+	afx_msg void OnEditCopy();
+	afx_msg void OnEditPaste();
 	afx_msg void OnSize(UINT nType, int cx, int cy);
 	afx_msg void OnMouseMove(UINT nFlags, CPoint point);
 	afx_msg void OnLButtonDown(UINT nFlags, CPoint point);

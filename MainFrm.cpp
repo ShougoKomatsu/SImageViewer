@@ -36,6 +36,12 @@ BEGIN_MESSAGE_MAP(CMainFrame, CFrameWndEx)
 	ON_UPDATE_COMMAND_UI(ID_CHANGE_COLOR_DEPTH, &CMainFrame::OnUpdateMenu)
 	ON_UPDATE_COMMAND_UI(ID_COLOR_CORRECTON, &CMainFrame::OnUpdateMenu)
 	ON_UPDATE_COMMAND_UI(ID_SET_SELECTION, &CMainFrame::OnUpdateMenu)
+	ON_UPDATE_COMMAND_UI(ID_FILE_SAVE_AS, &CMainFrame::OnUpdateMenu)
+	ON_UPDATE_COMMAND_UI(ID_EDIT_COPY, &CMainFrame::OnUpdateMenu)
+	ON_UPDATE_COMMAND_UI(IDM_ZOOMUP, &CMainFrame::OnUpdateMenu)
+	ON_UPDATE_COMMAND_UI(IDM_ZOOMDOWN, &CMainFrame::OnUpdateMenu)
+	ON_UPDATE_COMMAND_UI(ID_EDIT_PASTE, &CMainFrame::OnUpdateMenu)
+	
 	ON_COMMAND(IDM_ZOOMDOWN, &CMainFrame::OnZoomdown)
 	ON_COMMAND(IDM_ZOOMUP, &CMainFrame::OnZoomup)
     ON_WM_INITMENUPOPUP()
@@ -87,6 +93,7 @@ CMainFrame::~CMainFrame()
 int CMainFrame::OnCreate(LPCREATESTRUCT lpCreateStruct)
 {
 	m_bFileOpened = false;
+	m_bSelected = false;
 	if (CFrameWndEx::OnCreate(lpCreateStruct) == -1){return -1;}
 
 	if (m_cfStatus.GetSafeHandle() != nullptr)
@@ -205,13 +212,13 @@ int CMainFrame::OnCreate(LPCREATESTRUCT lpCreateStruct)
 	lstBasicCommands.AddTail(ID_FILE_SAVE);
 	lstBasicCommands.AddTail(ID_FILE_PRINT);
 	lstBasicCommands.AddTail(ID_APP_EXIT);
-	lstBasicCommands.AddTail(ID_EDIT_CUT);
 	lstBasicCommands.AddTail(ID_EDIT_PASTE);
 	lstBasicCommands.AddTail(ID_EDIT_UNDO);
 	lstBasicCommands.AddTail(ID_APP_ABOUT);
 	lstBasicCommands.AddTail(ID_VIEW_STATUS_BAR);
 	lstBasicCommands.AddTail(ID_VIEW_TOOLBAR);
 	
+	lstBasicCommands.AddTail(ID_FILE_SAVE_AS);
 	lstBasicCommands.AddTail(ID_EDIT_COPY);
 
 	lstBasicCommands.AddTail(ID_EDIT_EQU_HIST);
@@ -411,6 +418,7 @@ void CMainFrame::OnUpdateAfxIdpCommandFailure(CCmdUI *pCmdUI)
 }
 
 #include "SImageViewerView.h"
+
 void CMainFrame::OnZoomdown()
 {
 
@@ -590,11 +598,24 @@ void CMainFrame::OnDestroy()
 
 	CFrameWndEx::OnDestroy();
 }
- void CMainFrame::OnUpdateMenu(CCmdUI* pCmdUI)
- {
-	 
-    switch (pCmdUI->m_nID)
-    {
+void CMainFrame::OnUpdateMenu(CCmdUI* pCmdUI)
+{
+
+	switch (pCmdUI->m_nID)
+	{
+	case ID_EDIT_PASTE:
+		{
+			pCmdUI->Enable(true);
+			break;
+		}
+	case ID_EDIT_COPY:
+		{
+			pCmdUI->Enable(m_bSelected);
+			break;
+		}
+	case IDM_ZOOMDOWN:
+	case IDM_ZOOMUP:
+	case ID_FILE_SAVE_AS:
 	case ID_EDIT_EQU_HIST:
 	case ID_COPY_AS:
 	case ID_CONVERT_COLOR_SPACE:
@@ -604,4 +625,4 @@ void CMainFrame::OnDestroy()
 		pCmdUI->Enable(m_bFileOpened);
 		break;
 	}
- }
+}

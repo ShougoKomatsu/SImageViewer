@@ -78,7 +78,8 @@ IMPLEMENT_DYNCREATE(CSImageViewerView, CView)
 		ON_WM_RBUTTONUP()
 		ON_COMMAND(ID_FILE_OPEN, &CSImageViewerView::OnFileOpen)
 		ON_COMMAND(ID_FILE_SAVE_AS, &CSImageViewerView::OnFileSave)
-		ON_COMMAND(ID_FILE_SAVE, &CSImageViewerView::OnFileSave)
+		ON_COMMAND(ID_EDIT_COPY, &CSImageViewerView::OnEditCopy)
+		ON_COMMAND(ID_EDIT_PASTE, &CSImageViewerView::OnEditPaste)
 		ON_COMMAND(ID_SET_SELECTION, &CSImageViewerView::OnSetSelection)
 		ON_COMMAND(ID_COPY_AS, &CSImageViewerView::OnCopyAs)
 		ON_COMMAND(ID_CONVERT_COLOR_SPACE, &CSImageViewerView::OperateConvertColorSpace)
@@ -104,6 +105,7 @@ IMPLEMENT_DYNCREATE(CSImageViewerView, CView)
 		m_bDragging = false;
 		m_Rect_v.SetRectEmpty();
 		m_Rect_i.SetRectEmpty();
+
 		m_iImgIndex=0;
 		m_iUnDoAvailableCount=0;
 		m_iReDoAvailableCount=0;
@@ -128,12 +130,15 @@ IMPLEMENT_DYNCREATE(CSImageViewerView, CView)
 
 	void CSImageViewerView::OnCopyAs()
 	{
+		if(m_Rect_i.IsRectEmpty()==TRUE){return;}
+
 		CCopyAsDlg copyAsdlg;
 
 		INT_PTR iRet = copyAsdlg.DoModal();
 		if(iRet != IDOK){return;}
 
 		CImage imgClipped;
+
 		ClipImage(&m_imageProcessed[m_iImgIndex],&imgClipped, m_Rect_i.top,m_Rect_i.left, m_Rect_i.bottom, m_Rect_i.right); 
 		switch(copyAsdlg.m_enumCopyMode)
 		{
@@ -175,6 +180,8 @@ IMPLEMENT_DYNCREATE(CSImageViewerView, CView)
 		if(iRet == IDOK)
 		{
 			m_Rect_i.SetRect(setdlg.m_iC0,setdlg.m_iR0,setdlg.m_iC1,setdlg.m_iR1);
+			CMainFrame* pFrame = (CMainFrame*)AfxGetMainWnd();
+			pFrame->m_bSelected = true;
 			Invalidate();
 		}
 	}
@@ -437,10 +444,11 @@ IMPLEMENT_DYNCREATE(CSImageViewerView, CView)
 		if(si.nPage>0)
 		{
 			si.nPos = 0; 
-		SetScrollInfo(SB_VERT, &si, TRUE);
+			SetScrollInfo(SB_VERT, &si, TRUE);
 		}
 		m_iMouseMode=0;
 		m_Rect_i.SetRectEmpty();
+		pFrame->m_bSelected = false;
 		Invalidate();
 
 		CString sImageSize;
@@ -471,6 +479,7 @@ IMPLEMENT_DYNCREATE(CSImageViewerView, CView)
 		
 		CMainFrame* pFrame = (CMainFrame*)AfxGetMainWnd();
 		pFrame->m_bFileOpened = true;
+		pFrame->m_bSelected = true;
 
 
 		ResetImage();
@@ -530,9 +539,33 @@ IMPLEMENT_DYNCREATE(CSImageViewerView, CView)
 		ReadImage(m_sFilePath);
 
 	}
+	void CSImageViewerView::OnEditCopy()
+	{
+		if(m_Rect_i.IsRectEmpty()==TRUE){return;}
+
+		CImage imgClipped;
+		ClipImage(&m_imageProcessed[m_iImgIndex],&imgClipped, m_Rect_i.top,m_Rect_i.left, m_Rect_i.bottom, m_Rect_i.right); 
+		CopyToClipBoardImg(&imgClipped);
+		return;
+	}
+	void CSImageViewerView::OnEditPaste()
+	{
+		BOOL bRet = CopyFromClipBoardImg(&m_image);
+		if(bRet != TRUE){return;}
+		m_sFilePath.Format(_T("Clipboard"));
+
+		CMainFrame* pFrame = (CMainFrame*)AfxGetMainWnd();
+		pFrame->m_bFileOpened = true;
+		pFrame->m_bSelected = true;
+		ResetImage();
+
+	}
+
 	void CSImageViewerView::FullDomain()
 	{
 		m_Rect_i.SetRect(0, 0, m_imageProcessed[m_iImgIndex].GetWidth()-1,m_imageProcessed[m_iImgIndex].GetHeight()-1);
+		CMainFrame* pFrame = (CMainFrame*)AfxGetMainWnd();
+		pFrame->m_bSelected = true;
 	}
 	void CSImageViewerView::OperateEquHistImage()
 	{
@@ -543,7 +576,12 @@ IMPLEMENT_DYNCREATE(CSImageViewerView, CView)
 		ImgRGB imgMeaned;
 		ConvertImage(&m_imageProcessed[m_iImgIndex], &imgRGB);
 		EquHistImage(&imgRGB,&imgMeaned,m_Rect_i.top,m_Rect_i.left,m_Rect_i.bottom,m_Rect_i.right);
-		if(bAutoFull==true){m_Rect_i.SetRectEmpty();}
+		if(bAutoFull==true)
+		{
+			m_Rect_i.SetRectEmpty();
+			CMainFrame* pFrame = (CMainFrame*)AfxGetMainWnd();
+			pFrame->m_bSelected = false;
+		}
 
 		m_iImgIndex++;
 		m_iUnDoAvailableCount++;
@@ -632,7 +670,16 @@ IMPLEMENT_DYNCREATE(CSImageViewerView, CView)
 		INT_PTR iRet;
 		dlgModify.DoModal();
 		iRet = dlgModify.m_iRet;
-		if(iRet == IDCANCEL){if(bAutoFull==true){m_Rect_i.SetRectEmpty();} return ;}
+		if(iRet == IDCANCEL)
+		{
+			if(bAutoFull==true)
+			{
+				m_Rect_i.SetRectEmpty();
+				CMainFrame* pFrame = (CMainFrame*)AfxGetMainWnd();
+				pFrame->m_bSelected = false;
+			}
+			return ;
+		}
 
 		int iBrightness=dlgModify.m_iBrightness;
 		int iContrast=dlgModify.m_iContrast;
@@ -644,7 +691,12 @@ IMPLEMENT_DYNCREATE(CSImageViewerView, CView)
 		ConvertImage(&m_imageProcessed[m_iImgIndex], &imgRGB);
 		BrightnessContrast(&imgRGB,&imgResult1,m_Rect_i.top,m_Rect_i.left,m_Rect_i.bottom,m_Rect_i.right,(double)iBrightness,(double)iContrast);
 		Gamma(&imgResult1,&imgResult2,m_Rect_i.top,m_Rect_i.left,m_Rect_i.bottom,m_Rect_i.right,dGamma);
-		if(bAutoFull==true){m_Rect_i.SetRectEmpty();}
+		if(bAutoFull==true)
+		{
+			m_Rect_i.SetRectEmpty();
+		CMainFrame* pFrame = (CMainFrame*)AfxGetMainWnd();
+		pFrame->m_bSelected = false;
+		}
 
 		m_iImgIndex++;
 		m_iUnDoAvailableCount++;
@@ -1160,14 +1212,26 @@ IMPLEMENT_DYNCREATE(CSImageViewerView, CView)
 					ZoomChange(m_Rect_i.top, m_Rect_i.left, m_Rect_i.bottom,m_Rect_i.right);
 					m_Rect_v.SetRectEmpty();
 					m_Rect_i.SetRectEmpty();
+					CMainFrame* pFrame = (CMainFrame*)AfxGetMainWnd();
+					pFrame->m_bSelected = false;
+					Invalidate();
+					CView::OnLButtonUp(nFlags, point_v);
 					return;
 				}
 				m_Rect_v.SetRectEmpty();
+				m_Rect_i.SetRectEmpty();
+				CMainFrame* pFrame = (CMainFrame*)AfxGetMainWnd();
+				pFrame->m_bSelected = false;
+				Invalidate();
+				CView::OnLButtonUp(nFlags, point_v);
+				return;
 			}
 			m_Rect_i = v_to_i(&m_Rect_v);
 			m_Rect_i.left=max(0,m_Rect_i.left);
 			m_Rect_i.top=max(0,m_Rect_i.top);
 			m_Rect_v.SetRectEmpty();
+			CMainFrame* pFrame = (CMainFrame*)AfxGetMainWnd();
+			pFrame->m_bSelected = true;
 			Invalidate();
 		}
 
@@ -1312,27 +1376,6 @@ IMPLEMENT_DYNCREATE(CSImageViewerView, CView)
 		{	
 			if(GetKeyState(VK_CONTROL)<0)
 			{	
-				if (pMsg->wParam == 'C') 
-				{ 
-					if(m_Rect_i.IsRectEmpty()==TRUE){return FALSE;}
-
-					CImage imgClipped;
-					ClipImage(&m_imageProcessed[m_iImgIndex],&imgClipped, m_Rect_i.top,m_Rect_i.left, m_Rect_i.bottom, m_Rect_i.right); 
-					CopyToClipBoardImg(&imgClipped);
-					return TRUE;
-				} 
-				if (pMsg->wParam == 'V') 
-				{ 
-					BOOL bRet = CopyFromClipBoardImg(&m_image);
-					if(bRet != TRUE){return FALSE;}
-					m_sFilePath.Format(_T("Clipboard"));
-					
-					CMainFrame* pFrame = (CMainFrame*)AfxGetMainWnd();
-					pFrame->m_bFileOpened = true;
-					ResetImage();
-					return TRUE;
-				}
-
 				if(pMsg->wParam == 'A')
 				{
 					FullDomain();
@@ -1496,13 +1539,15 @@ IMPLEMENT_DYNCREATE(CSImageViewerView, CView)
 
 	CMainFrame* pFrame = (CMainFrame*)AfxGetMainWnd();
 	bool bFileOpened = pFrame ->m_bFileOpened;
+	bool bSelected = pFrame ->m_bSelected;
+
+	pPopup->EnableMenuItem(ID_EDIT_COPY, MF_BYCOMMAND | (( bSelected  == true) ? MF_ENABLED : MF_DISABLED));
+	pPopup->EnableMenuItem(ID_COPY_AS, MF_BYCOMMAND | (( bSelected  == true) ? MF_ENABLED : MF_DISABLED));
 	
-	pPopup->EnableMenuItem(ID_EDIT_CUT, MF_BYCOMMAND | (( bFileOpened  == true) ? MF_ENABLED : MF_DISABLED));
 	pPopup->EnableMenuItem(ID_EDIT_COPY, MF_BYCOMMAND | (( bFileOpened  == true) ? MF_ENABLED : MF_DISABLED));
 	pPopup->EnableMenuItem(ID_EDIT_PASTE, MF_BYCOMMAND | (( bFileOpened  == true) ? MF_ENABLED : MF_DISABLED));
 
 	pPopup->EnableMenuItem(ID_EDIT_EQU_HIST, MF_BYCOMMAND | (( bFileOpened  == true) ? MF_ENABLED : MF_DISABLED));
-	pPopup->EnableMenuItem(ID_COPY_AS, MF_BYCOMMAND | (( bFileOpened  == true) ? MF_ENABLED : MF_DISABLED));
 	pPopup->EnableMenuItem(ID_CONVERT_COLOR_SPACE, MF_BYCOMMAND | (( bFileOpened  == true) ? MF_ENABLED : MF_DISABLED));
 	pPopup->EnableMenuItem(ID_CHANGE_COLOR_DEPTH, MF_BYCOMMAND | (( bFileOpened  == true) ? MF_ENABLED : MF_DISABLED));
 	pPopup->EnableMenuItem(ID_COLOR_CORRECTON, MF_BYCOMMAND | (( bFileOpened  == true) ? MF_ENABLED : MF_DISABLED));

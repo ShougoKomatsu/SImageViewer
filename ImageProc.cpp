@@ -418,7 +418,7 @@ bool CopyFromClipBoardImg(CImage* imgDst)
 	BYTE* pPalette = &(byData[sizeof(BITMAPINFOHEADER)]);
 	BYTE* bySrcData;
 	int iBytesPerLine = ((iWidth * iBPP_src + 31) / 32) * 4;
-	if((iBPP_src == 24) || (iBPP_src == 32))
+	if(iBPP_src == 32)
 	{
 		if(dataSize == sizeof(BITMAPINFOHEADER) + iPaletteSize + abs(iHeight)*iBytesPerLine)
 		{
@@ -427,6 +427,17 @@ bool CopyFromClipBoardImg(CImage* imgDst)
 		else
 		{
 			bySrcData = &(byData[dataSize - iWidth*abs(iHeight)*iBPP_src/8 ]);
+		}
+	}
+	else if(iBPP_src == 24)
+	{
+		if(dataSize == sizeof(BITMAPINFOHEADER) + iPaletteSize + abs(iHeight)*iBytesPerLine)
+		{
+			bySrcData = &(byData[sizeof(BITMAPINFOHEADER)+iPaletteSize ]);
+		}
+		else
+		{
+			bySrcData = &(byData[sizeof(BITMAPINFOHEADER)+iPaletteSize ]);
 		}
 	}
 	else

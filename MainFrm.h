@@ -14,6 +14,7 @@ protected: // ƒVƒŠƒAƒ‹‰»‚©‚ç‚Ì‚İì¬‚µ‚Ü‚·B
 	// ‘®«
 public:
 	bool m_bFileOpened;
+	bool m_bSelected;
 	CFont m_cfStatus;
 	bool m_bBingFullScreen;
 	CRect m_rectPreserved;
