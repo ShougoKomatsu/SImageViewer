@@ -1146,23 +1146,11 @@ bool MakeColorTable(ImgRGB* imgRGB, RGBQUAD* rgbqTable_out, ULONGLONG* ullFreque
 
 	if(rgbqTable_out != NULL)
 	{
-		if(bGrayScale==true)
+		for(int i=0; i<iLength; i++)
 		{
-			for(int i=0; i<iLength; i++)
-			{
-				rgbqTable_out[i].rgbRed=i;
-				rgbqTable_out[i].rgbGreen=i;
-				rgbqTable_out[i].rgbBlue=i;
-			}
-		}
-		else
-		{
-			for(int i=0; i<iLength; i++)
-			{
-				rgbqTable_out[i].rgbRed=rgbqTable_temp[i].rgbRed;
-				rgbqTable_out[i].rgbGreen=rgbqTable_temp[i].rgbGreen;
-				rgbqTable_out[i].rgbBlue=rgbqTable_temp[i].rgbBlue;
-			}
+			rgbqTable_out[i].rgbRed=rgbqTable_temp[i].rgbRed;
+			rgbqTable_out[i].rgbGreen=rgbqTable_temp[i].rgbGreen;
+			rgbqTable_out[i].rgbBlue=rgbqTable_temp[i].rgbBlue;
 		}
 	}
 	SAFE_DELETE(rgbqTable_temp);
@@ -1963,6 +1951,10 @@ bool ConvertImage_ByDeviation(const CImage* imgSrc, const int iBPP,CImage* imgDs
 	{
 		for(int c=0; c< iWidth; c++)
 		{
+			if((c==62)&&(r==50))
+			{
+				c=62;
+			}
 			int iColorTableIndex=GetColorTableIndex(rgbqTable,iColors, imgRGB.byImgR[r*iWidth+c], imgRGB.byImgG[r*iWidth+c], imgRGB.byImgB[r*iWidth+c]);
 			
 			int iDigit = (8/iBPP)-(c%(8/iBPP))-1;
