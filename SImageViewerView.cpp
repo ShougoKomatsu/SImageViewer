@@ -80,12 +80,12 @@ IMPLEMENT_DYNCREATE(CSImageViewerView, CView)
 		ON_COMMAND(ID_FILE_SAVE_AS, &CSImageViewerView::OnFileSave)
 		ON_COMMAND(ID_EDIT_COPY, &CSImageViewerView::OnEditCopy)
 		ON_COMMAND(ID_EDIT_PASTE, &CSImageViewerView::OnEditPaste)
-		ON_COMMAND(ID_SET_SELECTION, &CSImageViewerView::OnSetSelection)
-		ON_COMMAND(ID_COPY_AS, &CSImageViewerView::OnCopyAs)
-		ON_COMMAND(ID_CONVERT_COLOR_SPACE, &CSImageViewerView::OperateConvertColorSpace)
-		ON_COMMAND(ID_CHANGE_COLOR_DEPTH, &CSImageViewerView::OperateChangeColorDepth)
-		ON_COMMAND(ID_COLOR_CORRECTON, &CSImageViewerView::OperateBrightnessContrastGamma)
-		ON_COMMAND(ID_EDIT_EQU_HIST, &CSImageViewerView::OperateEquHistImage)
+		ON_COMMAND(ID_MENU_SET_SELECTION, &CSImageViewerView::OnSetSelection)
+		ON_COMMAND(ID_MENU_COPY_AS, &CSImageViewerView::OnCopyAs)
+		ON_COMMAND(ID_MENU_CONVERT_COLOR_SPACE, &CSImageViewerView::OperateConvertColorSpace)
+		ON_COMMAND(ID_MENU_CHANGE_COLOR_DEPTH, &CSImageViewerView::OperateChangeColorDepth)
+		ON_COMMAND(ID_MENU_COLOR_CORRECTON, &CSImageViewerView::OperateBrightnessContrastGamma)
+		ON_COMMAND(ID_MENU_EQU_HIST, &CSImageViewerView::OperateEquHistImage)
 		ON_WM_SIZE()
 		ON_WM_MOUSEMOVE()
 		ON_WM_LBUTTONDOWN()
@@ -1542,16 +1542,16 @@ IMPLEMENT_DYNCREATE(CSImageViewerView, CView)
 	bool bSelected = pFrame ->m_bSelected;
 
 	pPopup->EnableMenuItem(ID_EDIT_COPY, MF_BYCOMMAND | (( bSelected  == true) ? MF_ENABLED : MF_DISABLED));
-	pPopup->EnableMenuItem(ID_COPY_AS, MF_BYCOMMAND | (( bSelected  == true) ? MF_ENABLED : MF_DISABLED));
+	pPopup->EnableMenuItem(ID_MENU_COPY_AS, MF_BYCOMMAND | (( bSelected  == true) ? MF_ENABLED : MF_DISABLED));
 	
 	pPopup->EnableMenuItem(ID_EDIT_COPY, MF_BYCOMMAND | (( bFileOpened  == true) ? MF_ENABLED : MF_DISABLED));
 	pPopup->EnableMenuItem(ID_EDIT_PASTE, MF_BYCOMMAND | (( bFileOpened  == true) ? MF_ENABLED : MF_DISABLED));
 
-	pPopup->EnableMenuItem(ID_EDIT_EQU_HIST, MF_BYCOMMAND | (( bFileOpened  == true) ? MF_ENABLED : MF_DISABLED));
-	pPopup->EnableMenuItem(ID_CONVERT_COLOR_SPACE, MF_BYCOMMAND | (( bFileOpened  == true) ? MF_ENABLED : MF_DISABLED));
-	pPopup->EnableMenuItem(ID_CHANGE_COLOR_DEPTH, MF_BYCOMMAND | (( bFileOpened  == true) ? MF_ENABLED : MF_DISABLED));
-	pPopup->EnableMenuItem(ID_COLOR_CORRECTON, MF_BYCOMMAND | (( bFileOpened  == true) ? MF_ENABLED : MF_DISABLED));
-	pPopup->EnableMenuItem(ID_SET_SELECTION, MF_BYCOMMAND | (( bFileOpened  == true) ? MF_ENABLED : MF_DISABLED));
+	pPopup->EnableMenuItem(ID_MENU_EQU_HIST, MF_BYCOMMAND | (( bFileOpened  == true) ? MF_ENABLED : MF_DISABLED));
+	pPopup->EnableMenuItem(ID_MENU_CONVERT_COLOR_SPACE, MF_BYCOMMAND | (( bFileOpened  == true) ? MF_ENABLED : MF_DISABLED));
+	pPopup->EnableMenuItem(ID_MENU_CHANGE_COLOR_DEPTH, MF_BYCOMMAND | (( bFileOpened  == true) ? MF_ENABLED : MF_DISABLED));
+	pPopup->EnableMenuItem(ID_MENU_COLOR_CORRECTON, MF_BYCOMMAND | (( bFileOpened  == true) ? MF_ENABLED : MF_DISABLED));
+	pPopup->EnableMenuItem(ID_MENU_SET_SELECTION, MF_BYCOMMAND | (( bFileOpened  == true) ? MF_ENABLED : MF_DISABLED));
 
     pPopup->TrackPopupMenu(TPM_LEFTALIGN | TPM_RIGHTBUTTON, point.x, point.y, this);
 }

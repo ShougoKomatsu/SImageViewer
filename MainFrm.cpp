@@ -30,12 +30,12 @@ BEGIN_MESSAGE_MAP(CMainFrame, CFrameWndEx)
 	ON_COMMAND(ID_DISP_STATUS_ZOOM, &CMainFrame::OnDispStatusZoom)
 	ON_COMMAND(ID_DISP_STATUS_MOUSE_POS, &CMainFrame::OnDispStatusMousePos)
 	ON_UPDATE_COMMAND_UI(AFX_IDP_COMMAND_FAILURE, &CMainFrame::OnUpdateAfxIdpCommandFailure)
-	ON_UPDATE_COMMAND_UI(ID_EDIT_EQU_HIST, &CMainFrame::OnUpdateMenu)
-	ON_UPDATE_COMMAND_UI(ID_COPY_AS, &CMainFrame::OnUpdateMenu)
-	ON_UPDATE_COMMAND_UI(ID_CONVERT_COLOR_SPACE, &CMainFrame::OnUpdateMenu)
-	ON_UPDATE_COMMAND_UI(ID_CHANGE_COLOR_DEPTH, &CMainFrame::OnUpdateMenu)
-	ON_UPDATE_COMMAND_UI(ID_COLOR_CORRECTON, &CMainFrame::OnUpdateMenu)
-	ON_UPDATE_COMMAND_UI(ID_SET_SELECTION, &CMainFrame::OnUpdateMenu)
+	ON_UPDATE_COMMAND_UI(ID_MENU_EQU_HIST, &CMainFrame::OnUpdateMenu)
+	ON_UPDATE_COMMAND_UI(ID_MENU_COPY_AS, &CMainFrame::OnUpdateMenu)
+	ON_UPDATE_COMMAND_UI(ID_MENU_CONVERT_COLOR_SPACE, &CMainFrame::OnUpdateMenu)
+	ON_UPDATE_COMMAND_UI(ID_MENU_CHANGE_COLOR_DEPTH, &CMainFrame::OnUpdateMenu)
+	ON_UPDATE_COMMAND_UI(ID_MENU_COLOR_CORRECTON, &CMainFrame::OnUpdateMenu)
+	ON_UPDATE_COMMAND_UI(ID_MENU_SET_SELECTION, &CMainFrame::OnUpdateMenu)
 	ON_UPDATE_COMMAND_UI(ID_FILE_SAVE_AS, &CMainFrame::OnUpdateMenu)
 	ON_UPDATE_COMMAND_UI(ID_EDIT_COPY, &CMainFrame::OnUpdateMenu)
 	ON_UPDATE_COMMAND_UI(IDM_ZOOMUP, &CMainFrame::OnUpdateMenu)
@@ -221,12 +221,12 @@ int CMainFrame::OnCreate(LPCREATESTRUCT lpCreateStruct)
 	lstBasicCommands.AddTail(ID_FILE_SAVE_AS);
 	lstBasicCommands.AddTail(ID_EDIT_COPY);
 
-	lstBasicCommands.AddTail(ID_EDIT_EQU_HIST);
-	lstBasicCommands.AddTail(ID_SET_SELECTION);
-	lstBasicCommands.AddTail(ID_COPY_AS);
-	lstBasicCommands.AddTail(ID_CONVERT_COLOR_SPACE);
-	lstBasicCommands.AddTail(ID_CHANGE_COLOR_DEPTH);
-	lstBasicCommands.AddTail(ID_COLOR_CORRECTON);
+	lstBasicCommands.AddTail(ID_MENU_EQU_HIST);
+	lstBasicCommands.AddTail(ID_MENU_SET_SELECTION);
+	lstBasicCommands.AddTail(ID_MENU_COPY_AS);
+	lstBasicCommands.AddTail(ID_MENU_CONVERT_COLOR_SPACE);
+	lstBasicCommands.AddTail(ID_MENU_CHANGE_COLOR_DEPTH);
+	lstBasicCommands.AddTail(ID_MENU_COLOR_CORRECTON);
 	/*
 	lstBasicCommands.AddTail(ID_VIEW_APPLOOK_OFF_2003);
 	lstBasicCommands.AddTail(ID_VIEW_APPLOOK_VS_2005);
@@ -616,12 +616,12 @@ void CMainFrame::OnUpdateMenu(CCmdUI* pCmdUI)
 	case IDM_ZOOMDOWN:
 	case IDM_ZOOMUP:
 	case ID_FILE_SAVE_AS:
-	case ID_EDIT_EQU_HIST:
-	case ID_COPY_AS:
-	case ID_CONVERT_COLOR_SPACE:
-	case ID_CHANGE_COLOR_DEPTH:
-	case ID_COLOR_CORRECTON:
-	case ID_SET_SELECTION:
+	case ID_MENU_EQU_HIST:
+	case ID_MENU_COPY_AS:
+	case ID_MENU_CONVERT_COLOR_SPACE:
+	case ID_MENU_CHANGE_COLOR_DEPTH:
+	case ID_MENU_COLOR_CORRECTON:
+	case ID_MENU_SET_SELECTION:
 		pCmdUI->Enable(m_bFileOpened);
 		break;
 	}

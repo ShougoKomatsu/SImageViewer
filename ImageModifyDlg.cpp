@@ -24,26 +24,26 @@ CImageModifyDlg::~CImageModifyDlg()
 void CImageModifyDlg::DoDataExchange(CDataExchange* pDX)
 {
 	CDialogEx::DoDataExchange(pDX);
-	DDX_Control(pDX, IDC_SLIDER_IMAGE_MODIFY_BRIGHTNESS, m_sliderBrightness);
-	DDX_Control(pDX, IDC_SLIDER_IMAGE_MODIFY_CONTRAST, m_sliderContrast);
-	DDX_Control(pDX, IDC_SLIDER_IMAGE_MODIFY_GAMMA, m_sliderGamma);
-	DDX_Text(pDX, IDC_EDIT_IMAGE_MODIFY_BRIGHTNESS, m_sEditBrightness);
-	DDX_Text(pDX, IDC_EDIT_IMAGE_MODIFY_CONTRAST, m_sEditContrast);
-	DDX_Text(pDX, IDC_EDIT_IMAGE_MODIFY_GAMMA, m_sEditGamma);
+	DDX_Control(pDX, IDC_IMAGE_MODIFY_SLIDER_BRIGHTNESS, m_sliderBrightness);
+	DDX_Control(pDX, IDC_IMAGE_MODIFY_SLIDER_CONTRAST, m_sliderContrast);
+	DDX_Control(pDX, IDC_IMAGE_MODIFY_SLIDER_GAMMA, m_sliderGamma);
+	DDX_Text(pDX, IDC_IMAGE_MODIFY_EDIT_BRIGHTNESS, m_sEditBrightness);
+	DDX_Text(pDX, IDC_IMAGE_MODIFY_EDIT_CONTRAST, m_sEditContrast);
+	DDX_Text(pDX, IDC_IMAGE_MODIFY_EDIT_GAMMA, m_sEditGamma);
 }
 
 
 BEGIN_MESSAGE_MAP(CImageModifyDlg, CDialogEx)
 
-	ON_BN_CLICKED(IDC_DLG_IMAGE_MODIFY_BUTTON_OK, &CImageModifyDlg::OnBnClickedDlgImageModifyButtonOk)
-	ON_BN_CLICKED(IDC_DLG_IMAGE_MODIFY_BUTTON_CANCEL, &CImageModifyDlg::OnBnClickedDlgImageModifyButtonCancel)
+	ON_BN_CLICKED(IDC_IMAGE_MODIFY_BUTTON_OK, &CImageModifyDlg::OnBnClickedDlgImageModifyButtonOk)
+	ON_BN_CLICKED(IDC_IMAGE_MODIFY_BUTTON_CANCEL, &CImageModifyDlg::OnBnClickedDlgImageModifyButtonCancel)
 
-	ON_NOTIFY(NM_CUSTOMDRAW, IDC_SLIDER_IMAGE_MODIFY_BRIGHTNESS, &CImageModifyDlg::OnCustomdrawSliderImageModifyBrightness)
-	ON_NOTIFY(NM_CUSTOMDRAW, IDC_SLIDER_IMAGE_MODIFY_CONTRAST, &CImageModifyDlg::OnCustomdrawSliderImageModifyContrast)
-	ON_NOTIFY(NM_CUSTOMDRAW, IDC_SLIDER_IMAGE_MODIFY_GAMMA, &CImageModifyDlg::OnCustomdrawSliderImageModifyGamma)
-	ON_EN_KILLFOCUS(IDC_EDIT_IMAGE_MODIFY_BRIGHTNESS, &CImageModifyDlg::OnKillfocusEditImageModifyBrightness)
-	ON_EN_KILLFOCUS(IDC_EDIT_IMAGE_MODIFY_CONTRAST, &CImageModifyDlg::OnKillfocusEditImageModifyContrast)
-	ON_EN_KILLFOCUS(IDC_EDIT_IMAGE_MODIFY_GAMMA, &CImageModifyDlg::OnKillfocusEditImageModifyGamma)
+	ON_NOTIFY(NM_CUSTOMDRAW, IDC_IMAGE_MODIFY_SLIDER_BRIGHTNESS, &CImageModifyDlg::OnCustomdrawSliderImageModifyBrightness)
+	ON_NOTIFY(NM_CUSTOMDRAW, IDC_IMAGE_MODIFY_SLIDER_CONTRAST, &CImageModifyDlg::OnCustomdrawSliderImageModifyContrast)
+	ON_NOTIFY(NM_CUSTOMDRAW, IDC_IMAGE_MODIFY_SLIDER_GAMMA, &CImageModifyDlg::OnCustomdrawSliderImageModifyGamma)
+	ON_EN_KILLFOCUS(IDC_IMAGE_MODIFY_EDIT_BRIGHTNESS, &CImageModifyDlg::OnKillfocusEditImageModifyBrightness)
+	ON_EN_KILLFOCUS(IDC_IMAGE_MODIFY_EDIT_CONTRAST, &CImageModifyDlg::OnKillfocusEditImageModifyContrast)
+	ON_EN_KILLFOCUS(IDC_IMAGE_MODIFY_EDIT_GAMMA, &CImageModifyDlg::OnKillfocusEditImageModifyGamma)
 END_MESSAGE_MAP()
 
 

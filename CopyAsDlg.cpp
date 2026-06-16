@@ -29,9 +29,9 @@ void CCopyAsDlg::DoDataExchange(CDataExchange* pDX)
 
 BEGIN_MESSAGE_MAP(CCopyAsDlg, CDialogEx)
 	ON_BN_CLICKED(IDCANCEL, &CCopyAsDlg::OnBnClickedCancel)
-	ON_BN_CLICKED(IDC_BUTTON_CSV, &CCopyAsDlg::OnBnClickedButtonCsv)
-	ON_BN_CLICKED(IDC_BUTTON_TSV, &CCopyAsDlg::OnBnClickedButtonTsv)
-	ON_BN_CLICKED(IDC_BUTTON_IMAGE, &CCopyAsDlg::OnBnClickedButtonImage)
+	ON_BN_CLICKED(IDC_COPY_AS_BUTTON_CSV, &CCopyAsDlg::OnBnClickedButtonCsv)
+	ON_BN_CLICKED(IDC_COPY_AS_BUTTON_TSV, &CCopyAsDlg::OnBnClickedButtonTsv)
+	ON_BN_CLICKED(IDC_COPY_AS_BUTTON_IMAGE, &CCopyAsDlg::OnBnClickedButtonImage)
 END_MESSAGE_MAP()
 
 

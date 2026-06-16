@@ -26,8 +26,8 @@ CFormatSelectionoDlg::~CFormatSelectionoDlg()
 void CFormatSelectionoDlg::DoDataExchange(CDataExchange* pDX)
 {
 	CDialogEx::DoDataExchange(pDX);
-	DDX_Text(pDX, IDC_FORMAT_SELECT_MONO, m_sEditIsMonochrome);
-	DDX_Text(pDX, IDC_FORMAT_SELECT_BPP, m_sBPP);
+	DDX_Text(pDX, IDC_SELECT_FORMAT_MONO, m_sEditIsMonochrome);
+	DDX_Text(pDX, IDC_SELECT_FORMAT_BPP, m_sBPP);
 }
 
 
@@ -63,7 +63,7 @@ BOOL CFormatSelectionoDlg::OnInitDialog()
 
 void CFormatSelectionoDlg::OnBnClickedOk()
 {
-	if(((CButton*)GetDlgItem(IDC_FORMAT_SELECT_BMP24))->GetCheck()==TRUE){m_iFormat=0;m_iBPP=24;}
-	if(((CButton*)GetDlgItem(IDC_FORMAT_SELECT_PNG24))->GetCheck()==TRUE){m_iFormat=1;m_iBPP=24;}
+	if(((CButton*)GetDlgItem(IDC_SELECT_FORMAT_BMP24))->GetCheck()==TRUE){m_iFormat=0;m_iBPP=24;}
+	if(((CButton*)GetDlgItem(IDC_SELECT_FORMAT_PNG24))->GetCheck()==TRUE){m_iFormat=1;m_iBPP=24;}
 	CDialogEx::OnOK();
 }
