@@ -1,6 +1,6 @@
 #pragma once
 
-
+#include "ImageProc.h"
 // CResampleDlg ダイアログ
 
 class CResampleDlg : public CDialogEx
@@ -10,8 +10,9 @@ class CResampleDlg : public CDialogEx
 public:
 	CResampleDlg(CWnd* pParent = NULL);   // 標準コンストラクター
 	virtual ~CResampleDlg();
-	double m_dZoom;
-// ダイアログ データ
+
+	RESAMPLE m_resample;
+	// ダイアログ データ
 	enum { IDD = IDD_DLG_RESAMPLE };
 
 protected:

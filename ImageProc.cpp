@@ -568,16 +568,67 @@ bool Resample(const CImage* imgSrc, CImage* imgDst, const RESAMPLE resample)
 	{
 	case RESAMPLE_NONE:{return CopyImage(imgSrc, imgDst);}
 	case RESAMPLE_2:
+	case RESAMPLE_3:
+	case RESAMPLE_4:
 		{
+			int iStep;
+			switch (resample)
+			{
+			case RESAMPLE_2:{iStep=2;break;}
+			case RESAMPLE_3:{iStep=3;break;}
+			case RESAMPLE_4:{iStep=4;break;}
+			}
 			ConvertImage(imgSrc, &imgRGBSrc);
-			imgRGBDst.Set((imgRGBSrc.iWidth + 1)/2, (imgRGBSrc.iHeight+1)/2,CHANNEL_3_8RGB);
+			imgRGBDst.Set((imgRGBSrc.iWidth + (iStep-1))/iStep, (imgRGBSrc.iHeight+(iStep-1))/iStep,CHANNEL_3_8RGB);
 
 			for(int r=0; r<imgRGBDst.iHeight; r++)
 			{
 				for(int c=0; c<imgRGBDst.iWidth; c++)
 				{
 					int iPosDsc = r*imgRGBDst.iWidth+c;
-					int iPosSrc = (r*2)*imgRGBSrc.iWidth+(c*2);
+					int iPosSrc = (r*iStep)*imgRGBSrc.iWidth+(c*iStep);
+					imgRGBDst.byImgR[iPosDsc ]=imgRGBSrc.byImgR[iPosSrc];
+					imgRGBDst.byImgG[iPosDsc ]=imgRGBSrc.byImgG[iPosSrc];
+					imgRGBDst.byImgB[iPosDsc ]=imgRGBSrc.byImgB[iPosSrc];
+				}
+			}
+			if(iBPP<24)
+			{
+
+				int iColors = imgSrc->GetMaxColorTableEntries();
+				if (iColors > 0) 
+				{
+					RGBQUAD* pSrcTable = new RGBQUAD[iColors];
+					imgSrc->GetColorTable(0, iColors, pSrcTable);
+
+					ConvertImage(&imgRGBDst,imgDst, iBPP, pSrcTable, iColors);
+					delete[] pSrcTable;
+					return true;
+				}
+			}
+			ConvertImage(&imgRGBDst,imgDst);
+			return true;
+		}
+	case RESAMPLE_2ND:
+	case RESAMPLE_3RD:
+	case RESAMPLE_4TH:
+		{
+			int iStep;
+			switch (resample)
+			{
+			case RESAMPLE_2ND:{iStep=2;break;}
+			case RESAMPLE_3RD:{iStep=3;break;}
+			case RESAMPLE_4TH:{iStep=4;break;}
+			}
+			ConvertImage(imgSrc, &imgRGBSrc);
+			imgRGBDst.Set(imgRGBSrc.iWidth*iStep, imgRGBSrc.iHeight*iStep,CHANNEL_3_8RGB);
+
+			for(int r=0; r<imgRGBDst.iHeight; r++)
+			{
+				for(int c=0; c<imgRGBDst.iWidth; c++)
+				{
+					int iPosDsc = r*imgRGBDst.iWidth+c;
+					int iPosSrc = (r/iStep)*imgRGBSrc.iWidth+(c/iStep);
 					imgRGBDst.byImgR[iPosDsc ]=imgRGBSrc.byImgR[iPosSrc];
 					imgRGBDst.byImgG[iPosDsc ]=imgRGBSrc.byImgG[iPosSrc];
 					imgRGBDst.byImgB[iPosDsc ]=imgRGBSrc.byImgB[iPosSrc];

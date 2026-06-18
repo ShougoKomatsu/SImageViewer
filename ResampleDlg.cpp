@@ -41,20 +41,20 @@ BOOL CResampleDlg::OnInitDialog()
 	CDialogEx::OnInitDialog();
 
 	((CButton*)GetDlgItem(IDC_RESAMPLE_RADIO_1))->SetCheck(true);
-	m_dZoom = 1.0;
+	m_resample = RESAMPLE_NONE;
 	return TRUE;  
 }
 
 
 void CResampleDlg::OnBnClickedOk()
 {
-	if( ((CButton*)GetDlgItem(IDC_RESAMPLE_RADIO_1))->GetCheck() == true){m_dZoom=1.0;CDialogEx::OnOK();return;}
-	if( ((CButton*)GetDlgItem(IDC_RESAMPLE_RADIO_2))->GetCheck() == true){m_dZoom=2.0;CDialogEx::OnOK();return;}
-	if( ((CButton*)GetDlgItem(IDC_RESAMPLE_RADIO_3))->GetCheck() == true){m_dZoom=3.0;CDialogEx::OnOK();return;}
-	if( ((CButton*)GetDlgItem(IDC_RESAMPLE_RADIO_4))->GetCheck() == true){m_dZoom=4.0;CDialogEx::OnOK();return;}
-	if( ((CButton*)GetDlgItem(IDC_RESAMPLE_RADIO_2ND))->GetCheck() == true){m_dZoom=0.50;CDialogEx::OnOK();return;}
-	if( ((CButton*)GetDlgItem(IDC_RESAMPLE_RADIO_3RD))->GetCheck() == true){m_dZoom=0.33;CDialogEx::OnOK();return;}
-	if( ((CButton*)GetDlgItem(IDC_RESAMPLE_RADIO_4TH))->GetCheck() == true){m_dZoom=0.25;CDialogEx::OnOK();return;}
+	if( ((CButton*)GetDlgItem(IDC_RESAMPLE_RADIO_1))->GetCheck() == true){m_resample = RESAMPLE_NONE;CDialogEx::OnOK();return;}
+	if( ((CButton*)GetDlgItem(IDC_RESAMPLE_RADIO_2))->GetCheck() == true){m_resample = RESAMPLE_2;CDialogEx::OnOK();return;}
+	if( ((CButton*)GetDlgItem(IDC_RESAMPLE_RADIO_3))->GetCheck() == true){m_resample = RESAMPLE_3;CDialogEx::OnOK();return;}
+	if( ((CButton*)GetDlgItem(IDC_RESAMPLE_RADIO_4))->GetCheck() == true){m_resample = RESAMPLE_4;CDialogEx::OnOK();return;}
+	if( ((CButton*)GetDlgItem(IDC_RESAMPLE_RADIO_2ND))->GetCheck() == true){m_resample = RESAMPLE_2ND;CDialogEx::OnOK();return;}
+	if( ((CButton*)GetDlgItem(IDC_RESAMPLE_RADIO_3RD))->GetCheck() == true){m_resample = RESAMPLE_3RD;CDialogEx::OnOK();return;}
+	if( ((CButton*)GetDlgItem(IDC_RESAMPLE_RADIO_4TH))->GetCheck() == true){m_resample = RESAMPLE_4TH;CDialogEx::OnOK();return;}
 
 	CDialogEx::OnOK();
 }
@@ -62,6 +62,6 @@ void CResampleDlg::OnBnClickedOk()
 
 void CResampleDlg::OnBnClickedCancel()
 {
-	m_dZoom = 1.0;
+	m_resample = RESAMPLE_NONE;
 	CDialogEx::OnCancel();
 }
