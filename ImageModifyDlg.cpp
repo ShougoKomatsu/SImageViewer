@@ -30,9 +30,9 @@ void CImageModifyDlg::DoDataExchange(CDataExchange* pDX)
 	DDX_Text(pDX, IDC_IMAGE_MODIFY_EDIT_BRIGHTNESS, m_sEditBrightness);
 	DDX_Text(pDX, IDC_IMAGE_MODIFY_EDIT_CONTRAST, m_sEditContrast);
 	DDX_Text(pDX, IDC_IMAGE_MODIFY_EDIT_GAMMA, m_sEditGamma);
+    DDX_Control(pDX, IDC_IMAGE_MODIFY_STATIC_BEFORE, m_pictureBefore);
+    DDX_Control(pDX, IDC_IMAGE_MODIFY_STATIC_AFTER, m_pictureAfter);
 }
-
-
 BEGIN_MESSAGE_MAP(CImageModifyDlg, CDialogEx)
 
 	ON_BN_CLICKED(IDC_IMAGE_MODIFY_BUTTON_OK, &CImageModifyDlg::OnBnClickedDlgImageModifyButtonOk)
@@ -82,6 +82,13 @@ BOOL CImageModifyDlg::OnInitDialog()
 	m_sliderGamma.SetPos(50);
 	m_sEditGamma=_T("1.0");
 
+	
+    CopyImage(&m_image,&m_pictureBefore.m_image);
+    m_pictureBefore.Invalidate(FALSE);
+	
+    CopyImage(&m_image,&m_pictureAfter.m_image);
+    m_pictureAfter.Invalidate(FALSE);
+
 	UpdateData(FALSE);
 	return TRUE;  // return TRUE unless you set the focus to a control
 	// 例外 : OCX プロパティ ページは必ず FALSE を返します。
@@ -100,7 +107,7 @@ void CImageModifyDlg::OnCustomdrawSliderImageModifyBrightness(NMHDR *pNMHDR, LRE
 	if(m_iBrightness>=255){m_iBrightness=255;}
 	m_sEditBrightness.Format(_T("%d"),m_iBrightness);
 	UpdateData(FALSE);
-
+	UpdateResultImage();
 	*pResult = 0;
 }
 
@@ -116,7 +123,7 @@ void CImageModifyDlg::OnCustomdrawSliderImageModifyContrast(NMHDR *pNMHDR, LRESU
 	if(m_iContrast>=90){m_iContrast=90;}
 	m_sEditContrast.Format(_T("%d"),m_iContrast);
 	UpdateData(FALSE);
-
+	UpdateResultImage();
 	*pResult = 0;
 }
 #include "math.h"
@@ -147,7 +154,7 @@ void CImageModifyDlg::OnCustomdrawSliderImageModifyGamma(NMHDR *pNMHDR, LRESULT 
 	m_sEditGamma.Format(sFormat,m_dGamma);
 
 	UpdateData(FALSE);
-
+	UpdateResultImage();
 	*pResult = 0;
 }
 
@@ -165,6 +172,7 @@ void CImageModifyDlg::OnKillfocusEditImageModifyBrightness()
 	m_sliderBrightness.SetPos(m_iBrightness+255);
 
 	UpdateData(FALSE);
+	UpdateResultImage();
 }
 
 void CImageModifyDlg::OnKillfocusEditImageModifyContrast()
@@ -180,6 +188,7 @@ void CImageModifyDlg::OnKillfocusEditImageModifyContrast()
 	m_sliderContrast.SetPos(m_iContrast);
 
 	UpdateData(FALSE);
+	UpdateResultImage();
 }
 
 void CImageModifyDlg::OnKillfocusEditImageModifyGamma()
@@ -196,4 +205,19 @@ void CImageModifyDlg::OnKillfocusEditImageModifyGamma()
 	m_sliderGamma.SetPos(iGamma);
 
 	UpdateData(FALSE);
+	UpdateResultImage();
+}
+
+void CImageModifyDlg::UpdateResultImage()
+{
+	ImgRGB imgRGB;
+	ImgRGB imgResult1;
+	ImgRGB imgResult2;
+	ConvertImage(&m_image, &imgRGB);
+	BrightnessContrast(&imgRGB,&imgResult1,0,0,m_image.GetHeight()-1,m_image.GetWidth()-1,(double)m_iBrightness,(double)m_iContrast);
+	Gamma(&imgResult1,&imgResult2,0,0,m_image.GetHeight()-1,m_image.GetWidth()-1,m_dGamma);
+	
+    ConvertImage(&imgResult2, &m_pictureAfter.m_image);
+    m_pictureAfter.Invalidate(FALSE);
+
 }

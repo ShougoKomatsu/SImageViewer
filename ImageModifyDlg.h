@@ -1,6 +1,7 @@
 #pragma once
 
-
+#include "CommonFunction.h"
+#include "ImageProc.h"
 // CImageModifyDlg ダイアログ
 
 class CImageModifyDlg : public CDialogEx
@@ -8,6 +9,9 @@ class CImageModifyDlg : public CDialogEx
 	DECLARE_DYNAMIC(CImageModifyDlg)
 
 public:
+	CImage m_image;
+	CPictureCtrlEx m_pictureBefore;
+	CPictureCtrlEx m_pictureAfter;
 	int m_iBrightness;
 	int m_iContrast;
 	double m_dGamma;
@@ -17,6 +21,7 @@ public:
 	int m_iRet;
 	CImageModifyDlg(CWnd* pParent = NULL);   // 標準コンストラクター
 	virtual ~CImageModifyDlg();
+	void UpdateResultImage();
 
 // ダイアログ データ
 	enum { IDD = IDD_DLG_IMAGE_MODIFY };

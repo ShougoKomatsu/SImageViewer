@@ -1,6 +1,30 @@
 #include "stdafx.h"
 #include "CommonFunction.h"
+BEGIN_MESSAGE_MAP(CPictureCtrlEx, CStatic)
+    ON_WM_PAINT()
+END_MESSAGE_MAP()
 
+void CPictureCtrlEx::OnPaint()
+{
+    CPaintDC dc(this);
+
+    CRect rc;
+    GetClientRect(&rc);
+
+    if (m_image.IsNull()==true){return;}
+
+	double dZoom=min(rc.Width()/(m_image.GetWidth()*1.0),rc.Height()/(m_image.GetHeight()*1.0));
+	
+	CImage imgZoomed;
+		ZoomImage(&m_image,&imgZoomed,
+			0,
+			0,
+			dZoom,
+			rc.Width(), rc.Height());
+
+		
+		imgZoomed.BitBlt( dc.GetSafeHdc(), 0, 0,imgZoomed.GetWidth(), imgZoomed.GetHeight(), 0, 0  );
+}
 bool CopyToClipBoardStr(const CString sValue)
 {
 	BOOL bRet;
