@@ -596,8 +596,13 @@ IMPLEMENT_DYNCREATE(CSImageViewerView, CView)
 		if(m_Rect_i.IsRectEmpty()==TRUE){bAutoFull=true; FullDomain();}
 
 		CResampleDlg dlg;
-		dlg.DoModal();
-		Invalidate();
+//		dlg.DoModal();
+		CImage imgSrc;
+		CopyImage(&m_imageProcessed[m_iImgIndex], &imgSrc);
+		m_iImgIndex++;
+		m_iUnDoAvailableCount++;
+		Resample(&imgSrc, &m_imageProcessed[(m_iImgIndex % MAX_IMG_BUF)], RESAMPLE_2);
+	Invalidate();
 	}
 	void CSImageViewerView::OperateChangeColorDepth()
 	{

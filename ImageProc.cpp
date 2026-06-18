@@ -558,6 +558,51 @@ bool ConvertImage(const CImage* imgSrc, ImgRGB* imgRGB)
 	return true;
 }
 
+bool Resample(const CImage* imgSrc, CImage* imgDst, const RESAMPLE resample)
+{
+	if(imgSrc->IsNull() == true){return false;}
+	ImgRGB imgRGBSrc;
+	ImgRGB imgRGBDst;
+	int iBPP=imgSrc->GetBPP();
+	switch(resample)
+	{
+	case RESAMPLE_NONE:{return CopyImage(imgSrc, imgDst);}
+	case RESAMPLE_2:
+		{
+			ConvertImage(imgSrc, &imgRGBSrc);
+			imgRGBDst.Set((imgRGBSrc.iWidth + 1)/2, (imgRGBSrc.iHeight+1)/2,CHANNEL_3_8RGB);
+
+			for(int r=0; r<imgRGBDst.iHeight; r++)
+			{
+				for(int c=0; c<imgRGBDst.iWidth; c++)
+				{
+					int iPosDsc = r*imgRGBDst.iWidth+c;
+					int iPosSrc = (r*2)*imgRGBSrc.iWidth+(c*2);
+					imgRGBDst.byImgR[iPosDsc ]=imgRGBSrc.byImgR[iPosSrc];
+					imgRGBDst.byImgG[iPosDsc ]=imgRGBSrc.byImgG[iPosSrc];
+					imgRGBDst.byImgB[iPosDsc ]=imgRGBSrc.byImgB[iPosSrc];
+				}
+			}
+			if(iBPP<24)
+			{
+
+				int iColors = imgSrc->GetMaxColorTableEntries();
+				if (iColors > 0) 
+				{
+					RGBQUAD* pSrcTable = new RGBQUAD[iColors];
+					imgSrc->GetColorTable(0, iColors, pSrcTable);
+
+					ConvertImage(&imgRGBDst,imgDst, iBPP, pSrcTable, iColors);
+					delete[] pSrcTable;
+					return true;
+				}
+			}
+			ConvertImage(&imgRGBDst,imgDst);
+			return true;
+		}
+	}
+
+}
 
 bool ConvertImage(const ImgRGB* imgRGB, CImage* imgDst)
 {
@@ -1962,10 +2007,6 @@ bool ConvertImage_ByDeviation(const CImage* imgSrc, const int iBPP,CImage* imgDs
 	{
 		for(int c=0; c< iWidth; c++)
 		{
-			if((c==62)&&(r==50))
-			{
-				c=62;
-			}
 			int iColorTableIndex=GetColorTableIndex(rgbqTable,iColors, imgRGB.byImgR[r*iWidth+c], imgRGB.byImgG[r*iWidth+c], imgRGB.byImgB[r*iWidth+c]);
 			
 			int iDigit = (8/iBPP)-(c%(8/iBPP))-1;
@@ -1977,5 +2018,30 @@ bool ConvertImage_ByDeviation(const CImage* imgSrc, const int iBPP,CImage* imgDs
 	SAFE_DELETE(iIndex);
 	SAFE_DELETE(iConversionTable);
 
+	return true;
+}
+
+
+bool ConvertImage(const ImgRGB* imgRGB, CImage* imgDst, const int iBPPDst, const RGBQUAD* rgbqTable, const int iColors)
+{
+	int iHeight = imgRGB->iHeight;
+	int iWidth = imgRGB->iWidth;
+
+	if(imgDst->IsNull()!=false){imgDst->Destroy();}
+	imgDst->Create(iWidth,iHeight, iBPPDst);
+	int iPitch_dst = imgDst->GetPitch();
+	BYTE* pbyData_dst = (BYTE*)imgDst->GetBits();
+
+	SetColorTable(imgDst,rgbqTable,iColors);
+	for(int r=0; r<iHeight; r++)
+	{
+		for(int c=0; c< iWidth; c++)
+		{
+			int iColorTableIndex=GetColorTableIndex(rgbqTable,iColors, imgRGB->byImgR[r*iWidth+c], imgRGB->byImgG[r*iWidth+c], imgRGB->byImgB[r*iWidth+c]);
+			
+			int iDigit = (8/iBPPDst)-(c%(8/iBPPDst))-1;
+			pbyData_dst[r*iPitch_dst+c/(8/iBPPDst)]+=(iColorTableIndex<<(iBPPDst*iDigit));
+		}
+	}
 	return true;
 }

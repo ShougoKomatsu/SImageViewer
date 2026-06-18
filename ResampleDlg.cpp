@@ -28,6 +28,8 @@ void CResampleDlg::DoDataExchange(CDataExchange* pDX)
 
 
 BEGIN_MESSAGE_MAP(CResampleDlg, CDialogEx)
+	ON_BN_CLICKED(IDOK, &CResampleDlg::OnBnClickedOk)
+	ON_BN_CLICKED(IDCANCEL, &CResampleDlg::OnBnClickedCancel)
 END_MESSAGE_MAP()
 
 
@@ -38,8 +40,28 @@ BOOL CResampleDlg::OnInitDialog()
 {
 	CDialogEx::OnInitDialog();
 
-	// TODO:  ここに初期化を追加してください
 	((CButton*)GetDlgItem(IDC_RESAMPLE_RADIO_1))->SetCheck(true);
-	return TRUE;  // return TRUE unless you set the focus to a control
-	// 例外 : OCX プロパティ ページは必ず FALSE を返します。
+	m_dZoom = 1.0;
+	return TRUE;  
+}
+
+
+void CResampleDlg::OnBnClickedOk()
+{
+	if( ((CButton*)GetDlgItem(IDC_RESAMPLE_RADIO_1))->GetCheck() == true){m_dZoom=1.0;CDialogEx::OnOK();return;}
+	if( ((CButton*)GetDlgItem(IDC_RESAMPLE_RADIO_2))->GetCheck() == true){m_dZoom=2.0;CDialogEx::OnOK();return;}
+	if( ((CButton*)GetDlgItem(IDC_RESAMPLE_RADIO_3))->GetCheck() == true){m_dZoom=3.0;CDialogEx::OnOK();return;}
+	if( ((CButton*)GetDlgItem(IDC_RESAMPLE_RADIO_4))->GetCheck() == true){m_dZoom=4.0;CDialogEx::OnOK();return;}
+	if( ((CButton*)GetDlgItem(IDC_RESAMPLE_RADIO_2ND))->GetCheck() == true){m_dZoom=0.50;CDialogEx::OnOK();return;}
+	if( ((CButton*)GetDlgItem(IDC_RESAMPLE_RADIO_3RD))->GetCheck() == true){m_dZoom=0.33;CDialogEx::OnOK();return;}
+	if( ((CButton*)GetDlgItem(IDC_RESAMPLE_RADIO_4TH))->GetCheck() == true){m_dZoom=0.25;CDialogEx::OnOK();return;}
+
+	CDialogEx::OnOK();
+}
+
+
+void CResampleDlg::OnBnClickedCancel()
+{
+	m_dZoom = 1.0;
+	CDialogEx::OnCancel();
 }

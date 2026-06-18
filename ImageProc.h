@@ -2,6 +2,18 @@
 #include "stdafx.h"
 #pragma once
 #include "SImgProc_ex.h"
+
+enum RESAMPLE
+{
+	RESAMPLE_4TH=-4,
+	RESAMPLE_3RD=-3,
+	RESAMPLE_2ND=-2,
+	RESAMPLE_NONE=1,
+	RESAMPLE_2=2,
+	RESAMPLE_3=3,
+	RESAMPLE_4=4,
+};
+
 bool CopyToClipBoardImg(const CImage* img);
 bool CopyFromClipBoardImg(CImage* img);
 
@@ -24,4 +36,5 @@ bool CountColorNum(const CImage* imgSrc, int* iColorNum_out, UINT* uiMap_out);
 bool MakeColorTable(const CImage* cImage, RGBQUAD* rgbqTable_out, ULONGLONG* ullFrequency_out, int iLength, int* iUsedColors_out, bool* bGrayScale_out);
 
 bool SetColorTable(CImage* img, const RGBQUAD* rgbTable, int iLength);
-
+bool Resample(const CImage* imgSrc, CImage* imgDst, const RESAMPLE resample);
+bool ConvertImage(const ImgRGB* imgRGB, CImage* imgDst, const int iBPPDst, const RGBQUAD* rgbqTable, const int iColors);
