@@ -8,6 +8,7 @@
 #include "SImageViewerDoc.h"
 #include "SImgProc_ex.h"
 #include "ImageProc.h"
+#include "ResampleDlg.h"
 class CSImageViewerView : public CView
 {
 protected: // ÉVÉäÉAÉãâªÇ©ÇÁÇÃÇ›çÏê¨ÇµÇ‹Ç∑ÅB
@@ -59,6 +60,7 @@ public:
 	void EnterFullScreen();
 	void ExitFullScreen();
 	
+	void OperateResample();
 	void OperateBrightnessContrastGamma();
 	void OperateRotaateImage(enumRotate rotate);
 	void OperateEquHistImage();

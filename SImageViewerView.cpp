@@ -86,6 +86,7 @@ IMPLEMENT_DYNCREATE(CSImageViewerView, CView)
 		ON_COMMAND(ID_MENU_CHANGE_COLOR_DEPTH, &CSImageViewerView::OperateChangeColorDepth)
 		ON_COMMAND(ID_MENU_COLOR_CORRECTON, &CSImageViewerView::OperateBrightnessContrastGamma)
 		ON_COMMAND(ID_MENU_EQU_HIST, &CSImageViewerView::OperateEquHistImage)
+		ON_COMMAND(ID_MENU_RESAMPLE, &CSImageViewerView::OperateResample)
 		ON_WM_SIZE()
 		ON_WM_MOUSEMOVE()
 		ON_WM_LBUTTONDOWN()
@@ -587,6 +588,15 @@ IMPLEMENT_DYNCREATE(CSImageViewerView, CView)
 		m_iUnDoAvailableCount++;
 		if(m_iUnDoAvailableCount>=MAX_IMG_BUF-1){m_iUnDoAvailableCount=MAX_IMG_BUF-1;}
 		ConvertImage(&imgMeaned,&m_imageProcessed[(m_iImgIndex % MAX_IMG_BUF)]);
+		Invalidate();
+	}
+	void CSImageViewerView::OperateResample()
+	{
+		bool bAutoFull = false;
+		if(m_Rect_i.IsRectEmpty()==TRUE){bAutoFull=true; FullDomain();}
+
+		CResampleDlg dlg;
+		dlg.DoModal();
 		Invalidate();
 	}
 	void CSImageViewerView::OperateChangeColorDepth()

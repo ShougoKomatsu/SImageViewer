@@ -41,6 +41,7 @@ BEGIN_MESSAGE_MAP(CMainFrame, CFrameWndEx)
 	ON_UPDATE_COMMAND_UI(IDM_ZOOMUP, &CMainFrame::OnUpdateMenu)
 	ON_UPDATE_COMMAND_UI(IDM_ZOOMDOWN, &CMainFrame::OnUpdateMenu)
 	ON_UPDATE_COMMAND_UI(ID_EDIT_PASTE, &CMainFrame::OnUpdateMenu)
+	ON_UPDATE_COMMAND_UI(ID_MENU_RESAMPLE, &CMainFrame::OnUpdateMenu)
 	
 	ON_COMMAND(IDM_ZOOMDOWN, &CMainFrame::OnZoomdown)
 	ON_COMMAND(IDM_ZOOMUP, &CMainFrame::OnZoomup)
@@ -227,6 +228,7 @@ int CMainFrame::OnCreate(LPCREATESTRUCT lpCreateStruct)
 	lstBasicCommands.AddTail(ID_MENU_CONVERT_COLOR_SPACE);
 	lstBasicCommands.AddTail(ID_MENU_CHANGE_COLOR_DEPTH);
 	lstBasicCommands.AddTail(ID_MENU_COLOR_CORRECTON);
+	lstBasicCommands.AddTail(ID_MENU_RESAMPLE);
 	/*
 	lstBasicCommands.AddTail(ID_VIEW_APPLOOK_OFF_2003);
 	lstBasicCommands.AddTail(ID_VIEW_APPLOOK_VS_2005);
@@ -622,6 +624,7 @@ void CMainFrame::OnUpdateMenu(CCmdUI* pCmdUI)
 	case ID_MENU_CHANGE_COLOR_DEPTH:
 	case ID_MENU_COLOR_CORRECTON:
 	case ID_MENU_SET_SELECTION:
+	case ID_MENU_RESAMPLE:
 		pCmdUI->Enable(m_bFileOpened);
 		break;
 	}
