@@ -140,7 +140,7 @@ IMPLEMENT_DYNCREATE(CSImageViewerView, CView)
 
 		CImage imgClipped;
 
-		ClipImage(&m_imageProcessed[m_iImgIndex],&imgClipped, m_Rect_i.top,m_Rect_i.left, m_Rect_i.bottom, m_Rect_i.right); 
+		ClipImage(&m_imageProcessed[(m_iImgIndex % MAX_IMG_BUF)],&imgClipped, m_Rect_i.top,m_Rect_i.left, m_Rect_i.bottom, m_Rect_i.right); 
 		switch(copyAsdlg.m_enumCopyMode)
 		{
 		case COPY_AS_IMAGE:
@@ -202,7 +202,7 @@ IMPLEMENT_DYNCREATE(CSImageViewerView, CView)
 		ASSERT_VALID(pDoc);
 		if (!pDoc){return;}
 
-		if (m_imageProcessed[m_iImgIndex].IsNull()){return;}
+		if (m_imageProcessed[(m_iImgIndex % MAX_IMG_BUF)].IsNull()){return;}
 
 		CDC memDC;
 		memDC.CreateCompatibleDC(pDC);
@@ -221,7 +221,7 @@ IMPLEMENT_DYNCREATE(CSImageViewerView, CView)
 		double dR0_i = (dDispOriginR_tv/g_dScale[m_iScaleIndex]);
 		double dC0_i = (dDispOriginC_tv/g_dScale[m_iScaleIndex]);
 
-		ZoomImage(&(m_imageProcessed[m_iImgIndex]),&imgZoomed,
+		ZoomImage(&(m_imageProcessed[(m_iImgIndex % MAX_IMG_BUF)]),&imgZoomed,
 			dR0_i,
 			dC0_i,
 			g_dScale[m_iScaleIndex],
@@ -328,8 +328,8 @@ IMPLEMENT_DYNCREATE(CSImageViewerView, CView)
 		int iBarWidth= ::GetSystemMetrics(SM_CYHSCROLL);
 		int iBarHeight= ::GetSystemMetrics(SM_CXVSCROLL);
 
-		int iWidth_i =max(0,m_imageProcessed[m_iImgIndex].GetWidth());
-		int iHeight_i =max(0,m_imageProcessed[m_iImgIndex].GetHeight());
+		int iWidth_i =max(0,m_imageProcessed[(m_iImgIndex % MAX_IMG_BUF)].GetWidth());
+		int iHeight_i =max(0,m_imageProcessed[(m_iImgIndex % MAX_IMG_BUF)].GetHeight());
 
 		int iWidth_tv = iWidth_i*g_dScale[m_iScaleIndex];
 		int iHeight_tv= iHeight_i*g_dScale[m_iScaleIndex];
@@ -397,7 +397,7 @@ IMPLEMENT_DYNCREATE(CSImageViewerView, CView)
 	void CSImageViewerView::ResetImage()
 	{
 		m_iImgIndex=0;
-		CopyImage(&m_image,&(m_imageProcessed[m_iImgIndex]));
+		CopyImage(&m_image,&(m_imageProcessed[(m_iImgIndex % MAX_IMG_BUF)]));
 		m_iScaleIndex =8;
 		CRect rectClient;
 		GetClientRect(&rectClient);
@@ -408,8 +408,8 @@ IMPLEMENT_DYNCREATE(CSImageViewerView, CView)
 		int iBarWidth= ::GetSystemMetrics(SM_CYHSCROLL);
 		int iBarHeight= ::GetSystemMetrics(SM_CXVSCROLL);
 
-		int iWidth_i =max(0,m_imageProcessed[m_iImgIndex].GetWidth());
-		int iHeight_i =max(0,m_imageProcessed[m_iImgIndex].GetHeight());
+		int iWidth_i =max(0,m_imageProcessed[(m_iImgIndex % MAX_IMG_BUF)].GetWidth());
+		int iHeight_i =max(0,m_imageProcessed[(m_iImgIndex % MAX_IMG_BUF)].GetHeight());
 
 		int iWidth_tv = iWidth_i*g_dScale[m_iScaleIndex];
 		int iHeight_tv= iHeight_i*g_dScale[m_iScaleIndex];
@@ -529,7 +529,7 @@ IMPLEMENT_DYNCREATE(CSImageViewerView, CView)
 
 	void CSImageViewerView::OnFileSave()
 	{
-		SaveImage(&m_imageProcessed[m_iImgIndex]);
+		SaveImage(&m_imageProcessed[(m_iImgIndex % MAX_IMG_BUF)]);
 	}
 	void CSImageViewerView::OnFileOpen()
 	{
@@ -545,7 +545,7 @@ IMPLEMENT_DYNCREATE(CSImageViewerView, CView)
 		if(m_Rect_i.IsRectEmpty()==TRUE){return;}
 
 		CImage imgClipped;
-		ClipImage(&m_imageProcessed[m_iImgIndex],&imgClipped, m_Rect_i.top,m_Rect_i.left, m_Rect_i.bottom, m_Rect_i.right); 
+		ClipImage(&m_imageProcessed[(m_iImgIndex % MAX_IMG_BUF)],&imgClipped, m_Rect_i.top,m_Rect_i.left, m_Rect_i.bottom, m_Rect_i.right); 
 		CopyToClipBoardImg(&imgClipped);
 		return;
 	}
@@ -564,10 +564,11 @@ IMPLEMENT_DYNCREATE(CSImageViewerView, CView)
 
 	void CSImageViewerView::FullDomain()
 	{
-		m_Rect_i.SetRect(0, 0, m_imageProcessed[m_iImgIndex].GetWidth()-1,m_imageProcessed[m_iImgIndex].GetHeight()-1);
+		m_Rect_i.SetRect(0, 0, m_imageProcessed[(m_iImgIndex % MAX_IMG_BUF)].GetWidth()-1,m_imageProcessed[(m_iImgIndex % MAX_IMG_BUF)].GetHeight()-1);
 		CMainFrame* pFrame = (CMainFrame*)AfxGetMainWnd();
 		pFrame->m_bSelected = true;
 	}
+
 	void CSImageViewerView::OperateEquHistImage()
 	{
 		bool bAutoFull = false;
@@ -575,7 +576,7 @@ IMPLEMENT_DYNCREATE(CSImageViewerView, CView)
 
 		ImgRGB imgRGB;
 		ImgRGB imgMeaned;
-		ConvertImage(&m_imageProcessed[m_iImgIndex], &imgRGB);
+		ConvertImage(&m_imageProcessed[(m_iImgIndex % MAX_IMG_BUF)], &imgRGB);
 		EquHistImage(&imgRGB,&imgMeaned,m_Rect_i.top,m_Rect_i.left,m_Rect_i.bottom,m_Rect_i.right);
 		if(bAutoFull==true)
 		{
@@ -597,13 +598,13 @@ IMPLEMENT_DYNCREATE(CSImageViewerView, CView)
 		if(m_Rect_i.IsRectEmpty()==TRUE){bAutoFull=true; FullDomain();}
 
 		CResampleDlg dlg;
-		dlg.m_iHeightOrg = m_imageProcessed[m_iImgIndex].GetHeight();
-		dlg.m_iWidthOrg = m_imageProcessed[m_iImgIndex].GetWidth();
+		dlg.m_iHeightOrg = m_imageProcessed[(m_iImgIndex % MAX_IMG_BUF)].GetHeight();
+		dlg.m_iWidthOrg = m_imageProcessed[(m_iImgIndex % MAX_IMG_BUF)].GetWidth();
 		INT_PTR iRet = dlg.DoModal();
 		if(iRet != IDOK){return;}
 
 		CImage imgSrc;
-		CopyImage(&m_imageProcessed[m_iImgIndex], &imgSrc);
+		CopyImage(&m_imageProcessed[(m_iImgIndex % MAX_IMG_BUF)], &imgSrc);
 		m_iImgIndex++;
 		m_iUnDoAvailableCount++;
 		if((dlg.m_resample==RESIZE_NEAREST) || (dlg.m_resample==RESIZE_BILINEAR))
@@ -624,30 +625,30 @@ IMPLEMENT_DYNCREATE(CSImageViewerView, CView)
 		int iUsedColors;
 		bool bGrayScale;
 		
-	CountColorNum(&m_imageProcessed[m_iImgIndex], &iUsedColors, NULL);
+	CountColorNum(&m_imageProcessed[(m_iImgIndex % MAX_IMG_BUF)], &iUsedColors, NULL);
 
-		MakeColorTable(&m_imageProcessed[m_iImgIndex],NULL,NULL, 1<<min(24, m_imageProcessed[m_iImgIndex].GetBPP()), &iUsedColors, &bGrayScale);
+		MakeColorTable(&m_imageProcessed[(m_iImgIndex % MAX_IMG_BUF)],NULL,NULL, 1<<min(24, m_imageProcessed[(m_iImgIndex % MAX_IMG_BUF)].GetBPP()), &iUsedColors, &bGrayScale);
 		
 	colorDepthDlg.m_iColors = iUsedColors;
 	colorDepthDlg.m_bGrayScale = bGrayScale;
-	colorDepthDlg.m_iBPP = m_imageProcessed[m_iImgIndex].GetBPP();
+	colorDepthDlg.m_iBPP = m_imageProcessed[(m_iImgIndex % MAX_IMG_BUF)].GetBPP();
 
 		INT_PTR iRet = colorDepthDlg.DoModal();
 		if(iRet != IDOK){return;}
 
 		CImage imgSrc;
-		CopyImage(&m_imageProcessed[m_iImgIndex], &imgSrc);
+		CopyImage(&m_imageProcessed[(m_iImgIndex % MAX_IMG_BUF)], &imgSrc);
 		m_iImgIndex++;
 		m_iUnDoAvailableCount++;
 		if(m_iUnDoAvailableCount>=MAX_IMG_BUF-1){m_iUnDoAvailableCount=MAX_IMG_BUF-1;}
 
 		switch(colorDepthDlg.m_iMode)
 		{
-		case 0:{ConvertImage_LossLess(&imgSrc, colorDepthDlg.m_iBPP, &m_imageProcessed[m_iImgIndex]);break;}
-		case 1:{ConvertImage_AreaCoverage(&imgSrc,colorDepthDlg.m_iBPP, &m_imageProcessed[m_iImgIndex]);break;}
-		case 2:{ConvertImage_ByDeviation(&imgSrc, colorDepthDlg.m_iBPP, &m_imageProcessed[m_iImgIndex]);break;}
+		case 0:{ConvertImage_LossLess(&imgSrc, colorDepthDlg.m_iBPP, &m_imageProcessed[(m_iImgIndex % MAX_IMG_BUF)]);break;}
+		case 1:{ConvertImage_AreaCoverage(&imgSrc,colorDepthDlg.m_iBPP, &m_imageProcessed[(m_iImgIndex % MAX_IMG_BUF)]);break;}
+		case 2:{ConvertImage_ByDeviation(&imgSrc, colorDepthDlg.m_iBPP, &m_imageProcessed[(m_iImgIndex % MAX_IMG_BUF)]);break;}
 		}
-//		m_imageProcessed[m_iImgIndex].Save(_T("D:\\test.bmp"));
+//		m_imageProcessed[(m_iImgIndex % MAX_IMG_BUF)].Save(_T("D:\\test.bmp"));
 		Invalidate();
 	}
 
@@ -662,12 +663,12 @@ IMPLEMENT_DYNCREATE(CSImageViewerView, CView)
 		color= extractDlg.m_enumColor;
 
 		CImage imgSrc;
-		CopyImage(&m_imageProcessed[m_iImgIndex], &imgSrc);
+		CopyImage(&m_imageProcessed[(m_iImgIndex % MAX_IMG_BUF)], &imgSrc);
 		m_iImgIndex++;
 		m_iUnDoAvailableCount++;
 		if(m_iUnDoAvailableCount>=MAX_IMG_BUF-1){m_iUnDoAvailableCount=MAX_IMG_BUF-1;}
 
-		ExtractChannel(&imgSrc,&m_imageProcessed[m_iImgIndex], color);
+		ExtractChannel(&imgSrc,&m_imageProcessed[(m_iImgIndex % MAX_IMG_BUF)], color);
 		Invalidate();
 		return;
 	}
@@ -677,7 +678,7 @@ IMPLEMENT_DYNCREATE(CSImageViewerView, CView)
 
 		ImgRGB imgRGB;
 		ImgRGB imgResult;
-		ConvertImage(&m_imageProcessed[m_iImgIndex], &imgRGB);
+		ConvertImage(&m_imageProcessed[(m_iImgIndex % MAX_IMG_BUF)], &imgRGB);
 
 		RotateImage(&imgRGB, &imgResult, rotate);
 		m_iImgIndex++;
@@ -694,7 +695,7 @@ IMPLEMENT_DYNCREATE(CSImageViewerView, CView)
 		if(m_Rect_i.IsRectEmpty()==TRUE){bAutoFull=true;FullDomain();}
 
 		CImageModifyDlg dlgModify;
-		CopyImage(&m_imageProcessed[m_iImgIndex], &dlgModify.m_image);
+		CopyImage(&m_imageProcessed[(m_iImgIndex % MAX_IMG_BUF)], &dlgModify.m_image);
 		INT_PTR iRet;
 		dlgModify.DoModal();
 		iRet = dlgModify.m_iRet;
@@ -716,7 +717,7 @@ IMPLEMENT_DYNCREATE(CSImageViewerView, CView)
 		ImgRGB imgRGB;
 		ImgRGB imgResult1;
 		ImgRGB imgResult2;
-		ConvertImage(&m_imageProcessed[m_iImgIndex], &imgRGB);
+		ConvertImage(&m_imageProcessed[(m_iImgIndex % MAX_IMG_BUF)], &imgRGB);
 		BrightnessContrast(&imgRGB,&imgResult1,m_Rect_i.top,m_Rect_i.left,m_Rect_i.bottom,m_Rect_i.right,(double)iBrightness,(double)iContrast);
 		Gamma(&imgResult1,&imgResult2,m_Rect_i.top,m_Rect_i.left,m_Rect_i.bottom,m_Rect_i.right,dGamma);
 		if(bAutoFull==true)
@@ -739,7 +740,7 @@ IMPLEMENT_DYNCREATE(CSImageViewerView, CView)
 	{
 		CView::OnSize(nType, cx, cy);
 
-		if(m_imageProcessed[m_iImgIndex].IsNull()==true){return;}
+		if(m_imageProcessed[(m_iImgIndex % MAX_IMG_BUF)].IsNull()==true){return;}
 
 		SetScroll();
 		Invalidate();
@@ -836,8 +837,8 @@ IMPLEMENT_DYNCREATE(CSImageViewerView, CView)
 		double dOldDispOriginR_tv = GetDispOriginR_tv();
 		double dOldDispOriginC_tv = GetDispOriginC_tv();
 
-		int iWidth_i =max(0,m_imageProcessed[m_iImgIndex].GetWidth());
-		int iHeight_i =max(0,m_imageProcessed[m_iImgIndex].GetHeight());
+		int iWidth_i =max(0,m_imageProcessed[(m_iImgIndex % MAX_IMG_BUF)].GetWidth());
+		int iHeight_i =max(0,m_imageProcessed[(m_iImgIndex % MAX_IMG_BUF)].GetHeight());
 		
 		int iOldZoom = m_iScaleIndex;
 		double dOldWidth_tv = iWidth_i*g_dScale[iOldZoom];
@@ -904,8 +905,8 @@ IMPLEMENT_DYNCREATE(CSImageViewerView, CView)
 		double dOldDispOriginR_tv = GetDispOriginR_tv();
 		double dOldDispOriginC_tv = GetDispOriginC_tv();
 
-		int iWidth_i =max(0,m_imageProcessed[m_iImgIndex].GetWidth());
-		int iHeight_i =max(0,m_imageProcessed[m_iImgIndex].GetHeight());
+		int iWidth_i =max(0,m_imageProcessed[(m_iImgIndex % MAX_IMG_BUF)].GetWidth());
+		int iHeight_i =max(0,m_imageProcessed[(m_iImgIndex % MAX_IMG_BUF)].GetHeight());
 
 		double dWidth_tv = iWidth_i*g_dScale[m_iScaleIndex];
 		double dHeight_tv= iHeight_i*g_dScale[m_iScaleIndex];
@@ -1078,7 +1079,7 @@ IMPLEMENT_DYNCREATE(CSImageViewerView, CView)
 		pFrame->m_sStatusRGBProcessed.Format(_T("not processed"));
 		if(m_iImgIndex != 0)
 		{
-			bRet_Processed = GetColorAtCursor(&(m_imageProcessed[m_iImgIndex]), point_v, &iR_img, &iC_img, &byR_Processed, &byG_Processed, &byB_Processed);
+			bRet_Processed = GetColorAtCursor(&(m_imageProcessed[(m_iImgIndex % MAX_IMG_BUF)]), point_v, &iR_img, &iC_img, &byR_Processed, &byG_Processed, &byB_Processed);
 			if(bRet_Processed == false)
 			{
 				pFrame->m_sStatusRGBProcessed.Format(_T("out of range"));
@@ -1139,7 +1140,7 @@ IMPLEMENT_DYNCREATE(CSImageViewerView, CView)
 	void CSImageViewerView::OnMouseMove(UINT nFlags, CPoint point_v)
 	{
 
-		if(m_imageProcessed[m_iImgIndex].IsNull()==true){return;}
+		if(m_imageProcessed[(m_iImgIndex % MAX_IMG_BUF)].IsNull()==true){return;}
 
 		DispStatus(point_v);
 
@@ -1476,8 +1477,8 @@ IMPLEMENT_DYNCREATE(CSImageViewerView, CView)
 		int iBarWidth= ::GetSystemMetrics(SM_CYHSCROLL);
 		int iBarHeight= ::GetSystemMetrics(SM_CXVSCROLL);
 
-		int iWidth_i =max(0,m_imageProcessed[m_iImgIndex].GetWidth());
-		int iHeight_i =max(0,m_imageProcessed[m_iImgIndex].GetHeight());
+		int iWidth_i =max(0,m_imageProcessed[(m_iImgIndex % MAX_IMG_BUF)].GetWidth());
+		int iHeight_i =max(0,m_imageProcessed[(m_iImgIndex % MAX_IMG_BUF)].GetHeight());
 
 		int iWidth_tv = iWidth_i*g_dScale[m_iScaleIndex];
 		int iHeight_tv= iHeight_i*g_dScale[m_iScaleIndex];
