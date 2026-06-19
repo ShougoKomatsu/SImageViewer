@@ -5,6 +5,8 @@
 
 enum RESAMPLE
 {
+	RESIZE_NEAREST=-100,
+	RESIZE_BILINEAR=-99,
 	RESAMPLE_4TH=-4,
 	RESAMPLE_3RD=-3,
 	RESAMPLE_2ND=-2,
@@ -38,3 +40,4 @@ bool MakeColorTable(const CImage* cImage, RGBQUAD* rgbqTable_out, ULONGLONG* ull
 bool SetColorTable(CImage* img, const RGBQUAD* rgbTable, int iLength);
 bool Resample(const CImage* imgSrc, CImage* imgDst, const RESAMPLE resample);
 bool ConvertImage(const ImgRGB* imgRGB, CImage* imgDst, const int iBPPDst, const RGBQUAD* rgbqTable, const int iColors);
+bool Resize(const CImage* imgSrc, CImage* imgDst, const int iWidth_dst, const int iHeight_dst, const RESAMPLE resample);

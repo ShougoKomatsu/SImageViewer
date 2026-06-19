@@ -592,10 +592,13 @@ IMPLEMENT_DYNCREATE(CSImageViewerView, CView)
 	}
 	void CSImageViewerView::OperateResample()
 	{
+
 		bool bAutoFull = false;
 		if(m_Rect_i.IsRectEmpty()==TRUE){bAutoFull=true; FullDomain();}
 
 		CResampleDlg dlg;
+		dlg.m_iHeightOrg = m_imageProcessed[m_iImgIndex].GetHeight();
+		dlg.m_iWidthOrg = m_imageProcessed[m_iImgIndex].GetWidth();
 		INT_PTR iRet = dlg.DoModal();
 		if(iRet != IDOK){return;}
 
@@ -603,8 +606,15 @@ IMPLEMENT_DYNCREATE(CSImageViewerView, CView)
 		CopyImage(&m_imageProcessed[m_iImgIndex], &imgSrc);
 		m_iImgIndex++;
 		m_iUnDoAvailableCount++;
-		Resample(&imgSrc, &m_imageProcessed[(m_iImgIndex % MAX_IMG_BUF)], dlg.m_resample);
-	Invalidate();
+		if((dlg.m_resample==RESIZE_NEAREST) || (dlg.m_resample==RESIZE_BILINEAR))
+		{
+			Resize(&imgSrc, &m_imageProcessed[(m_iImgIndex % MAX_IMG_BUF)], dlg.m_iWidth,dlg.m_iHeight,dlg.m_resample);
+		}
+		else
+		{
+			Resample(&imgSrc, &m_imageProcessed[(m_iImgIndex % MAX_IMG_BUF)], dlg.m_resample);
+		}
+		Invalidate();
 	}
 	void CSImageViewerView::OperateChangeColorDepth()
 	{

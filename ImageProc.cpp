@@ -557,7 +557,79 @@ bool ConvertImage(const CImage* imgSrc, ImgRGB* imgRGB)
 	if(pSrcTable != NULL){delete [] pSrcTable;}
 	return true;
 }
+bool Resize(const CImage* imgSrc, CImage* imgDst, const int iWidth_dst, const int iHeight_dst, const RESAMPLE rsample)
+{
+	if(imgSrc->IsNull() == true){return false;}
+	ImgRGB imgRGBSrc;
+	ImgRGB imgRGBDst;
+	int iBPP=imgSrc->GetBPP();
+	ConvertImage(imgSrc, &imgRGBSrc);
+	imgRGBDst.Set(iWidth_dst, iHeight_dst, CHANNEL_3_8RGB);
+	int iWidth_src = imgSrc->GetWidth();
+	int iHeight_src = imgSrc->GetHeight();
 
+	switch(rsample)
+	{
+	case RESIZE_NEAREST:
+		{
+			for(int r=0; r<imgRGBDst.iHeight; r++)
+			{
+				for(int c=0; c<imgRGBDst.iWidth; c++)
+				{
+					double dR_src = r * (iHeight_src-1)/(double(iHeight_dst-1));
+					double dC_src = c * (iWidth_src-1)/(double(iWidth_dst-1));
+					int iPosDsc = r*imgRGBDst.iWidth+c;
+					int iPosSrc = (int(dR_src+0.5))*imgRGBSrc.iWidth+(int(dC_src+0.5));
+					imgRGBDst.byImgR[iPosDsc ]=imgRGBSrc.byImgR[iPosSrc];
+					imgRGBDst.byImgG[iPosDsc ]=imgRGBSrc.byImgG[iPosSrc];
+					imgRGBDst.byImgB[iPosDsc ]=imgRGBSrc.byImgB[iPosSrc];
+
+				}
+			}
+			break;
+		}
+
+	case RESIZE_BILINEAR:
+		{
+			for(int r=0; r<imgRGBDst.iHeight; r++)
+			{
+				for(int c=0; c<imgRGBDst.iWidth; c++)
+				{
+					double dR_src = r * (iHeight_src-1)/(double(iHeight_dst-1));
+					double dC_src = c * (iWidth_src-1)/(double(iWidth_dst-1));
+					double dR_frac = dR_src-int(dR_src);
+					double dC_frac = dC_src-int(dC_src);
+
+
+					int iPosDsc = r*imgRGBDst.iWidth+c;
+					int iPosSrc1 = (int(dR_src))*imgRGBSrc.iWidth+(int(dC_src));
+					int iPosSrc2 = (int(dR_src))*imgRGBSrc.iWidth+(int(dC_src)+1);
+					int iPosSrc3 = (int(dR_src)+1)*imgRGBSrc.iWidth+(int(dC_src));
+					int iPosSrc4 = (int(dR_src)+1)*imgRGBSrc.iWidth+(int(dC_src)+1);
+
+					double dValue1 = imgRGBSrc.byImgR[iPosSrc1] * (1-dC_frac) + imgRGBSrc.byImgR[iPosSrc2] * (dC_frac);
+					double dValue2 = imgRGBSrc.byImgR[iPosSrc3] * (1-dC_frac) + imgRGBSrc.byImgR[iPosSrc4] * (dC_frac);
+					double dValue = dValue1*(1-dR_frac)+dValue2*(dR_frac);
+					imgRGBDst.byImgR[iPosDsc ]=(BYTE)dValue;
+
+					dValue1 = imgRGBSrc.byImgG[iPosSrc1] * (1-dC_frac) + imgRGBSrc.byImgG[iPosSrc2] * (dC_frac);
+					dValue2 = imgRGBSrc.byImgG[iPosSrc3] * (1-dC_frac) + imgRGBSrc.byImgG[iPosSrc4] * (dC_frac);
+					dValue = dValue1*(1-dR_frac)+dValue2*(dR_frac);
+					imgRGBDst.byImgG[iPosDsc ]=(BYTE)dValue;
+
+					dValue1 = imgRGBSrc.byImgB[iPosSrc1] * (1-dC_frac) + imgRGBSrc.byImgB[iPosSrc2] * (dC_frac);
+					dValue2 = imgRGBSrc.byImgB[iPosSrc3] * (1-dC_frac) + imgRGBSrc.byImgB[iPosSrc4] * (dC_frac);
+					dValue = dValue1*(1-dR_frac)+dValue2*(dR_frac);
+					imgRGBDst.byImgB[iPosDsc ]=(BYTE)dValue;
+				}
+			}
+			break;
+		}
+defaule:{return false;}
+	}
+	ConvertImage(&imgRGBDst,imgDst);
+	return true;
+}
 bool Resample(const CImage* imgSrc, CImage* imgDst, const RESAMPLE resample)
 {
 	if(imgSrc->IsNull() == true){return false;}
@@ -651,8 +723,9 @@ bool Resample(const CImage* imgSrc, CImage* imgDst, const RESAMPLE resample)
 			ConvertImage(&imgRGBDst,imgDst);
 			return true;
 		}
+	default:{return false;}
 	}
-
+	return false;
 }
 
 bool ConvertImage(const ImgRGB* imgRGB, CImage* imgDst)
