@@ -1125,7 +1125,73 @@ bool ExtractChannel(CImage* imgSrc, CImage* imgDst, ENUM_COLOR color)
 	return ConvertImage(&imgDstRGB,imgDst);
 }
 
+bool ImposeGrid(CImage* imgSrc, CImage* imgDst, int iType, double dROffset, double dCOffset, double dScale)
+{
+	if(imgSrc != imgDst)
+	{
+		CopyImage(imgSrc,imgDst);
+	}
+	if(dScale<10){return true;}
+	if(iType==0){return true;}
 
+	BYTE* pbyData = (BYTE*)imgDst->GetBits();
+	int iBPP = imgDst->GetBPP();
+	if(iBPP != 24){return false;}
+	int iPitch =imgDst->GetPitch();
+	int iWidth = imgDst->GetWidth();
+	int iHeight = imgDst->GetHeight();;
+	if(iType==1)
+	{
+		int iRMax = iHeight/dScale+1;
+		int iCMax = iWidth/dScale+1;
+		for(int ir=0; ir<iRMax; ir++)
+		{
+			int r=(ir+dROffset)*dScale;
+			if(r<0){continue;}
+			if(r>=iHeight){continue;}
+			for(int ic=0; ic<iCMax; ic++)
+			{
+				int c=(ic+dCOffset)*dScale;
+				if(c<0){continue;}
+				if(c>=iWidth){continue;}
+				pbyData[r*iPitch+3*c+0]=255;
+				pbyData[r*iPitch+3*c+1]=255;
+				pbyData[r*iPitch+3*c+2]=255;
+			}
+		}
+		return true;
+	}
+	if(iType==2)
+	{
+		int iRMax = iHeight/dScale+1;
+		int iCMax = iWidth/dScale+1;
+		for(int ir=0; ir<iRMax; ir++)
+		{
+			int r=(ir+dROffset)*dScale;
+			if(r<0){continue;}
+			if(r>=iHeight){continue;}
+			for(int c=0; c<iWidth; c++)
+			{
+				pbyData[r*iPitch+3*c+0]=255;
+				pbyData[r*iPitch+3*c+1]=255;
+				pbyData[r*iPitch+3*c+2]=255;
+			}
+		}
+			for(int ic=0; ic<iCMax; ic++)
+			{
+				int c=(ic+dCOffset)*dScale;
+				if(c<0){continue;}
+				if(c>=iWidth){continue;}
+		for(int r=0; r<iHeight; r++)
+		{
+				pbyData[r*iPitch+3*c+0]=255;
+				pbyData[r*iPitch+3*c+1]=255;
+				pbyData[r*iPitch+3*c+2]=255;
+			}
+		}
+	}
+	return true;
+}
 bool ZoomImage(CImage* imgSrc, CImage* imgDst, const double dR0_Src, const double dC0_Src, const double dScale, const int iWidth_Dst, const int iHeight_Dst)
 {
 

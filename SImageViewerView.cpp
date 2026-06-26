@@ -227,7 +227,7 @@ IMPLEMENT_DYNCREATE(CSImageViewerView, CView)
 			g_dScale[m_iScaleIndex],
 			iWidth_v,iHeight_v);
 
-
+		ImposeGrid(&imgZoomed, &imgZoomed, 2, int(dR0_i)-dR0_i, int(dC0_i)-dC0_i,g_dScale[m_iScaleIndex]);
 		imgZoomed.BitBlt( memDC.GetSafeHdc(), 0, 0,imgZoomed.GetWidth(), imgZoomed.GetHeight(), 0, 0  );
 
 		pDC->BitBlt(0, 0, iWidth_v, iHeight_v, &memDC, 0, 0,SRCCOPY);

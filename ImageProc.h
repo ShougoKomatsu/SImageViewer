@@ -41,3 +41,4 @@ bool SetColorTable(CImage* img, const RGBQUAD* rgbTable, int iLength);
 bool Resample(const CImage* imgSrc, CImage* imgDst, const RESAMPLE resample);
 bool ConvertImage(const ImgRGB* imgRGB, CImage* imgDst, const int iBPPDst, const RGBQUAD* rgbqTable, const int iColors);
 bool Resize(const CImage* imgSrc, CImage* imgDst, const int iWidth_dst, const int iHeight_dst, const RESAMPLE resample);
+bool ImposeGrid(CImage* imgSrc, CImage* imgDst, int iType, double dROffset, double dCOffset, double dScale);
