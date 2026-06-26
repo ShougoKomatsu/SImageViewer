@@ -227,7 +227,16 @@ IMPLEMENT_DYNCREATE(CSImageViewerView, CView)
 			g_dScale[m_iScaleIndex],
 			iWidth_v,iHeight_v);
 
-		ImposeGrid(&imgZoomed, &imgZoomed, 2, int(dR0_i)-dR0_i, int(dC0_i)-dC0_i,g_dScale[m_iScaleIndex]);
+		CMainFrame* pFrame = (CMainFrame*)AfxGetMainWnd();
+		int iGrid=0;
+		switch(pFrame->m_iGrid)
+		{
+		case ID_BUTTON_GRID_NONE:{iGrid=0;break;}
+		case ID_BUTTON_GRID_DOT:{iGrid=1;break;}
+		case ID_BUTTON_GRID_LINE:{iGrid=2;break;}
+		default:{iGrid=0;}
+		}
+		ImposeGrid(&imgZoomed, &imgZoomed, iGrid, int(dR0_i)-dR0_i, int(dC0_i)-dC0_i,g_dScale[m_iScaleIndex], 20);
 		imgZoomed.BitBlt( memDC.GetSafeHdc(), 0, 0,imgZoomed.GetWidth(), imgZoomed.GetHeight(), 0, 0  );
 
 		pDC->BitBlt(0, 0, iWidth_v, iHeight_v, &memDC, 0, 0,SRCCOPY);
@@ -399,6 +408,9 @@ IMPLEMENT_DYNCREATE(CSImageViewerView, CView)
 		m_iImgIndex=0;
 		CopyImage(&m_image,&(m_imageProcessed[(m_iImgIndex % MAX_IMG_BUF)]));
 		m_iScaleIndex =8;
+
+		SetGridEnableDesable();
+
 		CRect rectClient;
 		GetClientRect(&rectClient);
 		
@@ -424,7 +436,7 @@ IMPLEMENT_DYNCREATE(CSImageViewerView, CView)
 
 		int iHeightIfNoBar_v=iHeight_v+(m_bCBar ? iBarHeight : 0);
 		int iWidthIfNoBar_v=iWidth_v+(m_bRBar ? iBarWidth : 0);
-
+		
 		CMainFrame* pFrame = (CMainFrame*)AfxGetMainWnd();
 		pFrame->AdjustViewClientSize(m_image.GetWidth(), m_image.GetHeight(),iWidthIfNoBar_v, iHeightIfNoBar_v);
 		SetScroll();
@@ -463,7 +475,6 @@ IMPLEMENT_DYNCREATE(CSImageViewerView, CView)
 		pFrame->SendMessage(WM_COMMAND, ID_DISP_STATUS_BPP);
 
 
-		//	CMainFrame* pFrame = (CMainFrame*)AfxGetMainWnd();
 		if (pFrame != nullptr)	{pFrame->SetStatusMessage(sImageSize);}
 
 	}
@@ -881,6 +892,8 @@ IMPLEMENT_DYNCREATE(CSImageViewerView, CView)
 
 		if(m_iScaleIndex>=SCALE_VAR_NUM-1){m_iScaleIndex=SCALE_VAR_NUM-1;}
 		if(m_iScaleIndex<=0){m_iScaleIndex=0;}
+
+		SetGridEnableDesable();
 		SetScroll();
 		Invalidate();
 
@@ -889,6 +902,12 @@ IMPLEMENT_DYNCREATE(CSImageViewerView, CView)
 		ScreenToClient(&point_v);
 		DispStatus(point_v);
 		return true; 
+	}
+	void CSImageViewerView::SetGridEnableDesable()
+	{
+		CMainFrame* pFrame = (CMainFrame*)AfxGetMainWnd();
+		if(g_dScale[m_iScaleIndex]>20){	pFrame->m_bGridAble=true;}
+		else{pFrame->m_bGridAble=false;}
 	}
 
 	bool CSImageViewerView::ZoomChange(int iMousePosR_v, int iMousePosC_v, int iChange)
@@ -916,6 +935,8 @@ IMPLEMENT_DYNCREATE(CSImageViewerView, CView)
 		double dNewDispOriginC_tv;
 		double dNewDispOriginR_tv;
 		m_iScaleIndex+=iChange;		
+		
+		SetGridEnableDesable();
 		SetScroll();
 		if(dWidth_tv>iWidth_v)
 		{
@@ -990,6 +1011,8 @@ IMPLEMENT_DYNCREATE(CSImageViewerView, CView)
 		m_iScaleIndex = iNewScaleIndex;
 		if(m_iScaleIndex>=SCALE_VAR_NUM-1){m_iScaleIndex=SCALE_VAR_NUM-1;}
 		if(m_iScaleIndex<=0){m_iScaleIndex=0;}
+		
+		SetGridEnableDesable();
 
 		SetScroll();
 
@@ -1103,7 +1126,7 @@ IMPLEMENT_DYNCREATE(CSImageViewerView, CView)
 		}
 		if(m_bDragging == true)
 		{
-			if(m_Rect_v.IsRectEmpty()==true)
+			if(m_Rect_v.IsRectEmpty()==TRUE)
 			{
 			pFrame->m_sStatusSelection.Format(_T("not selected"));
 			}
@@ -1115,7 +1138,7 @@ IMPLEMENT_DYNCREATE(CSImageViewerView, CView)
 		}
 		else
 		{
-		if(m_Rect_i.IsRectEmpty()==true)
+		if(m_Rect_i.IsRectEmpty()==TRUE)
 		{
 			pFrame->m_sStatusSelection.Format(_T("not selected"));
 		}

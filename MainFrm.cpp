@@ -41,8 +41,14 @@ BEGIN_MESSAGE_MAP(CMainFrame, CFrameWndEx)
 	ON_UPDATE_COMMAND_UI(IDM_ZOOMUP, &CMainFrame::OnUpdateMenu)
 	ON_UPDATE_COMMAND_UI(IDM_ZOOMDOWN, &CMainFrame::OnUpdateMenu)
 	ON_UPDATE_COMMAND_UI(ID_EDIT_PASTE, &CMainFrame::OnUpdateMenu)
-	ON_UPDATE_COMMAND_UI(ID_MENU_RESAMPLE, &CMainFrame::OnUpdateMenu)
+	ON_UPDATE_COMMAND_UI(ID_MENU_RESAMPLE, &CMainFrame::OnUpdateMenu)	
 	
+    ON_COMMAND(ID_BUTTON_GRID_NONE, &CMainFrame::OnButtonGridNone)
+    ON_COMMAND(ID_BUTTON_GRID_DOT, &CMainFrame::OnButtonGridDot)
+    ON_COMMAND(ID_BUTTON_GRID_LINE, &CMainFrame::OnButtonGridLine)
+    ON_UPDATE_COMMAND_UI(ID_BUTTON_GRID_NONE, &CMainFrame::OnUpdateMenu)
+    ON_UPDATE_COMMAND_UI(ID_BUTTON_GRID_DOT, &CMainFrame::OnUpdateMenu)
+    ON_UPDATE_COMMAND_UI(ID_BUTTON_GRID_LINE, &CMainFrame::OnUpdateMenu)
 	ON_COMMAND(IDM_ZOOMDOWN, &CMainFrame::OnZoomdown)
 	ON_COMMAND(IDM_ZOOMUP, &CMainFrame::OnZoomup)
     ON_WM_INITMENUPOPUP()
@@ -133,6 +139,7 @@ int CMainFrame::OnCreate(LPCREATESTRUCT lpCreateStruct)
 		TRACE0("ツール バーの作成に失敗しました。\n");
 		return -1;      // 作成できませんでした。
 	}
+m_iGrid = ID_BUTTON_GRID_NONE;
 
 	CString strToolBarName;
 	bNameValid = strToolBarName.LoadString(IDS_TOOLBAR_STANDARD);
@@ -156,7 +163,7 @@ int CMainFrame::OnCreate(LPCREATESTRUCT lpCreateStruct)
         m_wndStatusBar.SetFont(&m_cfStatus);
 
 
-
+		m_bGridAble=false;
 
 	m_wndStatusBar.SetIndicators(indicators, _countof(indicators));
 
@@ -175,7 +182,7 @@ int CMainFrame::OnCreate(LPCREATESTRUCT lpCreateStruct)
 		m_wndStatusBar.SetPaneTextColor(i, RGB(0,0,0));
 		m_wndStatusBar.SetPaneBackgroundColor(i, RGB(255, 255, 255));
 	}
-
+	
 
 	// TODO: ツール バーおよびメニュー バーをドッキング可能にしない場合は、この 5 つの行を削除します
 	m_wndMenuBar.EnableDocking(CBRS_ALIGN_ANY);
@@ -600,9 +607,28 @@ void CMainFrame::OnDestroy()
 
 	CFrameWndEx::OnDestroy();
 }
+void CMainFrame::OnButtonGridNone()
+{
+    m_iGrid = ID_BUTTON_GRID_NONE;
+	Invalidate();
+}
+
+void CMainFrame::OnButtonGridDot()
+{
+    m_iGrid = ID_BUTTON_GRID_DOT;
+	Invalidate();
+}
+
+void CMainFrame::OnButtonGridLine()
+{
+    m_iGrid = ID_BUTTON_GRID_LINE;
+	Invalidate();
+}
+
 void CMainFrame::OnUpdateMenu(CCmdUI* pCmdUI)
 {
-
+	
+	CView* pView = GetActiveView();
 	switch (pCmdUI->m_nID)
 	{
 	case ID_EDIT_PASTE:
@@ -615,6 +641,10 @@ void CMainFrame::OnUpdateMenu(CCmdUI* pCmdUI)
 			pCmdUI->Enable(m_bSelected);
 			break;
 		}
+	case ID_BUTTON_GRID_NONE:{pCmdUI->Enable(m_bFileOpened & m_bGridAble);break;}
+	case ID_BUTTON_GRID_DOT:{pCmdUI->Enable(m_bFileOpened & m_bGridAble);break;}
+	case ID_BUTTON_GRID_LINE:{pCmdUI->Enable(m_bFileOpened & m_bGridAble);break;}
+
 	case IDM_ZOOMDOWN:
 	case IDM_ZOOMUP:
 	case ID_FILE_SAVE_AS:
@@ -628,4 +658,13 @@ void CMainFrame::OnUpdateMenu(CCmdUI* pCmdUI)
 		pCmdUI->Enable(m_bFileOpened);
 		break;
 	}
+
+	switch (pCmdUI->m_nID)
+	{
+	case ID_BUTTON_GRID_NONE:{pCmdUI->SetCheck(m_iGrid == ID_BUTTON_GRID_NONE);break;}
+	case ID_BUTTON_GRID_DOT:{pCmdUI->SetCheck(m_iGrid == ID_BUTTON_GRID_DOT);break;}
+	case ID_BUTTON_GRID_LINE:{pCmdUI->SetCheck(m_iGrid == ID_BUTTON_GRID_LINE);break;}
+	default:{}
+	}
+
 }

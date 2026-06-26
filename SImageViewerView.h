@@ -66,6 +66,7 @@ public:
 	void OperateEquHistImage();
 	void OperateConvertColorSpace();
 	void OperateChangeColorDepth();
+	void SetGridEnableDesable();
 	bool GetColorAtCursor(CImage* img, CPoint point, int* iR_img, int* iC_img, BYTE* byR, BYTE* byG, BYTE* bYB);
 	void OnScroll(int iSB, int nSBCode, int nPos);
 	void DispStatus(CPoint point);

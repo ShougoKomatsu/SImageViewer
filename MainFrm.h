@@ -10,9 +10,10 @@ class CMainFrame : public CFrameWndEx
 protected: // ÉVÉäÉAÉãâªÇ©ÇÁÇÃÇ›çÏê¨ÇµÇ‹Ç∑ÅB
 	CMainFrame();
 	DECLARE_DYNCREATE(CMainFrame)
-
+	
 	// ëÆê´
 public:
+	bool m_bGridAble;
 	bool m_bFileOpened;
 	bool m_bSelected;
 	CFont m_cfStatus;
@@ -27,6 +28,7 @@ public:
 	CString m_sStatusRGBOriginal;
 	CString m_sStatusRGBProcessed;
 	CString m_sStatusSelection;
+int m_iGrid;
 	// ëÄçÏ
 public:
 	void ShowNormal();
@@ -66,8 +68,10 @@ protected:
 	afx_msg void OnDispStatusZoom();
 	afx_msg void OnDispStatusMousePos();
 	afx_msg void OnUpdateMenu(CCmdUI* pCmdUI);
+	afx_msg void OnButtonGridNone();
+	afx_msg void OnButtonGridDot();
+	afx_msg void OnButtonGridLine();
 	DECLARE_MESSAGE_MAP()
-
 public:
 	afx_msg void OnUpdateAfxIdpCommandFailure(CCmdUI *pCmdUI);
 	afx_msg void OnZoomdown();
