@@ -695,7 +695,10 @@ IMPLEMENT_DYNCREATE(CSImageViewerView, CView)
 		if(m_Rect_i.IsRectEmpty()==TRUE){bAutoFull=true;FullDomain();}
 
 		CImageModifyDlg dlgModify;
-		CopyImage(&m_imageProcessed[(m_iImgIndex % MAX_IMG_BUF)], &dlgModify.m_image);
+
+		CImage imgClipped;
+		ClipImage(&m_imageProcessed[(m_iImgIndex % MAX_IMG_BUF)],&imgClipped, m_Rect_i.top,m_Rect_i.left, m_Rect_i.bottom, m_Rect_i.right); 
+		CopyImage(&imgClipped, &dlgModify.m_image);
 		INT_PTR iRet;
 		dlgModify.DoModal();
 		iRet = dlgModify.m_iRet;
