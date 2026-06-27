@@ -237,12 +237,24 @@ IMPLEMENT_DYNCREATE(CSImageViewerView, CView)
 		default:{iGrid=0;}
 		}
 		ImposeGrid(&imgZoomed, &imgZoomed, iGrid, int(dR0_i)-dR0_i, int(dC0_i)-dC0_i,g_dScale[m_iScaleIndex], 20);
-		
-		if (m_Rect_i.IsRectEmpty()==FALSE)
+
+		if(m_bDragging==true)
 		{
-			CRect rect_v = i_to_v(&m_Rect_i);
-			ImposeRect(&imgZoomed, &imgZoomed,&rect_v);
-		} 
+			if (m_Rect_v.IsRectEmpty()==FALSE)
+			{
+				CRect rect_i= v_to_i(&m_Rect_v);
+				CRect rect_v = i_to_v(&rect_i);
+				ImposeRect(&imgZoomed, &imgZoomed,&rect_v);
+			}
+		}
+		else
+		{
+			if (m_Rect_i.IsRectEmpty()==FALSE)
+			{
+				CRect rect_v = i_to_v(&m_Rect_i);
+				ImposeRect(&imgZoomed, &imgZoomed,&rect_v);
+			}
+		}
 
 
 
@@ -1166,12 +1178,6 @@ IMPLEMENT_DYNCREATE(CSImageViewerView, CView)
 
 		if (m_bDragging==true) 
 		{ 
-			CDC* pDC = GetDC(); 
-			if (m_Rect_v.IsRectEmpty() == FALSE)
-			{
-				pDC->DrawFocusRect(&m_Rect_v);
-			}
-
 			switch(m_iMouseMode)
 			{
 			case CHANGE_U: {CRect rectTemp_v = i_to_v(&m_Rect_i); m_Rect_v = CRect(CPoint(rectTemp_v.left,point_v.y), CPoint(rectTemp_v.right,rectTemp_v.bottom)); break;}
@@ -1187,11 +1193,9 @@ IMPLEMENT_DYNCREATE(CSImageViewerView, CView)
 					m_Rect_v = CRect(m_PointStart_v, point_v);
 				}
 			}
-
 			m_Rect_v.NormalizeRect();
-			pDC->DrawFocusRect(&m_Rect_v); 
-			ReleaseDC(pDC);
 			CView::OnMouseMove(nFlags, point_v);
+			Invalidate();
 			return;
 		} 
 
@@ -1246,12 +1250,7 @@ IMPLEMENT_DYNCREATE(CSImageViewerView, CView)
 		{
 			ReleaseCapture(); 
 			m_bDragging = false; 
-			if (m_Rect_v.IsRectEmpty()==FALSE)
-			{
-				CDC* pDC = GetDC();
-				pDC->DrawFocusRect(&m_Rect_v); 
-				ReleaseDC(pDC); 
-			} 
+
 			if(m_PointStart_v==point_v)
 			{
 				CRect rect_v;
