@@ -1235,6 +1235,7 @@ bool ImposeGrid(CImage* imgSrc, CImage* imgDst, const int iType, const double dR
 	int iRMax = iHeight/dScale+2;
 	int iCMax = iWidth/dScale+2;
 
+
 	if(iType==1)
 	{
 		for(int ir=0; ir<iRMax; ir++)
@@ -1351,6 +1352,39 @@ bool ImposeGrid(CImage* imgSrc, CImage* imgDst, const int iType, const double dR
 			}
 		}
 		return true;
+	}
+
+	if(iType==3)
+	{
+		CImage imgTemp;
+		CopyImage(imgSrc,&imgTemp);
+		BYTE* pbyDataTemp = (BYTE*)imgTemp.GetBits();
+
+		for(int r=0; r<iHeight-1;r++)
+		{
+			for(int c=0; c<iWidth-1; c++)
+			{
+				if(( pbyDataTemp[r*iPitch+3*c+0] != pbyDataTemp[r*iPitch+3*(c+1)+0]) || ( pbyDataTemp[r*iPitch+3*c+1] != pbyDataTemp[r*iPitch+3*(c+1)+1]) || ( pbyDataTemp[r*iPitch+3*c+2] != pbyDataTemp[r*iPitch+3*(c+1)+2]))
+				{
+					int iValue = pbyDataTemp[r*iPitch+3*c+0]+pbyDataTemp[r*iPitch+3*c+1]+pbyDataTemp[r*iPitch+3*c+2];
+					BYTE byDot=iValue<576 ? 255:0;
+
+					pbyData[r*iPitch+3*c+0]=byDot;
+					pbyData[r*iPitch+3*c+1]=byDot;
+					pbyData[r*iPitch+3*c+2]=byDot;
+				}
+				if(( pbyDataTemp[r*iPitch+3*c+0] != pbyDataTemp[(r+1)*iPitch+3*c+0]) || ( pbyDataTemp[r*iPitch+3*c+1] != pbyDataTemp[(r+1)*iPitch+3*c+1]) || ( pbyDataTemp[r*iPitch+3*c+2] != pbyDataTemp[(r+1)*iPitch+3*c+2]))
+				{
+					int iValue = pbyDataTemp[r*iPitch+3*c+0]+pbyDataTemp[r*iPitch+3*c+1]+pbyDataTemp[r*iPitch+3*c+2];
+					BYTE byDot=iValue<576 ? 255:0;
+					pbyData[r*iPitch+3*c+0]=byDot;
+					pbyData[r*iPitch+3*c+1]=byDot;
+					pbyData[r*iPitch+3*c+2]=byDot;
+				}
+			}
+		}
+		return true;
+
 	}
 	return false;
 }

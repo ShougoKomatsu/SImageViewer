@@ -234,9 +234,10 @@ IMPLEMENT_DYNCREATE(CSImageViewerView, CView)
 		case ID_BUTTON_GRID_NONE:{iGrid=0;break;}
 		case ID_BUTTON_GRID_DOT:{iGrid=1;break;}
 		case ID_BUTTON_GRID_LINE:{iGrid=2;break;}
+		case ID_BUTTON_GRID_CONNECT:{iGrid=3;break;}
 		default:{iGrid=0;}
 		}
-		ImposeGrid(&imgZoomed, &imgZoomed, iGrid, int(dR0_i)-dR0_i, int(dC0_i)-dC0_i,g_dScale[m_iScaleIndex], 20);
+		ImposeGrid(&imgZoomed, &imgZoomed, iGrid, int(dR0_i)-dR0_i, int(dC0_i)-dC0_i,g_dScale[m_iScaleIndex], 10);
 
 		if(m_bDragging==true)
 		{
@@ -912,7 +913,7 @@ IMPLEMENT_DYNCREATE(CSImageViewerView, CView)
 	void CSImageViewerView::SetGridEnableDesable()
 	{
 		CMainFrame* pFrame = (CMainFrame*)AfxGetMainWnd();
-		if(g_dScale[m_iScaleIndex]>20){	pFrame->m_bGridAble=true;}
+		if(g_dScale[m_iScaleIndex]>10){	pFrame->m_bGridAble=true;}
 		else{pFrame->m_bGridAble=false;}
 	}
 

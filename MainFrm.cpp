@@ -43,12 +43,12 @@ BEGIN_MESSAGE_MAP(CMainFrame, CFrameWndEx)
 	ON_UPDATE_COMMAND_UI(ID_EDIT_PASTE, &CMainFrame::OnUpdateMenu)
 	ON_UPDATE_COMMAND_UI(ID_MENU_RESAMPLE, &CMainFrame::OnUpdateMenu)	
 	
-    ON_COMMAND(ID_BUTTON_GRID_NONE, &CMainFrame::OnButtonGridNone)
     ON_COMMAND(ID_BUTTON_GRID_DOT, &CMainFrame::OnButtonGridDot)
     ON_COMMAND(ID_BUTTON_GRID_LINE, &CMainFrame::OnButtonGridLine)
-    ON_UPDATE_COMMAND_UI(ID_BUTTON_GRID_NONE, &CMainFrame::OnUpdateMenu)
+    ON_COMMAND(ID_BUTTON_GRID_CONNECT, &CMainFrame::OnButtonGridConnect)
     ON_UPDATE_COMMAND_UI(ID_BUTTON_GRID_DOT, &CMainFrame::OnUpdateMenu)
     ON_UPDATE_COMMAND_UI(ID_BUTTON_GRID_LINE, &CMainFrame::OnUpdateMenu)
+    ON_UPDATE_COMMAND_UI(ID_BUTTON_GRID_CONNECT, &CMainFrame::OnUpdateMenu)
 	ON_COMMAND(IDM_ZOOMDOWN, &CMainFrame::OnZoomdown)
 	ON_COMMAND(IDM_ZOOMUP, &CMainFrame::OnZoomup)
     ON_WM_INITMENUPOPUP()
@@ -615,13 +615,37 @@ void CMainFrame::OnButtonGridNone()
 
 void CMainFrame::OnButtonGridDot()
 {
-    m_iGrid = ID_BUTTON_GRID_DOT;
+	if(m_iGrid == ID_BUTTON_GRID_DOT)
+	{
+		m_iGrid = ID_BUTTON_GRID_NONE;
+		Invalidate();
+		return;
+	}
+	m_iGrid = ID_BUTTON_GRID_DOT;
 	Invalidate();
 }
 
 void CMainFrame::OnButtonGridLine()
 {
+	if(m_iGrid == ID_BUTTON_GRID_LINE)
+	{
+		m_iGrid = ID_BUTTON_GRID_NONE;
+		Invalidate();
+		return;
+	}
     m_iGrid = ID_BUTTON_GRID_LINE;
+	Invalidate();
+}
+
+void CMainFrame::OnButtonGridConnect()
+{
+	if(m_iGrid == ID_BUTTON_GRID_CONNECT)
+	{
+		m_iGrid = ID_BUTTON_GRID_NONE;
+		Invalidate();
+		return;
+	}
+    m_iGrid = ID_BUTTON_GRID_CONNECT;
 	Invalidate();
 }
 
@@ -641,9 +665,9 @@ void CMainFrame::OnUpdateMenu(CCmdUI* pCmdUI)
 			pCmdUI->Enable(m_bSelected);
 			break;
 		}
-	case ID_BUTTON_GRID_NONE:{pCmdUI->Enable(m_bFileOpened & m_bGridAble);break;}
 	case ID_BUTTON_GRID_DOT:{pCmdUI->Enable(m_bFileOpened & m_bGridAble);break;}
 	case ID_BUTTON_GRID_LINE:{pCmdUI->Enable(m_bFileOpened & m_bGridAble);break;}
+	case ID_BUTTON_GRID_CONNECT:{pCmdUI->Enable(m_bFileOpened & m_bGridAble);break;}
 
 	case IDM_ZOOMDOWN:
 	case IDM_ZOOMUP:
@@ -661,9 +685,9 @@ void CMainFrame::OnUpdateMenu(CCmdUI* pCmdUI)
 
 	switch (pCmdUI->m_nID)
 	{
-	case ID_BUTTON_GRID_NONE:{pCmdUI->SetCheck(m_iGrid == ID_BUTTON_GRID_NONE);break;}
 	case ID_BUTTON_GRID_DOT:{pCmdUI->SetCheck(m_iGrid == ID_BUTTON_GRID_DOT);break;}
 	case ID_BUTTON_GRID_LINE:{pCmdUI->SetCheck(m_iGrid == ID_BUTTON_GRID_LINE);break;}
+	case ID_BUTTON_GRID_CONNECT:{pCmdUI->SetCheck(m_iGrid == ID_BUTTON_GRID_CONNECT);break;}
 	default:{}
 	}
 

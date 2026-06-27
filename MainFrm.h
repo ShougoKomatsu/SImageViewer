@@ -71,6 +71,7 @@ protected:
 	afx_msg void OnButtonGridNone();
 	afx_msg void OnButtonGridDot();
 	afx_msg void OnButtonGridLine();
+	afx_msg void OnButtonGridConnect();
 	DECLARE_MESSAGE_MAP()
 public:
 	afx_msg void OnUpdateAfxIdpCommandFailure(CCmdUI *pCmdUI);
