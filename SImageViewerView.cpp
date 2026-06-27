@@ -1253,13 +1253,23 @@ IMPLEMENT_DYNCREATE(CSImageViewerView, CView)
 
 			if(m_PointStart_v==point_v)
 			{
+				if(m_iMouseMode==CHANGE_B){CView::OnLButtonUp(nFlags, point_v); return;}
+				if(m_iMouseMode==CHANGE_L){CView::OnLButtonUp(nFlags, point_v); return;}
+				if(m_iMouseMode==CHANGE_R){CView::OnLButtonUp(nFlags, point_v); return;}
+				if(m_iMouseMode==CHANGE_U){CView::OnLButtonUp(nFlags, point_v); return;}
+				if(m_iMouseMode==CHANGE_LB){CView::OnLButtonUp(nFlags, point_v); return;}
+				if(m_iMouseMode==CHANGE_LU){CView::OnLButtonUp(nFlags, point_v); return;}
+				if(m_iMouseMode==CHANGE_RB){CView::OnLButtonUp(nFlags, point_v); return;}
+				if(m_iMouseMode==CHANGE_RU){CView::OnLButtonUp(nFlags, point_v); return;}
+
 				CRect rect_v;
 				rect_v = i_to_v(&m_Rect_i);
-				if((point_v.y>=rect_v.top)&&(point_v.y<=rect_v.bottom)&&(point_v.x>=rect_v.left)&&(point_v.x<=rect_v.right))
+				if((point_v.y>=rect_v.top)&&(point_v.y<=rect_v.bottom)&&(point_v.x>=rect_v.left)&&(point_v.x<=rect_v.right) && (m_iMouseMode==CHANGE_ZOOMUP))
 				{
 					ZoomChange(m_Rect_i.top, m_Rect_i.left, m_Rect_i.bottom,m_Rect_i.right);
 					m_Rect_v.SetRectEmpty();
 					m_Rect_i.SetRectEmpty();
+					m_iMouseMode=CHANGE_NONE;
 					CMainFrame* pFrame = (CMainFrame*)AfxGetMainWnd();
 					pFrame->m_bSelected = false;
 					Invalidate();
