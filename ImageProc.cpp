@@ -1124,6 +1124,99 @@ bool ExtractChannel(CImage* imgSrc, CImage* imgDst, ENUM_COLOR color)
 	return ConvertImage(&imgDstRGB,imgDst);
 }
 
+bool ImposeRect(CImage* imgSrc, CImage* imgDst, CRect* rect)
+{
+	if(imgSrc != imgDst)
+	{
+		CopyImage(imgSrc,imgDst);
+	}
+
+	int iBPP = imgDst->GetBPP();
+	if(iBPP != 24){return false;}
+	int iPitch =imgDst->GetPitch();
+	int iWidth = imgDst->GetWidth();
+	int iHeight = imgDst->GetHeight();
+	BYTE* pbyData = (BYTE*)imgDst->GetBits();
+
+	BYTE byDot=0;
+	for(int r=rect->top; r<=rect->bottom; r++)
+	{
+		if(r<0){continue;}
+		if(r>=iHeight){continue;}
+		byDot = (r&0x02)*255;
+
+		int c=rect->left;
+		if((c>0) && (c<iWidth))
+		{
+			pbyData[r*iPitch+3*c+0]=byDot;
+			pbyData[r*iPitch+3*c+1]=byDot;
+			pbyData[r*iPitch+3*c+2]=byDot;
+		}
+
+		if((c+1>0) && (c*1<iWidth))
+		{
+			pbyData[r*iPitch+3*(c+1)+0]=byDot;
+			pbyData[r*iPitch+3*(c+1)+1]=byDot;
+			pbyData[r*iPitch+3*(c+1)+2]=byDot;
+		}
+
+		c=rect->right;		
+		if((c>0) && (c<iWidth))
+		{
+			pbyData[r*iPitch+3*c+0]=byDot;
+			pbyData[r*iPitch+3*c+1]=byDot;
+			pbyData[r*iPitch+3*c+2]=byDot;
+		}
+		if((c+1>0) && (c+1<iWidth))
+		{
+			pbyData[r*iPitch+3*(c+1)+0]=byDot;
+			pbyData[r*iPitch+3*(c+1)+1]=byDot;
+			pbyData[r*iPitch+3*(c+1)+2]=byDot;
+		}
+	}
+
+	for(int c=rect->left; c<=rect->right; c++)
+	{
+		if(c<0){continue;}
+		if(c>=iWidth){continue;}
+		byDot = (c&0x02)*255;
+
+		int r=rect->top;
+
+		if((r>=0) && (r<iHeight))
+		{
+			pbyData[r*iPitch+3*c+0]=byDot;
+			pbyData[r*iPitch+3*c+1]=byDot;
+			pbyData[r*iPitch+3*c+2]=byDot;
+		}
+
+		if((r+1>=0) && (r+1<iHeight))
+		{
+			pbyData[(r+1)*iPitch+3*c+0]=byDot;
+			pbyData[(r+1)*iPitch+3*c+1]=byDot;
+			pbyData[(r+1)*iPitch+3*c+2]=byDot;
+		}
+
+		r=rect->bottom;
+
+		if((r>=0) && (r<iHeight))
+		{
+			pbyData[r*iPitch+3*c+0]=byDot;
+			pbyData[r*iPitch+3*c+1]=byDot;
+			pbyData[r*iPitch+3*c+2]=byDot;
+		}
+
+		if((r+1>=0) && (r+1<iHeight))
+		{
+			pbyData[(r+1)*iPitch+3*c+0]=byDot;
+			pbyData[(r+1)*iPitch+3*c+1]=byDot;
+			pbyData[(r+1)*iPitch+3*c+2]=byDot;
+		}
+	}
+
+	return true;
+}
+
 bool ImposeGrid(CImage* imgSrc, CImage* imgDst, const int iType, const double dROffset, const double dCOffset, const double dScale, const double dScaleThresh)
 {
 	if(imgSrc != imgDst)

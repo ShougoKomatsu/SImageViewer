@@ -1,10 +1,10 @@
 
 se // SImageViewerView.cpp : CSImageViewerView クラスの実装
-//
+	//
 
 #include "stdafx.h"
-// SHARED_HANDLERS は、プレビュー、サムネイル、および検索フィルター ハンドラーを実装している ATL プロジェクトで定義でき、
-// そのプロジェクトとのドキュメント コードの共有を可能にします。
+	// SHARED_HANDLERS は、プレビュー、サムネイル、および検索フィルター ハンドラーを実装している ATL プロジェクトで定義でき、
+	// そのプロジェクトとのドキュメント コードの共有を可能にします。
 #ifndef SHARED_HANDLERS
 #include "SImageViewer.h"
 #endif
@@ -27,7 +27,7 @@ se // SImageViewerView.cpp : CSImageViewerView クラスの実装
 
 #define TIMER_INIT (100)
 #define SCALE_VAR_NUM (25)
-double g_dScale[SCALE_VAR_NUM]=
+	double g_dScale[SCALE_VAR_NUM]=
 {
 	0.125000,
 	0.162105,
@@ -237,27 +237,21 @@ IMPLEMENT_DYNCREATE(CSImageViewerView, CView)
 		default:{iGrid=0;}
 		}
 		ImposeGrid(&imgZoomed, &imgZoomed, iGrid, int(dR0_i)-dR0_i, int(dC0_i)-dC0_i,g_dScale[m_iScaleIndex], 20);
+		
+		if (m_Rect_i.IsRectEmpty()==FALSE)
+		{
+			CRect rect_v = i_to_v(&m_Rect_i);
+			ImposeRect(&imgZoomed, &imgZoomed,&rect_v);
+		} 
+
+
+
 		imgZoomed.BitBlt( memDC.GetSafeHdc(), 0, 0,imgZoomed.GetWidth(), imgZoomed.GetHeight(), 0, 0  );
 
 		pDC->BitBlt(0, 0, iWidth_v, iHeight_v, &memDC, 0, 0,SRCCOPY);
 
 		memDC.SelectObject(pOldBmp);
 
-
-		if (m_Rect_i.IsRectEmpty()==FALSE)
-		{
-			CRect rect_v = i_to_v(&m_Rect_i);
-
-			CPen pen(PS_SOLID,1, RGB(127,127,127));
-			CPen* pOldPen=pDC->SelectObject(&pen);
-			CBrush* pOldBrush = (CBrush*)pDC->SelectStockObject(NULL_BRUSH);
-
-			pDC->Rectangle(rect_v);
-
-			pDC->SelectObject(pOldPen);
-			pDC->SelectObject(pOldBrush);
-			ReleaseDC(pDC); 
-		} 
 
 	}
 
@@ -267,12 +261,12 @@ IMPLEMENT_DYNCREATE(CSImageViewerView, CView)
 		OnContextMenu(this, point_v);
 	}
 
-//	void CSImageViewerView::OnContextMenu(CWnd* /* pWnd */, CPoint point_v)
-//	{
-//#ifndef SHARED_HANDLERS
-//		theApp.GetContextMenuManager()->ShowPopupMenu(IDR_POPUP_EDIT, point_v.x, point_v.y, this, TRUE);
-//#endif
-//	}
+	//	void CSImageViewerView::OnContextMenu(CWnd* /* pWnd */, CPoint point_v)
+	//	{
+	//#ifndef SHARED_HANDLERS
+	//		theApp.GetContextMenuManager()->ShowPopupMenu(IDR_POPUP_EDIT, point_v.x, point_v.y, this, TRUE);
+	//#endif
+	//	}
 
 
 	// CSImageViewerView 診断
@@ -348,7 +342,7 @@ IMPLEMENT_DYNCREATE(CSImageViewerView, CView)
 		GetScrollInfo(SB_VERT, &si);
 		if(si.nPage==0){m_bRBar=false;}
 		iPageV = si.nPage;
-		
+
 		GetScrollInfo(SB_HORZ, &si);
 		if(si.nPage==0){m_bCBar=false;}
 		iPageH = si.nPage;
@@ -413,7 +407,7 @@ IMPLEMENT_DYNCREATE(CSImageViewerView, CView)
 
 		CRect rectClient;
 		GetClientRect(&rectClient);
-		
+
 		int iHeight_v=GetClientHeight();
 		int iWidth_v=GetClientWidth();
 
@@ -427,16 +421,16 @@ IMPLEMENT_DYNCREATE(CSImageViewerView, CView)
 		int iHeight_tv= iHeight_i*g_dScale[m_iScaleIndex];
 
 		SCROLLINFO si = { 0 };
-		
+
 		GetScrollInfo(SB_VERT, &si);
 		if(si.nPage==0){m_bRBar=false;}
-		
+
 		GetScrollInfo(SB_HORZ, &si);
 		if(si.nPage==0){m_bCBar=false;}
 
 		int iHeightIfNoBar_v=iHeight_v+(m_bCBar ? iBarHeight : 0);
 		int iWidthIfNoBar_v=iWidth_v+(m_bRBar ? iBarWidth : 0);
-		
+
 		CMainFrame* pFrame = (CMainFrame*)AfxGetMainWnd();
 		pFrame->AdjustViewClientSize(m_image.GetWidth(), m_image.GetHeight(),iWidthIfNoBar_v, iHeightIfNoBar_v);
 		SetScroll();
@@ -449,8 +443,8 @@ IMPLEMENT_DYNCREATE(CSImageViewerView, CView)
 		GetScrollInfo(SB_HORZ, &si);
 		if(si.nPage>0)
 		{
-		si.nPos = 0; 
-		SetScrollInfo(SB_HORZ, &si, TRUE);
+			si.nPos = 0; 
+			SetScrollInfo(SB_HORZ, &si, TRUE);
 		}
 
 		GetScrollInfo(SB_VERT, &si);
@@ -466,7 +460,7 @@ IMPLEMENT_DYNCREATE(CSImageViewerView, CView)
 
 		CString sImageSize;
 		sImageSize.Format(_T("W %d x H %d"), m_image.GetWidth(),m_image.GetHeight());
-		
+
 		CView::OnInitialUpdate();
 		pFrame->m_sStatusSize.Format(_T("%s"),sImageSize);
 		pFrame->SendMessage(WM_COMMAND, ID_DISP_STATUS_SIZE);
@@ -488,7 +482,7 @@ IMPLEMENT_DYNCREATE(CSImageViewerView, CView)
 		HRESULT hResult = m_image.Load(m_sFilePath);
 		if(hResult != S_OK){return false;}
 
-		
+
 		CMainFrame* pFrame = (CMainFrame*)AfxGetMainWnd();
 		pFrame->m_bFileOpened = true;
 		pFrame->m_bSelected = true;
@@ -508,7 +502,7 @@ IMPLEMENT_DYNCREATE(CSImageViewerView, CView)
 		if(iRet != IDOK){return false;}
 		CString sFileExt;
 		CString sFilter;
-		
+
 		switch(formatDlg.m_iFormat)
 		{
 		case 0:{sFileExt.Format(_T("bmp"));sFilter.Format(_T("BitMap|*.bmp"));break;}
@@ -635,14 +629,14 @@ IMPLEMENT_DYNCREATE(CSImageViewerView, CView)
 
 		int iUsedColors;
 		bool bGrayScale;
-		
-	CountColorNum(&m_imageProcessed[(m_iImgIndex % MAX_IMG_BUF)], &iUsedColors, NULL);
+
+		CountColorNum(&m_imageProcessed[(m_iImgIndex % MAX_IMG_BUF)], &iUsedColors, NULL);
 
 		MakeColorTable(&m_imageProcessed[(m_iImgIndex % MAX_IMG_BUF)],NULL,NULL, 1<<min(24, m_imageProcessed[(m_iImgIndex % MAX_IMG_BUF)].GetBPP()), &iUsedColors, &bGrayScale);
-		
-	colorDepthDlg.m_iColors = iUsedColors;
-	colorDepthDlg.m_bGrayScale = bGrayScale;
-	colorDepthDlg.m_iBPP = m_imageProcessed[(m_iImgIndex % MAX_IMG_BUF)].GetBPP();
+
+		colorDepthDlg.m_iColors = iUsedColors;
+		colorDepthDlg.m_bGrayScale = bGrayScale;
+		colorDepthDlg.m_iBPP = m_imageProcessed[(m_iImgIndex % MAX_IMG_BUF)].GetBPP();
 
 		INT_PTR iRet = colorDepthDlg.DoModal();
 		if(iRet != IDOK){return;}
@@ -659,7 +653,7 @@ IMPLEMENT_DYNCREATE(CSImageViewerView, CView)
 		case 1:{ConvertImage_AreaCoverage(&imgSrc,colorDepthDlg.m_iBPP, &m_imageProcessed[(m_iImgIndex % MAX_IMG_BUF)]);break;}
 		case 2:{ConvertImage_ByDeviation(&imgSrc, colorDepthDlg.m_iBPP, &m_imageProcessed[(m_iImgIndex % MAX_IMG_BUF)]);break;}
 		}
-//		m_imageProcessed[(m_iImgIndex % MAX_IMG_BUF)].Save(_T("D:\\test.bmp"));
+		//		m_imageProcessed[(m_iImgIndex % MAX_IMG_BUF)].Save(_T("D:\\test.bmp"));
 		Invalidate();
 	}
 
@@ -737,8 +731,8 @@ IMPLEMENT_DYNCREATE(CSImageViewerView, CView)
 		if(bAutoFull==true)
 		{
 			m_Rect_i.SetRectEmpty();
-		CMainFrame* pFrame = (CMainFrame*)AfxGetMainWnd();
-		pFrame->m_bSelected = false;
+			CMainFrame* pFrame = (CMainFrame*)AfxGetMainWnd();
+			pFrame->m_bSelected = false;
 		}
 
 		m_iImgIndex++;
@@ -813,14 +807,14 @@ IMPLEMENT_DYNCREATE(CSImageViewerView, CView)
 		int i2[100];
 		for(int i=0; i<100; i++)
 		{
-			i2[i]=ii[iIndex[i]];
+		i2[i]=ii[iIndex[i]];
 		}
 		for(int i=0; i<99; i++)
 		{
-			if(ii[iIndex[i]]>ii[iIndex[i+1]])
-			{
-				break;
-			}
+		if(ii[iIndex[i]]>ii[iIndex[i+1]])
+		{
+		break;
+		}
 		}*/
 
 		m_bBingFullScreen = false;
@@ -853,7 +847,7 @@ IMPLEMENT_DYNCREATE(CSImageViewerView, CView)
 
 		int iWidth_i =max(0,m_imageProcessed[(m_iImgIndex % MAX_IMG_BUF)].GetWidth());
 		int iHeight_i =max(0,m_imageProcessed[(m_iImgIndex % MAX_IMG_BUF)].GetHeight());
-		
+
 		int iOldZoom = m_iScaleIndex;
 		double dOldWidth_tv = iWidth_i*g_dScale[iOldZoom];
 		double dOldHeight_tv= iHeight_i*g_dScale[iOldZoom];
@@ -935,7 +929,7 @@ IMPLEMENT_DYNCREATE(CSImageViewerView, CView)
 		double dNewDispOriginC_tv;
 		double dNewDispOriginR_tv;
 		m_iScaleIndex+=iChange;		
-		
+
 		SetGridEnableDesable();
 		SetScroll();
 		if(dWidth_tv>iWidth_v)
@@ -978,18 +972,18 @@ IMPLEMENT_DYNCREATE(CSImageViewerView, CView)
 		if(si.nPage>0)
 		{
 			int iNewPos_scl=iR_tv*(si.nMax-si.nPage+1.0)/(si.nMax *1.0);
-		m_dDispOriginR_tv = iR_tv;
-		si.nPos = (int)(max(si.nMin,min(si.nMax-si.nPage+1.0,iNewPos_scl) ));;
-		SetScrollInfo(SB_VERT, &si, TRUE);
+			m_dDispOriginR_tv = iR_tv;
+			si.nPos = (int)(max(si.nMin,min(si.nMax-si.nPage+1.0,iNewPos_scl) ));;
+			SetScrollInfo(SB_VERT, &si, TRUE);
 		}
 
 		GetScrollInfo(SB_HORZ, &si);
 		if(si.nPage>0)
 		{
 			int iNewPos_scl=iC_tv*(si.nMax-si.nPage+1.0)/(si.nMax *1.0);
-		m_dDispOriginC_tv = iC_tv;
-		si.nPos = (int)(max(si.nMin,min(si.nMax-si.nPage+1.0, iNewPos_scl) )); 
-		SetScrollInfo(SB_HORZ, &si, TRUE);
+			m_dDispOriginC_tv = iC_tv;
+			si.nPos = (int)(max(si.nMin,min(si.nMax-si.nPage+1.0, iNewPos_scl) )); 
+			SetScrollInfo(SB_HORZ, &si, TRUE);
 		}
 	}
 	bool CSImageViewerView::ZoomChange(int iR0_i, int iC0_i, int iR1_i, int iC1_i)
@@ -1011,7 +1005,7 @@ IMPLEMENT_DYNCREATE(CSImageViewerView, CView)
 		m_iScaleIndex = iNewScaleIndex;
 		if(m_iScaleIndex>=SCALE_VAR_NUM-1){m_iScaleIndex=SCALE_VAR_NUM-1;}
 		if(m_iScaleIndex<=0){m_iScaleIndex=0;}
-		
+
 		SetGridEnableDesable();
 
 		SetScroll();
@@ -1128,7 +1122,7 @@ IMPLEMENT_DYNCREATE(CSImageViewerView, CView)
 		{
 			if(m_Rect_v.IsRectEmpty()==TRUE)
 			{
-			pFrame->m_sStatusSelection.Format(_T("not selected"));
+				pFrame->m_sStatusSelection.Format(_T("not selected"));
 			}
 			else
 			{
@@ -1138,15 +1132,15 @@ IMPLEMENT_DYNCREATE(CSImageViewerView, CView)
 		}
 		else
 		{
-		if(m_Rect_i.IsRectEmpty()==TRUE)
-		{
-			pFrame->m_sStatusSelection.Format(_T("not selected"));
+			if(m_Rect_i.IsRectEmpty()==TRUE)
+			{
+				pFrame->m_sStatusSelection.Format(_T("not selected"));
+			}
+			else
+			{
+				pFrame->m_sStatusSelection.Format(_T("(%d, %d) - (%d, %d) : %d x %d "), m_Rect_i.left,m_Rect_i.top,m_Rect_i.right,m_Rect_i.bottom,m_Rect_i.right-m_Rect_i.left+1,m_Rect_i.bottom-m_Rect_i.top+1);	
+			}
 		}
-		else
-		{
-			pFrame->m_sStatusSelection.Format(_T("(%d, %d) - (%d, %d) : %d x %d "), m_Rect_i.left,m_Rect_i.top,m_Rect_i.right,m_Rect_i.bottom,m_Rect_i.right-m_Rect_i.left+1,m_Rect_i.bottom-m_Rect_i.top+1);	
-		}
-}
 
 		pFrame->SendMessage(WM_COMMAND, ID_DISP_STATUS_MOUSE_POS);
 
@@ -1299,10 +1293,10 @@ IMPLEMENT_DYNCREATE(CSImageViewerView, CView)
 		if(nIDEvent==TIMER_INIT)
 		{
 			KillTimer(TIMER_INIT);
-			
-		CMainFrame* pFrame = (CMainFrame*)AfxGetMainWnd();
-		if (pFrame==NULL) {return;}
-		pFrame->ShowNormal();
+
+			CMainFrame* pFrame = (CMainFrame*)AfxGetMainWnd();
+			if (pFrame==NULL) {return;}
+			pFrame->ShowNormal();
 			if(m_sFilePath.GetLength()>0)
 			{
 				ReadImage(m_sFilePath);
@@ -1458,8 +1452,8 @@ IMPLEMENT_DYNCREATE(CSImageViewerView, CView)
 
 			if(GetKeyState(VK_SHIFT)<0)
 			{
-	//			if(pMsg->wParam == 'U'){OperateEquHistImage();return TRUE;}
-		//		if(pMsg->wParam == 'G'){OperateBrightnessContrastGamma();return TRUE;}
+				//			if(pMsg->wParam == 'U'){OperateEquHistImage();return TRUE;}
+				//		if(pMsg->wParam == 'G'){OperateBrightnessContrastGamma();return TRUE;}
 			}	
 
 			if(pMsg->wParam==VK_F5)
@@ -1584,29 +1578,29 @@ IMPLEMENT_DYNCREATE(CSImageViewerView, CView)
 
 	void CSImageViewerView::OnContextMenu(CWnd* pWnd, CPoint point)
 	{
-		
-    CMenu menu;
-    menu.LoadMenu(IDR_POPUP_EDIT);
 
-    CMenu* pPopup = menu.GetSubMenu(0);
+		CMenu menu;
+		menu.LoadMenu(IDR_POPUP_EDIT);
 
-    UpdateDialogControls(this, FALSE);
+		CMenu* pPopup = menu.GetSubMenu(0);
 
-	CMainFrame* pFrame = (CMainFrame*)AfxGetMainWnd();
-	bool bFileOpened = pFrame ->m_bFileOpened;
-	bool bSelected = pFrame ->m_bSelected;
+		UpdateDialogControls(this, FALSE);
 
-	pPopup->EnableMenuItem(ID_EDIT_COPY, MF_BYCOMMAND | (( bSelected  == true) ? MF_ENABLED : MF_DISABLED));
-	pPopup->EnableMenuItem(ID_MENU_COPY_AS, MF_BYCOMMAND | (( bSelected  == true) ? MF_ENABLED : MF_DISABLED));
-	
-	pPopup->EnableMenuItem(ID_EDIT_COPY, MF_BYCOMMAND | (( bFileOpened  == true) ? MF_ENABLED : MF_DISABLED));
-	pPopup->EnableMenuItem(ID_EDIT_PASTE, MF_BYCOMMAND | (( bFileOpened  == true) ? MF_ENABLED : MF_DISABLED));
+		CMainFrame* pFrame = (CMainFrame*)AfxGetMainWnd();
+		bool bFileOpened = pFrame ->m_bFileOpened;
+		bool bSelected = pFrame ->m_bSelected;
 
-	pPopup->EnableMenuItem(ID_MENU_EQU_HIST, MF_BYCOMMAND | (( bFileOpened  == true) ? MF_ENABLED : MF_DISABLED));
-	pPopup->EnableMenuItem(ID_MENU_CONVERT_COLOR_SPACE, MF_BYCOMMAND | (( bFileOpened  == true) ? MF_ENABLED : MF_DISABLED));
-	pPopup->EnableMenuItem(ID_MENU_CHANGE_COLOR_DEPTH, MF_BYCOMMAND | (( bFileOpened  == true) ? MF_ENABLED : MF_DISABLED));
-	pPopup->EnableMenuItem(ID_MENU_COLOR_CORRECTON, MF_BYCOMMAND | (( bFileOpened  == true) ? MF_ENABLED : MF_DISABLED));
-	pPopup->EnableMenuItem(ID_MENU_SET_SELECTION, MF_BYCOMMAND | (( bFileOpened  == true) ? MF_ENABLED : MF_DISABLED));
+		pPopup->EnableMenuItem(ID_EDIT_COPY, MF_BYCOMMAND | (( bSelected  == true) ? MF_ENABLED : MF_DISABLED));
+		pPopup->EnableMenuItem(ID_MENU_COPY_AS, MF_BYCOMMAND | (( bSelected  == true) ? MF_ENABLED : MF_DISABLED));
 
-    pPopup->TrackPopupMenu(TPM_LEFTALIGN | TPM_RIGHTBUTTON, point.x, point.y, this);
-}
+		pPopup->EnableMenuItem(ID_EDIT_COPY, MF_BYCOMMAND | (( bFileOpened  == true) ? MF_ENABLED : MF_DISABLED));
+		pPopup->EnableMenuItem(ID_EDIT_PASTE, MF_BYCOMMAND | (( bFileOpened  == true) ? MF_ENABLED : MF_DISABLED));
+
+		pPopup->EnableMenuItem(ID_MENU_EQU_HIST, MF_BYCOMMAND | (( bFileOpened  == true) ? MF_ENABLED : MF_DISABLED));
+		pPopup->EnableMenuItem(ID_MENU_CONVERT_COLOR_SPACE, MF_BYCOMMAND | (( bFileOpened  == true) ? MF_ENABLED : MF_DISABLED));
+		pPopup->EnableMenuItem(ID_MENU_CHANGE_COLOR_DEPTH, MF_BYCOMMAND | (( bFileOpened  == true) ? MF_ENABLED : MF_DISABLED));
+		pPopup->EnableMenuItem(ID_MENU_COLOR_CORRECTON, MF_BYCOMMAND | (( bFileOpened  == true) ? MF_ENABLED : MF_DISABLED));
+		pPopup->EnableMenuItem(ID_MENU_SET_SELECTION, MF_BYCOMMAND | (( bFileOpened  == true) ? MF_ENABLED : MF_DISABLED));
+
+		pPopup->TrackPopupMenu(TPM_LEFTALIGN | TPM_RIGHTBUTTON, point.x, point.y, this);
+	}
