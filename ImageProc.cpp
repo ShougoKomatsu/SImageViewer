@@ -302,11 +302,11 @@ bool ClipImage(const CImage* imgOriginal, CImage* imgClipped, const int iR0, con
 		int iColors = imgOriginal->GetMaxColorTableEntries();
 		if (iColors > 0) 
 		{
-			RGBQUAD* pSrcTable = new RGBQUAD[iColors];
-			imgOriginal->GetColorTable(0, iColors, pSrcTable);
+			RGBQUAD* srcTable = new RGBQUAD[iColors];
+			imgOriginal->GetColorTable(0, iColors, srcTable);
 
-			SetColorTable(imgClipped, pSrcTable, iColors);
-			delete[] pSrcTable;
+			SetColorTable(imgClipped, srcTable, iColors);
+			SAFE_DELETE(srcTable);
 		}
 	}
 
@@ -637,12 +637,12 @@ bool ConvertImage(const CImage* imgSrc, ImgRGB* imgRGB)
 
 
 
-	RGBQUAD* pSrcTable=NULL;
+	RGBQUAD* srcTable=NULL;
 	int iColors = imgSrc->GetMaxColorTableEntries();
 	if (iColors > 0) 
 	{
-		pSrcTable = new RGBQUAD[iColors];
-		imgSrc->GetColorTable(0, iColors, pSrcTable);
+		srcTable = new RGBQUAD[iColors];
+		imgSrc->GetColorTable(0, iColors, srcTable);
 	}
 	const BYTE byMasks[9]={0,1,3,0,15,0,0,0,255};
 	int iWidth = imgRGB->iWidth;
@@ -657,14 +657,14 @@ bool ConvertImage(const CImage* imgSrc, ImgRGB* imgRGB)
 
 			BYTE byIndex = (src[iPosition] & (byMasks[iBPP]<< (iDigit*iBPP))) >> (iDigit*iBPP);
 
-			imgRGB->byImgR[r*imgRGB->iWidth+c]=pSrcTable[byIndex].rgbRed;
-			imgRGB->byImgG[r*imgRGB->iWidth+c]=pSrcTable[byIndex].rgbGreen;
-			imgRGB->byImgB[r*imgRGB->iWidth+c]=pSrcTable[byIndex].rgbBlue;
-			imgRGB->byImgA[r*imgRGB->iWidth+c]=pSrcTable[byIndex].rgbReserved;
+			imgRGB->byImgR[r*imgRGB->iWidth+c]=srcTable[byIndex].rgbRed;
+			imgRGB->byImgG[r*imgRGB->iWidth+c]=srcTable[byIndex].rgbGreen;
+			imgRGB->byImgB[r*imgRGB->iWidth+c]=srcTable[byIndex].rgbBlue;
+			imgRGB->byImgA[r*imgRGB->iWidth+c]=srcTable[byIndex].rgbReserved;
 
 		}
 	}
-	if(pSrcTable != NULL){delete [] pSrcTable;}
+	SAFE_DELETE(srcTable);
 	return true;
 }
 bool Resize(const CImage* imgSrc, CImage* imgDst, const int iWidth_dst, const int iHeight_dst, const RESAMPLE rsample)
@@ -779,11 +779,11 @@ bool Resample(const CImage* imgSrc, CImage* imgDst, const RESAMPLE resample)
 				int iColors = imgSrc->GetMaxColorTableEntries();
 				if (iColors > 0) 
 				{
-					RGBQUAD* pSrcTable = new RGBQUAD[iColors];
-					imgSrc->GetColorTable(0, iColors, pSrcTable);
+					RGBQUAD* srcTable = new RGBQUAD[iColors];
+					imgSrc->GetColorTable(0, iColors, srcTable);
 
-					ConvertImage(&imgRGBDst,imgDst, iBPP, pSrcTable, iColors);
-					delete[] pSrcTable;
+					ConvertImage(&imgRGBDst,imgDst, iBPP, srcTable, iColors);
+					SAFE_DELETE(srcTable);
 					return true;
 				}
 			}
@@ -821,11 +821,11 @@ bool Resample(const CImage* imgSrc, CImage* imgDst, const RESAMPLE resample)
 				int iColors = imgSrc->GetMaxColorTableEntries();
 				if (iColors > 0) 
 				{
-					RGBQUAD* pSrcTable = new RGBQUAD[iColors];
-					imgSrc->GetColorTable(0, iColors, pSrcTable);
+					RGBQUAD* srcTable = new RGBQUAD[iColors];
+					imgSrc->GetColorTable(0, iColors, srcTable);
 
-					ConvertImage(&imgRGBDst,imgDst, iBPP, pSrcTable, iColors);
-					delete[] pSrcTable;
+					ConvertImage(&imgRGBDst,imgDst, iBPP, srcTable, iColors);
+					SAFE_DELETE(srcTable);
 					return true;
 				}
 			}
@@ -1556,6 +1556,30 @@ bool ImposeGrid(CImage* imgSrc, CImage* imgDst, const int iType, const double dR
 	}
 	return false;
 }
+bool MakeReservedChannelZero(CImage* imgSrc, CImage* imgDst)
+{
+	CopyImage(imgSrc, imgDst);
+
+	if(imgSrc->GetBPP()==32){return true;}
+	if(imgSrc->GetBPP()==24){return true;}
+	
+
+	RGBQUAD* srcTable=NULL;
+	int iColors = imgDst->GetMaxColorTableEntries();
+	if (iColors > 0) 
+	{
+		srcTable = new RGBQUAD[iColors];
+		imgDst->GetColorTable(0, iColors, srcTable);
+		for(int i=0; i<iColors; i++)
+		{
+			srcTable[i].rgbReserved=0;
+		}
+		SetColorTable(imgDst, srcTable, iColors);
+		SAFE_DELETE(srcTable);
+	}
+
+	return true;
+}
 bool ZoomImage(CImage* imgSrc, CImage* imgDst, const double dR0_Src, const double dC0_Src, const double dScale, const int iWidth_Dst, const int iHeight_Dst)
 {
 
@@ -1650,12 +1674,12 @@ bool ZoomImage(CImage* imgSrc, CImage* imgDst, const double dR0_Src, const doubl
 		return true;
 	}
 
-	RGBQUAD* pSrcTable=NULL;
+	RGBQUAD* srcTable=NULL;
 	int iColors = imgSrc->GetMaxColorTableEntries();
 	if (iColors > 0) 
 	{
-		pSrcTable = new RGBQUAD[iColors];
-		imgSrc->GetColorTable(0, iColors, pSrcTable);
+		srcTable = new RGBQUAD[iColors];
+		imgSrc->GetColorTable(0, iColors, srcTable);
 	}
 	bool bAlpha = IsAlphaChanneled(imgSrc);
 
@@ -1693,13 +1717,13 @@ bool ZoomImage(CImage* imgSrc, CImage* imgDst, const double dR0_Src, const doubl
 			int iDigit = (8/iBPP)-(ic_Src%(8/iBPP))-1;
 
 			BYTE byIndex = (src[iPosition] & (byMasks[iBPP]<< (iDigit*iBPP))) >> (iDigit*iBPP);
-			dst[r*iPitch_dst+c*4+2]=pSrcTable[byIndex].rgbRed;
-			dst[r*iPitch_dst+c*4+1]=pSrcTable[byIndex].rgbGreen;
-			dst[r*iPitch_dst+c*4+0]=pSrcTable[byIndex].rgbBlue;
-			dst[r*iPitch_dst+c*4+3]=((bAlpha == true) ? pSrcTable[byIndex].rgbReserved : 255);
+			dst[r*iPitch_dst+c*4+2]=srcTable[byIndex].rgbRed;
+			dst[r*iPitch_dst+c*4+1]=srcTable[byIndex].rgbGreen;
+			dst[r*iPitch_dst+c*4+0]=srcTable[byIndex].rgbBlue;
+			dst[r*iPitch_dst+c*4+3]=((bAlpha == true) ? srcTable[byIndex].rgbReserved : 255);
 		}
 	}
-	SAFE_DELETE(pSrcTable);
+	SAFE_DELETE(srcTable);
 
 	return true;
 }
