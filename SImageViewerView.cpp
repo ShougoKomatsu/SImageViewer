@@ -26,6 +26,7 @@ se // SImageViewerView.cpp : CSImageViewerView ƒNƒ‰ƒX‚ÌŽÀ‘•
 #endif
 
 #define TIMER_INIT (100)
+#define TIMER_REFRESH (101)
 #define SCALE_VAR_NUM (25)
 	double g_dScale[SCALE_VAR_NUM]=
 {
@@ -256,10 +257,10 @@ IMPLEMENT_DYNCREATE(CSImageViewerView, CView)
 				ImposeRect(&imgZoomed, &imgZoomed,&rect_v);
 			}
 		}
+		CImage imgAlphaed;
+		ImposeAlphaChannel(&imgZoomed,&imgAlphaed);
 
-
-
-		imgZoomed.BitBlt( memDC.GetSafeHdc(), 0, 0,imgZoomed.GetWidth(), imgZoomed.GetHeight(), 0, 0  );
+		imgAlphaed.BitBlt( memDC.GetSafeHdc(), 0, 0,imgAlphaed.GetWidth(), imgAlphaed.GetHeight(), 0, 0  );
 
 		pDC->BitBlt(0, 0, iWidth_v, iHeight_v, &memDC, 0, 0,SRCCOPY);
 
@@ -1312,6 +1313,13 @@ IMPLEMENT_DYNCREATE(CSImageViewerView, CView)
 				ReadImage(m_sFilePath);
 			}
 			//	SetCursor(AfxGetApp()->LoadStandardCursor(IDC_CROSS));
+			SetTimer(TIMER_REFRESH,100,0);
+			return;
+		}
+		
+		if(nIDEvent==TIMER_REFRESH)
+		{
+			Invalidate();
 			return;
 		}
 

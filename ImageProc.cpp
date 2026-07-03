@@ -1132,7 +1132,7 @@ bool ImposeRect(CImage* imgSrc, CImage* imgDst, CRect* rect)
 	}
 
 	int iBPP = imgDst->GetBPP();
-	if(iBPP != 24){return false;}
+	if(iBPP != 32){return false;}
 	int iPitch =imgDst->GetPitch();
 	int iWidth = imgDst->GetWidth();
 	int iHeight = imgDst->GetHeight();
@@ -1148,30 +1148,34 @@ bool ImposeRect(CImage* imgSrc, CImage* imgDst, CRect* rect)
 		int c=rect->left;
 		if((c>0) && (c<iWidth))
 		{
-			pbyData[r*iPitch+3*c+0]=byDot;
-			pbyData[r*iPitch+3*c+1]=byDot;
-			pbyData[r*iPitch+3*c+2]=byDot;
+			pbyData[r*iPitch+4*c+0]=byDot;
+			pbyData[r*iPitch+4*c+1]=byDot;
+			pbyData[r*iPitch+4*c+2]=byDot;
+			pbyData[r*iPitch+4*c+3]=255;
 		}
 
 		if((c+1>0) && (c*1<iWidth))
 		{
-			pbyData[r*iPitch+3*(c+1)+0]=byDot;
-			pbyData[r*iPitch+3*(c+1)+1]=byDot;
-			pbyData[r*iPitch+3*(c+1)+2]=byDot;
+			pbyData[r*iPitch+4*(c+1)+0]=byDot;
+			pbyData[r*iPitch+4*(c+1)+1]=byDot;
+			pbyData[r*iPitch+4*(c+1)+2]=byDot;
+			pbyData[r*iPitch+4*(c+1)+3]=255;
 		}
 
 		c=rect->right;		
 		if((c>0) && (c<iWidth))
 		{
-			pbyData[r*iPitch+3*c+0]=byDot;
-			pbyData[r*iPitch+3*c+1]=byDot;
-			pbyData[r*iPitch+3*c+2]=byDot;
+			pbyData[r*iPitch+4*c+0]=byDot;
+			pbyData[r*iPitch+4*c+1]=byDot;
+			pbyData[r*iPitch+4*c+2]=byDot;
+			pbyData[r*iPitch+4*c+3]=255;
 		}
 		if((c+1>0) && (c+1<iWidth))
 		{
-			pbyData[r*iPitch+3*(c+1)+0]=byDot;
-			pbyData[r*iPitch+3*(c+1)+1]=byDot;
-			pbyData[r*iPitch+3*(c+1)+2]=byDot;
+			pbyData[r*iPitch+4*(c+1)+0]=byDot;
+			pbyData[r*iPitch+4*(c+1)+1]=byDot;
+			pbyData[r*iPitch+4*(c+1)+2]=byDot;
+			pbyData[r*iPitch+4*(c+1)+3]=255;
 		}
 	}
 
@@ -1185,38 +1189,88 @@ bool ImposeRect(CImage* imgSrc, CImage* imgDst, CRect* rect)
 
 		if((r>=0) && (r<iHeight))
 		{
-			pbyData[r*iPitch+3*c+0]=byDot;
-			pbyData[r*iPitch+3*c+1]=byDot;
-			pbyData[r*iPitch+3*c+2]=byDot;
+			pbyData[r*iPitch+4*c+0]=byDot;
+			pbyData[r*iPitch+4*c+1]=byDot;
+			pbyData[r*iPitch+4*c+2]=byDot;
+			pbyData[r*iPitch+4*c+3]=255;
 		}
 
 		if((r+1>=0) && (r+1<iHeight))
 		{
-			pbyData[(r+1)*iPitch+3*c+0]=byDot;
-			pbyData[(r+1)*iPitch+3*c+1]=byDot;
-			pbyData[(r+1)*iPitch+3*c+2]=byDot;
+			pbyData[(r+1)*iPitch+4*c+0]=byDot;
+			pbyData[(r+1)*iPitch+4*c+1]=byDot;
+			pbyData[(r+1)*iPitch+4*c+2]=byDot;
+			pbyData[(r+1)*iPitch+4*c+3]=255;
 		}
 
 		r=rect->bottom;
 
 		if((r>=0) && (r<iHeight))
 		{
-			pbyData[r*iPitch+3*c+0]=byDot;
-			pbyData[r*iPitch+3*c+1]=byDot;
-			pbyData[r*iPitch+3*c+2]=byDot;
+			pbyData[r*iPitch+4*c+0]=byDot;
+			pbyData[r*iPitch+4*c+1]=byDot;
+			pbyData[r*iPitch+4*c+2]=byDot;
+			pbyData[r*iPitch+4*c+3]=255;
 		}
 
 		if((r+1>=0) && (r+1<iHeight))
 		{
-			pbyData[(r+1)*iPitch+3*c+0]=byDot;
-			pbyData[(r+1)*iPitch+3*c+1]=byDot;
-			pbyData[(r+1)*iPitch+3*c+2]=byDot;
+			pbyData[(r+1)*iPitch+4*c+0]=byDot;
+			pbyData[(r+1)*iPitch+4*c+1]=byDot;
+			pbyData[(r+1)*iPitch+4*c+2]=byDot;
+			pbyData[(r+1)*iPitch+4*c+3]=255;
 		}
 	}
 
 	return true;
 }
 
+int g_iDisplace=0;
+bool ImposeAlphaChannel(CImage* imgSrc, CImage* imgDst)
+{
+	SYSTEMTIME st;
+	GetSystemTime(&st);
+	
+	if(imgSrc->GetBPP() != 32)
+	{
+		return false;
+	}
+
+	if(imgDst->IsNull() != true){imgDst->Destroy();}
+
+	int iWidth_Dst = imgSrc->GetWidth();
+	int iHeight_Dst = imgSrc->GetHeight();
+
+	imgDst->Create(iWidth_Dst, iHeight_Dst,24);
+
+	
+	BYTE* src = (BYTE*)imgSrc->GetBits();
+	int iPitch_src=imgSrc->GetPitch();
+	BYTE* dst = (BYTE*)imgDst->GetBits();
+	int iPitch_dst=imgDst->GetPitch();
+	
+	g_iDisplace=((st.wSecond*1000 + st.wMilliseconds)/100)%16;
+
+	for(int r=0; r<iHeight_Dst; r++)
+	{
+		for(int c=0; c<iWidth_Dst; c++)
+		{
+			BYTE byBack=(((((r+g_iDisplace)/16)+((c+g_iDisplace)/16))%2==1)?  255: 192);
+
+			
+			BYTE byAlpha = src[r*iPitch_src+c*4+3];
+
+			dst[r*iPitch_dst+c*3+2]=(src[r*iPitch_src+c*4+2]*(byAlpha) + byBack*(255.0-byAlpha))/255 ;
+			dst[r*iPitch_dst+c*3+1]=(src[r*iPitch_src+c*4+1]*(byAlpha) + byBack*(255.0-byAlpha))/255 ;
+			dst[r*iPitch_dst+c*3+0]=(src[r*iPitch_src+c*4+0]*(byAlpha) + byBack*(255.0-byAlpha))/255 ;
+
+		}
+	}
+
+
+
+	return false;
+}
 bool ImposeGrid(CImage* imgSrc, CImage* imgDst, const int iType, const double dROffset, const double dCOffset, const double dScale, const double dScaleThresh)
 {
 	if(imgSrc != imgDst)
@@ -1228,7 +1282,7 @@ bool ImposeGrid(CImage* imgSrc, CImage* imgDst, const int iType, const double dR
 
 	BYTE* pbyData = (BYTE*)imgDst->GetBits();
 	int iBPP = imgDst->GetBPP();
-	if(iBPP != 24){return false;}
+	if(iBPP != 32){return false;}
 	int iPitch =imgDst->GetPitch();
 	int iWidth = imgDst->GetWidth();
 	int iHeight = imgDst->GetHeight();
@@ -1249,17 +1303,19 @@ bool ImposeGrid(CImage* imgSrc, CImage* imgDst, const int iType, const double dR
 				int c=(ic+dCOffset)*dScale;
 				if(c<0){continue;}
 				if(c>=iWidth){continue;}
-				int iValue = pbyData[r*iPitch+3*c+0]+pbyData[r*iPitch+3*c+1]+pbyData[r*iPitch+3*c+2];
+				int iValue = pbyData[r*iPitch+4*c+0]+pbyData[r*iPitch+4*c+1]+pbyData[r*iPitch+4*c+2];
 				BYTE byDot=iValue<576 ? 255:0;
-				pbyData[r*iPitch+3*c+0]=byDot;
-				pbyData[r*iPitch+3*c+1]=byDot;
-				pbyData[r*iPitch+3*c+2]=byDot;
+				pbyData[r*iPitch+4*c+0]=byDot;
+				pbyData[r*iPitch+4*c+1]=byDot;
+				pbyData[r*iPitch+4*c+2]=byDot;
+				pbyData[r*iPitch+4*c+3]=255;
 
 				c=(ic+dCOffset)*dScale + 1;
 				if(c>=iWidth){continue;}
-				pbyData[r*iPitch+3*c+0]=byDot;
-				pbyData[r*iPitch+3*c+1]=byDot;
-				pbyData[r*iPitch+3*c+2]=byDot;
+				pbyData[r*iPitch+4*c+0]=byDot;
+				pbyData[r*iPitch+4*c+1]=byDot;
+				pbyData[r*iPitch+4*c+2]=byDot;
+				pbyData[r*iPitch+4*c+3]=255;
 
 				r=r0 + 1;
 				if(r>=iHeight){break;}
@@ -1267,15 +1323,17 @@ bool ImposeGrid(CImage* imgSrc, CImage* imgDst, const int iType, const double dR
 				c=(ic+dCOffset)*dScale;
 				if(c<0){continue;}
 				if(c>=iWidth){continue;}
-				pbyData[r*iPitch+3*c+0]=byDot;
-				pbyData[r*iPitch+3*c+1]=byDot;
-				pbyData[r*iPitch+3*c+2]=byDot;
+				pbyData[r*iPitch+4*c+0]=byDot;
+				pbyData[r*iPitch+4*c+1]=byDot;
+				pbyData[r*iPitch+4*c+2]=byDot;
+				pbyData[r*iPitch+4*c+3]=255;
 
 				c=(ic+dCOffset)*dScale + 1;
 				if(c>=iWidth){continue;}
-				pbyData[r*iPitch+3*c+0]=byDot;
-				pbyData[r*iPitch+3*c+1]=byDot;
-				pbyData[r*iPitch+3*c+2]=byDot;
+				pbyData[r*iPitch+4*c+0]=byDot;
+				pbyData[r*iPitch+4*c+1]=byDot;
+				pbyData[r*iPitch+4*c+2]=byDot;
+				pbyData[r*iPitch+4*c+3]=255;
 			}
 
 		}
@@ -1291,9 +1349,9 @@ bool ImposeGrid(CImage* imgSrc, CImage* imgDst, const int iType, const double dR
 		{
 			for(int c=0; c<iWidth; c++)
 			{
-				long lSum=pbyData[r*iPitch+3*c+2];
-				lSum+=pbyData[r*iPitch+3*c+1];
-				lSum+=pbyData[r*iPitch+3*c+0];
+				long lSum=pbyData[r*iPitch+4*c+2];
+				lSum+=pbyData[r*iPitch+4*c+1];
+				lSum+=pbyData[r*iPitch+4*c+0];
 
 				if(lSum>480){llCountW++;}
 				else if(lSum>288){llCountM++;}
@@ -1317,17 +1375,19 @@ bool ImposeGrid(CImage* imgSrc, CImage* imgDst, const int iType, const double dR
 			if(r>=iHeight){continue;}
 			for(int c=0; c<iWidth; c++)
 			{
-				pbyData[r*iPitch+3*c+0]=byDot;
-				pbyData[r*iPitch+3*c+1]=byDot;
-				pbyData[r*iPitch+3*c+2]=byDot;
+				pbyData[r*iPitch+4*c+0]=byDot;
+				pbyData[r*iPitch+4*c+1]=byDot;
+				pbyData[r*iPitch+4*c+2]=byDot;
+				pbyData[r*iPitch+4*c+3]=255;
 			}
 			r=(ir+dROffset)*dScale+1;
 			if(r>=iHeight){continue;}
 			for(int c=0; c<iWidth; c++)
 			{
-				pbyData[r*iPitch+3*c+0]=byDot;
-				pbyData[r*iPitch+3*c+1]=byDot;
-				pbyData[r*iPitch+3*c+2]=byDot;
+				pbyData[r*iPitch+4*c+0]=byDot;
+				pbyData[r*iPitch+4*c+1]=byDot;
+				pbyData[r*iPitch+4*c+2]=byDot;
+				pbyData[r*iPitch+4*c+3]=255;
 			}
 		}
 
@@ -1338,17 +1398,19 @@ bool ImposeGrid(CImage* imgSrc, CImage* imgDst, const int iType, const double dR
 			if(c>=iWidth){continue;}
 			for(int r=0; r<iHeight; r++)
 			{
-				pbyData[r*iPitch+3*c+0]=byDot;
-				pbyData[r*iPitch+3*c+1]=byDot;
-				pbyData[r*iPitch+3*c+2]=byDot;
+				pbyData[r*iPitch+4*c+0]=byDot;
+				pbyData[r*iPitch+4*c+1]=byDot;
+				pbyData[r*iPitch+4*c+2]=byDot;
+				pbyData[r*iPitch+4*c+3]=255;
 			}
 			c=(ic+dCOffset)*dScale+1;
 			if(c>=iWidth){continue;}
 			for(int r=0; r<iHeight; r++)
 			{
-				pbyData[r*iPitch+3*c+0]=byDot;
-				pbyData[r*iPitch+3*c+1]=byDot;
-				pbyData[r*iPitch+3*c+2]=byDot;
+				pbyData[r*iPitch+4*c+0]=byDot;
+				pbyData[r*iPitch+4*c+1]=byDot;
+				pbyData[r*iPitch+4*c+2]=byDot;
+				pbyData[r*iPitch+4*c+3]=255;
 			}
 		}
 		return true;
@@ -1364,22 +1426,24 @@ bool ImposeGrid(CImage* imgSrc, CImage* imgDst, const int iType, const double dR
 		{
 			for(int c=0; c<iWidth-1; c++)
 			{
-				if(( pbyDataTemp[r*iPitch+3*c+0] != pbyDataTemp[r*iPitch+3*(c+1)+0]) || ( pbyDataTemp[r*iPitch+3*c+1] != pbyDataTemp[r*iPitch+3*(c+1)+1]) || ( pbyDataTemp[r*iPitch+3*c+2] != pbyDataTemp[r*iPitch+3*(c+1)+2]))
+				if(( pbyDataTemp[r*iPitch+4*c+0] != pbyDataTemp[r*iPitch+4*(c+1)+0]) || ( pbyDataTemp[r*iPitch+4*c+1] != pbyDataTemp[r*iPitch+4*(c+1)+1]) || ( pbyDataTemp[r*iPitch+4*c+2] != pbyDataTemp[r*iPitch+4*(c+1)+2]))
 				{
-					int iValue = pbyDataTemp[r*iPitch+3*c+0]+pbyDataTemp[r*iPitch+3*c+1]+pbyDataTemp[r*iPitch+3*c+2];
+					int iValue = pbyDataTemp[r*iPitch+4*c+0]+pbyDataTemp[r*iPitch+4*c+1]+pbyDataTemp[r*iPitch+4*c+2];
 					BYTE byDot=iValue<576 ? 255:0;
 
-					pbyData[r*iPitch+3*c+0]=byDot;
-					pbyData[r*iPitch+3*c+1]=byDot;
-					pbyData[r*iPitch+3*c+2]=byDot;
+					pbyData[r*iPitch+4*c+0]=byDot;
+					pbyData[r*iPitch+4*c+1]=byDot;
+					pbyData[r*iPitch+4*c+2]=byDot;
+					pbyData[r*iPitch+4*c+3]=255;
 				}
-				if(( pbyDataTemp[r*iPitch+3*c+0] != pbyDataTemp[(r+1)*iPitch+3*c+0]) || ( pbyDataTemp[r*iPitch+3*c+1] != pbyDataTemp[(r+1)*iPitch+3*c+1]) || ( pbyDataTemp[r*iPitch+3*c+2] != pbyDataTemp[(r+1)*iPitch+3*c+2]))
+				if(( pbyDataTemp[r*iPitch+4*c+0] != pbyDataTemp[(r+1)*iPitch+4*c+0]) || ( pbyDataTemp[r*iPitch+4*c+1] != pbyDataTemp[(r+1)*iPitch+4*c+1]) || ( pbyDataTemp[r*iPitch+4*c+2] != pbyDataTemp[(r+1)*iPitch+4*c+2]))
 				{
-					int iValue = pbyDataTemp[r*iPitch+3*c+0]+pbyDataTemp[r*iPitch+3*c+1]+pbyDataTemp[r*iPitch+3*c+2];
+					int iValue = pbyDataTemp[r*iPitch+4*c+0]+pbyDataTemp[r*iPitch+4*c+1]+pbyDataTemp[r*iPitch+4*c+2];
 					BYTE byDot=iValue<576 ? 255:0;
-					pbyData[r*iPitch+3*c+0]=byDot;
-					pbyData[r*iPitch+3*c+1]=byDot;
-					pbyData[r*iPitch+3*c+2]=byDot;
+					pbyData[r*iPitch+4*c+0]=byDot;
+					pbyData[r*iPitch+4*c+1]=byDot;
+					pbyData[r*iPitch+4*c+2]=byDot;
+					pbyData[r*iPitch+4*c+3]=255;
 				}
 			}
 		}
@@ -1395,7 +1459,7 @@ bool ZoomImage(CImage* imgSrc, CImage* imgDst, const double dR0_Src, const doubl
 	int iHeightSrc = imgSrc->GetHeight();
 
 	if(imgDst->IsNull() != true){imgDst->Destroy();}
-	imgDst->Create(iWidth_Dst, iHeight_Dst,24);
+	imgDst->Create(iWidth_Dst, iHeight_Dst,32);
 
 	BYTE* src = (BYTE*)imgSrc->GetBits();
 	int iPitch_src=imgSrc->GetPitch();
@@ -1404,7 +1468,7 @@ bool ZoomImage(CImage* imgSrc, CImage* imgDst, const double dR0_Src, const doubl
 
 	int iBPP = imgSrc->GetBPP();
 
-	if((iBPP==24) || (iBPP==32))
+	if(iBPP==24)
 	{
 		int iColorPitch = (iBPP==24 ? 3 : 4);
 		for(int r=0; r<iHeight_Dst; r++)
@@ -1415,9 +1479,10 @@ bool ZoomImage(CImage* imgSrc, CImage* imgDst, const double dR0_Src, const doubl
 			{
 				for(int c=0; c<iWidth_Dst; c++)
 				{
-					dst[r*iPitch_dst+c*3+2]=127;
-					dst[r*iPitch_dst+c*3+1]=127;
-					dst[r*iPitch_dst+c*3+0]=127;
+					dst[r*iPitch_dst+c*4+2]=127;
+					dst[r*iPitch_dst+c*4+1]=127;
+					dst[r*iPitch_dst+c*4+0]=127;
+					dst[r*iPitch_dst+c*4+3]=255;
 				}
 				continue;
 			}
@@ -1427,19 +1492,59 @@ bool ZoomImage(CImage* imgSrc, CImage* imgDst, const double dR0_Src, const doubl
 				int ic_Src=c/dScale+dC0_Src;
 				if((ic_Src<0)||(ic_Src>=iWidthSrc))
 				{
-					dst[r*iPitch_dst+c*3+2]=127;
-					dst[r*iPitch_dst+c*3+1]=127;
-					dst[r*iPitch_dst+c*3+0]=127;
+					dst[r*iPitch_dst+c*4+2]=127;
+					dst[r*iPitch_dst+c*4+1]=127;
+					dst[r*iPitch_dst+c*4+0]=127;
+					dst[r*iPitch_dst+c*4+3]=255;
 					continue;
 				}
-				dst[r*iPitch_dst+c*3+2]=src[ir_Src*iPitch_src+ic_Src*iColorPitch+2];
-				dst[r*iPitch_dst+c*3+1]=src[ir_Src*iPitch_src+ic_Src*iColorPitch+1];
-				dst[r*iPitch_dst+c*3+0]=src[ir_Src*iPitch_src+ic_Src*iColorPitch+0];
+				dst[r*iPitch_dst+c*4+2]=src[ir_Src*iPitch_src+ic_Src*iColorPitch+2];
+				dst[r*iPitch_dst+c*4+1]=src[ir_Src*iPitch_src+ic_Src*iColorPitch+1];
+				dst[r*iPitch_dst+c*4+0]=src[ir_Src*iPitch_src+ic_Src*iColorPitch+0];
+				dst[r*iPitch_dst+c*4+3]=255;
 			}
 		}
 		return true;
 	}
+	
+	if(iBPP==32)
+	{
+		int iColorPitch = (iBPP==24 ? 3 : 4);
+		for(int r=0; r<iHeight_Dst; r++)
+		{
+			int ir_Src=r/dScale+dR0_Src;
 
+			if((ir_Src<0)||(ir_Src>=iHeightSrc))
+			{
+				for(int c=0; c<iWidth_Dst; c++)
+				{
+					dst[r*iPitch_dst+c*4+2]=127;
+					dst[r*iPitch_dst+c*4+1]=127;
+					dst[r*iPitch_dst+c*4+0]=127;
+					dst[r*iPitch_dst+c*4+3]=255;
+				}
+				continue;
+			}
+
+			for(int c=0; c<iWidth_Dst; c++)
+			{
+				int ic_Src=c/dScale+dC0_Src;
+				if((ic_Src<0)||(ic_Src>=iWidthSrc))
+				{
+					dst[r*iPitch_dst+c*4+2]=127;
+					dst[r*iPitch_dst+c*4+1]=127;
+					dst[r*iPitch_dst+c*4+0]=127;
+					dst[r*iPitch_dst+c*4+3]=255;
+					continue;
+				}
+				dst[r*iPitch_dst+c*4+2]=src[ir_Src*iPitch_src+ic_Src*iColorPitch+2];
+				dst[r*iPitch_dst+c*4+1]=src[ir_Src*iPitch_src+ic_Src*iColorPitch+1];
+				dst[r*iPitch_dst+c*4+0]=src[ir_Src*iPitch_src+ic_Src*iColorPitch+0];
+				dst[r*iPitch_dst+c*4+3]=src[ir_Src*iPitch_src+ic_Src*iColorPitch+3];
+			}
+		}
+		return true;
+	}
 
 	RGBQUAD* pSrcTable=NULL;
 	int iColors = imgSrc->GetMaxColorTableEntries();
@@ -1458,9 +1563,10 @@ bool ZoomImage(CImage* imgSrc, CImage* imgDst, const double dR0_Src, const doubl
 		{
 			for(int c=0; c<iWidth_Dst; c++)
 			{
-				dst[r*iPitch_dst+c*3+2]=127;
-				dst[r*iPitch_dst+c*3+1]=127;
-				dst[r*iPitch_dst+c*3+0]=127;
+				dst[r*iPitch_dst+c*4+2]=127;
+				dst[r*iPitch_dst+c*4+1]=127;
+				dst[r*iPitch_dst+c*4+0]=127;
+				dst[r*iPitch_dst+c*4+3]=255;
 			}
 			continue;
 		}
@@ -1473,6 +1579,7 @@ bool ZoomImage(CImage* imgSrc, CImage* imgDst, const double dR0_Src, const doubl
 				dst[r*iPitch_dst+c*3+2]=127;
 				dst[r*iPitch_dst+c*3+1]=127;
 				dst[r*iPitch_dst+c*3+0]=127;
+				dst[r*iPitch_dst+c*4+3]=255;
 				continue;
 			}
 
@@ -1484,6 +1591,7 @@ bool ZoomImage(CImage* imgSrc, CImage* imgDst, const double dR0_Src, const doubl
 			dst[r*iPitch_dst+c*3+2]=pSrcTable[byIndex].rgbRed;
 			dst[r*iPitch_dst+c*3+1]=pSrcTable[byIndex].rgbGreen;
 			dst[r*iPitch_dst+c*3+0]=pSrcTable[byIndex].rgbBlue;
+			dst[r*iPitch_dst+c*4+0]=pSrcTable[byIndex].rgbReserved;
 		}
 	}
 	SAFE_DELETE(pSrcTable);
