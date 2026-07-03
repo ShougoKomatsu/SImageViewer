@@ -27,6 +27,16 @@ bool IsColorTableMonochrome(const RGBQUAD* rgbTable, const int iLength)
 	}
 	return true;
 }
+
+bool IsThereAlphaValue(const RGBQUAD* rgbTable, const int iLength)
+{
+	for(int i=0; i< iLength; i++)
+	{
+		if(rgbTable[i].rgbReserved != 255){return true;}
+	}
+	return false;
+}
+
 bool IsImageMonochrome(const CImage* imgSrc)
 {
 	int iBPP = imgSrc->GetBPP();
@@ -75,6 +85,46 @@ bool IsImageMonochrome(const CImage* imgSrc)
 				}
 			}
 			return true;
+		}
+	}
+	return false;
+}
+
+bool IsAlphaChanneled(const CImage* imgSrc)
+{
+	int iBPP = imgSrc->GetBPP();
+
+	switch(iBPP)
+	{
+	case 1:
+	case 4:
+	case 8:
+		{
+			int iColors = imgSrc->GetMaxColorTableEntries();
+			RGBQUAD* rgbqTable_src= new RGBQUAD[iColors];
+			imgSrc->GetColorTable(0, iColors, rgbqTable_src);
+			bool Alpha = IsThereAlphaValue(rgbqTable_src, iColors);
+			SAFE_DELETE(rgbqTable_src);
+			return Alpha;
+		}
+	case 24:
+		{
+			return false;
+		}
+	case 32:
+		{
+			BYTE* byData_src = (BYTE*)imgSrc->GetBits();
+			int iWidth = imgSrc->GetWidth();
+			int iHeight= imgSrc->GetHeight();
+			int iPitch = imgSrc->GetPitch();
+			for(int r=0; r<iHeight; r++)
+			{
+				for(int c=0; c< iWidth; c++)
+				{
+					if(byData_src[r*iPitch+c*4+3] != 255){return true;}
+				}
+			}
+			return false;
 		}
 	}
 	return false;
@@ -135,6 +185,7 @@ bool ConvertImageToStr(const CImage* imgSrc, const CString sSeparater, CString* 
 	ImgRGB imgRGB;
 	ConvertImage(imgSrc,&imgRGB);
 	bool bMono = IsImageMonochrome(imgSrc);
+	bool bAlpha = IsAlphaChanneled(imgSrc);
 	CString sImageLocal=_T("");
 	if(bMono==false)
 	{
@@ -159,8 +210,24 @@ bool ConvertImageToStr(const CImage* imgSrc, const CString sSeparater, CString* 
 				sPixel.Format(_T("%d%s"),imgRGB.byImgB[r*iWidth_src+c],sSeparater);
 				sLine+=sPixel;
 			}
-			sPixel.Format(_T("%d\n"),imgRGB.byImgB[r*iWidth_src+(iWidth_src-1)]);
-			sLine+=sPixel;
+			if(bAlpha!=true)
+			{
+				sPixel.Format(_T("%d\n"),imgRGB.byImgB[r*iWidth_src+(iWidth_src-1)]);
+				sLine+=sPixel;
+			}
+			else
+			{
+				sPixel.Format(_T("%d%s"),imgRGB.byImgB[r*iWidth_src+(iWidth_src-1)], sSeparater);
+				sLine+=sPixel;
+				sLine+=sSeparater;
+				for(int c=0; c<iWidth_src-1; c++)
+				{
+					sPixel.Format(_T("%d%s"),imgRGB.byImgA[r*iWidth_src+c],sSeparater);
+					sLine+=sPixel;
+				}
+				sPixel.Format(_T("%d\n"),imgRGB.byImgA[r*iWidth_src+(iWidth_src-1)]);
+				sLine+=sPixel;
+			}
 			sImageLocal+=sLine;
 		}
 		(*sImage)=sImageLocal;
@@ -177,8 +244,25 @@ bool ConvertImageToStr(const CImage* imgSrc, const CString sSeparater, CString* 
 			sPixel.Format(_T("%d%s"),imgRGB.byImgR[r*iWidth_src+c],sSeparater);
 			sLine+=sPixel;
 		}
-		sPixel.Format(_T("%d\n"),imgRGB.byImgR[r*iWidth_src+(iWidth_src-1)]);
-		sLine+=sPixel;
+		if(bAlpha!=true)
+		{
+			sPixel.Format(_T("%d\n"),imgRGB.byImgR[r*iWidth_src+(iWidth_src-1)]);
+			sLine+=sPixel;
+		}
+		else
+		{
+			sPixel.Format(_T("%d%s"),imgRGB.byImgR[r*iWidth_src+(iWidth_src-1)],sSeparater);
+			sLine+=sPixel;
+			sLine+=sSeparater;
+			for(int c=0; c<iWidth_src-1; c++)
+			{
+				sPixel.Format(_T("%d%s"),imgRGB.byImgA[r*iWidth_src+c],sSeparater);
+				sLine+=sPixel;
+			}
+			sPixel.Format(_T("%d\n"),imgRGB.byImgA[r*iWidth_src+(iWidth_src-1)]);
+			sLine+=sPixel;
+		}
+
 		sImageLocal+=sLine;
 	}
 	(*sImage)=sImageLocal;
@@ -508,12 +592,12 @@ bool ConvertImage(const CImage* imgSrc, ImgRGB* imgRGB)
 {
 	int iWidth_src = imgSrc->GetWidth();
 	int iHeight_src = imgSrc->GetHeight();
-	imgRGB->Set(iWidth_src,iHeight_src,CHANNEL_3_8RGB);
+	imgRGB->Set(iWidth_src,iHeight_src,CHANNEL_4_8RGBA);
 
 	int iBPP = imgSrc->GetBPP();
 	BYTE* src = (BYTE*)imgSrc->GetBits();
 	int iPitch_src=imgSrc->GetPitch();
-	if((iBPP==24) || (iBPP==32))
+	if(iBPP==24)
 	{
 		int iColorPitch = (iBPP==24 ? 3 : 4);
 		for(int r=0; r<iHeight_src; r++)
@@ -523,10 +607,32 @@ bool ConvertImage(const CImage* imgSrc, ImgRGB* imgRGB)
 				imgRGB->byImgR[r*imgRGB->iWidth+c]=src[r*iPitch_src+c*iColorPitch+2];
 				imgRGB->byImgG[r*imgRGB->iWidth+c]=src[r*iPitch_src+c*iColorPitch+1];
 				imgRGB->byImgB[r*imgRGB->iWidth+c]=src[r*iPitch_src+c*iColorPitch+0];
+				imgRGB->byImgA[r*imgRGB->iWidth+c]=255;
 			}
 		}
 		return true;
 	}
+	
+	if(iBPP==32)
+	{
+		int iColorPitch = (iBPP==24 ? 3 : 4);
+		for(int r=0; r<iHeight_src; r++)
+		{
+			for(int c=0; c<iWidth_src; c++)
+			{
+				imgRGB->byImgR[r*imgRGB->iWidth+c]=src[r*iPitch_src+c*iColorPitch+2];
+				imgRGB->byImgG[r*imgRGB->iWidth+c]=src[r*iPitch_src+c*iColorPitch+1];
+				imgRGB->byImgB[r*imgRGB->iWidth+c]=src[r*iPitch_src+c*iColorPitch+0];
+				imgRGB->byImgA[r*imgRGB->iWidth+c]=src[r*iPitch_src+c*iColorPitch+3];
+			}
+		}
+		return true;
+	}
+
+
+
+
+
 
 	RGBQUAD* pSrcTable=NULL;
 	int iColors = imgSrc->GetMaxColorTableEntries();
@@ -551,6 +657,7 @@ bool ConvertImage(const CImage* imgSrc, ImgRGB* imgRGB)
 			imgRGB->byImgR[r*imgRGB->iWidth+c]=pSrcTable[byIndex].rgbRed;
 			imgRGB->byImgG[r*imgRGB->iWidth+c]=pSrcTable[byIndex].rgbGreen;
 			imgRGB->byImgB[r*imgRGB->iWidth+c]=pSrcTable[byIndex].rgbBlue;
+			imgRGB->byImgA[r*imgRGB->iWidth+c]=pSrcTable[byIndex].rgbReserved;
 
 		}
 	}
@@ -1225,7 +1332,6 @@ bool ImposeRect(CImage* imgSrc, CImage* imgDst, CRect* rect)
 	return true;
 }
 
-int g_iDisplace=0;
 bool ImposeAlphaChannel(CImage* imgSrc, CImage* imgDst)
 {
 	SYSTEMTIME st;
@@ -1249,15 +1355,13 @@ bool ImposeAlphaChannel(CImage* imgSrc, CImage* imgDst)
 	BYTE* dst = (BYTE*)imgDst->GetBits();
 	int iPitch_dst=imgDst->GetPitch();
 	
-	g_iDisplace=((st.wSecond*1000 + st.wMilliseconds)/100)%16;
+	int iDisplace=((st.wSecond*1000 + st.wMilliseconds)/100)%16;
 
 	for(int r=0; r<iHeight_Dst; r++)
 	{
 		for(int c=0; c<iWidth_Dst; c++)
 		{
-			BYTE byBack=(((((r+g_iDisplace)/16)+((c+g_iDisplace)/16))%2==1)?  255: 192);
-
-			
+			BYTE byBack=(((((r+iDisplace)/16)+((c+iDisplace)/16))%2==1)?  255: 192);
 			BYTE byAlpha = src[r*iPitch_src+c*4+3];
 
 			dst[r*iPitch_dst+c*3+2]=(src[r*iPitch_src+c*4+2]*(byAlpha) + byBack*(255.0-byAlpha))/255 ;
@@ -1266,9 +1370,6 @@ bool ImposeAlphaChannel(CImage* imgSrc, CImage* imgDst)
 
 		}
 	}
-
-
-
 	return false;
 }
 bool ImposeGrid(CImage* imgSrc, CImage* imgDst, const int iType, const double dROffset, const double dCOffset, const double dScale, const double dScaleThresh)
