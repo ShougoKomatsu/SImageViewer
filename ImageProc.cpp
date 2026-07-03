@@ -32,7 +32,10 @@ bool IsThereAlphaValue(const RGBQUAD* rgbTable, const int iLength)
 {
 	for(int i=0; i< iLength; i++)
 	{
-		if(rgbTable[i].rgbReserved != 255){return true;}
+		if((rgbTable[i].rgbReserved != 255) && (rgbTable[i].rgbReserved != 0))
+		{
+			return true;
+		}
 	}
 	return false;
 }
@@ -1654,6 +1657,7 @@ bool ZoomImage(CImage* imgSrc, CImage* imgDst, const double dR0_Src, const doubl
 		pSrcTable = new RGBQUAD[iColors];
 		imgSrc->GetColorTable(0, iColors, pSrcTable);
 	}
+	bool bAlpha = IsAlphaChanneled(imgSrc);
 
 	const BYTE byMasks[9]={0,1,3,0,15,0,0,0,255};
 	for(int r=0; r<iHeight_Dst; r++)
@@ -1677,9 +1681,9 @@ bool ZoomImage(CImage* imgSrc, CImage* imgDst, const double dR0_Src, const doubl
 			int ic_Src=c/dScale+dC0_Src;
 			if((ic_Src<0)||(ic_Src>=iWidthSrc))
 			{
-				dst[r*iPitch_dst+c*3+2]=127;
-				dst[r*iPitch_dst+c*3+1]=127;
-				dst[r*iPitch_dst+c*3+0]=127;
+				dst[r*iPitch_dst+c*4+2]=127;
+				dst[r*iPitch_dst+c*4+1]=127;
+				dst[r*iPitch_dst+c*4+0]=127;
 				dst[r*iPitch_dst+c*4+3]=255;
 				continue;
 			}
@@ -1689,10 +1693,10 @@ bool ZoomImage(CImage* imgSrc, CImage* imgDst, const double dR0_Src, const doubl
 			int iDigit = (8/iBPP)-(ic_Src%(8/iBPP))-1;
 
 			BYTE byIndex = (src[iPosition] & (byMasks[iBPP]<< (iDigit*iBPP))) >> (iDigit*iBPP);
-			dst[r*iPitch_dst+c*3+2]=pSrcTable[byIndex].rgbRed;
-			dst[r*iPitch_dst+c*3+1]=pSrcTable[byIndex].rgbGreen;
-			dst[r*iPitch_dst+c*3+0]=pSrcTable[byIndex].rgbBlue;
-			dst[r*iPitch_dst+c*4+0]=pSrcTable[byIndex].rgbReserved;
+			dst[r*iPitch_dst+c*4+2]=pSrcTable[byIndex].rgbRed;
+			dst[r*iPitch_dst+c*4+1]=pSrcTable[byIndex].rgbGreen;
+			dst[r*iPitch_dst+c*4+0]=pSrcTable[byIndex].rgbBlue;
+			dst[r*iPitch_dst+c*4+3]=((bAlpha == true) ? pSrcTable[byIndex].rgbReserved : 255);
 		}
 	}
 	SAFE_DELETE(pSrcTable);
