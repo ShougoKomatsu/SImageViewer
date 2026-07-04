@@ -26,6 +26,7 @@ se // SImageViewerView.cpp : CSImageViewerView ƒNƒ‰ƒX‚ÌŽÀ‘•
 #endif
 
 #define TIMER_INIT (100)
+#define TIMER_REFRESH (101)
 #define SCALE_VAR_NUM (25)
 	double g_dScale[SCALE_VAR_NUM]=
 {
@@ -256,10 +257,10 @@ IMPLEMENT_DYNCREATE(CSImageViewerView, CView)
 				ImposeRect(&imgZoomed, &imgZoomed,&rect_v);
 			}
 		}
+		CImage imgAlphaed;
+		ImposeAlphaChannel(&imgZoomed,&imgAlphaed);
 
-
-
-		imgZoomed.BitBlt( memDC.GetSafeHdc(), 0, 0,imgZoomed.GetWidth(), imgZoomed.GetHeight(), 0, 0  );
+		imgAlphaed.BitBlt( memDC.GetSafeHdc(), 0, 0,imgAlphaed.GetWidth(), imgAlphaed.GetHeight(), 0, 0  );
 
 		pDC->BitBlt(0, 0, iWidth_v, iHeight_v, &memDC, 0, 0,SRCCOPY);
 
@@ -413,6 +414,11 @@ IMPLEMENT_DYNCREATE(CSImageViewerView, CView)
 	void CSImageViewerView::ResetImage()
 	{
 		m_iImgIndex=0;
+		if(m_bRefresh==true){KillTimer(TIMER_REFRESH);}
+		if(m_image.GetBPP()==32)
+		{	
+			SetTimer(TIMER_REFRESH,50,0);
+		}
 		CopyImage(&m_image,&(m_imageProcessed[(m_iImgIndex % MAX_IMG_BUF)]));
 		m_iScaleIndex =8;
 
@@ -537,9 +543,11 @@ IMPLEMENT_DYNCREATE(CSImageViewerView, CView)
 			if(iRet != IDYES){return false;}
 		}
 
+		CImage imgWrite;
+		bRet = MakeReservedChannelZero(image,&imgWrite);
+		if(bRet != true){return false;}
 
-
-		HRESULT hResult = image->Save(sFilePath);
+		HRESULT hResult = imgWrite.Save(sFilePath);
 		if(hResult != S_OK){return false;}
 
 		return true;
@@ -775,6 +783,7 @@ IMPLEMENT_DYNCREATE(CSImageViewerView, CView)
 		pFrame->SendMessage(WM_COMMAND, ID_DISP_STATUS_SIZE);
 		pFrame->m_sStatusBPP.Format(_T("0 BPP"));
 		pFrame->SendMessage(WM_COMMAND, ID_DISP_STATUS_BPP);
+		m_bRefresh=false;
 		/*
 		CImage imgTest;
 		imgTest.Create(16,16,8);
@@ -1312,6 +1321,12 @@ IMPLEMENT_DYNCREATE(CSImageViewerView, CView)
 				ReadImage(m_sFilePath);
 			}
 			//	SetCursor(AfxGetApp()->LoadStandardCursor(IDC_CROSS));
+			return;
+		}
+		
+		if(nIDEvent==TIMER_REFRESH)
+		{
+			Invalidate();
 			return;
 		}
 

@@ -44,3 +44,5 @@ bool Resize(const CImage* imgSrc, CImage* imgDst, const int iWidth_dst, const in
 bool ImposeGrid(CImage* imgSrc, CImage* imgDst, const int iType, const double dROffset, const double dCOffset, const double dScale, const double dScaleThresh);
 
 bool ImposeRect(CImage* imgSrc, CImage* imgDst, CRect* rect);
+bool ImposeAlphaChannel(CImage* imgSrc, CImage* imgDst);
+bool MakeReservedChannelZero(CImage* imgSrc, CImage* imgDst);
