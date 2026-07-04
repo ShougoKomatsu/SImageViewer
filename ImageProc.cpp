@@ -615,7 +615,7 @@ bool ConvertImage(const CImage* imgSrc, ImgRGB* imgRGB)
 		}
 		return true;
 	}
-	
+
 	if(iBPP==32)
 	{
 		int iColorPitch = (iBPP==24 ? 3 : 4);
@@ -1052,7 +1052,7 @@ bool ConvertImage_LossLess(const CImage* imgSrc, const int iBPPDst, CImage* imgD
 
 	SetColorTable(imgDst, rgbqTable, 1<<min(24, iBPPDst));
 
-		for(int i=iUsedColors; i<(1<<min(24, iBPPDst)); i++)
+	for(int i=iUsedColors; i<(1<<min(24, iBPPDst)); i++)
 	{
 		rgbqTable[i].rgbRed=255;
 		rgbqTable[i].rgbGreen=255;
@@ -1339,7 +1339,7 @@ bool ImposeAlphaChannel(CImage* imgSrc, CImage* imgDst)
 {
 	SYSTEMTIME st;
 	GetSystemTime(&st);
-	
+
 	if(imgSrc->GetBPP() != 32)
 	{
 		return false;
@@ -1352,13 +1352,13 @@ bool ImposeAlphaChannel(CImage* imgSrc, CImage* imgDst)
 
 	imgDst->Create(iWidth_Dst, iHeight_Dst,24);
 
-	
+
 	BYTE* src = (BYTE*)imgSrc->GetBits();
 	int iPitch_src=imgSrc->GetPitch();
 	BYTE* dst = (BYTE*)imgDst->GetBits();
 	int iPitch_dst=imgDst->GetPitch();
-	
-	int iDisplace=((st.wSecond*1000 + st.wMilliseconds)/100)%16;
+
+	int iDisplace=((st.wMinute*60000+ st.wSecond*1000 + st.wMilliseconds)/100)%16;
 
 	for(int r=0; r<iHeight_Dst; r++)
 	{
@@ -1562,7 +1562,7 @@ bool MakeReservedChannelZero(CImage* imgSrc, CImage* imgDst)
 
 	if(imgSrc->GetBPP()==32){return true;}
 	if(imgSrc->GetBPP()==24){return true;}
-	
+
 
 	RGBQUAD* srcTable=NULL;
 	int iColors = imgDst->GetMaxColorTableEntries();
@@ -1634,7 +1634,7 @@ bool ZoomImage(CImage* imgSrc, CImage* imgDst, const double dR0_Src, const doubl
 		}
 		return true;
 	}
-	
+
 	if(iBPP==32)
 	{
 		int iColorPitch = (iBPP==24 ? 3 : 4);
@@ -2103,7 +2103,7 @@ bool ConvertImage_AreaCoverage(const CImage* imgSrc, const int iBPP, CImage* img
 		for(int c=0; c< iWidth; c++)
 		{
 			int iColorTableIndex=GetColorTableIndex(rgbqTable,iColors, imgRGB.byImgR[r*iWidth+c], imgRGB.byImgG[r*iWidth+c], imgRGB.byImgB[r*iWidth+c]);
-			
+
 			int iDigit = (8/iBPP)-(c%(8/iBPP))-1;
 			pbyData_dst[r*iPitch_dst+c/(8/iBPP)]+=(iConversionTable[iColorTableIndex]<<(iBPP*iDigit));
 		}
@@ -2617,7 +2617,7 @@ bool ConvertImage_ByDeviation(const CImage* imgSrc, const int iBPP,CImage* imgDs
 
 	int iPitch_dst = imgDst->GetPitch();
 	BYTE* pbyData_dst = (BYTE*)imgDst->GetBits();
-		for(int r=0; r<iHeight; r++)
+	for(int r=0; r<iHeight; r++)
 	{
 		for(int c=0; c< iWidth/(8/iBPP); c++)
 		{
@@ -2631,7 +2631,7 @@ bool ConvertImage_ByDeviation(const CImage* imgSrc, const int iBPP,CImage* imgDs
 		for(int c=0; c< iWidth; c++)
 		{
 			int iColorTableIndex=GetColorTableIndex(rgbqTable,iColors, imgRGB.byImgR[r*iWidth+c], imgRGB.byImgG[r*iWidth+c], imgRGB.byImgB[r*iWidth+c]);
-			
+
 			int iDigit = (8/iBPP)-(c%(8/iBPP))-1;
 			pbyData_dst[r*iPitch_dst+c/(8/iBPP)]+=(iConversionTable[iColorTableIndex]<<(iBPP*iDigit));
 		}
@@ -2661,7 +2661,7 @@ bool ConvertImage(const ImgRGB* imgRGB, CImage* imgDst, const int iBPPDst, const
 		for(int c=0; c< iWidth; c++)
 		{
 			int iColorTableIndex=GetColorTableIndex(rgbqTable,iColors, imgRGB->byImgR[r*iWidth+c], imgRGB->byImgG[r*iWidth+c], imgRGB->byImgB[r*iWidth+c]);
-			
+
 			int iDigit = (8/iBPPDst)-(c%(8/iBPPDst))-1;
 			pbyData_dst[r*iPitch_dst+c/(8/iBPPDst)]+=(iColorTableIndex<<(iBPPDst*iDigit));
 		}

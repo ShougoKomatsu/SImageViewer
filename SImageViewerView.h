@@ -25,6 +25,7 @@ public:
 	int m_iImgIndex;
 	int m_iUnDoAvailableCount;
 	int m_iReDoAvailableCount;
+	bool m_bRefresh;
 
 	int m_iScaleIndex;
 	int m_iMouseMode;

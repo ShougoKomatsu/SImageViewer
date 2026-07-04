@@ -414,6 +414,11 @@ IMPLEMENT_DYNCREATE(CSImageViewerView, CView)
 	void CSImageViewerView::ResetImage()
 	{
 		m_iImgIndex=0;
+		if(m_bRefresh==true){KillTimer(TIMER_REFRESH);}
+		if(m_image.GetBPP()==32)
+		{	
+			SetTimer(TIMER_REFRESH,50,0);
+		}
 		CopyImage(&m_image,&(m_imageProcessed[(m_iImgIndex % MAX_IMG_BUF)]));
 		m_iScaleIndex =8;
 
@@ -778,6 +783,7 @@ IMPLEMENT_DYNCREATE(CSImageViewerView, CView)
 		pFrame->SendMessage(WM_COMMAND, ID_DISP_STATUS_SIZE);
 		pFrame->m_sStatusBPP.Format(_T("0 BPP"));
 		pFrame->SendMessage(WM_COMMAND, ID_DISP_STATUS_BPP);
+		m_bRefresh=false;
 		/*
 		CImage imgTest;
 		imgTest.Create(16,16,8);
@@ -1315,7 +1321,6 @@ IMPLEMENT_DYNCREATE(CSImageViewerView, CView)
 				ReadImage(m_sFilePath);
 			}
 			//	SetCursor(AfxGetApp()->LoadStandardCursor(IDC_CROSS));
-			SetTimer(TIMER_REFRESH,100,0);
 			return;
 		}
 		
