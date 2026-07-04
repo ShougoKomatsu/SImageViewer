@@ -12,7 +12,9 @@
 #define CHANNEL_UNDEFINED (0)
 #define CHANNEL_1_8 (1)
 #define CHANNEL_3_8RGB (3)
+#define CHANNEL_4_8RGBA (4)
 #define CHANNEL_1_24BGR (24)
+#define CHANNEL_1_32BGRA (32)
 #define CHANNEL_3_FLOAT (103)
 
 
@@ -81,6 +83,7 @@ struct DLL_IE ImgRGB
 	BYTE* byImgR;
 	BYTE* byImgG;
 	BYTE* byImgB;
+	BYTE* byImgA;
 	double* dImg1;
 	double* dImg2;
 	double* dImg3;
@@ -142,8 +145,8 @@ BOOL DLL_IE WriteImage(const ImgRGB* imgRGB, CString sFilePath);
 BOOL DLL_IE ReadBmpFromData(BOOL bHeader, BYTE* byData, ImgRGB* imgRGB);
 BOOL DLL_IE ReadImage(const CString sFilePath, ImgRGB* imgRGB);
 BOOL DLL_IE ConvertImage(const ImgRGB* imgIn, ImgRGB* imgOut, const CString sDstColor);
-BOOL DLL_IE Decompose3(const ImgRGB* imgIn, ImgRGB* imgR, ImgRGB* imgG, ImgRGB* imgB);
-BOOL DLL_IE Compose3(const ImgRGB* imgR, const ImgRGB* imgG, const ImgRGB* imgB, ImgRGB* imgOut);
+BOOL DLL_IE Decompose3(const ImgRGB* imgIn, ImgRGB* imgR, ImgRGB* imgG, ImgRGB* imgB, ImgRGB* imgA);
+BOOL DLL_IE Compose3(const ImgRGB* imgR, const ImgRGB* imgG, const ImgRGB* imgB, const ImgRGB* imgA, ImgRGB* imgOut);
 
 BOOL DLL_IE Screenshot(ImgRGB* imgRGB);
 BOOL DLL_IE CropImage(const ImgRGB* imgRGBin, ImgRGB* imgRGBout, const int iR0, const int iC0, const int iR1, const int iC1);
@@ -215,5 +218,6 @@ enum ENUM_COLOR
 	COLOR_RED_GRAY,
 	COLOR_GREEN_GRAY,
 	COLOR_BLUE_GRAY,
+	COLOR_ALPHA_GRAY,
 };
 BOOL DLL_IE ConvertColorSpace(const ImgRGB* imgIn, ImgRGB* imgResult, const ENUM_COLOR color);
