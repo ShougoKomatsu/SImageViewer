@@ -32,7 +32,7 @@ public:
 	double m_dDispOriginR_tv;
 	double m_dDispOriginC_tv;
 
-	bool m_bBingFullScreen;
+	bool m_bBeingFullScreen;
 	bool m_bCBar;
 	bool m_bRBar;
 	bool m_bDragging; 

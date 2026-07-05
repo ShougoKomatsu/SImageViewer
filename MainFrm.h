@@ -17,7 +17,7 @@ public:
 	bool m_bFileOpened;
 	bool m_bSelected;
 	CFont m_cfStatus;
-	bool m_bBingFullScreen;
+	bool m_bBeingFullScreen;
 	CRect m_rectPreserved;
 	DWORD m_dwStylePreserved;
 	DWORD m_dwExStylePreserved ;
@@ -33,7 +33,7 @@ int m_iGrid;
 public:
 	void ShowNormal();
 	void EnterFullScreen();
-	void CMainFrame::ExitFullScreen();
+	void ExitFullScreen();
 	void AdjustViewClientSize(int desiredClientWidth, int desiredClientHeight,int iNowWidth, int iNowHeight);
 
 	void LaunchNewInstance(CString sFilePath);

@@ -839,7 +839,7 @@ IMPLEMENT_DYNCREATE(CSImageViewerView, CView)
 		}
 		}*/
 
-		m_bBingFullScreen = false;
+		m_bBeingFullScreen = false;
 		SetTimer(TIMER_INIT, 100, 0);
 	}
 
@@ -1059,7 +1059,7 @@ IMPLEMENT_DYNCREATE(CSImageViewerView, CView)
 		CMainFrame* pFrame = (CMainFrame*)AfxGetMainWnd();
 		if (pFrame==NULL) {return;}
 		pFrame->EnterFullScreen();
-		m_bBingFullScreen=true;
+		m_bBeingFullScreen=true;
 
 	}
 
@@ -1068,7 +1068,7 @@ IMPLEMENT_DYNCREATE(CSImageViewerView, CView)
 		CMainFrame* pFrame = (CMainFrame*)AfxGetMainWnd();
 		if (pFrame==NULL) {return;}
 		pFrame->ExitFullScreen();
-		m_bBingFullScreen=false;
+		m_bBeingFullScreen=false;
 	}
 
 
@@ -1491,8 +1491,8 @@ IMPLEMENT_DYNCREATE(CSImageViewerView, CView)
 			}
 			if(pMsg->wParam == 'R'){OperateRotaateImage(ROTATE_CW90);return TRUE;}
 
-			if(pMsg->wParam == VK_RETURN) { if(m_bBingFullScreen==true){ ExitFullScreen(); return TRUE;} EnterFullScreen(); return TRUE; } 
-			if(pMsg->wParam == VK_ESCAPE) { if(m_bBingFullScreen==true){ ExitFullScreen(); return TRUE;} ::PostQuitMessage( 0 );}
+			if(pMsg->wParam == VK_RETURN) { if(m_bBeingFullScreen==true){ ExitFullScreen(); return TRUE;} EnterFullScreen(); return TRUE; } 
+			if(pMsg->wParam == VK_ESCAPE) { if(m_bBeingFullScreen==true){ ExitFullScreen(); return TRUE;} ::PostQuitMessage( 0 );}
 
 			if(pMsg->wParam == VK_ADD){ZoomChange(1);return TRUE;}
 			if(pMsg->wParam == VK_SUBTRACT){ZoomChange(-1);return TRUE;}

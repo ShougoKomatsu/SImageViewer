@@ -459,7 +459,7 @@ void CMainFrame::LaunchNewInstance(CString sFilePath)
 	PROCESS_INFORMATION pi;
 
 	BOOL bRet = CreateProcess(NULL,sCommand.GetBuffer(),NULL,NULL,FALSE,0,NULL,NULL,&si,&pi);
-	if (bRet = TRUE)
+	if (bRet == TRUE)
 	{
 		CloseHandle(pi.hProcess);
 		CloseHandle(pi.hThread);
@@ -506,7 +506,7 @@ void CMainFrame::AdjustViewClientSize(int iNewClientWidth, int iNewClientHeight,
 void CMainFrame::EnterFullScreen()
 {
 
-	if (m_bBingFullScreen == true) {return;}
+	if (m_bBeingFullScreen == true) {return;}
 
 	GetWindowRect(&m_rectPreserved);
 	m_dwStylePreserved = GetStyle();
@@ -557,9 +557,9 @@ void CMainFrame::EnterFullScreen()
 
 void CMainFrame::ExitFullScreen()
 {
-	if (m_bBingFullScreen != false){ return;}
+	if (m_bBeingFullScreen != false){ return;}
 
-	m_bBingFullScreen = FALSE;
+	m_bBeingFullScreen = FALSE;
 
 	CBasePane* basePane=DYNAMIC_DOWNCAST(CBasePane, GetMenuBar());	
 	if (basePane != NULL)
