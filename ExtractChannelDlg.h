@@ -1,16 +1,16 @@
 #pragma once
 #include "ImageProc.h"
 
-// CExtractChennelDlg ダイアログ
+// CExtractChannelDlg ダイアログ
 
-class CExtractChennelDlg : public CDialogEx
+class CExtractChannelDlg : public CDialogEx
 {
-	DECLARE_DYNAMIC(CExtractChennelDlg)
+	DECLARE_DYNAMIC(CExtractChannelDlg)
 
 public:
 	ENUM_COLOR m_enumColor;
-	CExtractChennelDlg(CWnd* pParent = NULL);   // 標準コンストラクター
-	virtual ~CExtractChennelDlg();
+	CExtractChannelDlg(CWnd* pParent = NULL);   // 標準コンストラクター
+	virtual ~CExtractChannelDlg();
 
 // ダイアログ データ
 	enum { IDD = IDD_DLG_EXTRACT_CHANNEL };

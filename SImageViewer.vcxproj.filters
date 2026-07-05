@@ -84,16 +84,16 @@
     <ClInclude Include="CommonFunction.h">
       <Filter>ヘッダー ファイル</Filter>
     </ClInclude>
-    <ClInclude Include="ExtractChennelDlg.h">
-      <Filter>ヘッダー ファイル\Dlg</Filter>
-    </ClInclude>
     <ClInclude Include="ChangeColorDepthDlg.h">
       <Filter>ヘッダー ファイル\Dlg</Filter>
     </ClInclude>
-    <ClInclude Include="FormatSelectionoDlg.h">
+    <ClInclude Include="ResampleDlg.h">
       <Filter>ヘッダー ファイル\Dlg</Filter>
     </ClInclude>
-    <ClInclude Include="ResampleDlg.h">
+    <ClInclude Include="ExtractChannelDlg.h">
+      <Filter>ヘッダー ファイル\Dlg</Filter>
+    </ClInclude>
+    <ClInclude Include="FormatSelectionDlg.h">
       <Filter>ヘッダー ファイル\Dlg</Filter>
     </ClInclude>
   </ItemGroup>
@@ -128,16 +128,16 @@
     <ClCompile Include="CommonFunction.cpp">
       <Filter>ソース ファイル</Filter>
     </ClCompile>
-    <ClCompile Include="ExtractChennelDlg.cpp">
-      <Filter>ソース ファイル\Dlg</Filter>
-    </ClCompile>
     <ClCompile Include="ChangeColorDepthDlg.cpp">
       <Filter>ソース ファイル\Dlg</Filter>
     </ClCompile>
-    <ClCompile Include="FormatSelectionoDlg.cpp">
+    <ClCompile Include="ResampleDlg.cpp">
       <Filter>ソース ファイル\Dlg</Filter>
     </ClCompile>
-    <ClCompile Include="ResampleDlg.cpp">
+    <ClCompile Include="ExtractChannelDlg.cpp">
+      <Filter>ソース ファイル\Dlg</Filter>
+    </ClCompile>
+    <ClCompile Include="FormatSelectionDlg.cpp">
       <Filter>ソース ファイル\Dlg</Filter>
     </ClCompile>
   </ItemGroup>

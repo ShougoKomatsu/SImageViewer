@@ -177,7 +177,7 @@ bool CopyImage(const CImage* imgSrc, CImage* imgDst)
 }
 
 
-bool ConvertImageToStr(const CImage* imgSrc, const CString sSeparater, CString* sImage)
+bool ConvertImageToStr(const CImage* imgSrc, const CString sSeparator, CString* sImage)
 {
 	int iWidth_src  = imgSrc->GetWidth();
 	int iHeight_src = imgSrc->GetHeight();
@@ -198,19 +198,19 @@ bool ConvertImageToStr(const CImage* imgSrc, const CString sSeparater, CString* 
 			CString sPixel;
 			for(int c=0; c<iWidth_src; c++)
 			{
-				sPixel.Format(_T("%d%s"),imgRGB.byImgR[r*iWidth_src+c],sSeparater);
+				sPixel.Format(_T("%d%s"),imgRGB.byImgR[r*iWidth_src+c],sSeparator);
 				sLine+=sPixel;
 			}
-			sLine+=sSeparater;
+			sLine+=sSeparator;
 			for(int c=0; c<iWidth_src; c++)
 			{
-				sPixel.Format(_T("%d%s"),imgRGB.byImgG[r*iWidth_src+c],sSeparater);
+				sPixel.Format(_T("%d%s"),imgRGB.byImgG[r*iWidth_src+c],sSeparator);
 				sLine+=sPixel;
 			}
-			sLine+=sSeparater;
+			sLine+=sSeparator;
 			for(int c=0; c<iWidth_src-1; c++)
 			{
-				sPixel.Format(_T("%d%s"),imgRGB.byImgB[r*iWidth_src+c],sSeparater);
+				sPixel.Format(_T("%d%s"),imgRGB.byImgB[r*iWidth_src+c],sSeparator);
 				sLine+=sPixel;
 			}
 			if(bAlpha!=true)
@@ -220,12 +220,12 @@ bool ConvertImageToStr(const CImage* imgSrc, const CString sSeparater, CString* 
 			}
 			else
 			{
-				sPixel.Format(_T("%d%s"),imgRGB.byImgB[r*iWidth_src+(iWidth_src-1)], sSeparater);
+				sPixel.Format(_T("%d%s"),imgRGB.byImgB[r*iWidth_src+(iWidth_src-1)], sSeparator);
 				sLine+=sPixel;
-				sLine+=sSeparater;
+				sLine+=sSeparator;
 				for(int c=0; c<iWidth_src-1; c++)
 				{
-					sPixel.Format(_T("%d%s"),imgRGB.byImgA[r*iWidth_src+c],sSeparater);
+					sPixel.Format(_T("%d%s"),imgRGB.byImgA[r*iWidth_src+c],sSeparator);
 					sLine+=sPixel;
 				}
 				sPixel.Format(_T("%d\n"),imgRGB.byImgA[r*iWidth_src+(iWidth_src-1)]);
@@ -244,7 +244,7 @@ bool ConvertImageToStr(const CImage* imgSrc, const CString sSeparater, CString* 
 
 		for(int c=0; c<iWidth_src-1; c++)
 		{
-			sPixel.Format(_T("%d%s"),imgRGB.byImgR[r*iWidth_src+c],sSeparater);
+			sPixel.Format(_T("%d%s"),imgRGB.byImgR[r*iWidth_src+c],sSeparator);
 			sLine+=sPixel;
 		}
 		if(bAlpha!=true)
@@ -254,12 +254,12 @@ bool ConvertImageToStr(const CImage* imgSrc, const CString sSeparater, CString* 
 		}
 		else
 		{
-			sPixel.Format(_T("%d%s"),imgRGB.byImgR[r*iWidth_src+(iWidth_src-1)],sSeparater);
+			sPixel.Format(_T("%d%s"),imgRGB.byImgR[r*iWidth_src+(iWidth_src-1)],sSeparator);
 			sLine+=sPixel;
-			sLine+=sSeparater;
+			sLine+=sSeparator;
 			for(int c=0; c<iWidth_src-1; c++)
 			{
-				sPixel.Format(_T("%d%s"),imgRGB.byImgA[r*iWidth_src+c],sSeparater);
+				sPixel.Format(_T("%d%s"),imgRGB.byImgA[r*iWidth_src+c],sSeparator);
 				sLine+=sPixel;
 			}
 			sPixel.Format(_T("%d\n"),imgRGB.byImgA[r*iWidth_src+(iWidth_src-1)]);

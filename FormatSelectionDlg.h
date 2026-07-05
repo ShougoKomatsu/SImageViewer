@@ -1,17 +1,17 @@
 #pragma once
 
 
-// CFormatSelectionoDlg ダイアログ
+// CFormatSelectionDlg ダイアログ
 
-class CFormatSelectionoDlg : public CDialogEx
+class CFormatSelectionDlg : public CDialogEx
 {
-	DECLARE_DYNAMIC(CFormatSelectionoDlg)
+	DECLARE_DYNAMIC(CFormatSelectionDlg)
 
 
 public:
 	bool m_bImageIsMonochrome;
-	CFormatSelectionoDlg(CWnd* pParent = NULL);   // 標準コンストラクター
-	virtual ~CFormatSelectionoDlg();
+	CFormatSelectionDlg(CWnd* pParent = NULL);   // 標準コンストラクター
+	virtual ~CFormatSelectionDlg();
 	int m_iFormat;
 	int m_iBPP;
 // ダイアログ データ

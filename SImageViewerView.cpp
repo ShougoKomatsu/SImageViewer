@@ -17,8 +17,8 @@ se // SImageViewerView.cpp : CSImageViewerView ƒNƒ‰ƒX‚ÌŽÀ‘•
 #include "SetSelectionDlg.h"
 #include "CopyAsDlg.h"
 #include "CommonFunction.h"
-#include "ExtractChennelDlg.h"
-#include "FormatSelectionoDlg.h"
+#include "ExtractChannelDlg.h"
+#include "FormatSelectionDlg.h"
 #include "ChangeColorDepthDlg.h"
 #include "SImgProc_ex.h"
 #ifdef _DEBUG
@@ -514,7 +514,7 @@ IMPLEMENT_DYNCREATE(CSImageViewerView, CView)
 	bool CSImageViewerView::SaveImage(CImage* image)
 	{
 
-		CFormatSelectionoDlg formatDlg;
+		CFormatSelectionDlg formatDlg;
 		formatDlg.m_iBPP = image->GetBPP();
 		formatDlg.m_bImageIsMonochrome= IsImageMonochrome(image);
 		INT_PTR iRet = formatDlg.DoModal();
@@ -681,7 +681,7 @@ IMPLEMENT_DYNCREATE(CSImageViewerView, CView)
 	void CSImageViewerView::OperateConvertColorSpace()
 	{
 		ENUM_COLOR color;
-		CExtractChennelDlg extractDlg;
+		CExtractChannelDlg extractDlg;
 
 		INT_PTR iRet = extractDlg.DoModal();
 		if(iRet != IDOK){return;}

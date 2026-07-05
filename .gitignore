@@ -17,4 +17,8 @@ Debug/SImgProc.dll
 Release/SImageViewer.lastbuildstate
 Release/SImgProc.dll
 SImageViewer.suo
+SImgProc.dll
+SImgProc.lib
+SImgProc_d.dll
+SImgProc_d.lib
 *.ipch

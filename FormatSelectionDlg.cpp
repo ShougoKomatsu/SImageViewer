@@ -3,27 +3,27 @@
 
 #include "stdafx.h"
 #include "SImageViewer.h"
-#include "FormatSelectionoDlg.h"
+#include "FormatSelectionDlg.h"
 #include "afxdialogex.h"
 
 
-// CFormatSelectionoDlg ダイアログ
+// CFormatSelectionDlg ダイアログ
 
-IMPLEMENT_DYNAMIC(CFormatSelectionoDlg, CDialogEx)
+IMPLEMENT_DYNAMIC(CFormatSelectionDlg, CDialogEx)
 
-CFormatSelectionoDlg::CFormatSelectionoDlg(CWnd* pParent /*=NULL*/)
-	: CDialogEx(CFormatSelectionoDlg::IDD, pParent)
+CFormatSelectionDlg::CFormatSelectionDlg(CWnd* pParent /*=NULL*/)
+	: CDialogEx(CFormatSelectionDlg::IDD, pParent)
 	, m_sEditIsMonochrome(_T(""))
 	, m_sBPP(_T(""))
 {
 
 }
 
-CFormatSelectionoDlg::~CFormatSelectionoDlg()
+CFormatSelectionDlg::~CFormatSelectionDlg()
 {
 }
 
-void CFormatSelectionoDlg::DoDataExchange(CDataExchange* pDX)
+void CFormatSelectionDlg::DoDataExchange(CDataExchange* pDX)
 {
 	CDialogEx::DoDataExchange(pDX);
 	DDX_Text(pDX, IDC_SELECT_FORMAT_MONO, m_sEditIsMonochrome);
@@ -31,15 +31,15 @@ void CFormatSelectionoDlg::DoDataExchange(CDataExchange* pDX)
 }
 
 
-BEGIN_MESSAGE_MAP(CFormatSelectionoDlg, CDialogEx)
-	ON_BN_CLICKED(IDOK, &CFormatSelectionoDlg::OnBnClickedOk)
+BEGIN_MESSAGE_MAP(CFormatSelectionDlg, CDialogEx)
+	ON_BN_CLICKED(IDOK, &CFormatSelectionDlg::OnBnClickedOk)
 END_MESSAGE_MAP()
 
 
-// CFormatSelectionoDlg メッセージ ハンドラー
+// CFormatSelectionDlg メッセージ ハンドラー
 
 
-BOOL CFormatSelectionoDlg::OnInitDialog()
+BOOL CFormatSelectionDlg::OnInitDialog()
 {
 	CDialogEx::OnInitDialog();
 
@@ -61,7 +61,7 @@ BOOL CFormatSelectionoDlg::OnInitDialog()
 }
 
 
-void CFormatSelectionoDlg::OnBnClickedOk()
+void CFormatSelectionDlg::OnBnClickedOk()
 {
 	if(((CButton*)GetDlgItem(IDC_SELECT_FORMAT_BMP24))->GetCheck()==TRUE){m_iFormat=0;m_iBPP=24;}
 	if(((CButton*)GetDlgItem(IDC_SELECT_FORMAT_PNG24))->GetCheck()==TRUE){m_iFormat=1;m_iBPP=24;}

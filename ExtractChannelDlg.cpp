@@ -3,39 +3,39 @@
 
 #include "stdafx.h"
 #include "SImageViewer.h"
-#include "ExtractChennelDlg.h"
+#include "ExtractChannelDlg.h"
 #include "afxdialogex.h"
 
 
-// CExtractChennelDlg ダイアログ
+// CExtractChannelDlg ダイアログ
 
-IMPLEMENT_DYNAMIC(CExtractChennelDlg, CDialogEx)
+IMPLEMENT_DYNAMIC(CExtractChannelDlg, CDialogEx)
 
-CExtractChennelDlg::CExtractChennelDlg(CWnd* pParent /*=NULL*/)
-	: CDialogEx(CExtractChennelDlg::IDD, pParent)
+CExtractChannelDlg::CExtractChannelDlg(CWnd* pParent /*=NULL*/)
+	: CDialogEx(CExtractChannelDlg::IDD, pParent)
 {
 
 }
 
-CExtractChennelDlg::~CExtractChennelDlg()
+CExtractChannelDlg::~CExtractChannelDlg()
 {
 }
 
-void CExtractChennelDlg::DoDataExchange(CDataExchange* pDX)
+void CExtractChannelDlg::DoDataExchange(CDataExchange* pDX)
 {
 	CDialogEx::DoDataExchange(pDX);
 }
 
 
-BEGIN_MESSAGE_MAP(CExtractChennelDlg, CDialogEx)
-	ON_BN_CLICKED(IDOK, &CExtractChennelDlg::OnBnClickedOk)
+BEGIN_MESSAGE_MAP(CExtractChannelDlg, CDialogEx)
+	ON_BN_CLICKED(IDOK, &CExtractChannelDlg::OnBnClickedOk)
 END_MESSAGE_MAP()
 
 
-// CExtractChennelDlg メッセージ ハンドラー
+// CExtractChannelDlg メッセージ ハンドラー
 
 
-void CExtractChennelDlg::OnBnClickedOk()
+void CExtractChannelDlg::OnBnClickedOk()
 {
 	
 	if(((CButton*)GetDlgItem(IDC_EXTRACT_CHANNEL_RADIO_R))->GetCheck() == TRUE){m_enumColor=COLOR_RED;};
@@ -49,14 +49,14 @@ void CExtractChennelDlg::OnBnClickedOk()
 
 	if(((CButton*)GetDlgItem(IDC_EXTRACT_CHANNEL_RADIO_HUE))->GetCheck() == TRUE){m_enumColor=COLOR_HUE;};
 	if(((CButton*)GetDlgItem(IDC_EXTRACT_CHANNEL_RADIO_HUE180))->GetCheck() == TRUE){m_enumColor=COLOR_HUE180;};
-	if(((CButton*)GetDlgItem(IDC_EXTRACT_CHANNEL_RADIO_SATUATION))->GetCheck() == TRUE){m_enumColor=COLOR_SATUATION;};
+	if(((CButton*)GetDlgItem(IDC_EXTRACT_CHANNEL_RADIO_SATURATION))->GetCheck() == TRUE){m_enumColor=COLOR_SATURATION;};
 	if(((CButton*)GetDlgItem(IDC_EXTRACT_CHANNEL_RADIO_BRIGHTNESS))->GetCheck() == TRUE){m_enumColor=COLOR_BRIGHTNESS;};
 
 	CDialogEx::OnOK();
 }
 
 
-BOOL CExtractChennelDlg::OnInitDialog()
+BOOL CExtractChannelDlg::OnInitDialog()
 {
 	CDialogEx::OnInitDialog();
 	((CButton*)GetDlgItem(IDC_EXTRACT_CHANNEL_RADIO_R))->SetCheck(TRUE); 
