@@ -222,6 +222,9 @@ IMPLEMENT_DYNCREATE(CSImageViewerView, CView)
 		double dR0_i = (dDispOriginR_tv/g_dScale[m_iScaleIndex]);
 		double dC0_i = (dDispOriginC_tv/g_dScale[m_iScaleIndex]);
 
+		int iRMax=m_imageProcessed[(m_iImgIndex % MAX_IMG_BUF)].GetHeight()-1;
+		int iCMax=m_imageProcessed[(m_iImgIndex % MAX_IMG_BUF)].GetWidth()-1;
+
 		ZoomImage(&(m_imageProcessed[(m_iImgIndex % MAX_IMG_BUF)]),&imgZoomed,
 			dR0_i,
 			dC0_i,
@@ -238,7 +241,7 @@ IMPLEMENT_DYNCREATE(CSImageViewerView, CView)
 		case ID_BUTTON_GRID_CONNECT:{iGrid=3;break;}
 		default:{iGrid=0;}
 		}
-		ImposeGrid(&imgZoomed, &imgZoomed, iGrid, int(dR0_i)-dR0_i, int(dC0_i)-dC0_i,g_dScale[m_iScaleIndex], 10);
+		ImposeGrid(&imgZoomed, &imgZoomed, iGrid, int(dR0_i)-dR0_i, int(dC0_i)-dC0_i,g_dScale[m_iScaleIndex], 10, iRMax, iCMax);
 
 		if(m_bDragging==true)
 		{

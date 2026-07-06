@@ -1433,7 +1433,7 @@ bool ImposeAlphaChannel(CImage* imgSrc, CImage* imgDst)
 	}
 	return false;
 }
-bool ImposeGrid(CImage* imgSrc, CImage* imgDst, const int iType, const double dROffset, const double dCOffset, const double dScale, const double dScaleThresh)
+bool ImposeGrid(CImage* imgSrc, CImage* imgDst, const int iType, const double dROffset, const double dCOffset, const double dScale, const double dScaleThresh,const int iRMax_i, const int iCMax_i)
 {
 	if(imgSrc != imgDst)
 	{
@@ -1454,12 +1454,12 @@ bool ImposeGrid(CImage* imgSrc, CImage* imgDst, const int iType, const double dR
 
 	if(iType==1)
 	{
-		for(int ir=0; ir<iRMax; ir++)
+		for(int ir=0; ir<min(iRMax_i+2-dROffset, iRMax); ir++)
 		{
 			int r0=(ir+dROffset)*dScale;
 			if(r0<0){continue;}
 			if(r0>=iHeight){continue;}
-			for(int ic=0; ic<iCMax; ic++)
+			for(int ic=0; ic<min(iCMax_i+2-dCOffset,iCMax); ic++)
 			{
 				int r=r0;
 				int c=(ic+dCOffset)*dScale;
@@ -1532,10 +1532,12 @@ bool ImposeGrid(CImage* imgSrc, CImage* imgDst, const int iType, const double dR
 
 		for(int ir=0; ir<iRMax; ir++)
 		{
+			if(ir+dROffset>=iRMax_i+2){continue;}
 			int r=(ir+dROffset)*dScale;
 			if(r<0){continue;}
 			if(r>=iHeight){continue;}
-			for(int c=0; c<iWidth; c++)
+			
+			for(int c=0; c<min((iCMax_i+dCOffset+1)*dScale,iWidth); c++)
 			{
 				pbyData[r*iPitch+4*c+0]=byDot;
 				pbyData[r*iPitch+4*c+1]=byDot;
@@ -1544,7 +1546,7 @@ bool ImposeGrid(CImage* imgSrc, CImage* imgDst, const int iType, const double dR
 			}
 			r=(ir+dROffset)*dScale+1;
 			if(r>=iHeight){continue;}
-			for(int c=0; c<iWidth; c++)
+			for(int c=0; c<min((iCMax_i+dCOffset+1)*dScale,iWidth); c++)
 			{
 				pbyData[r*iPitch+4*c+0]=byDot;
 				pbyData[r*iPitch+4*c+1]=byDot;
@@ -1555,10 +1557,11 @@ bool ImposeGrid(CImage* imgSrc, CImage* imgDst, const int iType, const double dR
 
 		for(int ic=0; ic<iCMax; ic++)
 		{
+			if(ic+dCOffset>=iCMax_i+2){continue;}
 			int c=(ic+dCOffset)*dScale;
 			if(c<0){continue;}
 			if(c>=iWidth){continue;}
-			for(int r=0; r<iHeight; r++)
+			for(int r=0; r<min((iRMax_i+dROffset+1)*dScale,iHeight); r++)
 			{
 				pbyData[r*iPitch+4*c+0]=byDot;
 				pbyData[r*iPitch+4*c+1]=byDot;
@@ -1567,7 +1570,7 @@ bool ImposeGrid(CImage* imgSrc, CImage* imgDst, const int iType, const double dR
 			}
 			c=(ic+dCOffset)*dScale+1;
 			if(c>=iWidth){continue;}
-			for(int r=0; r<iHeight; r++)
+			for(int r=0; r<min((iRMax_i+dROffset+1)*dScale,iHeight); r++)
 			{
 				pbyData[r*iPitch+4*c+0]=byDot;
 				pbyData[r*iPitch+4*c+1]=byDot;
