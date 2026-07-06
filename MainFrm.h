@@ -79,5 +79,7 @@ public:
 	afx_msg void OnZoomup();
 	afx_msg void OnDropFiles(HDROP hDropInfo);
 	afx_msg void OnDestroy();
+protected:
+	afx_msg LRESULT OnCommandChangeChannel(WPARAM wParam, LPARAM lParam);
 };
 

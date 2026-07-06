@@ -422,6 +422,19 @@ IMPLEMENT_DYNCREATE(CSImageViewerView, CView)
 		{	
 			SetTimer(TIMER_REFRESH,50,0);
 		}
+
+		if(m_image.GetBPP()==24)
+		{
+			CMainFrame* pFrame = (CMainFrame*)AfxGetMainWnd();
+			pFrame->SendMessage(WM_COMMAND_CHANGE_CHANNEL, 24);
+		}
+		else
+		{
+			CMainFrame* pFrame = (CMainFrame*)AfxGetMainWnd();
+			pFrame->SendMessage(WM_COMMAND_CHANGE_CHANNEL, 32);
+		}
+
+
 		CopyImage(&m_image,&(m_imageProcessed[(m_iImgIndex % MAX_IMG_BUF)]));
 		m_iScaleIndex =8;
 
@@ -1099,39 +1112,134 @@ IMPLEMENT_DYNCREATE(CSImageViewerView, CView)
 
 		return true;
 	}
+	bool CSImageViewerView::GetColorAtCursor(CImage* img, CPoint point_v, int* iR_img, int* iC_img, BYTE* byR, BYTE* byG, BYTE* byB, BYTE* byA)
+	{
+		if(img->IsNull()==true){return false;}
+		CPoint point_tv(point_v.x + GetDispOriginC_tv(), point_v.y +  GetDispOriginR_tv());
+
+		int iC_img_Local = (int)((point_tv.x) / g_dScale[m_iScaleIndex]);
+		int iR_img_Local = (int)((point_tv.y) / g_dScale[m_iScaleIndex]);
+
+
+		if (iC_img_Local < 0){return false;}
+		if (iR_img_Local < 0){return false;}
+		if (iC_img_Local >= img->GetWidth()){return false;}
+		if (iR_img_Local >= img->GetHeight()){return false;}
+
+		BYTE* byData = (BYTE*)img->GetBits();
+		int iPitch = img->GetPitch();
+		int iBPP = img->GetBPP();
+
+		(iC_img_Local,iR_img_Local);
+
+		*iR_img = iR_img_Local;
+		*iC_img = iC_img_Local;
+
+		if(iBPP == 32)
+		{
+			*byR = byData[iR_img_Local * iPitch +iC_img_Local *4+2];
+			*byG = byData[iR_img_Local * iPitch +iC_img_Local *4+1];
+			*byB = byData[iR_img_Local * iPitch +iC_img_Local *4+0];
+			*byA = byData[iR_img_Local * iPitch +iC_img_Local *4+3];
+			return true;
+		}
+		if(iBPP == 24)
+		{
+			*byR = byData[iR_img_Local * iPitch +iC_img_Local *3+2];
+			*byG = byData[iR_img_Local * iPitch +iC_img_Local *3+1];
+			*byB = byData[iR_img_Local * iPitch +iC_img_Local *3+0];
+			*byA = 255;
+			return true;
+		}
+		RGBQUAD* srcTable=NULL;
+		int iColors = img->GetMaxColorTableEntries();
+		if (iColors > 0) 
+		{
+			srcTable = new RGBQUAD[iColors];
+			img->GetColorTable(0, iColors, srcTable);
+			
+			int iPosition= iR_img_Local*iPitch+iC_img_Local/(8/iBPP);
+			int iDigit = (8/iBPP)-(iC_img_Local%(8/iBPP))-1;
+			
+			const BYTE byMasks[9]={0,1,3,0,15,0,0,0,255};
+			BYTE byIndex = (byData[iPosition] & (byMasks[iBPP]<< (iDigit*iBPP))) >> (iDigit*iBPP);
+			*byR=srcTable[byIndex].rgbRed;
+			*byG=srcTable[byIndex].rgbGreen;
+			*byB=srcTable[byIndex].rgbBlue;
+			*byA = srcTable[byIndex].rgbReserved;
+
+			SAFE_DELETE(srcTable);
+		}
+
+		return true;
+	}
 
 	void CSImageViewerView::DispStatus(CPoint point_v)
 	{
 		CString sFileName = m_sFilePath.Mid(m_sFilePath.ReverseFind('\\') + 1);
 
 		int iR_img,iC_img;
-		BYTE byR=0,byG=0,byB=0;
-		BYTE byR_Processed = 0,byG_Processed = 0,byB_Processed = 0;
+		BYTE byR=0,byG=0,byB=0, byA=0;
+		BYTE byR_Processed = 0,byG_Processed = 0,byB_Processed = 0,byA_Processed = 0;
 		CString sCaption;
 		CMainFrame* pFrame = (CMainFrame*)AfxGetMainWnd();
-
-		bool bRet_Original = GetColorAtCursor(&m_image, point_v, &iR_img, &iC_img, &byR, &byG, &byB);
-		if(bRet_Original == false)
+		bool bRet_Original;
+		if(m_image.GetBPP() == 24)
 		{
-			pFrame->m_sStatusRGBOriginal.Format(_T("out of range"));
+			bRet_Original = GetColorAtCursor(&m_image, point_v, &iR_img, &iC_img, &byR, &byG, &byB);
+			if(bRet_Original == false)
+			{
+				pFrame->m_sStatusRGBOriginal.Format(_T("out of range"));
+			}
+			else
+			{
+				pFrame->m_sStatusRGBOriginal.Format(_T("(%d, %d, %d)"), byR, byG, byB);
+			}
 		}
 		else
 		{
-			pFrame->m_sStatusRGBOriginal.Format(_T("(%d, %d, %d)"), byR, byG, byB);
+			bRet_Original = GetColorAtCursor(&m_image, point_v, &iR_img, &iC_img, &byR, &byG, &byB,&byA);
+			if(bRet_Original == false)
+			{
+				pFrame->m_sStatusRGBOriginal.Format(_T("out of range"));
+			}
+			else
+			{
+				pFrame->m_sStatusRGBOriginal.Format(_T("(%d, %d, %d, %d)"), byR, byG, byB,byA);
+			}
 		}
 
 		bool bRet_Processed=false;
 		pFrame->m_sStatusRGBProcessed.Format(_T("not processed"));
-		if(m_iImgIndex != 0)
+
+		if(m_imageProcessed[(m_iImgIndex % MAX_IMG_BUF)].GetBPP() == 24)
 		{
-			bRet_Processed = GetColorAtCursor(&(m_imageProcessed[(m_iImgIndex % MAX_IMG_BUF)]), point_v, &iR_img, &iC_img, &byR_Processed, &byG_Processed, &byB_Processed);
-			if(bRet_Processed == false)
+			if(m_iImgIndex != 0)
 			{
-				pFrame->m_sStatusRGBProcessed.Format(_T("out of range"));
+				bRet_Processed = GetColorAtCursor(&(m_imageProcessed[(m_iImgIndex % MAX_IMG_BUF)]), point_v, &iR_img, &iC_img, &byR_Processed, &byG_Processed, &byB_Processed);
+				if(bRet_Processed == false)
+				{
+					pFrame->m_sStatusRGBProcessed.Format(_T("out of range"));
+				}
+				else
+				{
+					pFrame->m_sStatusRGBProcessed.Format(_T("(%d, %d, %d)"), byR_Processed, byG_Processed, byB_Processed);
+				}
 			}
-			else
+		}
+		else
+		{
+			if(m_iImgIndex != 0)
 			{
-				pFrame->m_sStatusRGBProcessed.Format(_T("(%d, %d, %d)"), byR_Processed, byG_Processed, byB_Processed);
+				bRet_Processed = GetColorAtCursor(&(m_imageProcessed[(m_iImgIndex % MAX_IMG_BUF)]), point_v, &iR_img, &iC_img, &byR_Processed, &byG_Processed, &byB_Processed, &byA_Processed);
+				if(bRet_Processed == false)
+				{
+					pFrame->m_sStatusRGBProcessed.Format(_T("out of range"));
+				}
+				else
+				{
+					pFrame->m_sStatusRGBProcessed.Format(_T("(%d, %d, %d, %d)"), byR_Processed, byG_Processed, byB_Processed, byA_Processed);
+				}
 			}
 		}
 
@@ -1170,7 +1278,6 @@ IMPLEMENT_DYNCREATE(CSImageViewerView, CView)
 		pFrame->SendMessage(WM_COMMAND, ID_DISP_STATUS_MOUSE_POS);
 
 		pFrame->m_sStatusZoom.Format(_T("%.3f%%"), 100*g_dScale[m_iScaleIndex]);
-		pFrame->SendMessage(WM_COMMAND, ID_DISP_STATUS_ZOOM);
 
 
 		sCaption.Format(sFileName);

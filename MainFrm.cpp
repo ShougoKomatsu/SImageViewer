@@ -54,6 +54,7 @@ BEGIN_MESSAGE_MAP(CMainFrame, CFrameWndEx)
     ON_WM_INITMENUPOPUP()
 	ON_WM_DROPFILES()
 	ON_WM_DESTROY()
+	ON_MESSAGE(WM_COMMAND_CHANGE_CHANNEL, &CMainFrame::OnCommandChangeChannel)
 END_MESSAGE_MAP()
 
 static UINT indicators[] =
@@ -613,6 +614,7 @@ void CMainFrame::OnButtonGridNone()
 	Invalidate();
 }
 
+
 void CMainFrame::OnButtonGridDot()
 {
 	if(m_iGrid == ID_BUTTON_GRID_DOT)
@@ -691,4 +693,20 @@ void CMainFrame::OnUpdateMenu(CCmdUI* pCmdUI)
 	default:{}
 	}
 
+}
+
+
+afx_msg LRESULT CMainFrame::OnCommandChangeChannel(WPARAM wParam, LPARAM lParam)
+{
+	if(wParam==24)
+	{
+		m_wndStatusBar.SetPaneInfo(4, ID_STATUS_RGB_ORIGINAL, SBPS_POPOUT, 140);
+		m_wndStatusBar.SetPaneInfo(5, ID_STATUS_RGB_PROCESSED, SBPS_POPOUT, 140);
+	}
+	else
+	{
+		m_wndStatusBar.SetPaneInfo(4, ID_STATUS_RGB_ORIGINAL, SBPS_POPOUT, 180);
+		m_wndStatusBar.SetPaneInfo(5, ID_STATUS_RGB_PROCESSED, SBPS_POPOUT, 180);
+	}
+	return 0;
 }
