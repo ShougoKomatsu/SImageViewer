@@ -1425,9 +1425,9 @@ bool ImposeAlphaChannel(CImage* imgSrc, CImage* imgDst)
 			BYTE byBack=(((((r+iDisplace)/16)+((c+iDisplace)/16))%2==1)?  255: 192);
 			BYTE byAlpha = src[r*iPitch_src+c*4+3];
 
-			dst[r*iPitch_dst+c*3+2]=(src[r*iPitch_src+c*4+2]*(byAlpha) + byBack*(255.0-byAlpha))/255 ;
-			dst[r*iPitch_dst+c*3+1]=(src[r*iPitch_src+c*4+1]*(byAlpha) + byBack*(255.0-byAlpha))/255 ;
-			dst[r*iPitch_dst+c*3+0]=(src[r*iPitch_src+c*4+0]*(byAlpha) + byBack*(255.0-byAlpha))/255 ;
+			dst[r*iPitch_dst+c*3+2]=(BYTE)((src[r*iPitch_src+c*4+2]*(byAlpha) + byBack*(255.0-byAlpha))/255) ;
+			dst[r*iPitch_dst+c*3+1]=(BYTE)((src[r*iPitch_src+c*4+1]*(byAlpha) + byBack*(255.0-byAlpha))/255) ;
+			dst[r*iPitch_dst+c*3+0]=(BYTE)((src[r*iPitch_src+c*4+0]*(byAlpha) + byBack*(255.0-byAlpha))/255) ;
 
 		}
 	}
@@ -1448,21 +1448,21 @@ bool ImposeGrid(CImage* imgSrc, CImage* imgDst, const int iType, const double dR
 	int iPitch =imgDst->GetPitch();
 	int iWidth = imgDst->GetWidth();
 	int iHeight = imgDst->GetHeight();
-	int iRMax = iHeight/dScale+2;
-	int iCMax = iWidth/dScale+2;
+	int iRMax = int(iHeight/dScale+2);
+	int iCMax = int(iWidth/dScale+2);
 
 
 	if(iType==1)
 	{
 		for(int ir=0; ir<min(iRMax_i+2-dROffset, iRMax); ir++)
 		{
-			int r0=(ir+dROffset)*dScale;
+			int r0=int((ir+dROffset)*dScale);
 			if(r0<0){continue;}
 			if(r0>=iHeight){continue;}
 			for(int ic=0; ic<min(iCMax_i+2-dCOffset,iCMax); ic++)
 			{
 				int r=r0;
-				int c=(ic+dCOffset)*dScale;
+				int c=int((ic+dCOffset)*dScale);
 				if(c<0){continue;}
 				if(c>=iWidth){continue;}
 				int iValue = pbyData[r*iPitch+4*c+0]+pbyData[r*iPitch+4*c+1]+pbyData[r*iPitch+4*c+2];
@@ -1472,7 +1472,7 @@ bool ImposeGrid(CImage* imgSrc, CImage* imgDst, const int iType, const double dR
 				pbyData[r*iPitch+4*c+2]=byDot;
 				pbyData[r*iPitch+4*c+3]=255;
 
-				c=(ic+dCOffset)*dScale + 1;
+				c=int((ic+dCOffset)*dScale + 1);
 				if(c>=iWidth){continue;}
 				pbyData[r*iPitch+4*c+0]=byDot;
 				pbyData[r*iPitch+4*c+1]=byDot;
@@ -1482,7 +1482,7 @@ bool ImposeGrid(CImage* imgSrc, CImage* imgDst, const int iType, const double dR
 				r=r0 + 1;
 				if(r>=iHeight){break;}
 
-				c=(ic+dCOffset)*dScale;
+				c=int((ic+dCOffset)*dScale);
 				if(c<0){continue;}
 				if(c>=iWidth){continue;}
 				pbyData[r*iPitch+4*c+0]=byDot;
@@ -1490,7 +1490,7 @@ bool ImposeGrid(CImage* imgSrc, CImage* imgDst, const int iType, const double dR
 				pbyData[r*iPitch+4*c+2]=byDot;
 				pbyData[r*iPitch+4*c+3]=255;
 
-				c=(ic+dCOffset)*dScale + 1;
+				c=int((ic+dCOffset)*dScale + 1);
 				if(c>=iWidth){continue;}
 				pbyData[r*iPitch+4*c+0]=byDot;
 				pbyData[r*iPitch+4*c+1]=byDot;
@@ -1533,7 +1533,7 @@ bool ImposeGrid(CImage* imgSrc, CImage* imgDst, const int iType, const double dR
 		for(int ir=0; ir<iRMax; ir++)
 		{
 			if(ir+dROffset>=iRMax_i+2){continue;}
-			int r=(ir+dROffset)*dScale;
+			int r=int((ir+dROffset)*dScale);
 			if(r<0){continue;}
 			if(r>=iHeight){continue;}
 			
@@ -1544,7 +1544,7 @@ bool ImposeGrid(CImage* imgSrc, CImage* imgDst, const int iType, const double dR
 				pbyData[r*iPitch+4*c+2]=byDot;
 				pbyData[r*iPitch+4*c+3]=255;
 			}
-			r=(ir+dROffset)*dScale+1;
+			r=int((ir+dROffset)*dScale+1);
 			if(r>=iHeight){continue;}
 			for(int c=0; c<min((iCMax_i+dCOffset+1)*dScale,iWidth); c++)
 			{
@@ -1558,7 +1558,7 @@ bool ImposeGrid(CImage* imgSrc, CImage* imgDst, const int iType, const double dR
 		for(int ic=0; ic<iCMax; ic++)
 		{
 			if(ic+dCOffset>=iCMax_i+2){continue;}
-			int c=(ic+dCOffset)*dScale;
+			int c=int((ic+dCOffset)*dScale);
 			if(c<0){continue;}
 			if(c>=iWidth){continue;}
 			for(int r=0; r<min((iRMax_i+dROffset+1)*dScale,iHeight); r++)
@@ -1568,7 +1568,7 @@ bool ImposeGrid(CImage* imgSrc, CImage* imgDst, const int iType, const double dR
 				pbyData[r*iPitch+4*c+2]=byDot;
 				pbyData[r*iPitch+4*c+3]=255;
 			}
-			c=(ic+dCOffset)*dScale+1;
+			c=int((ic+dCOffset)*dScale+1);
 			if(c>=iWidth){continue;}
 			for(int r=0; r<min((iRMax_i+dROffset+1)*dScale,iHeight); r++)
 			{
@@ -1662,7 +1662,7 @@ bool ZoomImage(CImage* imgSrc, CImage* imgDst, const double dR0_Src, const doubl
 		int iColorPitch = (iBPP==24 ? 3 : 4);
 		for(int r=0; r<iHeight_Dst; r++)
 		{
-			int ir_Src=r/dScale+dR0_Src;
+			int ir_Src=int(r/dScale+dR0_Src);
 
 			if((ir_Src<0)||(ir_Src>=iHeightSrc))
 			{
@@ -1678,7 +1678,7 @@ bool ZoomImage(CImage* imgSrc, CImage* imgDst, const double dR0_Src, const doubl
 
 			for(int c=0; c<iWidth_Dst; c++)
 			{
-				int ic_Src=c/dScale+dC0_Src;
+				int ic_Src=int(c/dScale+dC0_Src);
 				if((ic_Src<0)||(ic_Src>=iWidthSrc))
 				{
 					dst[r*iPitch_dst+c*4+2]=127;
@@ -1701,7 +1701,7 @@ bool ZoomImage(CImage* imgSrc, CImage* imgDst, const double dR0_Src, const doubl
 		int iColorPitch = (iBPP==24 ? 3 : 4);
 		for(int r=0; r<iHeight_Dst; r++)
 		{
-			int ir_Src=r/dScale+dR0_Src;
+			int ir_Src=int(r/dScale+dR0_Src);
 
 			if((ir_Src<0)||(ir_Src>=iHeightSrc))
 			{
@@ -1717,7 +1717,7 @@ bool ZoomImage(CImage* imgSrc, CImage* imgDst, const double dR0_Src, const doubl
 
 			for(int c=0; c<iWidth_Dst; c++)
 			{
-				int ic_Src=c/dScale+dC0_Src;
+				int ic_Src=int(c/dScale+dC0_Src);
 				if((ic_Src<0)||(ic_Src>=iWidthSrc))
 				{
 					dst[r*iPitch_dst+c*4+2]=127;
@@ -1747,7 +1747,7 @@ bool ZoomImage(CImage* imgSrc, CImage* imgDst, const double dR0_Src, const doubl
 	const BYTE byMasks[9]={0,1,3,0,15,0,0,0,255};
 	for(int r=0; r<iHeight_Dst; r++)
 	{
-		int ir_Src=r/dScale+dR0_Src;
+		int ir_Src=int(r/dScale+dR0_Src);
 
 		if((ir_Src<0)||(ir_Src>=iHeightSrc))
 		{
@@ -1763,7 +1763,7 @@ bool ZoomImage(CImage* imgSrc, CImage* imgDst, const double dR0_Src, const doubl
 
 		for(int c=0; c<iWidth_Dst; c++)
 		{
-			int ic_Src=c/dScale+dC0_Src;
+			int ic_Src=int(c/dScale+dC0_Src);
 			if((ic_Src<0)||(ic_Src>=iWidthSrc))
 			{
 				dst[r*iPitch_dst+c*4+2]=127;

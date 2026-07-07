@@ -199,8 +199,8 @@ void CImageModifyDlg::OnKillfocusEditImageModifyGamma()
 
 	int iGamma;
 	if(m_dGamma==1.0){iGamma=50;}
-	else if(m_dGamma<0){iGamma=50 - log(m_dGamma)/log(0.860363073);}
-	else{iGamma=50 + log(m_dGamma)/log(1.17605006);}
+	else if(m_dGamma<0){iGamma=int(50 - log(m_dGamma)/log(0.860363073));}
+	else{iGamma=int(50 + log(m_dGamma)/log(1.17605006));}
 
 	m_sliderGamma.SetPos(iGamma);
 
