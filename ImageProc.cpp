@@ -2754,3 +2754,81 @@ bool ConvertImage(const ImgRGB* imgRGB, CImage* imgDst, const int iBPPDst, const
 	}
 	return true;
 }
+#include <gdiplus.h>
+#pragma comment(lib, "gdiplus.lib")
+
+UINT CountIconNum(const CString sFilePath)
+{
+	Gdiplus::GdiplusStartupInput gdiplusStartupInput;
+	ULONG_PTR gdiplusToken;
+	Gdiplus::GdiplusStartup(&gdiplusToken, &gdiplusStartupInput, nullptr);
+
+
+	int i=0;
+
+	UINT nIcons=0;
+	while(1)
+	{
+		int iTemp1=i;
+		int iTemp2=i+1;
+	HICON hIcon=NULL;
+	HICON hIcon2=NULL;
+		nIcons = ExtractIconEx(sFilePath, iTemp1, NULL, &hIcon2, iTemp2);
+//	DestroyIcon(hIcon);
+		if(hIcon2 != NULL){	DestroyIcon(hIcon2);}
+		if(nIcons == 0){return 0;}
+		if(nIcons == (i-1)){break;}
+		i++;
+	}
+	Gdiplus::GdiplusShutdown(gdiplusToken);
+	return nIcons;
+}
+
+bool LoadICOFile(const CString sFilePath, CImage* img, int iIndexB0)
+{
+	Gdiplus::GdiplusStartupInput gdiplusStartupInput;
+    ULONG_PTR gdiplusToken;
+    Gdiplus::GdiplusStartup(&gdiplusToken, &gdiplusStartupInput, nullptr);
+    HICON* hIcons;
+
+	if(img==NULL)
+	{
+		int i=0;
+
+		hIcons = new HICON[i];
+		UINT nIcons=0;
+
+		while(1)
+		{
+			nIcons = ExtractIconEx(sFilePath, i, hIcons, NULL, i+1);
+			if(nIcons==0){return false;}
+			if(nIcons == i-1){break;}
+			i++;
+		}
+		Gdiplus::GdiplusShutdown(gdiplusToken);
+		return true;
+	}
+
+	UINT nIcons = ExtractIconEx(sFilePath, iIndexB0, hIcons, NULL, iIndexB0+1);
+	if (nIcons > 0)
+	{
+		ICONINFO iconInfo;
+		if (!GetIconInfo(hIcons[iIndexB0], &iconInfo)) 
+		{
+
+			DestroyIcon(hIcons[iIndexB0]);
+			return 1;
+		}
+
+		BITMAP bmp;
+		GetObject(iconInfo.hbmColor ? iconInfo.hbmColor : iconInfo.hbmMask, sizeof(bmp), &bmp);
+
+		HRESULT hr = img->Create(bmp.bmWidth, bmp.bmHeight, 32);
+		HDC hDC = img->GetDC();
+		DrawIconEx(hDC, 0, 0, hIcons[iIndexB0], bmp.bmWidth, bmp.bmHeight, 0, NULL, DI_NORMAL) ;
+	}
+
+
+    Gdiplus::GdiplusShutdown(gdiplusToken);
+	return true;
+}

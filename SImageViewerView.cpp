@@ -512,11 +512,20 @@ IMPLEMENT_DYNCREATE(CSImageViewerView, CView)
 	{
 		CFileFind cf;
 		BOOL bRet = cf.FindFile(sFilePath);
+
 		if(bRet != TRUE){return false;}
 		if(m_image.IsNull()!=true){m_image.Destroy();}
+		
+		if((sFilePath.Right(4)).CompareNoCase(_T(".exe"))==0)
+		{
+			UINT uiIconNum = CountIconNum(sFilePath);
+			LoadICOFile(sFilePath,NULL,0);
+		}
+		else
+		{
 		HRESULT hResult = m_image.Load(m_sFilePath);
 		if(hResult != S_OK){return false;}
-
+		}
 
 		CMainFrame* pFrame = (CMainFrame*)AfxGetMainWnd();
 		pFrame->m_bFileOpened = true;
