@@ -13,6 +13,8 @@ protected: // ÉVÉäÉAÉãâªÇ©ÇÁÇÃÇ›çÏê¨ÇµÇ‹Ç∑ÅB
 	
 	// ëÆê´
 public:
+	int m_iImageIndex;
+	int m_iImageMax;
 	bool m_bGridAble;
 	bool m_bFileOpened;
 	bool m_bSelected;
@@ -72,6 +74,8 @@ protected:
 	afx_msg void OnButtonGridDot();
 	afx_msg void OnButtonGridLine();
 	afx_msg void OnButtonGridConnect();
+	afx_msg void OnButtonImageFW();
+	afx_msg void OnButtonImagePP();
 	DECLARE_MESSAGE_MAP()
 public:
 	afx_msg void OnUpdateAfxIdpCommandFailure(CCmdUI *pCmdUI);
