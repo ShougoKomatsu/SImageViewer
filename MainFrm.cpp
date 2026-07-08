@@ -46,9 +46,15 @@ BEGIN_MESSAGE_MAP(CMainFrame, CFrameWndEx)
     ON_COMMAND(ID_BUTTON_GRID_DOT, &CMainFrame::OnButtonGridDot)
     ON_COMMAND(ID_BUTTON_GRID_LINE, &CMainFrame::OnButtonGridLine)
     ON_COMMAND(ID_BUTTON_GRID_CONNECT, &CMainFrame::OnButtonGridConnect)
+	
+    ON_COMMAND(ID_BUTTON_IMAGE_PP, &CMainFrame::OnButtonImagePP)
+    ON_COMMAND(ID_BUTTON_IMAGE_FW, &CMainFrame::OnButtonImageFW)
+
     ON_UPDATE_COMMAND_UI(ID_BUTTON_GRID_DOT, &CMainFrame::OnUpdateMenu)
     ON_UPDATE_COMMAND_UI(ID_BUTTON_GRID_LINE, &CMainFrame::OnUpdateMenu)
     ON_UPDATE_COMMAND_UI(ID_BUTTON_GRID_CONNECT, &CMainFrame::OnUpdateMenu)
+    ON_UPDATE_COMMAND_UI(ID_BUTTON_IMAGE_PP, &CMainFrame::OnUpdateMenu)
+    ON_UPDATE_COMMAND_UI(ID_BUTTON_IMAGE_FW, &CMainFrame::OnUpdateMenu)
 	ON_COMMAND(IDM_ZOOMDOWN, &CMainFrame::OnZoomdown)
 	ON_COMMAND(IDM_ZOOMUP, &CMainFrame::OnZoomup)
     ON_WM_INITMENUPOPUP()
@@ -651,6 +657,20 @@ void CMainFrame::OnButtonGridConnect()
 	Invalidate();
 }
 
+void CMainFrame::OnButtonImageFW()
+{
+	m_iImageIndex++;
+	if(m_iImageIndex>=m_iImageMax){m_iImageIndex=m_iImageMax-1;}
+	Invalidate();
+}
+
+void CMainFrame::OnButtonImagePP()
+{
+	m_iImageIndex--;
+	if(m_iImageIndex<0){m_iImageIndex=0;}
+	Invalidate();
+}
+
 void CMainFrame::OnUpdateMenu(CCmdUI* pCmdUI)
 {
 	
@@ -670,6 +690,9 @@ void CMainFrame::OnUpdateMenu(CCmdUI* pCmdUI)
 	case ID_BUTTON_GRID_DOT:{pCmdUI->Enable(m_bFileOpened & m_bGridAble);break;}
 	case ID_BUTTON_GRID_LINE:{pCmdUI->Enable(m_bFileOpened & m_bGridAble);break;}
 	case ID_BUTTON_GRID_CONNECT:{pCmdUI->Enable(m_bFileOpened & m_bGridAble);break;}
+								
+	case ID_BUTTON_IMAGE_FW:{pCmdUI->Enable(m_iImageIndex+1 < m_iImageMax);break;}
+	case ID_BUTTON_IMAGE_PP:{pCmdUI->Enable(m_iImageIndex >= 1);break;}
 
 	case IDM_ZOOMDOWN:
 	case IDM_ZOOMUP:

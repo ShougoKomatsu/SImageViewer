@@ -20,9 +20,11 @@ public:
 	void FullDomain();
 	CString m_sFilePath;
 	CImage m_imageZoomed;
-	CImage m_image;
+	CImage* m_image;
+	int m_iImageIndex;
+	int m_iImagemax;
 	CImage m_imageProcessed[32];
-	int m_iImgIndex;
+	int m_iImgProcessIndex;
 	int m_iUnDoAvailableCount;
 	int m_iReDoAvailableCount;
 	bool m_bRefresh;

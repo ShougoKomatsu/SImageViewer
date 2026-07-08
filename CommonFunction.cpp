@@ -16,7 +16,7 @@ void CPictureCtrlEx::OnPaint()
 	double dZoom=min(rc.Width()/(m_image.GetWidth()*1.0),rc.Height()/(m_image.GetHeight()*1.0));
 	
 	CImage imgZoomed;
-		ZoomImage(&m_image,&imgZoomed,
+		ZoomImage(&(m_image),&imgZoomed,
 			0,
 			0,
 			dZoom,
