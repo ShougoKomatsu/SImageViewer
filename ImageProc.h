@@ -48,4 +48,4 @@ bool ImposeAlphaChannel(CImage* imgSrc, CImage* imgDst);
 bool MakeReservedChannelZero(CImage* imgSrc, CImage* imgDst);
 
 UINT CountIconNum(const CString sFilePath);
-bool LoadICOFile(const CString sFilePath, CImage* img, int iIndexB0);
+bool LoadICOFile(const CString sFilePath, CImage* img, UINT uiNum);

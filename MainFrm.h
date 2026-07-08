@@ -17,7 +17,7 @@ public:
 	int m_iImageMax;
 	bool m_bGridAble;
 	bool m_bFileOpened;
-	bool m_bSelected;
+	bool m_bRegionSelected;
 	CFont m_cfStatus;
 	bool m_bBeingFullScreen;
 	CRect m_rectPreserved;

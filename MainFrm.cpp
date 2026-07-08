@@ -107,7 +107,7 @@ CMainFrame::~CMainFrame()
 int CMainFrame::OnCreate(LPCREATESTRUCT lpCreateStruct)
 {
 	m_bFileOpened = false;
-	m_bSelected = false;
+	m_bRegionSelected = false;
 	if (CFrameWndEx::OnCreate(lpCreateStruct) == -1){return -1;}
 
 	if (m_cfStatus.GetSafeHandle() != nullptr)
@@ -684,7 +684,7 @@ void CMainFrame::OnUpdateMenu(CCmdUI* pCmdUI)
 		}
 	case ID_EDIT_COPY:
 		{
-			pCmdUI->Enable(m_bSelected);
+			pCmdUI->Enable(m_bRegionSelected);
 			break;
 		}
 	case ID_BUTTON_GRID_DOT:{pCmdUI->Enable(m_bFileOpened & m_bGridAble);break;}

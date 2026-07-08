@@ -2763,72 +2763,44 @@ UINT CountIconNum(const CString sFilePath)
 	ULONG_PTR gdiplusToken;
 	Gdiplus::GdiplusStartup(&gdiplusToken, &gdiplusStartupInput, nullptr);
 
-
-	int i=0;
-
-	UINT nIcons=0;
-	while(1)
-	{
-		int iTemp1=i;
-		int iTemp2=i+1;
-	HICON hIcon=NULL;
-	HICON hIcon2=NULL;
-		nIcons = ExtractIconEx(sFilePath, iTemp1, NULL, &hIcon2, iTemp2);
-//	DestroyIcon(hIcon);
-		if(hIcon2 != NULL){	DestroyIcon(hIcon2);}
-		if(nIcons == 0){return 0;}
-		if(nIcons == (i-1)){break;}
-		i++;
-	}
+	
+	UINT nIcons = ExtractIconEx(sFilePath, -1, NULL, NULL, 0);
 	Gdiplus::GdiplusShutdown(gdiplusToken);
 	return nIcons;
 }
 
-bool LoadICOFile(const CString sFilePath, CImage* img, int iIndexB0)
+bool LoadICOFile(const CString sFilePath, CImage* imgs, UINT uiNum)
 {
 	Gdiplus::GdiplusStartupInput gdiplusStartupInput;
-    ULONG_PTR gdiplusToken;
-    Gdiplus::GdiplusStartup(&gdiplusToken, &gdiplusStartupInput, nullptr);
-    HICON* hIcons;
+	ULONG_PTR gdiplusToken;
+	Gdiplus::GdiplusStartup(&gdiplusToken, &gdiplusStartupInput, nullptr);
+	HICON hIcon;
 
-	if(img==NULL)
+	for(UINT ui=0; ui<uiNum; ui++)
 	{
-		int i=0;
+		UINT nIcons = ExtractIconEx(sFilePath, ui, &hIcon, NULL, uiNum);
+	//	if(nIcons == 0){return false;}
+	//	if(nIcons == (ui-1)){return false;}
 
-		hIcons = new HICON[i];
-		UINT nIcons=0;
-
-		while(1)
-		{
-			nIcons = ExtractIconEx(sFilePath, i, hIcons, NULL, i+1);
-			if(nIcons==0){return false;}
-			if(nIcons == i-1){break;}
-			i++;
-		}
-		Gdiplus::GdiplusShutdown(gdiplusToken);
-		return true;
-	}
-
-	UINT nIcons = ExtractIconEx(sFilePath, iIndexB0, hIcons, NULL, iIndexB0+1);
-	if (nIcons > 0)
-	{
 		ICONINFO iconInfo;
-		if (!GetIconInfo(hIcons[iIndexB0], &iconInfo)) 
+		if (!GetIconInfo(hIcon, &iconInfo)) 
 		{
-
-			DestroyIcon(hIcons[iIndexB0]);
+			DestroyIcon(hIcon);
+	Gdiplus::GdiplusShutdown(gdiplusToken);
 			return 1;
 		}
 
 		BITMAP bmp;
 		GetObject(iconInfo.hbmColor ? iconInfo.hbmColor : iconInfo.hbmMask, sizeof(bmp), &bmp);
 
-		HRESULT hr = img->Create(bmp.bmWidth, bmp.bmHeight, 32);
-		HDC hDC = img->GetDC();
-		DrawIconEx(hDC, 0, 0, hIcons[iIndexB0], bmp.bmWidth, bmp.bmHeight, 0, NULL, DI_NORMAL) ;
+		if(imgs[ui].IsNull() == true){imgs[ui].Destroy();}
+		HRESULT hr = imgs[ui].Create(bmp.bmWidth, bmp.bmHeight, 32);
+		HDC hDC = imgs[ui].GetDC();
+		DrawIconEx(hDC, 0, 0, hIcon, bmp.bmWidth, bmp.bmHeight, 0, NULL, DI_NORMAL) ;
+		DestroyIcon(hIcon);
 	}
 
 
-    Gdiplus::GdiplusShutdown(gdiplusToken);
+	Gdiplus::GdiplusShutdown(gdiplusToken);
 	return true;
 }
