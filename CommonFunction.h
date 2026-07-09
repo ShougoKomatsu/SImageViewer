@@ -11,5 +11,5 @@ protected:
     DECLARE_MESSAGE_MAP()
 };
 
-#define SAFE_DELETE(arg) if(arg != NULL){delete arg; arg=NULL;}
+#define SAFE_DELETE(arg) if(arg != NULL){delete [] arg; arg=NULL;}
 bool CopyToClipBoardStr(const CString sValue);

@@ -2764,43 +2764,58 @@ UINT CountIconNum(const CString sFilePath)
 	Gdiplus::GdiplusStartup(&gdiplusToken, &gdiplusStartupInput, nullptr);
 
 	
-	UINT nIcons = ExtractIconEx(sFilePath, -1, NULL, NULL, 0);
+	UINT nIcons = ExtractIconEx(sFilePath, -1, NULL, NULL, 1);
 	Gdiplus::GdiplusShutdown(gdiplusToken);
 	return nIcons;
 }
 
+#include <vector>
 bool LoadICOFile(const CString sFilePath, CImage* imgs, UINT uiNum)
 {
-	Gdiplus::GdiplusStartupInput gdiplusStartupInput;
-	ULONG_PTR gdiplusToken;
-	Gdiplus::GdiplusStartup(&gdiplusToken, &gdiplusStartupInput, nullptr);
-	HICON hIcon;
+	HICON largeIcons[100];
+	HICON smallIcons[100];
+
+	UINT iconCount = ExtractIconEx(
+		sFilePath,
+		0, 
+		largeIcons, smallIcons,
+		uiNum
+		);
+
+	if (iconCount == 0) 
+	{
+		return false;
+	}
 
 	for(UINT ui=0; ui<uiNum; ui++)
 	{
-		UINT nIcons = ExtractIconEx(sFilePath, ui, &hIcon, NULL, uiNum);
-	//	if(nIcons == 0){return false;}
-	//	if(nIcons == (ui-1)){return false;}
 
-		ICONINFO iconInfo;
-		if (!GetIconInfo(hIcon, &iconInfo)) 
+
+
+
+		ICONINFO iconInfo = {};
+		BITMAP bmp = {};
+
+		if (GetIconInfo(largeIcons[ui], &iconInfo)) 
 		{
-			DestroyIcon(hIcon);
-	Gdiplus::GdiplusShutdown(gdiplusToken);
-			return 1;
+			if (GetObject(iconInfo.hbmColor, sizeof(BITMAP), &bmp)) 
+			{
+				HRESULT hr = imgs[ui].Create(					bmp.bmWidth,					bmp.bmHeight,					32, 					0				);
+
+				if (SUCCEEDED(hr)) 
+				{
+					HDC hdc = imgs[ui].GetDC();
+					//	PatBlt(hdc, 0, 0, bmp.bmWidth, bmp.bmHeight, BLACKNESS);
+					DrawIconEx(hdc, 0, 0, largeIcons[ui], bmp.bmWidth, bmp.bmHeight, 0, nullptr,  DI_NORMAL | DI_COMPAT | DI_DEFAULTSIZE); 
+					imgs[ui].ReleaseDC();
+				}
+			}
 		}
 
-		BITMAP bmp;
-		GetObject(iconInfo.hbmColor ? iconInfo.hbmColor : iconInfo.hbmMask, sizeof(bmp), &bmp);
-
-		if(imgs[ui].IsNull() == true){imgs[ui].Destroy();}
-		HRESULT hr = imgs[ui].Create(bmp.bmWidth, bmp.bmHeight, 32);
-		HDC hDC = imgs[ui].GetDC();
-		DrawIconEx(hDC, 0, 0, hIcon, bmp.bmWidth, bmp.bmHeight, 0, NULL, DI_NORMAL) ;
-		DestroyIcon(hIcon);
+		if (iconInfo.hbmColor) DeleteObject(iconInfo.hbmColor);
+		if (iconInfo.hbmMask)  DeleteObject(iconInfo.hbmMask);
+		if (largeIcons[ui]) DestroyIcon(largeIcons[ui]);
+		if (smallIcons[ui]) DestroyIcon(smallIcons[ui]);
 	}
-
-
-	Gdiplus::GdiplusShutdown(gdiplusToken);
 	return true;
 }

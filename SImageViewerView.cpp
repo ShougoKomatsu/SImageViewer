@@ -508,8 +508,59 @@ IMPLEMENT_DYNCREATE(CSImageViewerView, CView)
 
 	}
 
+
+	int aaa()
+	{
+		HICON hIconLarge = nullptr;
+		HICON hIconSmall = nullptr;
+
+		UINT iconCount = ExtractIconEx(
+			_T("shell32.dll"),
+			0, 
+			&hIconLarge,
+			&hIconSmall, 
+			1
+			);
+
+		if (iconCount == 0 || hIconLarge == nullptr) 
+		{
+			return 1;
+		}
+
+		// CImage ‚ÉƒAƒCƒRƒ“‚ğ•`‰æ
+		CImage image;
+		ICONINFO iconInfo = {};
+		BITMAP bmp = {};
+
+		if (GetIconInfo(hIconLarge, &iconInfo)) 
+		{
+			if (GetObject(iconInfo.hbmColor, sizeof(BITMAP), &bmp)) 
+			{
+				HRESULT hr = image.Create(					bmp.bmWidth,					bmp.bmHeight,					32, 					CImage::createAlphaChannel					);
+
+				if (SUCCEEDED(hr)) 
+				{
+					HDC hdc = image.GetDC();
+					PatBlt(hdc, 0, 0, bmp.bmWidth, bmp.bmHeight, BLACKNESS);
+					DrawIconEx(hdc, 0, 0, hIconLarge, bmp.bmWidth, bmp.bmHeight, 0, nullptr, DI_NORMAL);
+					image.ReleaseDC();
+				}
+			}
+		}
+
+		if (iconInfo.hbmColor) DeleteObject(iconInfo.hbmColor);
+		if (iconInfo.hbmMask)  DeleteObject(iconInfo.hbmMask);
+		if (hIconLarge) DestroyIcon(hIconLarge);
+		if (hIconSmall) DestroyIcon(hIconSmall);
+
+		return 0;
+	}
+
+
 	bool CSImageViewerView::ReadImage(CString sFilePath)
 	{
+	//	aaa();
+
 		CFileFind cf;
 		BOOL bRet = cf.FindFile(sFilePath);
 
@@ -540,6 +591,10 @@ IMPLEMENT_DYNCREATE(CSImageViewerView, CView)
 				pFrame->m_bRegionSelected = false;
 				return false;
 			}
+			m_iImageIndex=0;
+			m_iImagemax=uiIconNum;
+			pFrame->m_iImageIndex=m_iImageIndex;
+			pFrame->m_iImageMax=m_iImagemax;
 			pFrame->m_bFileOpened = true;
 			pFrame->m_bRegionSelected = true;
 		}
@@ -547,14 +602,12 @@ IMPLEMENT_DYNCREATE(CSImageViewerView, CView)
 		{
 			m_iImageIndex=0;
 			m_iImagemax=1;
+			SAFE_DELETE(m_image);
+			m_image=new CImage[m_iImagemax];
 
 			HRESULT hResult = m_image[m_iImageIndex].Load(m_sFilePath);
 
 
-			m_iImageIndex=1;
-			m_iImagemax=3;
-			SAFE_DELETE(m_image);
-			m_image=new CImage[m_iImagemax];
 			pFrame->m_iImageIndex=m_iImageIndex;
 			pFrame->m_iImageMax=m_iImagemax;
 			if(m_image[m_iImageIndex].IsNull()!=true){m_image[m_iImageIndex].Destroy();}
@@ -919,7 +972,21 @@ IMPLEMENT_DYNCREATE(CSImageViewerView, CView)
 		GetClientRect(&rectClient);
 		return rectClient.Width();
 	}
-
+	
+	bool CSImageViewerView::OnImagePP()
+	{
+		m_iImageIndex=max(m_iImageIndex,0);
+				ResetImage();
+		Invalidate();
+		return true;
+	}
+	bool CSImageViewerView::OnImageFW()
+	{
+		m_iImageIndex=min(m_iImageIndex,m_iImagemax-1);
+				ResetImage();
+		Invalidate();
+		return true;
+	}
 	bool CSImageViewerView::ZoomChange(int iChange)
 	{
 		if((m_iScaleIndex>=SCALE_VAR_NUM-1)&&(iChange>0)){return false;}

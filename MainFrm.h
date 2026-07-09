@@ -74,13 +74,13 @@ protected:
 	afx_msg void OnButtonGridDot();
 	afx_msg void OnButtonGridLine();
 	afx_msg void OnButtonGridConnect();
-	afx_msg void OnButtonImageFW();
-	afx_msg void OnButtonImagePP();
 	DECLARE_MESSAGE_MAP()
 public:
 	afx_msg void OnUpdateAfxIdpCommandFailure(CCmdUI *pCmdUI);
 	afx_msg void OnZoomdown();
 	afx_msg void OnZoomup();
+	afx_msg void OnImagePP();
+	afx_msg void OnImageFW();
 	afx_msg void OnDropFiles(HDROP hDropInfo);
 	afx_msg void OnDestroy();
 protected:
