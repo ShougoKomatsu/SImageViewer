@@ -47,9 +47,6 @@ BEGIN_MESSAGE_MAP(CMainFrame, CFrameWndEx)
     ON_COMMAND(ID_BUTTON_GRID_LINE, &CMainFrame::OnButtonGridLine)
     ON_COMMAND(ID_BUTTON_GRID_CONNECT, &CMainFrame::OnButtonGridConnect)
 	
-    ON_COMMAND(ID_BUTTON_IMAGE_PP, &CMainFrame::OnButtonImagePP)
-    ON_COMMAND(ID_BUTTON_IMAGE_FW, &CMainFrame::OnButtonImageFW)
-
     ON_UPDATE_COMMAND_UI(ID_BUTTON_GRID_DOT, &CMainFrame::OnUpdateMenu)
     ON_UPDATE_COMMAND_UI(ID_BUTTON_GRID_LINE, &CMainFrame::OnUpdateMenu)
     ON_UPDATE_COMMAND_UI(ID_BUTTON_GRID_CONNECT, &CMainFrame::OnUpdateMenu)
@@ -57,6 +54,8 @@ BEGIN_MESSAGE_MAP(CMainFrame, CFrameWndEx)
     ON_UPDATE_COMMAND_UI(ID_BUTTON_IMAGE_FW, &CMainFrame::OnUpdateMenu)
 	ON_COMMAND(IDM_ZOOMDOWN, &CMainFrame::OnZoomdown)
 	ON_COMMAND(IDM_ZOOMUP, &CMainFrame::OnZoomup)
+	ON_COMMAND(ID_BUTTON_IMAGE_FW, &CMainFrame::OnImageFW)
+	ON_COMMAND(ID_BUTTON_IMAGE_PP, &CMainFrame::OnImagePP)
     ON_WM_INITMENUPOPUP()
 	ON_WM_DROPFILES()
 	ON_WM_DESTROY()
@@ -107,7 +106,7 @@ CMainFrame::~CMainFrame()
 int CMainFrame::OnCreate(LPCREATESTRUCT lpCreateStruct)
 {
 	m_bFileOpened = false;
-	m_bSelected = false;
+	m_bRegionSelected = false;
 	if (CFrameWndEx::OnCreate(lpCreateStruct) == -1){return -1;}
 
 	if (m_cfStatus.GetSafeHandle() != nullptr)
@@ -454,6 +453,7 @@ void CMainFrame::OnZoomup()
 		((CSImageViewerView*)pView)->ZoomChange(1);
 	}
 }
+
 void CMainFrame::LaunchNewInstance(CString sFilePath)
 {
 	TCHAR tszExePath[MAX_PATH];
@@ -657,17 +657,29 @@ void CMainFrame::OnButtonGridConnect()
 	Invalidate();
 }
 
-void CMainFrame::OnButtonImageFW()
+void CMainFrame::OnImageFW()
 {
 	m_iImageIndex++;
 	if(m_iImageIndex>=m_iImageMax){m_iImageIndex=m_iImageMax-1;}
+	CView* pView = GetActiveView();
+	if (pView != nullptr)
+	{
+		((CSImageViewerView*)pView)->m_iImageIndex=m_iImageIndex;
+		((CSImageViewerView*)pView)->OnImageFW();
+	}
 	Invalidate();
 }
 
-void CMainFrame::OnButtonImagePP()
+void CMainFrame::OnImagePP()
 {
 	m_iImageIndex--;
 	if(m_iImageIndex<0){m_iImageIndex=0;}
+	CView* pView = GetActiveView();
+	if (pView != nullptr)
+	{
+		((CSImageViewerView*)pView)->m_iImageIndex=m_iImageIndex;
+		((CSImageViewerView*)pView)->OnImagePP();
+	}
 	Invalidate();
 }
 
@@ -684,7 +696,7 @@ void CMainFrame::OnUpdateMenu(CCmdUI* pCmdUI)
 		}
 	case ID_EDIT_COPY:
 		{
-			pCmdUI->Enable(m_bSelected);
+			pCmdUI->Enable(m_bRegionSelected);
 			break;
 		}
 	case ID_BUTTON_GRID_DOT:{pCmdUI->Enable(m_bFileOpened & m_bGridAble);break;}

@@ -183,7 +183,7 @@ IMPLEMENT_DYNCREATE(CSImageViewerView, CView)
 		{
 			m_Rect_i.SetRect(setdlg.m_iC0,setdlg.m_iR0,setdlg.m_iC1,setdlg.m_iR1);
 			CMainFrame* pFrame = (CMainFrame*)AfxGetMainWnd();
-			pFrame->m_bSelected = true;
+			pFrame->m_bRegionSelected = true;
 			Invalidate();
 		}
 	}
@@ -490,7 +490,7 @@ IMPLEMENT_DYNCREATE(CSImageViewerView, CView)
 		}
 		m_iMouseMode=0;
 		m_Rect_i.SetRectEmpty();
-		pFrame->m_bSelected = false;
+		pFrame->m_bRegionSelected = false;
 		Invalidate();
 
 		CString sImageSize;
@@ -508,26 +508,116 @@ IMPLEMENT_DYNCREATE(CSImageViewerView, CView)
 
 	}
 
+
+	int aaa()
+	{
+		HICON hIconLarge = nullptr;
+		HICON hIconSmall = nullptr;
+
+		UINT iconCount = ExtractIconEx(
+			_T("shell32.dll"),
+			0, 
+			&hIconLarge,
+			&hIconSmall, 
+			1
+			);
+
+		if (iconCount == 0 || hIconLarge == nullptr) 
+		{
+			return 1;
+		}
+
+		// CImage ‚ÉƒAƒCƒRƒ“‚ð•`‰æ
+		CImage image;
+		ICONINFO iconInfo = {};
+		BITMAP bmp = {};
+
+		if (GetIconInfo(hIconLarge, &iconInfo)) 
+		{
+			if (GetObject(iconInfo.hbmColor, sizeof(BITMAP), &bmp)) 
+			{
+				HRESULT hr = image.Create(					bmp.bmWidth,					bmp.bmHeight,					32, 					CImage::createAlphaChannel					);
+
+				if (SUCCEEDED(hr)) 
+				{
+					HDC hdc = image.GetDC();
+					PatBlt(hdc, 0, 0, bmp.bmWidth, bmp.bmHeight, BLACKNESS);
+					DrawIconEx(hdc, 0, 0, hIconLarge, bmp.bmWidth, bmp.bmHeight, 0, nullptr, DI_NORMAL);
+					image.ReleaseDC();
+				}
+			}
+		}
+
+		if (iconInfo.hbmColor) DeleteObject(iconInfo.hbmColor);
+		if (iconInfo.hbmMask)  DeleteObject(iconInfo.hbmMask);
+		if (hIconLarge) DestroyIcon(hIconLarge);
+		if (hIconSmall) DestroyIcon(hIconSmall);
+
+		return 0;
+	}
+
+
 	bool CSImageViewerView::ReadImage(CString sFilePath)
 	{
+	//	aaa();
+
 		CFileFind cf;
 		BOOL bRet = cf.FindFile(sFilePath);
+
 		if(bRet != TRUE){return false;}
+
+		for(int i=0; i<m_iImagemax; i++)
+		{
+			if(m_image[i].IsNull()!=true){m_image[i].Destroy();}
+		}
+		SAFE_DELETE(m_image);
 		CMainFrame* pFrame = (CMainFrame*)AfxGetMainWnd();
 
-		m_iImageIndex=1;
-		m_iImagemax=3;
-		SAFE_DELETE(m_image);
-		m_image=new CImage[m_iImagemax];
-		pFrame->m_iImageIndex=m_iImageIndex;
-		pFrame->m_iImageMax=m_iImagemax;
-		if(m_image[m_iImageIndex].IsNull()!=true){m_image[m_iImageIndex].Destroy();}
-		HRESULT hResult = m_image[m_iImageIndex].Load(m_sFilePath);
-		if(hResult != S_OK){return false;}
+		if(((sFilePath.Right(4)).CompareNoCase(_T(".ico"))==0)
+			||((sFilePath.Right(4)).CompareNoCase(_T(".exe"))==0)
+			||((sFilePath.Right(4)).CompareNoCase(_T(".dll"))==0))
+		{
+			UINT uiIconNum = CountIconNum(sFilePath);
+			m_image=new CImage[uiIconNum];
+			bRet = LoadICOFile(sFilePath,m_image,uiIconNum);
+			if(bRet != true)
+			{
+				for(int i=0; i<m_iImagemax; i++)
+				{
+					if(m_image[i].IsNull()!=true){m_image[i].Destroy();}
+				}
+				SAFE_DELETE(m_image);
+				pFrame->m_bFileOpened = false;
+				pFrame->m_bRegionSelected = false;
+				return false;
+			}
+			m_iImageIndex=0;
+			m_iImagemax=uiIconNum;
+			pFrame->m_iImageIndex=m_iImageIndex;
+			pFrame->m_iImageMax=m_iImagemax;
+			pFrame->m_bFileOpened = true;
+			pFrame->m_bRegionSelected = true;
+		}
+		else
+		{
+			m_iImageIndex=0;
+			m_iImagemax=1;
+			SAFE_DELETE(m_image);
+			m_image=new CImage[m_iImagemax];
 
+			HRESULT hResult = m_image[m_iImageIndex].Load(m_sFilePath);
+
+
+			pFrame->m_iImageIndex=m_iImageIndex;
+			pFrame->m_iImageMax=m_iImagemax;
+			if(m_image[m_iImageIndex].IsNull()!=true){m_image[m_iImageIndex].Destroy();}
+			hResult = m_image[m_iImageIndex].Load(m_sFilePath);
+
+			if(hResult != S_OK){return false;}
+		}
 
 		pFrame->m_bFileOpened = true;
-		pFrame->m_bSelected = true;
+		pFrame->m_bRegionSelected = true;
 
 
 		ResetImage();
@@ -609,7 +699,7 @@ IMPLEMENT_DYNCREATE(CSImageViewerView, CView)
 		m_sFilePath.Format(_T("Clipboard"));
 
 		pFrame->m_bFileOpened = true;
-		pFrame->m_bSelected = true;
+		pFrame->m_bRegionSelected = true;
 		ResetImage();
 
 	}
@@ -618,7 +708,7 @@ IMPLEMENT_DYNCREATE(CSImageViewerView, CView)
 	{
 		m_Rect_i.SetRect(0, 0, m_imageProcessed[(m_iImgProcessIndex % MAX_IMG_BUF)].GetWidth()-1,m_imageProcessed[(m_iImgProcessIndex % MAX_IMG_BUF)].GetHeight()-1);
 		CMainFrame* pFrame = (CMainFrame*)AfxGetMainWnd();
-		pFrame->m_bSelected = true;
+		pFrame->m_bRegionSelected = true;
 	}
 
 	void CSImageViewerView::OperateEquHistImage()
@@ -634,7 +724,7 @@ IMPLEMENT_DYNCREATE(CSImageViewerView, CView)
 		{
 			m_Rect_i.SetRectEmpty();
 			CMainFrame* pFrame = (CMainFrame*)AfxGetMainWnd();
-			pFrame->m_bSelected = false;
+			pFrame->m_bRegionSelected = false;
 		}
 
 		m_iImgProcessIndex++;
@@ -760,7 +850,7 @@ IMPLEMENT_DYNCREATE(CSImageViewerView, CView)
 			{
 				m_Rect_i.SetRectEmpty();
 				CMainFrame* pFrame = (CMainFrame*)AfxGetMainWnd();
-				pFrame->m_bSelected = false;
+				pFrame->m_bRegionSelected = false;
 			}
 			return ;
 		}
@@ -779,7 +869,7 @@ IMPLEMENT_DYNCREATE(CSImageViewerView, CView)
 		{
 			m_Rect_i.SetRectEmpty();
 			CMainFrame* pFrame = (CMainFrame*)AfxGetMainWnd();
-			pFrame->m_bSelected = false;
+			pFrame->m_bRegionSelected = false;
 		}
 
 		m_iImgProcessIndex++;
@@ -882,7 +972,21 @@ IMPLEMENT_DYNCREATE(CSImageViewerView, CView)
 		GetClientRect(&rectClient);
 		return rectClient.Width();
 	}
-
+	
+	bool CSImageViewerView::OnImagePP()
+	{
+		m_iImageIndex=max(m_iImageIndex,0);
+				ResetImage();
+		Invalidate();
+		return true;
+	}
+	bool CSImageViewerView::OnImageFW()
+	{
+		m_iImageIndex=min(m_iImageIndex,m_iImagemax-1);
+				ResetImage();
+		Invalidate();
+		return true;
+	}
 	bool CSImageViewerView::ZoomChange(int iChange)
 	{
 		if((m_iScaleIndex>=SCALE_VAR_NUM-1)&&(iChange>0)){return false;}
@@ -1401,7 +1505,7 @@ IMPLEMENT_DYNCREATE(CSImageViewerView, CView)
 					m_Rect_i.SetRectEmpty();
 					m_iMouseMode=CHANGE_NONE;
 					CMainFrame* pFrame = (CMainFrame*)AfxGetMainWnd();
-					pFrame->m_bSelected = false;
+					pFrame->m_bRegionSelected = false;
 					Invalidate();
 					CView::OnLButtonUp(nFlags, point_v);
 					return;
@@ -1409,7 +1513,7 @@ IMPLEMENT_DYNCREATE(CSImageViewerView, CView)
 				m_Rect_v.SetRectEmpty();
 				m_Rect_i.SetRectEmpty();
 				CMainFrame* pFrame = (CMainFrame*)AfxGetMainWnd();
-				pFrame->m_bSelected = false;
+				pFrame->m_bRegionSelected = false;
 				Invalidate();
 				CView::OnLButtonUp(nFlags, point_v);
 				return;
@@ -1419,7 +1523,7 @@ IMPLEMENT_DYNCREATE(CSImageViewerView, CView)
 			m_Rect_i.top=max(0,m_Rect_i.top);
 			m_Rect_v.SetRectEmpty();
 			CMainFrame* pFrame = (CMainFrame*)AfxGetMainWnd();
-			pFrame->m_bSelected = true;
+			pFrame->m_bRegionSelected = true;
 			Invalidate();
 		}
 
@@ -1733,7 +1837,7 @@ IMPLEMENT_DYNCREATE(CSImageViewerView, CView)
 
 		CMainFrame* pFrame = (CMainFrame*)AfxGetMainWnd();
 		bool bFileOpened = pFrame ->m_bFileOpened;
-		bool bSelected = pFrame ->m_bSelected;
+		bool bSelected = pFrame ->m_bRegionSelected;
 
 		pPopup->EnableMenuItem(ID_EDIT_COPY, MF_BYCOMMAND | (( bSelected  == true) ? MF_ENABLED : MF_DISABLED));
 		pPopup->EnableMenuItem(ID_MENU_COPY_AS, MF_BYCOMMAND | (( bSelected  == true) ? MF_ENABLED : MF_DISABLED));

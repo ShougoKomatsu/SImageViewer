@@ -46,3 +46,6 @@ bool ImposeGrid(CImage* imgSrc, CImage* imgDst, const int iType, const double dR
 bool ImposeRect(CImage* imgSrc, CImage* imgDst, CRect* rect);
 bool ImposeAlphaChannel(CImage* imgSrc, CImage* imgDst);
 bool MakeReservedChannelZero(CImage* imgSrc, CImage* imgDst);
+
+UINT CountIconNum(const CString sFilePath);
+bool LoadICOFile(const CString sFilePath, CImage* img, UINT uiNum);
