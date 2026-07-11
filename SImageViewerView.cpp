@@ -578,7 +578,7 @@ IMPLEMENT_DYNCREATE(CSImageViewerView, CView)
 			||((sFilePath.Right(4)).CompareNoCase(_T(".dll"))==0))
 		{
 			UINT uiIconNum = CountIconNum(sFilePath);
-			m_image=new CImage[uiIconNum];
+			m_image=new CImage[uiIconNum*2];
 			bRet = LoadICOFile(sFilePath,m_image,uiIconNum);
 			if(bRet != true)
 			{
@@ -592,7 +592,7 @@ IMPLEMENT_DYNCREATE(CSImageViewerView, CView)
 				return false;
 			}
 			m_iImageIndex=0;
-			m_iImagemax=uiIconNum;
+			m_iImagemax=uiIconNum*2;
 			pFrame->m_iImageIndex=m_iImageIndex;
 			pFrame->m_iImageMax=m_iImagemax;
 			pFrame->m_bFileOpened = true;

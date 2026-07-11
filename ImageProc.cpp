@@ -2772,27 +2772,34 @@ UINT CountIconNum(const CString sFilePath)
 #include <vector>
 bool LoadICOFile(const CString sFilePath, CImage* imgs, UINT uiNum)
 {
-	HICON largeIcons[100]={NULL};
-	HICON smallIcons[100]={NULL};
-	UINT nExtracted = ExtractIconEx(sFilePath, 0, largeIcons, NULL, uiNum);
-    if (nExtracted == 0){return false;}
-
+	HICON* largeIcons=NULL;
+	HICON* smallIcons=NULL;
+	largeIcons = new HICON[uiNum];
+	smallIcons = new HICON[uiNum];
+	UINT nExtracted = ExtractIconEx(sFilePath, 0, largeIcons, smallIcons, uiNum);
+    if (nExtracted == 0){SAFE_DELETE(largeIcons); SAFE_DELETE(smallIcons); return false;}
+	
+	HICON* p;
+	for(int irep=0; irep<2; irep++)
+	{
+		if(irep==0){p=largeIcons;}
+		if(irep==1){p=smallIcons;}
 	HDC hScreenDC = ::GetDC(NULL);
 	if (!hScreenDC)
 	{
 		for (UINT ui=0; ui<uiNum; ui++)
 		{
-			if (largeIcons[ui])
+			if (p[ui])
 			{
-				::DestroyIcon(largeIcons[ui]);
+				::DestroyIcon(p[ui]);
 			}
 		}
+		SAFE_DELETE(largeIcons); SAFE_DELETE(smallIcons);
 		return false;
 	}
-
 	for (UINT i = 0; i < nExtracted; ++i)
 	{
-		HICON hIcon = largeIcons[i];
+		HICON hIcon = p[i];
 		if (!hIcon)
 		{
 			continue;
@@ -2814,9 +2821,9 @@ bool LoadICOFile(const CString sFilePath, CImage* imgs, UINT uiNum)
 		const int height = bmColor.bmHeight;
 		const int bpp    = bmColor.bmBitsPixel;
 
-		if(imgs[i].IsNull() != true){imgs[i].Destroy();}
+		if(imgs[irep*uiNum+i].IsNull() != true){imgs[irep*uiNum+i].Destroy();}
 
-		HRESULT hr = imgs[i].Create(width, height, 32);
+		HRESULT hr = imgs[irep*uiNum+i].Create(width, height, 32);
 		if (FAILED(hr))
 		{
 			::DeleteObject(ii.hbmColor);
@@ -2840,7 +2847,7 @@ bool LoadICOFile(const CString sFilePath, CImage* imgs, UINT uiNum)
 		if (!::GetDIBits(hScreenDC, ii.hbmColor, 0, height,
 			colorBuffer.data(), &bmiColor, DIB_RGB_COLORS))
 		{
-			imgs[i].Destroy();
+			imgs[irep*uiNum+i].Destroy();
 			::DeleteObject(ii.hbmColor);
 			::DeleteObject(ii.hbmMask);
 			::DestroyIcon(hIcon);
@@ -2889,7 +2896,7 @@ bool LoadICOFile(const CString sFilePath, CImage* imgs, UINT uiNum)
             if (!::GetDIBits(hScreenDC, ii.hbmMask, 0, height,
                              maskBuffer.data(), pBmiMask, DIB_RGB_COLORS))
             {
-                imgs[i].Destroy();
+                imgs[irep*uiNum+i].Destroy();
                 ::DeleteObject(ii.hbmColor);
                 ::DeleteObject(ii.hbmMask);
                 ::DestroyIcon(hIcon);
@@ -2901,7 +2908,7 @@ bool LoadICOFile(const CString sFilePath, CImage* imgs, UINT uiNum)
 		// CImage にピクセルを転送しつつアルファ設定
 		for (int y = 0; y < height; ++y)
 		{
-			BYTE* pDest = (BYTE*)imgs[i].GetPixelAddress(0, y);
+			BYTE* pDest = (BYTE*)imgs[irep*uiNum+i].GetPixelAddress(0, y);
 
 			const BYTE* pSrcColor = colorBuffer.data() + colorStride * y;
 
@@ -2985,7 +2992,8 @@ bool LoadICOFile(const CString sFilePath, CImage* imgs, UINT uiNum)
 	}
 
 	::ReleaseDC(NULL, hScreenDC);
-
+	}
+	SAFE_DELETE(largeIcons); SAFE_DELETE(smallIcons);
 	return true;
 
 }
