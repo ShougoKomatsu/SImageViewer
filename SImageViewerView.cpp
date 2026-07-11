@@ -414,7 +414,7 @@ IMPLEMENT_DYNCREATE(CSImageViewerView, CView)
 	}
 
 
-	void CSImageViewerView::ResetImage()
+	void CSImageViewerView::ResetImage(bool bZoomReset)
 	{
 		m_iImgProcessIndex=0;
 		if(m_bRefresh==true){KillTimer(TIMER_REFRESH);}
@@ -436,57 +436,61 @@ IMPLEMENT_DYNCREATE(CSImageViewerView, CView)
 
 
 		CopyImage(&(m_image[m_iImageIndex]),&(m_imageProcessed[(m_iImgProcessIndex % MAX_IMG_BUF)]));
-		m_iScaleIndex =8;
+		
+		m_iUnDoAvailableCount=0;
+		m_iReDoAvailableCount=0;
 
 		SetGridEnableDesable();
-
+		CMainFrame* pFrame = (CMainFrame*)AfxGetMainWnd();
+		
+		if(bZoomReset==true)
+		{
+		m_iScaleIndex =8;
 		CRect rectClient;
 		GetClientRect(&rectClient);
 
-		int iHeight_v=GetClientHeight();
-		int iWidth_v=GetClientWidth();
+			int iHeight_v=GetClientHeight();
+			int iWidth_v=GetClientWidth();
 
-		int iBarWidth= ::GetSystemMetrics(SM_CYHSCROLL);
-		int iBarHeight= ::GetSystemMetrics(SM_CXVSCROLL);
+			int iBarWidth= ::GetSystemMetrics(SM_CYHSCROLL);
+			int iBarHeight= ::GetSystemMetrics(SM_CXVSCROLL);
 
-		int iWidth_i =max(0,m_imageProcessed[(m_iImgProcessIndex % MAX_IMG_BUF)].GetWidth());
-		int iHeight_i =max(0,m_imageProcessed[(m_iImgProcessIndex % MAX_IMG_BUF)].GetHeight());
+			int iWidth_i =max(0,m_imageProcessed[(m_iImgProcessIndex % MAX_IMG_BUF)].GetWidth());
+			int iHeight_i =max(0,m_imageProcessed[(m_iImgProcessIndex % MAX_IMG_BUF)].GetHeight());
 
-		int iWidth_tv = (int)(iWidth_i*g_dScale[m_iScaleIndex]);
-		int iHeight_tv= (int)(iHeight_i*g_dScale[m_iScaleIndex]);
+			int iWidth_tv = (int)(iWidth_i*g_dScale[m_iScaleIndex]);
+			int iHeight_tv= (int)(iHeight_i*g_dScale[m_iScaleIndex]);
 
-		SCROLLINFO si = { 0 };
+			SCROLLINFO si = { 0 };
 
-		GetScrollInfo(SB_VERT, &si);
-		if(si.nPage==0){m_bRBar=false;}
+			GetScrollInfo(SB_VERT, &si);
+			if(si.nPage==0){m_bRBar=false;}
 
-		GetScrollInfo(SB_HORZ, &si);
-		if(si.nPage==0){m_bCBar=false;}
+			GetScrollInfo(SB_HORZ, &si);
+			if(si.nPage==0){m_bCBar=false;}
 
-		int iHeightIfNoBar_v=iHeight_v+(m_bCBar ? iBarHeight : 0);
-		int iWidthIfNoBar_v=iWidth_v+(m_bRBar ? iBarWidth : 0);
+			int iHeightIfNoBar_v=iHeight_v+(m_bCBar ? iBarHeight : 0);
+			int iWidthIfNoBar_v=iWidth_v+(m_bRBar ? iBarWidth : 0);
 
-		CMainFrame* pFrame = (CMainFrame*)AfxGetMainWnd();
-		pFrame->AdjustViewClientSize(m_image[m_iImageIndex].GetWidth(), m_image[m_iImageIndex].GetHeight(),iWidthIfNoBar_v, iHeightIfNoBar_v);
-		SetScroll();
+			pFrame->AdjustViewClientSize(m_image[m_iImageIndex].GetWidth(), m_image[m_iImageIndex].GetHeight(),iWidthIfNoBar_v, iHeightIfNoBar_v);
+			SetScroll();
 
-		m_iUnDoAvailableCount=0;
-		m_iReDoAvailableCount=0;
-		m_dDispOriginC_tv=0;
-		m_dDispOriginR_tv=0;
+			m_dDispOriginC_tv=0;
+			m_dDispOriginR_tv=0;
 
-		GetScrollInfo(SB_HORZ, &si);
-		if(si.nPage>0)
-		{
-			si.nPos = 0; 
-			SetScrollInfo(SB_HORZ, &si, TRUE);
-		}
+			GetScrollInfo(SB_HORZ, &si);
+			if(si.nPage>0)
+			{
+				si.nPos = 0; 
+				SetScrollInfo(SB_HORZ, &si, TRUE);
+			}
 
-		GetScrollInfo(SB_VERT, &si);
-		if(si.nPage>0)
-		{
-			si.nPos = 0; 
-			SetScrollInfo(SB_VERT, &si, TRUE);
+			GetScrollInfo(SB_VERT, &si);
+			if(si.nPage>0)
+			{
+				si.nPos = 0; 
+				SetScrollInfo(SB_VERT, &si, TRUE);
+			}
 		}
 		m_iMouseMode=0;
 		m_Rect_i.SetRectEmpty();
@@ -620,7 +624,7 @@ IMPLEMENT_DYNCREATE(CSImageViewerView, CView)
 		pFrame->m_bRegionSelected = true;
 
 
-		ResetImage();
+		ResetImage(true);
 		return true;
 	}
 
@@ -700,7 +704,7 @@ IMPLEMENT_DYNCREATE(CSImageViewerView, CView)
 
 		pFrame->m_bFileOpened = true;
 		pFrame->m_bRegionSelected = true;
-		ResetImage();
+		ResetImage(true);
 
 	}
 
@@ -976,14 +980,14 @@ IMPLEMENT_DYNCREATE(CSImageViewerView, CView)
 	bool CSImageViewerView::OnImagePP()
 	{
 		m_iImageIndex=max(m_iImageIndex,0);
-				ResetImage();
+				ResetImage(false);
 		Invalidate();
 		return true;
 	}
 	bool CSImageViewerView::OnImageFW()
 	{
 		m_iImageIndex=min(m_iImageIndex,m_iImagemax-1);
-				ResetImage();
+				ResetImage(false);
 		Invalidate();
 		return true;
 	}
@@ -1392,6 +1396,7 @@ IMPLEMENT_DYNCREATE(CSImageViewerView, CView)
 		pFrame->SendMessage(WM_COMMAND, ID_DISP_STATUS_MOUSE_POS);
 
 		pFrame->m_sStatusZoom.Format(_T("%.3f%%"), 100*g_dScale[m_iScaleIndex]);
+		pFrame->SendMessage(WM_COMMAND, ID_DISP_STATUS_ZOOM);
 
 
 		sCaption.Format(sFileName);
@@ -1711,7 +1716,7 @@ IMPLEMENT_DYNCREATE(CSImageViewerView, CView)
 				{
 					return ReadImage(m_sFilePath);
 				}
-				ResetImage();
+				ResetImage(true);
 			}
 			if(pMsg->wParam == 'R'){OperateRotaateImage(ROTATE_CW90);return TRUE;}
 
