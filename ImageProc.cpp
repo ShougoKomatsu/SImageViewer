@@ -2770,230 +2770,253 @@ UINT CountIconNum(const CString sFilePath)
 }
 
 #include <vector>
-bool LoadICOFile(const CString sFilePath, CImage* imgs, UINT uiNum)
+
+bool ConvertIconToImg(HDC hScreenDC, HICON hIcon, CImage* img)
 {
-	HICON* largeIcons=NULL;
-	HICON* smallIcons=NULL;
-	largeIcons = new HICON[uiNum];
-	smallIcons = new HICON[uiNum];
-	UINT nExtracted = ExtractIconEx(sFilePath, 0, largeIcons, smallIcons, uiNum);
-    if (nExtracted == 0){SAFE_DELETE(largeIcons); SAFE_DELETE(smallIcons); return false;}
-	
-	HICON* p;
-	for(int irep=0; irep<2; irep++)
+	if (hIcon==NULL)
 	{
-		if(irep==0){p=largeIcons;}
-		if(irep==1){p=smallIcons;}
-	HDC hScreenDC = ::GetDC(NULL);
-	if (!hScreenDC)
-	{
-		for (UINT ui=0; ui<uiNum; ui++)
-		{
-			if (p[ui])
-			{
-				::DestroyIcon(p[ui]);
-			}
-		}
-		SAFE_DELETE(largeIcons); SAFE_DELETE(smallIcons);
 		return false;
 	}
-	for (UINT i = 0; i < nExtracted; ++i)
+
+	ICONINFO ii = {};
+	BOOL bRet = ::GetIconInfo(hIcon, &ii);
+	if (bRet != TRUE)
 	{
-		HICON hIcon = p[i];
-		if (!hIcon)
+		return false;
+	}
+
+	BITMAP bmColor = {};
+	BITMAP bmMask  = {};
+	::GetObject(ii.hbmColor, sizeof(BITMAP), &bmColor);
+	::GetObject(ii.hbmMask,  sizeof(BITMAP), &bmMask);
+
+	const int iWidth  = bmColor.bmWidth;
+	const int iHeight = bmColor.bmHeight;
+	const int iBPP    = bmColor.bmBitsPixel;
+
+	if(img->IsNull() != true){img->Destroy();}
+
+	bRet = img->Create(iWidth, iHeight, 32);
+	if (bRet != TRUE)
+	{
+		::DeleteObject(ii.hbmColor);
+		::DeleteObject(ii.hbmMask);
+		return false;
+	}
+
+	BYTE* bmiColorBuf;
+	if(iBPP<=8)
+	{
+		bmiColorBuf = new BYTE[sizeof(BITMAPINFOHEADER) + sizeof(RGBQUAD) * (1<<iBPP)];
+	}
+	else
+	{
+		bmiColorBuf = new BYTE[sizeof(BITMAPINFOHEADER)];
+	}
+
+	BITMAPINFO* pbmiColor = (BITMAPINFO*)bmiColorBuf;
+	pbmiColor->bmiHeader.biSize        = sizeof(BITMAPINFOHEADER);
+	pbmiColor->bmiHeader.biWidth       = iWidth;
+	pbmiColor->bmiHeader.biHeight      = -iHeight;
+	pbmiColor->bmiHeader.biPlanes      = 1;
+	pbmiColor->bmiHeader.biBitCount    = (WORD)iBPP;
+	pbmiColor->bmiHeader.biCompression = BI_RGB;
+
+	const int iPitchColor_Src = ((iWidth * iBPP + 31) / 32) * 4;
+	BYTE* byColor;
+	byColor = new BYTE[iPitchColor_Src * iHeight];
+
+	int iRet = ::GetDIBits(hScreenDC, ii.hbmColor, 0, iHeight, byColor, pbmiColor, DIB_RGB_COLORS);
+	if (iRet==0)
+	{
+		img->Destroy();
+		::DeleteObject(ii.hbmColor);
+		::DeleteObject(ii.hbmMask);
+		SAFE_DELETE(byColor);
+		SAFE_DELETE(bmiColorBuf);
+		return false;
+	}
+
+	BITMAPINFO bmiMask = {};
+
+
+	BYTE bmiMaskBuf[sizeof(BITMAPINFOHEADER) + sizeof(RGBQUAD) * 2] = {};
+	BITMAPINFO* pBmiMask = (BITMAPINFO*)bmiMaskBuf ;
+
+	pBmiMask->bmiHeader.biSize        = sizeof(BITMAPINFOHEADER);
+	pBmiMask->bmiHeader.biWidth       = iWidth;
+	pBmiMask->bmiHeader.biHeight      = -iHeight;
+	pBmiMask->bmiHeader.biPlanes      = 1;
+	pBmiMask->bmiHeader.biBitCount    = 1;
+	pBmiMask->bmiHeader.biCompression = BI_RGB;
+	pBmiMask->bmiHeader.biClrUsed     = 2;
+	pBmiMask->bmiHeader.biClrImportant= 2;
+
+	int iPitchMask_Src = ((iWidth + 31) / 32) * 4;
+
+	BYTE* byMask;
+	byMask = new BYTE[iPitchMask_Src * iHeight];
+
+	iRet = GetDIBits(hScreenDC, ii.hbmMask, 0, iHeight,byMask, pBmiMask, DIB_RGB_COLORS);
+	if (iRet==0)
+	{
+		img->Destroy();
+		::DeleteObject(ii.hbmColor);
+		::DeleteObject(ii.hbmMask);
+		SAFE_DELETE(byColor);
+		SAFE_DELETE(byMask);
+		SAFE_DELETE(bmiColorBuf);
+		return false;
+	}
+
+	BYTE* pbyData_Dst = (BYTE*)img->GetBits();
+	int iPitch_Dst = img->GetPitch();
+
+	if (iBPP == 32)
+	{
+		for (int iR = 0; iR < iHeight; iR++)
 		{
-			continue;
-		}
 
-		ICONINFO ii = {};
-		if (!::GetIconInfo(hIcon, &ii))
-		{
-			::DestroyIcon(hIcon);
-			continue;
-		}
-
-		BITMAP bmColor = {};
-		BITMAP bmMask  = {};
-		::GetObject(ii.hbmColor, sizeof(BITMAP), &bmColor);
-		::GetObject(ii.hbmMask,  sizeof(BITMAP), &bmMask);
-
-		const int width  = bmColor.bmWidth;
-		const int height = bmColor.bmHeight;
-		const int bpp    = bmColor.bmBitsPixel;
-
-		if(imgs[irep*uiNum+i].IsNull() != true){imgs[irep*uiNum+i].Destroy();}
-
-		HRESULT hr = imgs[irep*uiNum+i].Create(width, height, 32);
-		if (FAILED(hr))
-		{
-			::DeleteObject(ii.hbmColor);
-			::DeleteObject(ii.hbmMask);
-			::DestroyIcon(hIcon);
-			continue;
-		}
-
-		BITMAPINFO bmiColor = {};
-		bmiColor.bmiHeader.biSize        = sizeof(BITMAPINFOHEADER);
-		bmiColor.bmiHeader.biWidth       = width;
-		bmiColor.bmiHeader.biHeight      = -height;
-		bmiColor.bmiHeader.biPlanes      = 1;
-		bmiColor.bmiHeader.biBitCount    = (WORD)bpp;
-		bmiColor.bmiHeader.biCompression = BI_RGB;
-
-		const int colorBytesPerPixel = bpp / 8;
-		const int colorStride        = ((width * colorBytesPerPixel + 3) & ~3);
-		std::vector<BYTE> colorBuffer(colorStride * height);
-
-		if (!::GetDIBits(hScreenDC, ii.hbmColor, 0, height,
-			colorBuffer.data(), &bmiColor, DIB_RGB_COLORS))
-		{
-			imgs[irep*uiNum+i].Destroy();
-			::DeleteObject(ii.hbmColor);
-			::DeleteObject(ii.hbmMask);
-			::DestroyIcon(hIcon);
-			continue;
-		}
-
-		std::vector<BYTE> maskBuffer;
-		BITMAPINFO bmiMask = {};
-//		if (bpp != 32)
-//		{
-            // BITMAPINFOHEADER + RGBQUAD * 2 分のバッファを確保
-            BYTE bmiMaskBuf[sizeof(BITMAPINFOHEADER) + sizeof(RGBQUAD) * 2] = {};
-            BITMAPINFO* pBmiMask = reinterpret_cast<BITMAPINFO*>(bmiMaskBuf);
-
-            pBmiMask->bmiHeader.biSize        = sizeof(BITMAPINFOHEADER);
-            pBmiMask->bmiHeader.biWidth       = width;
-            pBmiMask->bmiHeader.biHeight      = -height;
-            pBmiMask->bmiHeader.biPlanes      = 1;
-            pBmiMask->bmiHeader.biBitCount    = 1; // 1bpp マスク
-            pBmiMask->bmiHeader.biCompression = BI_RGB;
-            pBmiMask->bmiHeader.biClrUsed     = 2;
-            pBmiMask->bmiHeader.biClrImportant= 2;
-
-            // カラーテーブル（黒／白）を設定
-            pBmiMask->bmiColors[0].rgbBlue     = 0;
-            pBmiMask->bmiColors[0].rgbGreen    = 0;
-            pBmiMask->bmiColors[0].rgbRed      = 0;
-            pBmiMask->bmiColors[0].rgbReserved = 0;
-
-            reinterpret_cast<RGBQUAD*>(
-                reinterpret_cast<BYTE*>(pBmiMask->bmiColors) + sizeof(RGBQUAD)
-            )[0].rgbBlue     = 255;
-            reinterpret_cast<RGBQUAD*>(
-                reinterpret_cast<BYTE*>(pBmiMask->bmiColors) + sizeof(RGBQUAD)
-            )[0].rgbGreen    = 255;
-            reinterpret_cast<RGBQUAD*>(
-                reinterpret_cast<BYTE*>(pBmiMask->bmiColors) + sizeof(RGBQUAD)
-            )[0].rgbRed      = 255;
-            reinterpret_cast<RGBQUAD*>(
-                reinterpret_cast<BYTE*>(pBmiMask->bmiColors) + sizeof(RGBQUAD)
-            )[0].rgbReserved = 0;
-
-            int maskStride = ((width + 31) / 32) * 4;
-            maskBuffer.resize(maskStride * height);
-
-            if (!::GetDIBits(hScreenDC, ii.hbmMask, 0, height,
-                             maskBuffer.data(), pBmiMask, DIB_RGB_COLORS))
-            {
-                imgs[irep*uiNum+i].Destroy();
-                ::DeleteObject(ii.hbmColor);
-                ::DeleteObject(ii.hbmMask);
-                ::DestroyIcon(hIcon);
-                continue;
-            }
-
-//		}
-
-		// CImage にピクセルを転送しつつアルファ設定
-		for (int y = 0; y < height; ++y)
-		{
-			BYTE* pDest = (BYTE*)imgs[irep*uiNum+i].GetPixelAddress(0, y);
-
-			const BYTE* pSrcColor = colorBuffer.data() + colorStride * y;
-
-			for (int x = 0; x < width; ++x)
+			for (int iC = 0; iC < iWidth; iC++)
 			{
-				BYTE r = 0, g = 0, b = 0, a = 255;
 
-				if (bpp == 32)
+				pbyData_Dst[iR * iPitch_Dst +iC * 4 + 0] = byColor[iR * iPitchColor_Src + iC * 4 + 0];
+				pbyData_Dst[iR * iPitch_Dst +iC * 4 + 1] = byColor[iR * iPitchColor_Src + iC * 4 + 1];
+				pbyData_Dst[iR * iPitch_Dst +iC * 4 + 2] = byColor[iR * iPitchColor_Src + iC * 4 + 2];
+				if(byColor[iR * iPitchColor_Src + iC * 4 + 3]!=0)
 				{
-					// BGRA と仮定
-					const BYTE* pSrc = pSrcColor + x * 4;
-					b = pSrc[0];
-					g = pSrc[1];
-					r = pSrc[2];
-					
-                    const BYTE* pMaskLine = maskBuffer.data() + maskStride * y;
-                    int bitIndex = x;
-                    int byteIndex = bitIndex / 8;
-                    int bitPos    = 7 - (bitIndex % 8);
-                    BYTE maskByte = pMaskLine[byteIndex];
-                    bool isMasked = ((maskByte >> bitPos) & 0x1) != 0;
-
-                    a = isMasked ? 0 : 255;
-
-				}
-				else if (bpp == 24)
-				{
-                    const BYTE* pSrc = pSrcColor + x * 3;
-                    b = pSrc[0];
-                    g = pSrc[1];
-                    r = pSrc[2];
-
-                    const BYTE* pMaskLine = maskBuffer.data() + maskStride * y;
-                    int bitIndex = x;
-                    int byteIndex = bitIndex / 8;
-                    int bitPos    = 7 - (bitIndex % 8);
-                    BYTE maskByte = pMaskLine[byteIndex];
-                    bool isMasked = ((maskByte >> bitPos) & 0x1) != 0;
-
-                    a = isMasked ? 0 : 255;
-				}
-				else if (bpp == 8)
-				{
-					// パレット付き 8bpp の場合（簡易対応：グレイスケールと仮定）
-					const BYTE* pSrc = pSrcColor + x;
-					b = g = r = *pSrc;
-
-					const int maskStride = ((width + 31) / 32) * 4;
-					const BYTE* pMaskLine = maskBuffer.data() + maskStride * y;
-					int bitIndex = x;
-					int byteIndex = bitIndex / 8;
-					int bitPos    = 7 - (bitIndex % 8);
-					BYTE maskByte = pMaskLine[byteIndex];
-					bool isMasked = ((maskByte >> bitPos) & 0x1) != 0;
-
-					a = isMasked ? 0 : 255;
+					pbyData_Dst[iR * iPitch_Dst +iC * 4 + 3] = byColor[iR * iPitchColor_Src + iC * 4 + 3];
 				}
 				else
 				{
-					// その他のフォーマットは簡易的に不透明扱い
-					const BYTE* pSrc = pSrcColor + x * colorBytesPerPixel;
-					b = pSrc[0];
-					g = (colorBytesPerPixel > 1) ? pSrc[1] : pSrc[0];
-					r = (colorBytesPerPixel > 2) ? pSrc[2] : pSrc[0];
-					a = 255;
+					BYTE byMaskByte = byMask[iR * iPitchMask_Src + (iC / 8)];
+					int iBitPos    = 7 - (iC % 8);
+					pbyData_Dst[iR * iPitch_Dst +iC * 4 + 3] = (((byMaskByte >> iBitPos) & 0x01 == 0x01)) ? 0 : 255;
 				}
-
-				// CImage は BGRA
-				pDest[x * 4 + 0] = b;
-				pDest[x * 4 + 1] = g;
-				pDest[x * 4 + 2] = r;
-				pDest[x * 4 + 3] = a;
 			}
 		}
+	}
+	else if (iBPP == 24)
+	{
+		for (int iR = 0; iR < iHeight; iR++)
+		{
 
-		// GDI リソース解放
-		::DeleteObject(ii.hbmColor);
-		::DeleteObject(ii.hbmMask);
-		::DestroyIcon(hIcon);
+			for (int iC = 0; iC < iWidth; iC++)
+			{
 
+				pbyData_Dst[iR * iPitch_Dst +iC * 4 + 0] = byColor[iR * iPitchColor_Src + iC * 3 + 0];
+				pbyData_Dst[iR * iPitch_Dst +iC * 4 + 1] = byColor[iR * iPitchColor_Src + iC * 3 + 1];
+				pbyData_Dst[iR * iPitch_Dst +iC * 4 + 2] = byColor[iR * iPitchColor_Src + iC * 3 + 2];
+
+				BYTE byMaskByte = byMask[iR * iPitchMask_Src + (iC / 8)];
+				int iBitPos    = 7 - (iC % 8);
+				pbyData_Dst[iR * iPitch_Dst +iC * 4 + 3] = (((byMaskByte >> iBitPos) & 0x01 == 0x01)) ? 0 : 255;
+			}
+		}
+	}
+	else if(iBPP==8)
+	{
+		/*
+		BYTE r,g,b,a;
+		for (int iR = 0; iR < iHeight; iR++)
+		{
+		BYTE* pDest = (BYTE*)img->GetPixelAddress(0, iR);
+
+		const BYTE* pSrcColor = byColor + iPitchColor_Src * iR;
+
+		for (int iC = 0; iC < iWidth; iC++)
+		{
+		const BYTE* pSrc = pSrcColor + iC;
+		b = g = r = *pSrc;
+
+		const BYTE* pMaskLine = byMask+ iPitchMask_Src * iR;
+		int bitIndex = iC;
+		int byteIndex = bitIndex / 8;
+		int bitPos    = 7 - (bitIndex % 8);
+		BYTE maskByte = pMaskLine[byteIndex];
+		bool isMasked = ((maskByte >> bitPos) & 0x1) != 0;
+
+		a = isMasked ? 0 : 255;
+
+		pDest[iC * 4 + 0] = b;
+		pDest[iC * 4 + 1] = g;
+		pDest[iC * 4 + 2] = r;
+		pDest[iC * 4 + 3] = a;
+		}
+		}
+		*/
+	}
+	else
+	{
+		/*
+		BYTE r,g,b,a;
+		for (int iR = 0; iR < iHeight; iR++)
+		{
+		BYTE* pDest = (BYTE*)img->GetPixelAddress(0, iR);
+
+		const BYTE* pSrcColor = byColor + iPitchColor_Src * iR;
+
+		for (int iC = 0; iC < iWidth; iC++)
+		{
+		// その他のフォーマットは簡易的に不透明扱い
+		const BYTE* pSrc = pSrcColor + iC * iPitchColor_Src;
+
+		pDest[iC * 4 + 0] =  pSrc[0];
+		pDest[iC * 4 + 1] = (iPitchColor_Src > 1) ? pSrc[1] : pSrc[0];
+		pDest[iC * 4 + 2] = (iPitchColor_Src > 2) ? pSrc[2] : pSrc[0];
+		pDest[iC * 4 + 3] = 255;
+		}
+		}
+		*/
 	}
 
+
+
+	SAFE_DELETE(bmiColorBuf);
+	SAFE_DELETE(byMask);
+	SAFE_DELETE(byColor);
+	::DeleteObject(ii.hbmColor);
+	::DeleteObject(ii.hbmMask);
+	return true;
+}
+bool LoadICOFile(const CString sFilePath, CImage* imgs, UINT uiNum)
+{
+	HICON* hLargeIcons=NULL;
+	HICON* hSmallIcons=NULL;
+	hLargeIcons = new HICON[uiNum];
+	hSmallIcons = new HICON[uiNum];
+
+	UINT uiExtracted = ExtractIconEx(sFilePath, 0, hLargeIcons, hSmallIcons, uiNum);
+	if (uiExtracted == 0){SAFE_DELETE(hLargeIcons); SAFE_DELETE(hSmallIcons); return false;}
+
+	HDC hScreenDC = ::GetDC(NULL);
+	if (hScreenDC == NULL)
+	{
+		for (UINT ui=0; ui<uiNum; ui++)
+		{
+			if (hLargeIcons[ui] != NULL){::DestroyIcon(hLargeIcons[ui]);}
+			if (hSmallIcons[ui] != NULL){::DestroyIcon(hSmallIcons[ui]);}
+		}
+		SAFE_DELETE(hLargeIcons);
+		SAFE_DELETE(hSmallIcons);
+		return false;
+	}
+
+	for (UINT ui = 0; ui < uiExtracted; ui++)
+	{
+		bool bRet = ConvertIconToImg(hScreenDC, hLargeIcons[ui], &imgs[ui]);
+		::DestroyIcon(hLargeIcons[ui]);
+	}
+
+	for (UINT ui = 0; ui < uiExtracted; ui++)
+	{
+		bool bRet = ConvertIconToImg(hScreenDC, hSmallIcons[ui], &imgs[uiNum+ui]);
+		::DestroyIcon(hSmallIcons[ui]);
+	}
+	
+	SAFE_DELETE(hLargeIcons);
+	SAFE_DELETE(hSmallIcons);
 	::ReleaseDC(NULL, hScreenDC);
-	}
-	SAFE_DELETE(largeIcons); SAFE_DELETE(smallIcons);
 	return true;
 
 }

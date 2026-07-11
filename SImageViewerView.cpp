@@ -442,12 +442,12 @@ IMPLEMENT_DYNCREATE(CSImageViewerView, CView)
 
 		SetGridEnableDesable();
 		CMainFrame* pFrame = (CMainFrame*)AfxGetMainWnd();
-		
+
 		if(bZoomReset==true)
 		{
-		m_iScaleIndex =8;
-		CRect rectClient;
-		GetClientRect(&rectClient);
+			m_iScaleIndex =8;
+			CRect rectClient;
+			GetClientRect(&rectClient);
 
 			int iHeight_v=GetClientHeight();
 			int iWidth_v=GetClientWidth();
