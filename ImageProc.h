@@ -49,3 +49,4 @@ bool MakeReservedChannelZero(CImage* imgSrc, CImage* imgDst);
 
 UINT CountIconNum(const CString sFilePath);
 bool LoadICOFile(const CString sFilePath, CImage* img, UINT uiNum);
+bool LoadICON2(const CString sFilePath, CImage* imgs, UINT uiNum);

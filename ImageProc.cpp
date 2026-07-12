@@ -3020,3 +3020,38 @@ bool LoadICOFile(const CString sFilePath, CImage* imgs, UINT uiNum)
 	return true;
 
 }
+bool LoadICON2(const CString sFilePath, CImage* imgs, UINT uiNum)
+{
+	HINSTANCE hExe;
+hExe = LoadLibrary(sFilePath);
+
+HRSRC hResource;
+hResource = FindResource(hExe, 
+	_T("#1"), 
+    RT_GROUP_ICON); 
+
+HGLOBAL hMem;  
+hMem = LoadResource(hExe, hResource); 
+
+ BYTE *lpResource;
+lpResource =(BYTE*) LockResource(hMem); 
+ 
+int nID = LookupIconIdFromDirectoryEx((PBYTE) lpResource, TRUE, SM_CXICON, SM_CYICON, LR_DEFAULTCOLOR); 
+
+hResource = FindResource(hExe, 
+    MAKEINTRESOURCE(nID), 
+    MAKEINTRESOURCE(RT_ICON)); 
+
+hMem = LoadResource(hExe, hResource); 
+ 
+lpResource = (BYTE*)LockResource(hMem); 
+
+HICON hIcon1;
+hIcon1 = CreateIconFromResourceEx((PBYTE) lpResource, 
+    SizeofResource(hExe, hResource), TRUE, 0x00030000, 
+    SM_CXICON, SM_CYICON, LR_DEFAULTCOLOR); 
+ 
+	HDC hScreenDC = ::GetDC(NULL);
+		bool bRet = ConvertIconToImg(hScreenDC, hIcon1, &imgs[0]);
+		return true;
+}

@@ -581,6 +581,9 @@ IMPLEMENT_DYNCREATE(CSImageViewerView, CView)
 			||((sFilePath.Right(4)).CompareNoCase(_T(".exe"))==0)
 			||((sFilePath.Right(4)).CompareNoCase(_T(".dll"))==0))
 		{
+		
+//			m_image=new CImage[2];
+//bRet =  LoadICON2(sFilePath, m_image, 1);
 			UINT uiIconNum = CountIconNum(sFilePath);
 			m_image=new CImage[uiIconNum*2];
 			bRet = LoadICOFile(sFilePath,m_image,uiIconNum);
