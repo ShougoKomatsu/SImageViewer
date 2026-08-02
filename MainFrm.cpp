@@ -42,16 +42,19 @@ BEGIN_MESSAGE_MAP(CMainFrame, CFrameWndEx)
 	ON_UPDATE_COMMAND_UI(IDM_ZOOMDOWN, &CMainFrame::OnUpdateMenu)
 	ON_UPDATE_COMMAND_UI(ID_EDIT_PASTE, &CMainFrame::OnUpdateMenu)
 	ON_UPDATE_COMMAND_UI(ID_MENU_RESAMPLE, &CMainFrame::OnUpdateMenu)	
-	
-    ON_COMMAND(ID_BUTTON_GRID_DOT, &CMainFrame::OnButtonGridDot)
-    ON_COMMAND(ID_BUTTON_GRID_LINE, &CMainFrame::OnButtonGridLine)
-    ON_COMMAND(ID_BUTTON_GRID_CONNECT, &CMainFrame::OnButtonGridConnect)
-	
     ON_UPDATE_COMMAND_UI(ID_BUTTON_GRID_DOT, &CMainFrame::OnUpdateMenu)
     ON_UPDATE_COMMAND_UI(ID_BUTTON_GRID_LINE, &CMainFrame::OnUpdateMenu)
     ON_UPDATE_COMMAND_UI(ID_BUTTON_GRID_CONNECT, &CMainFrame::OnUpdateMenu)
     ON_UPDATE_COMMAND_UI(ID_BUTTON_IMAGE_PP, &CMainFrame::OnUpdateMenu)
     ON_UPDATE_COMMAND_UI(ID_BUTTON_IMAGE_FW, &CMainFrame::OnUpdateMenu)
+    ON_UPDATE_COMMAND_UI(ID_BUTTON_VALUE, &CMainFrame::OnUpdateMenu)
+	
+    ON_COMMAND(ID_BUTTON_GRID_DOT, &CMainFrame::OnButtonGridDot)
+    ON_COMMAND(ID_BUTTON_GRID_LINE, &CMainFrame::OnButtonGridLine)
+    ON_COMMAND(ID_BUTTON_GRID_CONNECT, &CMainFrame::OnButtonGridConnect)
+	
+    ON_COMMAND(ID_BUTTON_VALUE, &CMainFrame::OnButtonValue)
+
 	ON_COMMAND(IDM_ZOOMDOWN, &CMainFrame::OnZoomdown)
 	ON_COMMAND(IDM_ZOOMUP, &CMainFrame::OnZoomup)
 	ON_COMMAND(ID_BUTTON_IMAGE_FW, &CMainFrame::OnImageFW)
@@ -146,6 +149,7 @@ int CMainFrame::OnCreate(LPCREATESTRUCT lpCreateStruct)
 		return -1;      // ì¬‚Å‚«‚Ü‚¹‚ñ‚Å‚µ‚½B
 	}
 m_iGrid = ID_BUTTON_GRID_NONE;
+m_bValue = false;
 
 	CString strToolBarName;
 	bNameValid = strToolBarName.LoadString(IDS_TOOLBAR_STANDARD);
@@ -621,6 +625,18 @@ void CMainFrame::OnButtonGridNone()
 }
 
 
+void CMainFrame::OnButtonValue()
+{
+	if(m_bValue == true)
+	{
+		m_bValue = false;
+		Invalidate();
+		return;
+	}
+	m_bValue = true;
+	Invalidate();
+}
+
 void CMainFrame::OnButtonGridDot()
 {
 	if(m_iGrid == ID_BUTTON_GRID_DOT)
@@ -699,6 +715,11 @@ void CMainFrame::OnUpdateMenu(CCmdUI* pCmdUI)
 			pCmdUI->Enable(m_bRegionSelected);
 			break;
 		}
+	case ID_BUTTON_VALUE:
+		{
+			pCmdUI->Enable(m_bFileOpened & m_bGridAble);
+		break;
+		}
 	case ID_BUTTON_GRID_DOT:{pCmdUI->Enable(m_bFileOpened & m_bGridAble);break;}
 	case ID_BUTTON_GRID_LINE:{pCmdUI->Enable(m_bFileOpened & m_bGridAble);break;}
 	case ID_BUTTON_GRID_CONNECT:{pCmdUI->Enable(m_bFileOpened & m_bGridAble);break;}
@@ -719,7 +740,11 @@ void CMainFrame::OnUpdateMenu(CCmdUI* pCmdUI)
 		pCmdUI->Enable(m_bFileOpened);
 		break;
 	}
-
+	
+	if(pCmdUI->m_nID== ID_BUTTON_VALUE)
+	{
+		pCmdUI->SetCheck(m_bValue == true);
+	}
 	switch (pCmdUI->m_nID)
 	{
 	case ID_BUTTON_GRID_DOT:{pCmdUI->SetCheck(m_iGrid == ID_BUTTON_GRID_DOT);break;}

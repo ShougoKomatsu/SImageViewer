@@ -242,7 +242,10 @@ IMPLEMENT_DYNCREATE(CSImageViewerView, CView)
 		default:{iGrid=0;}
 		}
 		ImposeGrid(&imgZoomed, &imgZoomed, iGrid, int(dR0_i)-dR0_i, int(dC0_i)-dC0_i,g_dScale[m_iScaleIndex], 10, iRMax, iCMax);
-
+		if(pFrame->m_bValue==true)
+		{
+			ImposeValue(&imgZoomed, &imgZoomed, iGrid, int(dR0_i)-dR0_i, int(dC0_i)-dC0_i,g_dScale[m_iScaleIndex], 10, iRMax, iCMax);
+		}
 		if(m_bDragging==true)
 		{
 			if (m_Rect_v.IsRectEmpty()==FALSE)
@@ -264,7 +267,7 @@ IMPLEMENT_DYNCREATE(CSImageViewerView, CView)
 		ImposeAlphaChannel(&imgZoomed,&imgAlphaed);
 
 		imgAlphaed.BitBlt( memDC.GetSafeHdc(), 0, 0,imgAlphaed.GetWidth(), imgAlphaed.GetHeight(), 0, 0  );
-
+		int ii=imgAlphaed.GetWidth();
 		pDC->BitBlt(0, 0, iWidth_v, iHeight_v, &memDC, 0, 0,SRCCOPY);
 
 		memDC.SelectObject(pOldBmp);
@@ -586,8 +589,8 @@ IMPLEMENT_DYNCREATE(CSImageViewerView, CView)
 //bRet =  LoadICON2(sFilePath, m_image, 1);
 			UINT uiIconNum = CountIconNum(sFilePath);
 			m_image=new CImage[uiIconNum*2];
-			bRet = LoadICOFile(sFilePath,m_image,uiIconNum);
-			if(bRet != true)
+			bool bbRet = LoadICOFile(sFilePath,m_image,uiIconNum);
+			if(bbRet != true)
 			{
 				for(int i=0; i<m_iImagemax; i++)
 				{
