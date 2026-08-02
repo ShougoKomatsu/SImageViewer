@@ -50,4 +50,4 @@ bool MakeReservedChannelZero(CImage* imgSrc, CImage* imgDst);
 UINT CountIconNum(const CString sFilePath);
 bool LoadICOFile(const CString sFilePath, CImage* img, UINT uiNum);
 bool LoadICON2(const CString sFilePath, CImage* imgs, UINT uiNum);
-bool ImposeValue(CImage* imgSrc, CImage* imgDst,  const int iType,const double dROffset, const double dCOffset, const double dScale, const double dScaleThresh,const int iRMax_i, const int iCMax_i);
+bool ImposeRGBValue(CImage* imgSrc, CImage* imgDst,  const int iType,const double dROffset, const double dCOffset, const double dScale, const double dScaleThresh,const int iRMax_i, const int iCMax_i);

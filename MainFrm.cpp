@@ -148,8 +148,8 @@ int CMainFrame::OnCreate(LPCREATESTRUCT lpCreateStruct)
 		TRACE0("ツール バーの作成に失敗しました。\n");
 		return -1;      // 作成できませんでした。
 	}
-m_iGrid = ID_BUTTON_GRID_NONE;
-m_bValue = false;
+	m_iGrid = ID_BUTTON_GRID_NONE;
+	m_bValue = false;
 
 	CString strToolBarName;
 	bNameValid = strToolBarName.LoadString(IDS_TOOLBAR_STANDARD);

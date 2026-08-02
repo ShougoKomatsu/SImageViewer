@@ -1595,81 +1595,49 @@ BYTE g_byFont[160]={
 	0x00, 0x00, 0x18, 0x24, 0x42, 0x42, 0x42, 0x24, 0x18, 0x24, 0x42, 0x42, 0x42, 0x24, 0x18, 0x00,
 	0x00, 0x00, 0x18, 0x24, 0x42, 0x42, 0x42, 0x42, 0x26, 0x1a, 0x02, 0x42, 0x42, 0x24, 0x18, 0x00};
 
-inline void ImposeValue(BYTE* pbyData, int iPitch, int iHeight, int iWidth, int iValue,int ir_Origin, int ic_Origin_In, BYTE byDot)
+
+inline void ImposeSingleValue(BYTE* pbyData, int iPitch, int iHeight, int iWidth, const BYTE byDigitValue,int ir_Origin, int ic_Origin, BYTE byDot)
+{
+	for(int ir=0; ir<16; ir++)
 	{
-
-		int iDigitValue = iValue/100;
-		int ic_Origin = ic_Origin_In-16;
-		if(iDigitValue>=1)
+		if(ir_Origin+ir>=iHeight){continue;}
+		if(ir_Origin+ir<0){continue;}
+		for(int icc=0; icc<8; icc++)
 		{
-			for(int irr=0; irr<16; irr++)
+			if(ic_Origin+icc>=iWidth){continue;}
+			if(ic_Origin+icc<0){continue;}
+			if( (g_byFont[byDigitValue*16 + ir] & (1<<(7-icc))) == 1<<(7-icc))
 			{
-				if(ir_Origin+irr>=iHeight){continue;}
-				if(ir_Origin+irr<0){continue;}
-				for(int icc=0; icc<8; icc++)
-				{
-					if(ic_Origin+icc>=iWidth){continue;}
-					if(ic_Origin+icc<0){continue;}
-					if( (g_byFont[iDigitValue*16 + irr] & (1<<(7-icc))) == 1<<(7-icc))
-					{
-						pbyData[(ir_Origin+irr)*iPitch+4*(ic_Origin+icc)+0]=byDot;
-						pbyData[(ir_Origin+irr)*iPitch+4*(ic_Origin+icc)+1]=byDot;
-						pbyData[(ir_Origin+irr)*iPitch+4*(ic_Origin+icc)+2]=byDot;
-						pbyData[(ir_Origin+irr)*iPitch+4*(ic_Origin+icc)+3]=255;
-					}
-				}
-			}
-		}
-		iDigitValue = (iValue % 100)/10;
-		ic_Origin =  ic_Origin_In-8;
-
-		for(int irr=0; irr<16; irr++)
-		{
-			if(ir_Origin+irr>=iHeight){continue;}
-			if(ir_Origin+irr<0){continue;}
-			for(int icc=0; icc<8; icc++)
-			{
-				if(ic_Origin+icc>=iWidth){continue;}
-				if(ic_Origin+icc<0){continue;}
-				if( (g_byFont[iDigitValue*16 + irr] & (1<<(7-icc))) == 1<<(7-icc))
-				{
-					pbyData[(ir_Origin+irr)*iPitch+4*(ic_Origin+icc)+0]=byDot;
-					pbyData[(ir_Origin+irr)*iPitch+4*(ic_Origin+icc)+1]=byDot;
-					pbyData[(ir_Origin+irr)*iPitch+4*(ic_Origin+icc)+2]=byDot;
-					pbyData[(ir_Origin+irr)*iPitch+4*(ic_Origin+icc)+3]=255;
-				}
-			}
-		}
-		iDigitValue = (iValue % 10);
-		ic_Origin =  ic_Origin_In;
-
-		for(int irr=0; irr<16; irr++)
-		{
-			if(ir_Origin+irr>=iHeight){continue;}
-			if(ir_Origin+irr<0){continue;}
-			for(int icc=0; icc<8; icc++)
-			{
-				if(ic_Origin+icc>=iWidth){continue;}
-				if(ic_Origin+icc<0){continue;}
-				if( (g_byFont[iDigitValue*16 + irr] & (1<<(7-icc))) == 1<<(7-icc))
-				{
-					pbyData[(ir_Origin+irr)*iPitch+4*(ic_Origin+icc)+0]=byDot;
-					pbyData[(ir_Origin+irr)*iPitch+4*(ic_Origin+icc)+1]=byDot;
-					pbyData[(ir_Origin+irr)*iPitch+4*(ic_Origin+icc)+2]=byDot;
-					pbyData[(ir_Origin+irr)*iPitch+4*(ic_Origin+icc)+3]=255;
-				}
+				pbyData[(ir_Origin+ir)*iPitch+4*(ic_Origin+icc)+0]=byDot;
+				pbyData[(ir_Origin+ir)*iPitch+4*(ic_Origin+icc)+1]=byDot;
+				pbyData[(ir_Origin+ir)*iPitch+4*(ic_Origin+icc)+2]=byDot;
+				pbyData[(ir_Origin+ir)*iPitch+4*(ic_Origin+icc)+3]=255;
 			}
 		}
 	}
+}
+inline void ImposeValue(BYTE* pbyData, int iPitch, int iHeight, int iWidth, const BYTE byValue,int ir_Origin, int ic_Origin_0, BYTE byDot)
+{
+	BYTE byDigitValue = byValue/100;
+	if(byDigitValue>=1)
+	{
+		ImposeSingleValue(pbyData, iPitch, iHeight, iWidth, byDigitValue,ir_Origin, ic_Origin_0-16, byDot);
+	}
 
-bool ImposeValue(CImage* imgSrc, CImage* imgDst,  const int iType,const double dROffset, const double dCOffset, const double dScale, const double dScaleThresh,const int iRMax_i, const int iCMax_i)
+	byDigitValue = (byValue % 100)/10;
+	ImposeSingleValue(pbyData, iPitch, iHeight, iWidth, byDigitValue,ir_Origin, ic_Origin_0-8, byDot);
+
+	byDigitValue = (byValue % 10);
+	ImposeSingleValue(pbyData, iPitch, iHeight, iWidth, byDigitValue,ir_Origin, ic_Origin_0, byDot);
+}
+
+bool ImposeRGBValue(CImage* imgSrc, CImage* imgDst,  const int iType,const double dROffset, const double dCOffset, const double dScale, const double dScaleThresh,const int iRMax_i, const int iCMax_i)
 {
 	if(imgSrc != imgDst)
 	{
 		CopyImage(imgSrc,imgDst);
 	}
-	//if(dScale<dScaleThresh){return true;}
-	//if(iType==0){return true;}
+	if(dScale<dScaleThresh){return true;}
 
 	BYTE* pbyData = (BYTE*)imgDst->GetBits();
 	int iBPP = imgDst->GetBPP();
@@ -1697,24 +1665,20 @@ bool ImposeValue(CImage* imgSrc, CImage* imgDst,  const int iType,const double d
 			int iValueG = pbyData[r*iPitch+4*c+1];
 			int iValueB = pbyData[r*iPitch+4*c+0];
 
-			int iValue = pbyData[r*iPitch+4*c+0]+pbyData[r*iPitch+4*c+1]+pbyData[r*iPitch+4*c+2];
+			BYTE byDot=iValueR+iValueG+iValueB<480 ? 255:0;
 
-
-			BYTE byDot=iValue<576 ? 255:0;
-
-			ImposeValue(pbyData, iPitch, iHeight, iWidth, iValueR,int((ir+0.5+dROffset)*dScale)-10-16, int((ic+1+dCOffset)*dScale)-2-16, byDot);
-			ImposeValue(pbyData, iPitch, iHeight, iWidth, iValueG,int((ir+0.5+dROffset)*dScale)-10-0, int((ic+1+dCOffset)*dScale)-2-16, byDot);
-			ImposeValue(pbyData, iPitch, iHeight, iWidth, iValueB,int((ir+0.5+dROffset)*dScale)-10+16, int((ic+1+dCOffset)*dScale)-2-16, byDot);
+			if((iValueR==iValueG) && (iValueR==iValueB))
+			{
+				ImposeValue(pbyData, iPitch, iHeight, iWidth, iValueG,int((ir+0.5+dROffset)*dScale)-8-0, int((ic+1+dCOffset)*dScale)-2-16, byDot);
+			}
+			else
+			{
+				ImposeValue(pbyData, iPitch, iHeight, iWidth, iValueR,int((ir+0.5+dROffset)*dScale)-8-16, int((ic+1+dCOffset)*dScale)-2-16, byDot);
+				ImposeValue(pbyData, iPitch, iHeight, iWidth, iValueG,int((ir+0.5+dROffset)*dScale)-8-0, int((ic+1+dCOffset)*dScale)-2-16, byDot);
+				ImposeValue(pbyData, iPitch, iHeight, iWidth, iValueB,int((ir+0.5+dROffset)*dScale)-8+16, int((ic+1+dCOffset)*dScale)-2-16, byDot);
+			}
 		}
 	}
-
-
-
-
-
-
-
-
 	return true;
 }
 bool ImposeGrid(CImage* imgSrc, CImage* imgDst, const int iType, const double dROffset, const double dCOffset, const double dScale, const double dScaleThresh,const int iRMax_i, const int iCMax_i)
