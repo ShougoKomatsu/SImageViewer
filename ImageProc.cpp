@@ -1618,17 +1618,19 @@ inline void ImposeSingleValue(BYTE* pbyData, int iPitch, int iHeight, int iWidth
 }
 inline void ImposeValue(BYTE* pbyData, int iPitch, int iHeight, int iWidth, const BYTE byValue,int ir_Origin, int ic_Origin_0, BYTE byDot)
 {
-	BYTE byDigitValue = byValue/100;
-	if(byDigitValue>=1)
+	BYTE byDigitValue100 = byValue/100;
+	BYTE byDigitValue10 = (byValue % 100)/10;
+	BYTE byDigitValue1 = (byValue % 10);
+
+	ImposeSingleValue(pbyData, iPitch, iHeight, iWidth, byDigitValue1,ir_Origin, ic_Origin_0, byDot);
+	if(byDigitValue10==0)
 	{
-		ImposeSingleValue(pbyData, iPitch, iHeight, iWidth, byDigitValue,ir_Origin, ic_Origin_0-16, byDot);
+		if(byDigitValue100 == 0){return;}
 	}
+	ImposeSingleValue(pbyData, iPitch, iHeight, iWidth, byDigitValue10,ir_Origin, ic_Origin_0-8, byDot);
 
-	byDigitValue = (byValue % 100)/10;
-	ImposeSingleValue(pbyData, iPitch, iHeight, iWidth, byDigitValue,ir_Origin, ic_Origin_0-8, byDot);
-
-	byDigitValue = (byValue % 10);
-	ImposeSingleValue(pbyData, iPitch, iHeight, iWidth, byDigitValue,ir_Origin, ic_Origin_0, byDot);
+	if(byDigitValue100==0){return;}
+	ImposeSingleValue(pbyData, iPitch, iHeight, iWidth, byDigitValue100,ir_Origin, ic_Origin_0-16, byDot);
 }
 
 bool ImposeRGBValue(CImage* imgSrc, CImage* imgDst,  const int iType,const double dROffset, const double dCOffset, const double dScale, const double dScaleThresh,const int iRMax_i, const int iCMax_i)
