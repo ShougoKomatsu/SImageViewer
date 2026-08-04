@@ -910,6 +910,7 @@ IMPLEMENT_DYNCREATE(CSImageViewerView, CView)
 		pFrame->m_sStatusBPP.Format(_T("0 BPP"));
 		pFrame->SendMessage(WM_COMMAND, ID_DISP_STATUS_BPP);
 		m_bRefresh=false;
+		m_iImagemax=0;
 		/*
 		CImage imgTest;
 		imgTest.Create(16,16,8);
