@@ -176,6 +176,68 @@ bool CopyImage(const CImage* imgSrc, CImage* imgDst)
 	return true;
 }
 
+bool ConvertStrToImage(const CString sImage,const CString sSeparator,  CImage* imgDst)
+{
+	int iStart=0;
+	int iLineCount=0;
+	while(1)
+	{
+		int iFound =sImage.Find(_T("\r\n"),iStart);
+		if(iFound<0){break;}
+		iLineCount++;
+		iStart=iFound+1;
+	}
+
+	CStringArray* saLines;
+	saLines = new CStringArray[iLineCount];
+	iStart=0;
+	for(int i=0; i<iLineCount; i++)
+	{
+		saLines[i].RemoveAll();
+		while(1)
+		{
+			int iFound = sImage.Find(sSeparator,iStart);
+			int iFoundLineEnd =sImage.Find(_T("\r\n"),iStart);
+			if(iFoundLineEnd<iFound)
+			{
+				saLines[i].Add(sImage.Mid(iStart,iFoundLineEnd-iStart));
+				iStart=iFoundLineEnd+1;
+				break;
+			}
+			saLines[i].Add(sImage.Mid(iStart,iFound-iStart));
+			if(iFound<0){break;}
+			iStart=iFound+1;
+		}
+	}
+	int iMaxLineLength=0;
+	for(int i=0; i<iLineCount; i++)
+	{
+		iMaxLineLength = max(iMaxLineLength,saLines[i].GetCount());
+	}
+
+	if(imgDst->IsNull()!= true){imgDst->Destroy();}
+	imgDst->Create(iMaxLineLength, iLineCount, 8);
+
+	RGBQUAD colorTable[256];
+	for(int i=0; i<256; i++)
+	{
+		colorTable[i].rgbBlue=i;
+		colorTable[i].rgbGreen=i;
+		colorTable[i].rgbRed=i;
+		colorTable[i].rgbReserved=0;
+	}
+	SetColorTable(imgDst, colorTable, 256);
+	BYTE* pbyData = (BYTE*)imgDst->GetBits();
+	int iPitch = imgDst->GetPitch();
+	for(int r=0; r<iLineCount; r++)
+	{
+		for(int c=0; c<saLines[r].GetCount(); c++)
+		{
+			pbyData[r*iPitch+c]=min(255,max(0,_ttoi(saLines[r].GetAt(c))));
+		}
+	}
+	return TRUE;
+}
 
 bool ConvertImageToStr(const CImage* imgSrc, const CString sSeparator, CString* sImage)
 {
@@ -451,6 +513,39 @@ bool CopyToClipBoardImg(const CImage* imgSrc)
 	return true;
 }
 
+bool CopyFromClipBoardStrAsImg(const CString sSeparator, CImage* imgDst)
+{
+	BOOL bRet;
+
+	bRet = OpenClipboard(NULL);
+	if(bRet == FALSE){return false;}
+
+	HANDLE hResult;
+	hResult = GetClipboardData(CF_UNICODETEXT );
+	if(hResult == NULL){CloseClipboard();return false;}
+
+	LPVOID byDataTemp = GlobalLock(hResult);
+	if(byDataTemp==NULL){CloseClipboard();return false;}
+
+	SIZE_T dataSize = GlobalSize(hResult);
+	if (dataSize == 0) { GlobalUnlock(hResult);CloseClipboard(); return false;} 
+	
+	BYTE* byData;
+	byData = new BYTE[dataSize];
+	
+	memcpy(byData, byDataTemp, dataSize);
+
+	GlobalUnlock(hResult);
+
+	bRet = CloseClipboard();
+	if(bRet == FALSE){SAFE_DELETE(byData); return false;}
+	CString sData;
+	sData.Format(_T("%s"),byData);
+	SAFE_DELETE(byData); 
+
+	ConvertStrToImage(sData,sSeparator,imgDst);
+	return true;
+}
 
 bool CopyFromClipBoardImg(CImage* imgDst)
 {

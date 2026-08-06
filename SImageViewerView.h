@@ -103,6 +103,7 @@ protected:
 	DECLARE_MESSAGE_MAP()
 public:
 	afx_msg void OnSetSelection();
+	afx_msg void OnPasteAs();
 	afx_msg void OnCopyAs();
 	virtual void OnInitialUpdate();
 	virtual BOOL PreTranslateMessage(MSG* pMsg);

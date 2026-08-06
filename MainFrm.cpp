@@ -32,6 +32,7 @@ BEGIN_MESSAGE_MAP(CMainFrame, CFrameWndEx)
 	ON_UPDATE_COMMAND_UI(AFX_IDP_COMMAND_FAILURE, &CMainFrame::OnUpdateAfxIdpCommandFailure)
 	ON_UPDATE_COMMAND_UI(ID_MENU_EQU_HIST, &CMainFrame::OnUpdateMenu)
 	ON_UPDATE_COMMAND_UI(ID_MENU_COPY_AS, &CMainFrame::OnUpdateMenu)
+	ON_UPDATE_COMMAND_UI(ID_MENU_PASTE_AS, &CMainFrame::OnUpdateMenu)
 	ON_UPDATE_COMMAND_UI(ID_MENU_CONVERT_COLOR_SPACE, &CMainFrame::OnUpdateMenu)
 	ON_UPDATE_COMMAND_UI(ID_MENU_CHANGE_COLOR_DEPTH, &CMainFrame::OnUpdateMenu)
 	ON_UPDATE_COMMAND_UI(ID_MENU_COLOR_CORRECTON, &CMainFrame::OnUpdateMenu)
@@ -242,6 +243,7 @@ int CMainFrame::OnCreate(LPCREATESTRUCT lpCreateStruct)
 	lstBasicCommands.AddTail(ID_MENU_EQU_HIST);
 	lstBasicCommands.AddTail(ID_MENU_SET_SELECTION);
 	lstBasicCommands.AddTail(ID_MENU_COPY_AS);
+	lstBasicCommands.AddTail(ID_MENU_PASTE_AS);
 	lstBasicCommands.AddTail(ID_MENU_CONVERT_COLOR_SPACE);
 	lstBasicCommands.AddTail(ID_MENU_CHANGE_COLOR_DEPTH);
 	lstBasicCommands.AddTail(ID_MENU_COLOR_CORRECTON);
@@ -706,6 +708,7 @@ void CMainFrame::OnUpdateMenu(CCmdUI* pCmdUI)
 	switch (pCmdUI->m_nID)
 	{
 	case ID_EDIT_PASTE:
+	case ID_MENU_PASTE_AS:
 		{
 			pCmdUI->Enable(true);
 			break;

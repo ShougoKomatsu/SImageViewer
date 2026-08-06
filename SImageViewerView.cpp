@@ -16,6 +16,7 @@ se // SImageViewerView.cpp : CSImageViewerView ƒNƒ‰ƒX‚ÌŽÀ‘•
 #include "ImageModifyDlg.h"
 #include "SetSelectionDlg.h"
 #include "CopyAsDlg.h"
+#include "PasteAsDlg.h"
 #include "CommonFunction.h"
 #include "ExtractChannelDlg.h"
 #include "FormatSelectionDlg.h"
@@ -83,6 +84,7 @@ IMPLEMENT_DYNCREATE(CSImageViewerView, CView)
 		ON_COMMAND(ID_EDIT_PASTE, &CSImageViewerView::OnEditPaste)
 		ON_COMMAND(ID_MENU_SET_SELECTION, &CSImageViewerView::OnSetSelection)
 		ON_COMMAND(ID_MENU_COPY_AS, &CSImageViewerView::OnCopyAs)
+		ON_COMMAND(ID_MENU_PASTE_AS, &CSImageViewerView::OnPasteAs)
 		ON_COMMAND(ID_MENU_CONVERT_COLOR_SPACE, &CSImageViewerView::OperateConvertColorSpace)
 		ON_COMMAND(ID_MENU_CHANGE_COLOR_DEPTH, &CSImageViewerView::OperateChangeColorDepth)
 		ON_COMMAND(ID_MENU_COLOR_CORRECTON, &CSImageViewerView::OperateBrightnessContrastGamma)
@@ -129,7 +131,7 @@ IMPLEMENT_DYNCREATE(CSImageViewerView, CView)
 
 		return CView::PreCreateWindow(cs);
 	}
-
+	
 	void CSImageViewerView::OnCopyAs()
 	{
 		if(m_Rect_i.IsRectEmpty()==TRUE){return;}
@@ -698,11 +700,43 @@ IMPLEMENT_DYNCREATE(CSImageViewerView, CView)
 		CopyToClipBoardImg(&imgClipped);
 		return;
 	}
+	
+	void CSImageViewerView::OnPasteAs()
+	{
+		CMainFrame* pFrame = (CMainFrame*)AfxGetMainWnd();
+		SAFE_DELETE(m_image);
+		m_iImageIndex=0;
+		m_iImagemax=1;
+		m_image = new CImage[m_iImagemax];
+		pFrame->m_iImageIndex=m_iImageIndex;
+		
+		CPasteAsDlg copyAsdlg;
+
+		INT_PTR iRet = copyAsdlg.DoModal();
+		if(iRet != IDOK){return;}
+		BOOL bRet;
+		switch(copyAsdlg.m_enumCopyMode)
+		{
+		case PASTE_AS_IMAGE:{bRet = CopyFromClipBoardImg(&(m_image[m_iImageIndex]));break;}
+		case PASTE_AS_CSV:{	bRet = CopyFromClipBoardStrAsImg(_T(","),&(m_image[m_iImageIndex]));break;}
+		case PASTE_AS_TSV:{	bRet = CopyFromClipBoardStrAsImg(_T("\t"),&(m_image[m_iImageIndex]));break;}
+		}
+
+		if(bRet != TRUE){return;}
+		m_sFilePath.Format(_T("Clipboard"));
+
+		pFrame->m_bFileOpened = true;
+		pFrame->m_bRegionSelected = true;
+		ResetImage(true);
+	}
+
 	void CSImageViewerView::OnEditPaste()
 	{
 		CMainFrame* pFrame = (CMainFrame*)AfxGetMainWnd();
+		SAFE_DELETE(m_image);
 		m_iImageIndex=0;
 		m_iImagemax=1;
+		m_image = new CImage[m_iImagemax];
 		pFrame->m_iImageIndex=m_iImageIndex;
 		BOOL bRet = CopyFromClipBoardImg(&(m_image[m_iImageIndex]));
 		if(bRet != TRUE){return;}
@@ -1856,6 +1890,7 @@ IMPLEMENT_DYNCREATE(CSImageViewerView, CView)
 
 		pPopup->EnableMenuItem(ID_EDIT_COPY, MF_BYCOMMAND | (( bFileOpened  == true) ? MF_ENABLED : MF_DISABLED));
 		pPopup->EnableMenuItem(ID_EDIT_PASTE, MF_BYCOMMAND | (( bFileOpened  == true) ? MF_ENABLED : MF_DISABLED));
+		pPopup->EnableMenuItem(ID_MENU_PASTE_AS, MF_BYCOMMAND | (( bFileOpened  == true) ? MF_ENABLED : MF_DISABLED));
 
 		pPopup->EnableMenuItem(ID_MENU_EQU_HIST, MF_BYCOMMAND | (( bFileOpened  == true) ? MF_ENABLED : MF_DISABLED));
 		pPopup->EnableMenuItem(ID_MENU_CONVERT_COLOR_SPACE, MF_BYCOMMAND | (( bFileOpened  == true) ? MF_ENABLED : MF_DISABLED));

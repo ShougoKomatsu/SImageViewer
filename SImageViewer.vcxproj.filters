@@ -96,6 +96,9 @@
     <ClInclude Include="FormatSelectionDlg.h">
       <Filter>ヘッダー ファイル\Dlg</Filter>
     </ClInclude>
+    <ClInclude Include="PasteAsDlg.h">
+      <Filter>ヘッダー ファイル\Dlg</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="SImageViewer.cpp">
@@ -138,6 +141,9 @@
       <Filter>ソース ファイル\Dlg</Filter>
     </ClCompile>
     <ClCompile Include="FormatSelectionDlg.cpp">
+      <Filter>ソース ファイル\Dlg</Filter>
+    </ClCompile>
+    <ClCompile Include="PasteAsDlg.cpp">
       <Filter>ソース ファイル\Dlg</Filter>
     </ClCompile>
   </ItemGroup>

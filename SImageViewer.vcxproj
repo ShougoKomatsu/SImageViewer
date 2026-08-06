@@ -44,6 +44,7 @@
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <LinkIncremental>false</LinkIncremental>
+    <OutDir>$(SolutionDir)$(Configuration)\</OutDir>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
@@ -115,6 +116,7 @@
     <ClInclude Include="ImageModifyDlg.h" />
     <ClInclude Include="ImageProc.h" />
     <ClInclude Include="MainFrm.h" />
+    <ClInclude Include="PasteAsDlg.h" />
     <ClInclude Include="ResampleDlg.h" />
     <ClInclude Include="Resource.h" />
     <ClInclude Include="SetSelectionDlg.h" />
@@ -133,6 +135,7 @@
     <ClCompile Include="ImageModifyDlg.cpp" />
     <ClCompile Include="ImageProc.cpp" />
     <ClCompile Include="MainFrm.cpp" />
+    <ClCompile Include="PasteAsDlg.cpp" />
     <ClCompile Include="ResampleDlg.cpp" />
     <ClCompile Include="SetSelectionDlg.cpp" />
     <ClCompile Include="SImageViewer.cpp" />
