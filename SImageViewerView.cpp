@@ -106,6 +106,7 @@ IMPLEMENT_DYNCREATE(CSImageViewerView, CView)
 
 	CSImageViewerView::CSImageViewerView()
 	{
+		m_iImageType=0;
 		m_bDragging = false;
 		m_Rect_v.SetRectEmpty();
 		m_Rect_i.SetRectEmpty();
@@ -204,9 +205,7 @@ IMPLEMENT_DYNCREATE(CSImageViewerView, CView)
 		CSImageViewerDoc* pDoc = GetDocument();
 		ASSERT_VALID(pDoc);
 		if (!pDoc){return;}
-
-		if (m_imageProcessed[(m_iImgProcessIndex % MAX_IMG_BUF)].IsNull()){return;}
-
+		
 		CDC memDC;
 		memDC.CreateCompatibleDC(pDC);
 
@@ -221,17 +220,30 @@ IMPLEMENT_DYNCREATE(CSImageViewerView, CView)
 		double dDispOriginR_tv = GetDispOriginR_tv();
 		double dDispOriginC_tv = GetDispOriginC_tv();
 
+
+
 		double dR0_i = (dDispOriginR_tv/g_dScale[m_iScaleIndex]);
 		double dC0_i = (dDispOriginC_tv/g_dScale[m_iScaleIndex]);
+		int iRMax=0;
+		int iCMax=0;
+		if(m_iImageType == 9999)
+		{
+			CImage imgTemp;
+			bool bRet =  m_panImage.Convert(VALUE_IMAGE_0_TO_255, &imgTemp);
+			if(bRet != true){return;}
 
-		int iRMax=m_imageProcessed[(m_iImgProcessIndex % MAX_IMG_BUF)].GetHeight()-1;
-		int iCMax=m_imageProcessed[(m_iImgProcessIndex % MAX_IMG_BUF)].GetWidth()-1;
+			int iRMax=imgTemp.GetHeight()-1;
+			int iCMax=imgTemp.GetWidth()-1;
+			ZoomImage(&imgTemp,&imgZoomed,dR0_i,dC0_i,g_dScale[m_iScaleIndex],iWidth_v,iHeight_v);
+		}
+		else
+		{
+			if (m_imageProcessed[(m_iImgProcessIndex % MAX_IMG_BUF)].IsNull()){return;}
 
-		ZoomImage(&(m_imageProcessed[(m_iImgProcessIndex % MAX_IMG_BUF)]),&imgZoomed,
-			dR0_i,
-			dC0_i,
-			g_dScale[m_iScaleIndex],
-			iWidth_v,iHeight_v);
+			int iRMax=m_imageProcessed[(m_iImgProcessIndex % MAX_IMG_BUF)].GetHeight()-1;
+			int iCMax=m_imageProcessed[(m_iImgProcessIndex % MAX_IMG_BUF)].GetWidth()-1;
+			ZoomImage(&(m_imageProcessed[(m_iImgProcessIndex % MAX_IMG_BUF)]),&imgZoomed,dR0_i,dC0_i,g_dScale[m_iScaleIndex],iWidth_v,iHeight_v);
+		}
 
 		CMainFrame* pFrame = (CMainFrame*)AfxGetMainWnd();
 		int iGrid=0;
@@ -720,12 +732,14 @@ IMPLEMENT_DYNCREATE(CSImageViewerView, CView)
 		case PASTE_FROM_IMAGE:{bRet = CopyFromClipBoardImg(&(m_image[m_iImageIndex]));break;}
 		case PASTE_FROM_CSV:
 			{
-				bRet = CopyFromClipBoardStrAsImg(_T(","),pasteAsdlg.m_enumPasteAs, &(m_image[m_iImageIndex]));
+				bRet = CopyFromClipBoardStrAsImg(_T(","),pasteAsdlg.m_enumPasteAs, &m_panImage);
+				this->m_iImageType=9999;
 				break;
 			}
 		case PASTE_FROM_TSV:
 			{
-				bRet = CopyFromClipBoardStrAsImg(_T("\t"),pasteAsdlg.m_enumPasteAs, &(m_image[m_iImageIndex]));
+				bRet = CopyFromClipBoardStrAsImg(_T("\t"),pasteAsdlg.m_enumPasteAs, &m_panImage);
+				this->m_iImageType=9999;
 				break;
 			}
 		}
@@ -735,6 +749,15 @@ IMPLEMENT_DYNCREATE(CSImageViewerView, CView)
 
 		pFrame->m_bFileOpened = true;
 		pFrame->m_bRegionSelected = true;
+
+		SAFE_DELETE(m_image);
+		m_iImageIndex=0;
+		m_iImagemax=1;
+		m_image = new CImage[m_iImagemax];
+		pFrame->m_iImageIndex=m_iImageIndex;
+		m_image[0].Create(1,1,24);
+
+
 		ResetImage(true);
 	}
 
@@ -1253,7 +1276,24 @@ IMPLEMENT_DYNCREATE(CSImageViewerView, CView)
 		pFrame->ExitFullScreen();
 		m_bBeingFullScreen=false;
 	}
+	
+	bool CSImageViewerView::GetValueAtCursor(PanImage* img, CPoint point_v, int* iR_img, int* iC_img,int* iValue)
+	{
+		CPoint point_tv(point_v.x + (int)GetDispOriginC_tv(), point_v.y +  (int)GetDispOriginR_tv());
 
+		int iC_img_Local = (int)((point_tv.x) / g_dScale[m_iScaleIndex]);
+		int iR_img_Local = (int)((point_tv.y) / g_dScale[m_iScaleIndex]);
+
+
+		if (iC_img_Local < 0){return false;}
+		if (iR_img_Local < 0){return false;}
+		if (iC_img_Local >= img->iWidth){return false;}
+		if (iR_img_Local >= img->iHeight){return false;}
+		
+		*iR_img = iR_img_Local;
+		*iC_img = iC_img_Local;
+		return img->GetValue(iR_img_Local,iC_img_Local,iValue);
+	}
 
 	bool CSImageViewerView::GetColorAtCursor(CImage* img, CPoint point_v, int* iR_img, int* iC_img, BYTE* byR, BYTE* byG, BYTE* byB)
 	{
@@ -1351,6 +1391,35 @@ IMPLEMENT_DYNCREATE(CSImageViewerView, CView)
 		CString sCaption;
 		CMainFrame* pFrame = (CMainFrame*)AfxGetMainWnd();
 		bool bRet_Original;
+		if(m_iImageType==9999)
+		{
+			int iValue;
+			bRet_Original = GetValueAtCursor(&m_panImage, point_v, &iR_img, &iC_img, &iValue);
+			if(bRet_Original == false)
+			{
+				pFrame->m_sStatusRGBOriginal.Format(_T("out of range"));
+				pFrame->m_sStatusMousePos.Format(_T("out of range"));
+			}
+			else
+			{
+				pFrame->m_sStatusRGBOriginal.Format(_T("% 14d"), iValue);
+				pFrame->m_sStatusMousePos.Format(_T("(%d, %d)"),iC_img, iR_img);
+			}
+
+
+
+
+
+			pFrame->SendMessage(WM_COMMAND, ID_DISP_STATUS_MOUSE_POS);
+
+			pFrame->m_sStatusZoom.Format(_T("%.3f%%"), 100*g_dScale[m_iScaleIndex]);
+			pFrame->SendMessage(WM_COMMAND, ID_DISP_STATUS_ZOOM);
+
+
+			sCaption.Format(sFileName);
+			AfxGetMainWnd()->SetWindowText(sCaption);
+			return;
+		}
 		if(m_image[m_iImageIndex].GetBPP() == 24)
 		{
 			bRet_Original = GetColorAtCursor(&(m_image[m_iImageIndex]), point_v, &iR_img, &iC_img, &byR, &byG, &byB);

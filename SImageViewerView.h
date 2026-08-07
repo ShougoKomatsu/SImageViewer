@@ -19,6 +19,9 @@ protected: // ÉVÉäÉAÉãâªÇ©ÇÁÇÃÇ›çÏê¨ÇµÇ‹Ç∑ÅB
 public:
 	void FullDomain();
 	CString m_sFilePath;
+	int m_iImageType;
+	PanImage m_panImage;
+
 	CImage m_imageZoomed;
 	CImage* m_image;
 	int m_iImageIndex;
@@ -74,6 +77,7 @@ public:
 	void SetGridEnableDesable();
 	bool GetColorAtCursor(CImage* img, CPoint point, int* iR_img, int* iC_img, BYTE* byR, BYTE* byG, BYTE* bYB);
 	bool GetColorAtCursor(CImage* img, CPoint point, int* iR_img, int* iC_img, BYTE* byR, BYTE* byG, BYTE* bYB, BYTE* bYA);
+	bool GetValueAtCursor(PanImage* img, CPoint point_v, int* iR_img, int* iC_img,int* iValue);
 	void OnScroll(int iSB, int nSBCode, int nPos);
 	void DispStatus(CPoint point);
 // ëÄçÏ
