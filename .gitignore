@@ -21,3 +21,4 @@ SImgProc.lib
 SImgProc_d.dll
 SImgProc_d.lib
 *.ipch
+/x64
