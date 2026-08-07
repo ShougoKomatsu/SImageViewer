@@ -3,6 +3,50 @@
 #pragma once
 #include "SImgProc_ex.h"
 
+
+#define SAFE_DELETE(arg) if(arg != NULL){delete [] arg; arg=NULL;}
+
+enum IMAGE_TYPE
+{
+	IMAGE_TYPE_UNDEFINED=0,
+	IMAGE_TYPE_CIMAGE=1,
+	IMAGE_TYPE_IIMAGE=2,
+	IMAGE_TYPE_DIMAGE=3,
+};
+class PanImage
+{
+public:
+	IMAGE_TYPE enumImageType;
+	CImage cImage;
+	int iWidth;
+	int iHeight;
+	int* iImage;
+	double* dImage;
+
+	~PanImage()
+	{
+		Init();
+	}
+	PanImage()
+	{
+		iImage=NULL;
+		dImage=NULL;
+		Init();
+	}
+	void Init()
+	{
+		if(cImage.IsNull()!=true){cImage.Destroy();};
+		SAFE_DELETE(iImage);
+		SAFE_DELETE(dImage);
+		iWidth=0;
+		iHeight=0;
+		enumImageType=IMAGE_TYPE_UNDEFINED;
+	}
+};
+
+
+
+
 enum RESAMPLE
 {
 	RESIZE_NEAREST=-100,

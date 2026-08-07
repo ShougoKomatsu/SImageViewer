@@ -316,8 +316,9 @@ bool ConvertStrToImage(const CString sImage,const CString sSeparator,  VALUE_IMA
 				}
 			}
 		}
-		return TRUE;
+		return true;
 	}
+	return false;
 }
 
 bool ConvertImageToStr(const CImage* imgSrc, const CString sSeparator, CString* sImage)
