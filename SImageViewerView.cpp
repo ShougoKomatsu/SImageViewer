@@ -710,16 +710,24 @@ IMPLEMENT_DYNCREATE(CSImageViewerView, CView)
 		m_image = new CImage[m_iImagemax];
 		pFrame->m_iImageIndex=m_iImageIndex;
 		
-		CPasteAsDlg copyAsdlg;
+		CPasteAsDlg pasteAsdlg;
 
-		INT_PTR iRet = copyAsdlg.DoModal();
+		INT_PTR iRet = pasteAsdlg.DoModal();
 		if(iRet != IDOK){return;}
 		BOOL bRet;
-		switch(copyAsdlg.m_enumCopyMode)
+		switch(pasteAsdlg.m_enumPasteFrom)
 		{
-		case PASTE_AS_IMAGE:{bRet = CopyFromClipBoardImg(&(m_image[m_iImageIndex]));break;}
-		case PASTE_AS_CSV:{	bRet = CopyFromClipBoardStrAsImg(_T(","),&(m_image[m_iImageIndex]));break;}
-		case PASTE_AS_TSV:{	bRet = CopyFromClipBoardStrAsImg(_T("\t"),&(m_image[m_iImageIndex]));break;}
+		case PASTE_FROM_IMAGE:{bRet = CopyFromClipBoardImg(&(m_image[m_iImageIndex]));break;}
+		case PASTE_FROM_CSV:
+			{
+				bRet = CopyFromClipBoardStrAsImg(_T(","),pasteAsdlg.m_enumPasteAs, &(m_image[m_iImageIndex]));
+				break;
+			}
+		case PASTE_FROM_TSV:
+			{
+				bRet = CopyFromClipBoardStrAsImg(_T("\t"),pasteAsdlg.m_enumPasteAs, &(m_image[m_iImageIndex]));
+				break;
+			}
 		}
 
 		if(bRet != TRUE){return;}

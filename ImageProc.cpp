@@ -175,8 +175,61 @@ bool CopyImage(const CImage* imgSrc, CImage* imgDst)
 
 	return true;
 }
-
-bool ConvertStrToImage(const CString sImage,const CString sSeparator,  CImage* imgDst)
+inline bool HSVValue(BYTE* pbyData, int iPitch, int r, int c, UINT uiValue_in, int uiMax)
+{
+	int uiValue = uiValue_in;
+	
+	if(uiValue<uiMax)
+	{
+		pbyData[r*iPitch+3*c + 2]=uiMax-1;
+		pbyData[r*iPitch+3*c + 1]=uiValue-0;
+		pbyData[r*iPitch+3*c + 0]=0;
+		return true;
+	}
+	uiValue-=uiMax;
+	if(uiValue<uiMax)
+	{
+		pbyData[r*iPitch+3*c + 2]=uiMax-1-uiValue;
+		pbyData[r*iPitch+3*c + 1]=uiMax-1;
+		pbyData[r*iPitch+3*c + 0]=0;
+		return true;
+	}
+	uiValue-=uiMax;
+	if(uiValue<uiMax)
+	{
+		pbyData[r*iPitch+3*c + 2]=0;
+		pbyData[r*iPitch+3*c + 1]=uiMax-1;
+		pbyData[r*iPitch+3*c + 0]=uiValue;
+		return true;
+	}
+				
+	uiValue-=uiMax;
+	if(uiValue<uiMax)
+	{
+		pbyData[r*iPitch+3*c + 2]=0;
+		pbyData[r*iPitch+3*c + 1]=uiMax-1-uiValue;
+		pbyData[r*iPitch+3*c + 0]=uiMax-1;
+		return true;
+	}
+	uiValue-=uiMax;
+	if(uiValue<uiMax)
+	{
+		pbyData[r*iPitch+3*c + 2]=uiValue;
+		pbyData[r*iPitch+3*c + 1]=0;
+		pbyData[r*iPitch+3*c + 0]=uiMax-1;
+		return true;
+	}
+	uiValue-=uiMax;
+	if(uiValue<uiMax)
+	{
+		pbyData[r*iPitch+3*c + 2]=uiMax-1;
+		pbyData[r*iPitch+3*c + 1]=0;
+		pbyData[r*iPitch+3*c + 0]=uiMax-1-uiValue;
+		return true;
+	}
+	return false;
+}
+bool ConvertStrToImage(const CString sImage,const CString sSeparator,  VALUE_IMAGE enumMode, CImage* imgDst)
 {
 	int iStart=0;
 	int iLineCount=0;
@@ -204,8 +257,8 @@ bool ConvertStrToImage(const CString sImage,const CString sSeparator,  CImage* i
 				iStart=iFoundLineEnd+1;
 				break;
 			}
+			if(iFound<0){saLines[i].Add(sImage.Mid(iStart,sImage.GetLength()-iStart));break;}
 			saLines[i].Add(sImage.Mid(iStart,iFound-iStart));
-			if(iFound<0){break;}
 			iStart=iFound+1;
 		}
 	}
@@ -216,27 +269,55 @@ bool ConvertStrToImage(const CString sImage,const CString sSeparator,  CImage* i
 	}
 
 	if(imgDst->IsNull()!= true){imgDst->Destroy();}
-	imgDst->Create(iMaxLineLength, iLineCount, 8);
 
-	RGBQUAD colorTable[256];
-	for(int i=0; i<256; i++)
+	if(enumMode == VALUE_IMAGE_0_TO_255)
 	{
-		colorTable[i].rgbBlue=i;
-		colorTable[i].rgbGreen=i;
-		colorTable[i].rgbRed=i;
-		colorTable[i].rgbReserved=0;
-	}
-	SetColorTable(imgDst, colorTable, 256);
-	BYTE* pbyData = (BYTE*)imgDst->GetBits();
-	int iPitch = imgDst->GetPitch();
-	for(int r=0; r<iLineCount; r++)
-	{
-		for(int c=0; c<saLines[r].GetCount(); c++)
+		imgDst->Create(iMaxLineLength, iLineCount, 8);
+
+		RGBQUAD colorTable[256];
+		for(int i=0; i<256; i++)
 		{
-			pbyData[r*iPitch+c]=min(255,max(0,_ttoi(saLines[r].GetAt(c))));
+			colorTable[i].rgbBlue=i;
+			colorTable[i].rgbGreen=i;
+			colorTable[i].rgbRed=i;
+			colorTable[i].rgbReserved=0;
 		}
+		SetColorTable(imgDst, colorTable, 256);
+		BYTE* pbyData = (BYTE*)imgDst->GetBits();
+		int iPitch = imgDst->GetPitch();
+		for(int r=0; r<iLineCount; r++)
+		{
+			for(int c=0; c<saLines[r].GetCount(); c++)
+			{
+				pbyData[r*iPitch+c]=min(255,max(0,_ttoi(saLines[r].GetAt(c))));
+			}
+		}
+		return TRUE;
 	}
-	return TRUE;
+	if(enumMode == VALUE_IMAGE_RAINBOW)
+	{
+		imgDst->Create(iMaxLineLength, iLineCount, 24);
+
+		BYTE* pbyData = (BYTE*)imgDst->GetBits();
+		int iPitch = imgDst->GetPitch();
+		for(int r=0; r<iLineCount; r++)
+		{
+			for(int c=0; c<saLines[r].GetCount(); c++)
+			{
+				int uiValue = UINT(_ttoi(saLines[r].GetAt(c)));
+
+				int iDigit =32;
+				bool bRet;
+				for (int i=1;i<=256/iDigit; i++)
+				{
+					bRet = HSVValue(pbyData, iPitch, r, c, uiValue, iDigit*i);
+					if(bRet == true){break;}
+					uiValue-=iDigit*i*6;
+				}
+			}
+		}
+		return TRUE;
+	}
 }
 
 bool ConvertImageToStr(const CImage* imgSrc, const CString sSeparator, CString* sImage)
@@ -513,7 +594,7 @@ bool CopyToClipBoardImg(const CImage* imgSrc)
 	return true;
 }
 
-bool CopyFromClipBoardStrAsImg(const CString sSeparator, CImage* imgDst)
+bool CopyFromClipBoardStrAsImg(const CString sSeparator, VALUE_IMAGE enumMode, CImage* imgDst)
 {
 	BOOL bRet;
 
@@ -543,7 +624,7 @@ bool CopyFromClipBoardStrAsImg(const CString sSeparator, CImage* imgDst)
 	sData.Format(_T("%s"),byData);
 	SAFE_DELETE(byData); 
 
-	ConvertStrToImage(sData,sSeparator,imgDst);
+	ConvertStrToImage(sData,sSeparator,enumMode,imgDst);
 	return true;
 }
 

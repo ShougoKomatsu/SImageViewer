@@ -15,7 +15,11 @@ enum RESAMPLE
 	RESAMPLE_3=3,
 	RESAMPLE_4=4,
 };
-
+enum VALUE_IMAGE
+{
+	VALUE_IMAGE_0_TO_255 = 0,
+	VALUE_IMAGE_RAINBOW = 1
+};
 bool CopyToClipBoardImg(const CImage* img);
 bool CopyFromClipBoardImg(CImage* img);
 
@@ -51,5 +55,5 @@ UINT CountIconNum(const CString sFilePath);
 bool LoadICOFile(const CString sFilePath, CImage* img, UINT uiNum);
 bool LoadICON2(const CString sFilePath, CImage* imgs, UINT uiNum);
 bool ImposeRGBValue(CImage* imgSrc, CImage* imgDst,  const int iType,const double dROffset, const double dCOffset, const double dScale, const double dScaleThresh,const int iRMax_i, const int iCMax_i);
-bool ConvertStrToImage(const CString sImage,const CString sSeparator,  CImage* imgDst);
-bool CopyFromClipBoardStrAsImg(const CString sSeparator,CImage* imgDst);
+bool ConvertStrToImage(const CString sImage,const CString sSeparator,  VALUE_IMAGE enumMode, CImage* imgDst);
+bool CopyFromClipBoardStrAsImg(const CString sSeparator,VALUE_IMAGE enumMode, CImage* imgDst);
