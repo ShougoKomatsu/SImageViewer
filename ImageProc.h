@@ -30,6 +30,8 @@ public:
 	int* iImage;
 	double* dImage;
 
+	bool Set(IMAGE_TYPE enumImageType, int* iImage_in, double* dImage_in, int iWidth, int iHeight, CImage* cImage_in, VALUE_IMAGE enumValueImage);
+
 	~PanImage()
 	{
 		Init();
@@ -106,5 +108,5 @@ UINT CountIconNum(const CString sFilePath);
 bool LoadICOFile(const CString sFilePath, CImage* img, UINT uiNum);
 bool LoadICON2(const CString sFilePath, CImage* imgs, UINT uiNum);
 bool ImposeRGBValue(CImage* imgSrc, CImage* imgDst,  const int iType,const double dROffset, const double dCOffset, const double dScale, const double dScaleThresh,const int iRMax_i, const int iCMax_i);
-bool ConvertStrToPanImage(const CString sImage,const CString sSeparator,  VALUE_IMAGE enumMode, PanImage* imgDst);
-bool CopyFromClipBoardStrAsImg(const CString sSeparator,VALUE_IMAGE enumMode, PanImage* imgDst);
+bool ConvertStrToPanImage(const CString sImage,const CString sSeparator,  VALUE_IMAGE enumMode, VALUE_IMAGE enumImageMode, PanImage* imgDst);
+bool CopyFromClipBoardStrAsImg(const CString sSeparator,VALUE_IMAGE enumMode, VALUE_IMAGE enumImageMode, PanImage* imgDst);

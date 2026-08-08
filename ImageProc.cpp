@@ -229,7 +229,7 @@ inline bool HSVValue(BYTE* pbyData, int iPitch, int r, int c, UINT uiValue_in, i
 	}
 	return false;
 }
-bool ConvertStrToPanImage(const CString sImage,const CString sSeparator,  VALUE_IMAGE enumMode, PanImage* imgDst)
+bool ConvertStrToPanImage(const CString sImage,const CString sSeparator,  VALUE_IMAGE enumMode, VALUE_IMAGE enumImageMode, PanImage* imgDst)
 {
 	int iStart=0;
 	int iLineCount=0;
@@ -268,28 +268,27 @@ bool ConvertStrToPanImage(const CString sImage,const CString sSeparator,  VALUE_
 	{
 		iMaxLineLength = (int)max(iMaxLineLength,saLines[i].GetCount());
 	}
-
-	imgDst->Init();
-	imgDst->enumImageType=IMAGE_TYPE_IIMAGE;
-	imgDst->iImage = new int[iLineCount*iMaxLineLength];
-	imgDst->iWidth = iMaxLineLength;
-	imgDst->iHeight = iLineCount;
-
-	for(int r=0; r<imgDst->iHeight; r++)
+	int* iImage;
+	iImage=new int[iLineCount*iMaxLineLength];
+	
+	for(int r=0; r<iLineCount; r++)
 	{
-		for(int c=0; c<imgDst->iWidth; c++)
+		for(int c=0; c<iMaxLineLength; c++)
 		{
-			imgDst->iImage[r*imgDst->iWidth+c]=0;
+			iImage[r*iMaxLineLength+c]=0;
 		}
 	}
 
 	for(int r=0; r<iLineCount; r++)
 	{
-		for(int c=0; c<saLines[r].GetCount(); c++)
+		for(int c=0; c<iMaxLineLength; c++)
 		{
-			imgDst->iImage[r*imgDst->iWidth+c]=_ttoi(saLines[r].GetAt(c));
+			iImage[r*iMaxLineLength+c]=_ttoi(saLines[r].GetAt(c));
 		}
 	}
+
+	imgDst->Set(IMAGE_TYPE_IIMAGE,iImage,NULL, iMaxLineLength,iLineCount,NULL,enumImageMode);
+	SAFE_DELETE(iImage);
 	return true;
 }
 
@@ -568,7 +567,7 @@ bool CopyToClipBoardImg(const CImage* imgSrc)
 	return true;
 }
 
-bool CopyFromClipBoardStrAsImg(const CString sSeparator, VALUE_IMAGE enumMode, PanImage* imgDst)
+bool CopyFromClipBoardStrAsImg(const CString sSeparator, VALUE_IMAGE enumMode, VALUE_IMAGE enumImageMode, PanImage* imgDst)
 {
 	BOOL bRet;
 
@@ -598,7 +597,7 @@ bool CopyFromClipBoardStrAsImg(const CString sSeparator, VALUE_IMAGE enumMode, P
 	sData.Format(_T("%s"),byData);
 	SAFE_DELETE(byData); 
 
-	ConvertStrToPanImage(sData,sSeparator,enumMode,imgDst);
+	ConvertStrToPanImage(sData,sSeparator,enumMode,enumImageMode, imgDst);
 	return true;
 }
 
@@ -3684,4 +3683,54 @@ BYTE g_byFont_8_16[160]={
 
 		*iBPP_out=iBPP;
 		return true;
+	}
+
+	bool PanImage::Set(IMAGE_TYPE enumImageType, int* iImage_in, double* dImage_in, int iWidth, int iHeight, CImage* cImage_in, VALUE_IMAGE enumValueImage)
+	{
+		this->Init();
+		switch(enumImageType)
+		{
+		case IMAGE_TYPE_CIMAGE:
+			{
+				if(cImage_in == NULL){return false;}
+				bool bRet = CopyImage(cImage_in, &(this->cImage));
+				if(bRet != true){return false;}
+				this->enumImageType = IMAGE_TYPE_CIMAGE;
+				return true;
+			}
+		case IMAGE_TYPE_IIMAGE:
+			{
+				if(iImage_in == NULL){return false;}
+				if(iWidth<=0){return false;}
+				if(iHeight<=0){return false;}
+				this->iImage=new int[iWidth*iHeight];
+				for(int r=0; r<iHeight; r++)
+				{
+					for(int c=0; c<iWidth; c++)
+					{
+						this->iImage[r*iWidth+c]=iImage_in[r*iWidth+c];
+					}
+				}
+				Convert(enumValueImage, &(this->cImage));
+				return true;
+			}
+		case IMAGE_TYPE_DIMAGE:
+			{
+				if(dImage_in == NULL){return false;}
+				if(iWidth<=0){return false;}
+				if(iHeight<=0){return false;}
+				this->dImage=new double[iWidth*iHeight];
+				for(int r=0; r<iHeight; r++)
+				{
+					for(int c=0; c<iWidth; c++)
+					{
+						this->dImage[r*iWidth+c]=dImage_in[r*iWidth+c];
+					}
+				}
+				Convert(enumValueImage, &(this->cImage));
+				return true;
+			}
+		default:{return false;}
+		}
+		return false;
 	}
