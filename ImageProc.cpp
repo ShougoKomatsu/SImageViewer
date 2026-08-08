@@ -266,7 +266,7 @@ bool ConvertStrToPanImage(const CString sImage,const CString sSeparator,  VALUE_
 
 	for(int i=0; i<iLineCount; i++)
 	{
-		iMaxLineLength = max(iMaxLineLength,saLines[i].GetCount());
+		iMaxLineLength = (int)max(iMaxLineLength,saLines[i].GetCount());
 	}
 
 	imgDst->Init();
@@ -1222,8 +1222,8 @@ bool ConvertImage_LossLess(const CImage* imgSrc, const int iBPPDst, CImage* imgD
 	RGBQUAD* rgbqTable;
 	RGBQUAD* rgbqTable_unsorted;
 	ULONGLONG* ullFrequency;
-	rgbqTable_unsorted = new RGBQUAD[1<<min(24, imgSrc->GetBPP())];
-	rgbqTable = new RGBQUAD[1<<min(24, imgSrc->GetBPP())];
+	rgbqTable_unsorted = new RGBQUAD[1ull<<min(24, imgSrc->GetBPP())];
+	rgbqTable = new RGBQUAD[1ull<<min(24, imgSrc->GetBPP())];
 	ullFrequency = new ULONGLONG[min(24, 1<<imgSrc->GetBPP())];
 
 	MakeColorTable(imgSrc, rgbqTable_unsorted, NULL, 1<<min(24, imgSrc->GetBPP()), &iUsedColors, &bGrayScale);
@@ -2630,8 +2630,8 @@ BYTE g_byFont_8_16[160]={
 		index_i(ullFrequency, iColors, iPopularOrder);
 
 		RGBQUAD* rgbqTablePopularOrder;
-		rgbqTablePopularOrder = new RGBQUAD[1<<min(24, iBPP)];
-		GetColorConversionTable(rgbqTable, iPopularOrder, iColors, rgbqTablePopularOrder, 1<<min(24, iBPP), iConversionTable);
+		rgbqTablePopularOrder = new RGBQUAD[1ull<<min(24, iBPP)];
+		GetColorConversionTable(rgbqTable, iPopularOrder, iColors, rgbqTablePopularOrder, 1ul<<min(24, iBPP), iConversionTable);
 
 		if (imgDst->IsNull() != true) {imgDst->Destroy();}
 		imgDst->Create(iWidth, iHeight,iBPP);
@@ -3161,7 +3161,7 @@ BYTE g_byFont_8_16[160]={
 		iConversionTable=new int[iColors];
 
 		RGBQUAD* rgbqResult;
-		rgbqResult=new RGBQUAD[1<<min(24, iBPP)];
+		rgbqResult=new RGBQUAD[1ull<<min(24, iBPP)];
 
 		GetCluster_K_mean(rgbqTable, ullFrequency, iConversionTable, iColors, rgbqResult, 1<<min(24, iBPP));
 
@@ -3277,7 +3277,7 @@ BYTE g_byFont_8_16[160]={
 		BYTE* bmiColorBuf;
 		if(iBPP<=8)
 		{
-			bmiColorBuf = new BYTE[sizeof(BITMAPINFOHEADER) + sizeof(RGBQUAD) * (1<<iBPP)];
+			bmiColorBuf = new BYTE[sizeof(BITMAPINFOHEADER) + sizeof(RGBQUAD) * (1ull<<iBPP)];
 		}
 		else
 		{
