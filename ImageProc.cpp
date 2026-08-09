@@ -286,7 +286,7 @@ bool ConvertStrToPanImage(const CString sImage,const CString sSeparator,  VALUE_
 			iImage[r*iMaxLineLength+c]=_ttoi(saLines[r].GetAt(c));
 		}
 	}
-
+	SAFE_DELETE(saLines);
 	imgDst->Set(IMAGE_TYPE_IIMAGE,iImage,NULL, iMaxLineLength,iLineCount,NULL,enumImageMode);
 	SAFE_DELETE(iImage);
 	return true;

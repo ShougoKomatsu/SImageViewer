@@ -22,3 +22,5 @@ SImgProc_d.dll
 SImgProc_d.lib
 *.ipch
 /x64
+Debug/SImageViewer.exe.embed.manifest
+Debug/SImageViewer.exe.intermediate.manifest
