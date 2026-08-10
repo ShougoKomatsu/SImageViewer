@@ -419,32 +419,39 @@ IMPLEMENT_DYNCREATE(CSImageViewerView, CView)
 	{
 		m_iImgProcessIndex=0;
 		if(m_bRefresh==true){KillTimer(TIMER_REFRESH);}
-		if(m_image[m_iImageIndex].enumImageType==IMAGE_TYPE_CIMAGE)
+
+		CMainFrame* pFrame = (CMainFrame*)AfxGetMainWnd();
+		if (pFrame == nullptr){return;}
+		switch(m_image[m_iImageIndex].enumImageType)
 		{
-			if(m_image[m_iImageIndex].cImage.GetBPP()==32)
-			{	
-				SetTimer(TIMER_REFRESH,50,0);
-			}
-
-			if(m_image[m_iImageIndex].cImage.GetBPP()==24)
+		case IMAGE_TYPE_CIMAGE:
 			{
-				CMainFrame* pFrame = (CMainFrame*)AfxGetMainWnd();
+				if(m_image[m_iImageIndex].cImage.GetBPP()==32){SetTimer(TIMER_REFRESH,50,0);}
+
+				if(m_image[m_iImageIndex].cImage.GetBPP()==24)
+				{
+					pFrame->SendMessage(WM_COMMAND_CHANGE_CHANNEL, 24);
+				}
+				else
+				{
+					pFrame->SendMessage(WM_COMMAND_CHANGE_CHANNEL, 32);
+				}
+				CopyImage(&(m_image[m_iImageIndex].cImage),&(m_imageProcessed[(m_iImgProcessIndex % MAX_IMG_BUF)]));
+				break;
+			}
+		case IMAGE_TYPE_IIMAGE:
+		case IMAGE_TYPE_DIMAGE:
+			{
 				pFrame->SendMessage(WM_COMMAND_CHANGE_CHANNEL, 24);
+				CopyImage(&(m_image[m_iImageIndex].cImage),&(m_imageProcessed[(m_iImgProcessIndex % MAX_IMG_BUF)]));
+				break;
 			}
-			else
-			{
-				CMainFrame* pFrame = (CMainFrame*)AfxGetMainWnd();
-				pFrame->SendMessage(WM_COMMAND_CHANGE_CHANNEL, 32);
-			}
-
-
-			CopyImage(&(m_image[m_iImageIndex].cImage),&(m_imageProcessed[(m_iImgProcessIndex % MAX_IMG_BUF)]));
+		default:{return;}
 		}
 		m_iUnDoAvailableCount=0;
 		m_iReDoAvailableCount=0;
 
 		SetGridEnableDesable();
-		CMainFrame* pFrame = (CMainFrame*)AfxGetMainWnd();
 
 		if(bZoomReset==true)
 		{
@@ -507,18 +514,14 @@ IMPLEMENT_DYNCREATE(CSImageViewerView, CView)
 		pFrame->m_sStatusSize.Format(_T("%s"),sImageSize);
 		pFrame->SendMessage(WM_COMMAND, ID_DISP_STATUS_SIZE);
 
-		if(m_image[m_iImageIndex].enumImageType==IMAGE_TYPE_CIMAGE)
+		switch(m_image[m_iImageIndex].enumImageType)
 		{
-		pFrame->m_sStatusBPP.Format(_T("%d BPP"),m_image[m_iImageIndex].cImage.GetBPP());
-		}
-		else
-		{
+		case IMAGE_TYPE_CIMAGE:{pFrame->m_sStatusBPP.Format(_T("%d BPP"),m_image[m_iImageIndex].cImage.GetBPP());break;}
+		case IMAGE_TYPE_IIMAGE:{pFrame->m_sStatusBPP.Format(_T("int"));break;}
+		case IMAGE_TYPE_DIMAGE:{pFrame->m_sStatusBPP.Format(_T("double"));break;}
+		default:{return;}
 		}
 		pFrame->SendMessage(WM_COMMAND, ID_DISP_STATUS_BPP);
-
-
-		if (pFrame != nullptr)	{pFrame->SetStatusMessage(sImageSize);}
-
 	}
 
 
