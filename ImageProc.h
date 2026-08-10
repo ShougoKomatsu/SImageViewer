@@ -31,7 +31,8 @@ public:
 	double* dImage;
 
 	bool Set(IMAGE_TYPE enumImageType, int* iImage_in, double* dImage_in, int iWidth, int iHeight, CImage* cImage_in, VALUE_IMAGE enumValueImage);
-
+	int GetWidth(){return iWidth;}
+	int GetHeight(){return iHeight;}
 	~PanImage()
 	{
 		Init();
@@ -74,7 +75,7 @@ enum RESAMPLE
 	RESAMPLE_4=4,
 };
 bool CopyToClipBoardImg(const CImage* img);
-bool CopyFromClipBoardImg(CImage* img);
+bool CopyFromClipBoardImg(PanImage* img);
 
 bool ClipImage(const CImage* imgOriginal, CImage* imgClipped, const int iR0, const int iC0, const int iR1, const int iC1);
 bool ConvertImage(const ImgRGB* imgRGB, CImage* cimage);	
@@ -105,8 +106,8 @@ bool ImposeAlphaChannel(CImage* imgSrc, CImage* imgDst);
 bool MakeReservedChannelZero(CImage* imgSrc, CImage* imgDst);
 
 UINT CountIconNum(const CString sFilePath);
-bool LoadICOFile(const CString sFilePath, CImage* img, UINT uiNum);
-bool LoadICON2(const CString sFilePath, CImage* imgs, UINT uiNum);
+bool LoadICOFile(const CString sFilePath, PanImage* img, UINT uiNum);
+bool LoadICON2(const CString sFilePath, PanImage* imgs, UINT uiNum);
 bool ImposeRGBValue(CImage* imgSrc, CImage* imgDst,  const int iType,const double dROffset, const double dCOffset, const double dScale, const double dScaleThresh,const int iRMax_i, const int iCMax_i);
 bool ConvertStrToPanImage(const CString sImage,const CString sSeparator,  VALUE_IMAGE enumMode, VALUE_IMAGE enumImageMode, PanImage* imgDst);
 bool CopyFromClipBoardStrAsImg(const CString sSeparator,VALUE_IMAGE enumMode, VALUE_IMAGE enumImageMode, PanImage* imgDst);

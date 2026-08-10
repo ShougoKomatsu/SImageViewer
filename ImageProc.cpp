@@ -601,7 +601,7 @@ bool CopyFromClipBoardStrAsImg(const CString sSeparator, VALUE_IMAGE enumMode, V
 	return true;
 }
 
-bool CopyFromClipBoardImg(CImage* imgDst)
+bool CopyFromClipBoardImg(PanImage* imgDst)
 {
 	BOOL bRet;
 
@@ -680,18 +680,17 @@ bool CopyFromClipBoardImg(CImage* imgDst)
 	{
 		bySrcData = &(byData[sizeof(BITMAPINFOHEADER)+iPaletteSize ]);;
 	}
-
-	if(imgDst->IsNull() != true){imgDst->Destroy();}
-	HRESULT hr = imgDst->Create(iWidth, abs(iHeight), iBPP_src);
+	imgDst->Init();
+	HRESULT hr = imgDst->cImage.Create(iWidth, abs(iHeight), iBPP_src);
 	if (FAILED(hr)) {SAFE_DELETE(byData); return false;}
 
 	if ((iBPP_src <= 8) && (iColors > 0))
 	{
-		SetColorTable(imgDst,(RGBQUAD*)pPalette,iColors);
+		SetColorTable(&(imgDst->cImage),(RGBQUAD*)pPalette,iColors);
 	}
 
-	int iPitch_dst = imgDst->GetPitch();
-	BYTE* byDstData = (BYTE*)imgDst->GetBits();
+	int iPitch_dst = imgDst->cImage.GetPitch();
+	BYTE* byDstData = (BYTE*)imgDst->cImage.GetBits();
 
 	bool bDstBottomUp = (iPitch_dst > 0);
 	bool bSrcBottomUp = (iHeight > 0); 
@@ -3448,7 +3447,7 @@ BYTE g_byFont_8_16[160]={
 		::DeleteObject(ii.hbmMask);
 		return true;
 	}
-	bool LoadICOFile(const CString sFilePath, CImage* imgs, UINT uiNum)
+	bool LoadICOFile(const CString sFilePath, PanImage* imgs, UINT uiNum)
 	{
 		HICON* hLargeIcons=NULL;
 		HICON* hSmallIcons=NULL;
@@ -3473,13 +3472,15 @@ BYTE g_byFont_8_16[160]={
 
 		for (UINT ui = 0; ui < uiExtracted; ui++)
 		{
-			bool bRet = ConvertIconToImg(hScreenDC, hLargeIcons[ui], &imgs[ui]);
+			bool bRet = ConvertIconToImg(hScreenDC, hLargeIcons[ui], &(imgs[ui].cImage));
 			::DestroyIcon(hLargeIcons[ui]);
 		}
 
 		for (UINT ui = 0; ui < uiExtracted; ui++)
 		{
-			bool bRet = ConvertIconToImg(hScreenDC, hSmallIcons[ui], &imgs[uiNum+ui]);
+			CImage imgTemp;
+			bool bRet = ConvertIconToImg(hScreenDC, hSmallIcons[ui], &imgTemp);
+			imgs[uiNum+ui].Set(IMAGE_TYPE_CIMAGE,NULL,NULL,0,0,&imgTemp,VALUE_IMAGE_0_TO_255);
 			::DestroyIcon(hSmallIcons[ui]);
 		}
 
@@ -3489,7 +3490,7 @@ BYTE g_byFont_8_16[160]={
 		return true;
 
 	}
-	bool LoadICON2(const CString sFilePath, CImage* imgs, UINT uiNum)
+	bool LoadICON2(const CString sFilePath, PanImage* imgs, UINT uiNum)
 	{
 		HINSTANCE hExe;
 		hExe = LoadLibrary(sFilePath);
@@ -3521,7 +3522,7 @@ BYTE g_byFont_8_16[160]={
 			SM_CXICON, SM_CYICON, LR_DEFAULTCOLOR); 
 
 		HDC hScreenDC = ::GetDC(NULL);
-		bool bRet = ConvertIconToImg(hScreenDC, hIcon1, &imgs[0]);
+		bool bRet = ConvertIconToImg(hScreenDC, hIcon1, &(imgs[0].cImage));
 		return true;
 	}
 
@@ -3696,6 +3697,8 @@ BYTE g_byFont_8_16[160]={
 				bool bRet = CopyImage(cImage_in, &(this->cImage));
 				if(bRet != true){return false;}
 				this->enumImageType = IMAGE_TYPE_CIMAGE;
+				this->iWidth=this->cImage.GetWidth();
+				this->iHeight=this->cImage.GetHeight();
 				return true;
 			}
 		case IMAGE_TYPE_IIMAGE:

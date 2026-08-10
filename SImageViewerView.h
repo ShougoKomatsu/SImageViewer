@@ -19,11 +19,9 @@ protected: // ƒVƒŠƒAƒ‹‰»‚©‚ç‚Ì‚İì¬‚µ‚Ü‚·B
 public:
 	void FullDomain();
 	CString m_sFilePath;
-	int m_iImageType;
-	PanImage m_panImage;
 
 	CImage m_imageZoomed;
-	CImage* m_image;
+	PanImage * m_image;
 	int m_iImageIndex;
 	int m_iImagemax;
 	CImage m_imageProcessed[32];

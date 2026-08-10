@@ -1,5 +1,5 @@
 
-se // SImageViewerView.cpp : CSImageViewerView クラスの実装
+// SImageViewerView.cpp : CSImageViewerView クラスの実装
 	//
 
 #include "stdafx.h"
@@ -106,7 +106,6 @@ IMPLEMENT_DYNCREATE(CSImageViewerView, CView)
 
 	CSImageViewerView::CSImageViewerView()
 	{
-		m_iImageType=0;
 		m_bDragging = false;
 		m_Rect_v.SetRectEmpty();
 		m_Rect_i.SetRectEmpty();
@@ -224,26 +223,11 @@ IMPLEMENT_DYNCREATE(CSImageViewerView, CView)
 
 		double dR0_i = (dDispOriginR_tv/g_dScale[m_iScaleIndex]);
 		double dC0_i = (dDispOriginC_tv/g_dScale[m_iScaleIndex]);
-		int iRMax=0;
-		int iCMax=0;
-		if(m_iImageType == 9999)
-		{
-			CImage imgTemp;
-			bool bRet =  m_panImage.Convert(VALUE_IMAGE_0_TO_255, &imgTemp);
-			if(bRet != true){return;}
+		if (m_imageProcessed[(m_iImgProcessIndex % MAX_IMG_BUF)].IsNull()){return;}
 
-			int iRMax=imgTemp.GetHeight()-1;
-			int iCMax=imgTemp.GetWidth()-1;
-			ZoomImage(&imgTemp,&imgZoomed,dR0_i,dC0_i,g_dScale[m_iScaleIndex],iWidth_v,iHeight_v);
-		}
-		else
-		{
-			if (m_imageProcessed[(m_iImgProcessIndex % MAX_IMG_BUF)].IsNull()){return;}
-
-			int iRMax=m_imageProcessed[(m_iImgProcessIndex % MAX_IMG_BUF)].GetHeight()-1;
-			int iCMax=m_imageProcessed[(m_iImgProcessIndex % MAX_IMG_BUF)].GetWidth()-1;
-			ZoomImage(&(m_imageProcessed[(m_iImgProcessIndex % MAX_IMG_BUF)]),&imgZoomed,dR0_i,dC0_i,g_dScale[m_iScaleIndex],iWidth_v,iHeight_v);
-		}
+		int iRMax=m_imageProcessed[(m_iImgProcessIndex % MAX_IMG_BUF)].GetHeight()-1;
+		int iCMax=m_imageProcessed[(m_iImgProcessIndex % MAX_IMG_BUF)].GetWidth()-1;
+		ZoomImage(&(m_imageProcessed[(m_iImgProcessIndex % MAX_IMG_BUF)]),&imgZoomed,dR0_i,dC0_i,g_dScale[m_iScaleIndex],iWidth_v,iHeight_v);
 
 		CMainFrame* pFrame = (CMainFrame*)AfxGetMainWnd();
 		int iGrid=0;
@@ -435,25 +419,27 @@ IMPLEMENT_DYNCREATE(CSImageViewerView, CView)
 	{
 		m_iImgProcessIndex=0;
 		if(m_bRefresh==true){KillTimer(TIMER_REFRESH);}
-		if(m_image[m_iImageIndex].GetBPP()==32)
-		{	
-			SetTimer(TIMER_REFRESH,50,0);
-		}
-
-		if(m_image[m_iImageIndex].GetBPP()==24)
+		if(m_image[m_iImageIndex].enumImageType==IMAGE_TYPE_CIMAGE)
 		{
-			CMainFrame* pFrame = (CMainFrame*)AfxGetMainWnd();
-			pFrame->SendMessage(WM_COMMAND_CHANGE_CHANNEL, 24);
-		}
-		else
-		{
-			CMainFrame* pFrame = (CMainFrame*)AfxGetMainWnd();
-			pFrame->SendMessage(WM_COMMAND_CHANGE_CHANNEL, 32);
-		}
+			if(m_image[m_iImageIndex].cImage.GetBPP()==32)
+			{	
+				SetTimer(TIMER_REFRESH,50,0);
+			}
+
+			if(m_image[m_iImageIndex].cImage.GetBPP()==24)
+			{
+				CMainFrame* pFrame = (CMainFrame*)AfxGetMainWnd();
+				pFrame->SendMessage(WM_COMMAND_CHANGE_CHANNEL, 24);
+			}
+			else
+			{
+				CMainFrame* pFrame = (CMainFrame*)AfxGetMainWnd();
+				pFrame->SendMessage(WM_COMMAND_CHANGE_CHANNEL, 32);
+			}
 
 
-		CopyImage(&(m_image[m_iImageIndex]),&(m_imageProcessed[(m_iImgProcessIndex % MAX_IMG_BUF)]));
-		
+			CopyImage(&(m_image[m_iImageIndex].cImage),&(m_imageProcessed[(m_iImgProcessIndex % MAX_IMG_BUF)]));
+		}
 		m_iUnDoAvailableCount=0;
 		m_iReDoAvailableCount=0;
 
@@ -521,7 +507,13 @@ IMPLEMENT_DYNCREATE(CSImageViewerView, CView)
 		pFrame->m_sStatusSize.Format(_T("%s"),sImageSize);
 		pFrame->SendMessage(WM_COMMAND, ID_DISP_STATUS_SIZE);
 
-		pFrame->m_sStatusBPP.Format(_T("%d BPP"),m_image[m_iImageIndex].GetBPP());
+		if(m_image[m_iImageIndex].enumImageType==IMAGE_TYPE_CIMAGE)
+		{
+		pFrame->m_sStatusBPP.Format(_T("%d BPP"),m_image[m_iImageIndex].cImage.GetBPP());
+		}
+		else
+		{
+		}
 		pFrame->SendMessage(WM_COMMAND, ID_DISP_STATUS_BPP);
 
 
@@ -589,7 +581,7 @@ IMPLEMENT_DYNCREATE(CSImageViewerView, CView)
 
 		for(int i=0; i<m_iImagemax; i++)
 		{
-			if(m_image[i].IsNull()!=true){m_image[i].Destroy();}
+			m_image[i].Init();
 		}
 		SAFE_DELETE(m_image);
 		CMainFrame* pFrame = (CMainFrame*)AfxGetMainWnd();
@@ -602,19 +594,20 @@ IMPLEMENT_DYNCREATE(CSImageViewerView, CView)
 //			m_image=new CImage[2];
 //bRet =  LoadICON2(sFilePath, m_image, 1);
 			UINT uiIconNum = CountIconNum(sFilePath);
-			m_image=new CImage[uiIconNum*2];
+			m_image=new PanImage[uiIconNum*2];
 			bool bbRet = LoadICOFile(sFilePath,m_image,uiIconNum);
 			if(bbRet != true)
 			{
 				for(int i=0; i<m_iImagemax; i++)
 				{
-					if(m_image[i].IsNull()!=true){m_image[i].Destroy();}
+					m_image[i].Init();
 				}
 				SAFE_DELETE(m_image);
 				pFrame->m_bFileOpened = false;
 				pFrame->m_bRegionSelected = false;
 				return false;
 			}
+			m_image[m_iImageIndex].enumImageType=IMAGE_TYPE_CIMAGE;
 			m_iImageIndex=0;
 			m_iImagemax=uiIconNum*2;
 			pFrame->m_iImageIndex=m_iImageIndex;
@@ -627,17 +620,18 @@ IMPLEMENT_DYNCREATE(CSImageViewerView, CView)
 			m_iImageIndex=0;
 			m_iImagemax=1;
 			SAFE_DELETE(m_image);
-			m_image=new CImage[m_iImagemax];
+			m_image=new PanImage[m_iImagemax];
 
-			HRESULT hResult = m_image[m_iImageIndex].Load(m_sFilePath);
+			m_image[m_iImageIndex].enumImageType=IMAGE_TYPE_CIMAGE;
+			HRESULT hResult = m_image[m_iImageIndex].cImage.Load(m_sFilePath);
 
 
 			pFrame->m_iImageIndex=m_iImageIndex;
 			pFrame->m_iImageMax=m_iImagemax;
-			if(m_image[m_iImageIndex].IsNull()!=true){m_image[m_iImageIndex].Destroy();}
-			hResult = m_image[m_iImageIndex].Load(m_sFilePath);
-
+			m_image[m_iImageIndex].Init();
+			hResult = m_image[m_iImageIndex].cImage.Load(m_sFilePath);
 			if(hResult != S_OK){return false;}
+			m_image[m_iImageIndex].enumImageType=IMAGE_TYPE_CIMAGE;
 		}
 
 		pFrame->m_bFileOpened = true;
@@ -719,7 +713,7 @@ IMPLEMENT_DYNCREATE(CSImageViewerView, CView)
 		SAFE_DELETE(m_image);
 		m_iImageIndex=0;
 		m_iImagemax=1;
-		m_image = new CImage[m_iImagemax];
+		m_image = new PanImage[m_iImagemax];
 		pFrame->m_iImageIndex=m_iImageIndex;
 		
 		CPasteAsDlg pasteAsdlg;
@@ -732,14 +726,12 @@ IMPLEMENT_DYNCREATE(CSImageViewerView, CView)
 		case PASTE_FROM_IMAGE:{bRet = CopyFromClipBoardImg(&(m_image[m_iImageIndex]));break;}
 		case PASTE_FROM_CSV:
 			{
-				bRet = CopyFromClipBoardStrAsImg(_T(","),pasteAsdlg.m_enumPasteAs, pasteAsdlg.m_enumPasteAs,&m_panImage);
-				this->m_iImageType=9999;
+				bRet = CopyFromClipBoardStrAsImg(_T(","),pasteAsdlg.m_enumPasteAs, pasteAsdlg.m_enumPasteAs,&m_image[m_iImageIndex]);
 				break;
 			}
 		case PASTE_FROM_TSV:
 			{
-				bRet = CopyFromClipBoardStrAsImg(_T("\t"),pasteAsdlg.m_enumPasteAs, pasteAsdlg.m_enumPasteAs,&m_panImage);
-				this->m_iImageType=9999;
+				bRet = CopyFromClipBoardStrAsImg(_T("\t"),pasteAsdlg.m_enumPasteAs, pasteAsdlg.m_enumPasteAs,&m_image[m_iImageIndex]);
 				break;
 			}
 		}
@@ -753,9 +745,9 @@ IMPLEMENT_DYNCREATE(CSImageViewerView, CView)
 		SAFE_DELETE(m_image);
 		m_iImageIndex=0;
 		m_iImagemax=1;
-		m_image = new CImage[m_iImagemax];
+		m_image = new PanImage[m_iImagemax];
 		pFrame->m_iImageIndex=m_iImageIndex;
-		m_image[0].Create(1,1,24);
+		m_image[0].cImage.Create(1,1,24);
 
 
 		ResetImage(true);
@@ -767,7 +759,7 @@ IMPLEMENT_DYNCREATE(CSImageViewerView, CView)
 		SAFE_DELETE(m_image);
 		m_iImageIndex=0;
 		m_iImagemax=1;
-		m_image = new CImage[m_iImagemax];
+		m_image = new PanImage[m_iImagemax];
 		pFrame->m_iImageIndex=m_iImageIndex;
 		BOOL bRet = CopyFromClipBoardImg(&(m_image[m_iImageIndex]));
 		if(bRet != TRUE){return;}
@@ -1391,38 +1383,11 @@ IMPLEMENT_DYNCREATE(CSImageViewerView, CView)
 		CString sCaption;
 		CMainFrame* pFrame = (CMainFrame*)AfxGetMainWnd();
 		bool bRet_Original;
-		if(m_iImageType==9999)
+		if(m_image[m_iImageIndex].enumImageType==IMAGE_TYPE_CIMAGE)
 		{
-			int iValue;
-			bRet_Original = GetValueAtCursor(&m_panImage, point_v, &iR_img, &iC_img, &iValue);
-			if(bRet_Original == false)
-			{
-				pFrame->m_sStatusRGBOriginal.Format(_T("out of range"));
-				pFrame->m_sStatusMousePos.Format(_T("out of range"));
-			}
-			else
-			{
-				pFrame->m_sStatusRGBOriginal.Format(_T("% 14d"), iValue);
-				pFrame->m_sStatusMousePos.Format(_T("(%d, %d)"),iC_img, iR_img);
-			}
-
-
-
-
-
-			pFrame->SendMessage(WM_COMMAND, ID_DISP_STATUS_MOUSE_POS);
-
-			pFrame->m_sStatusZoom.Format(_T("%.3f%%"), 100*g_dScale[m_iScaleIndex]);
-			pFrame->SendMessage(WM_COMMAND, ID_DISP_STATUS_ZOOM);
-
-
-			sCaption.Format(sFileName);
-			AfxGetMainWnd()->SetWindowText(sCaption);
-			return;
-		}
-		if(m_image[m_iImageIndex].GetBPP() == 24)
+					if(m_image[m_iImageIndex].cImage.GetBPP() == 24)
 		{
-			bRet_Original = GetColorAtCursor(&(m_image[m_iImageIndex]), point_v, &iR_img, &iC_img, &byR, &byG, &byB);
+			bRet_Original = GetColorAtCursor(&(m_image[m_iImageIndex].cImage), point_v, &iR_img, &iC_img, &byR, &byG, &byB);
 			if(bRet_Original == false)
 			{
 				pFrame->m_sStatusRGBOriginal.Format(_T("out of range"));
@@ -1434,7 +1399,7 @@ IMPLEMENT_DYNCREATE(CSImageViewerView, CView)
 		}
 		else
 		{
-			bRet_Original = GetColorAtCursor(&(m_image[m_iImageIndex]), point_v, &iR_img, &iC_img, &byR, &byG, &byB,&byA);
+			bRet_Original = GetColorAtCursor(&(m_image[m_iImageIndex].cImage), point_v, &iR_img, &iC_img, &byR, &byG, &byB,&byA);
 			if(bRet_Original == false)
 			{
 				pFrame->m_sStatusRGBOriginal.Format(_T("out of range"));
@@ -1519,6 +1484,38 @@ IMPLEMENT_DYNCREATE(CSImageViewerView, CView)
 
 		sCaption.Format(sFileName);
 		AfxGetMainWnd()->SetWindowText(sCaption);
+
+		}
+		else
+		{
+			int iValue;
+			bRet_Original = GetValueAtCursor(&m_image[m_iImageIndex], point_v, &iR_img, &iC_img, &iValue);
+			if(bRet_Original == false)
+			{
+				pFrame->m_sStatusRGBOriginal.Format(_T("out of range"));
+				pFrame->m_sStatusMousePos.Format(_T("out of range"));
+			}
+			else
+			{
+				pFrame->m_sStatusRGBOriginal.Format(_T("% 14d"), iValue);
+				pFrame->m_sStatusMousePos.Format(_T("(%d, %d)"),iC_img, iR_img);
+			}
+
+
+
+
+
+			pFrame->SendMessage(WM_COMMAND, ID_DISP_STATUS_MOUSE_POS);
+
+			pFrame->m_sStatusZoom.Format(_T("%.3f%%"), 100*g_dScale[m_iScaleIndex]);
+			pFrame->SendMessage(WM_COMMAND, ID_DISP_STATUS_ZOOM);
+
+
+			sCaption.Format(sFileName);
+			AfxGetMainWnd()->SetWindowText(sCaption);
+			return;
+		}
+		return;
 	}
 	bool isNearTheBoarder(double d, double dBoarder, double dMargin)
 	{
