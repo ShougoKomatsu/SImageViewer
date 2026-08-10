@@ -610,8 +610,8 @@ IMPLEMENT_DYNCREATE(CSImageViewerView, CView)
 				pFrame->m_bRegionSelected = false;
 				return false;
 			}
-			m_image[m_iImageIndex].enumImageType=IMAGE_TYPE_CIMAGE;
 			m_iImageIndex=0;
+			m_image[m_iImageIndex].enumImageType=IMAGE_TYPE_CIMAGE;
 			m_iImagemax=uiIconNum*2;
 			pFrame->m_iImageIndex=m_iImageIndex;
 			pFrame->m_iImageMax=m_iImagemax;
@@ -1272,23 +1272,6 @@ IMPLEMENT_DYNCREATE(CSImageViewerView, CView)
 		m_bBeingFullScreen=false;
 	}
 	
-	bool CSImageViewerView::GetValueAtCursor(PanImage* img, CPoint point_v, int* iR_img, int* iC_img,int* iValue)
-	{
-		CPoint point_tv(point_v.x + (int)GetDispOriginC_tv(), point_v.y +  (int)GetDispOriginR_tv());
-
-		int iC_img_Local = (int)((point_tv.x) / g_dScale[m_iScaleIndex]);
-		int iR_img_Local = (int)((point_tv.y) / g_dScale[m_iScaleIndex]);
-
-
-		if (iC_img_Local < 0){return false;}
-		if (iR_img_Local < 0){return false;}
-		if (iC_img_Local >= img->iWidth){return false;}
-		if (iR_img_Local >= img->iHeight){return false;}
-		
-		*iR_img = iR_img_Local;
-		*iC_img = iC_img_Local;
-		return img->GetValue(iR_img_Local,iC_img_Local,iValue);
-	}
 
 	bool CSImageViewerView::GetColorAtCursor(CImage* img, CPoint point_v, int* iR_img, int* iC_img, BYTE* byR, BYTE* byG, BYTE* byB)
 	{
@@ -1314,6 +1297,90 @@ IMPLEMENT_DYNCREATE(CSImageViewerView, CView)
 
 		return true;
 	}
+
+	bool CSImageViewerView::GetColorAtCursor(PanImage* img, CPoint point_v, int* iR_img, int* iC_img, ColorValue* colorValue)
+	{
+		colorValue->Init();
+		CPoint point_tv((int)(point_v.x + GetDispOriginC_tv()), (int)(point_v.y + GetDispOriginR_tv()));
+
+		int iC_img_Local = (int)((point_tv.x) / g_dScale[m_iScaleIndex]);
+		int iR_img_Local = (int)((point_tv.y) / g_dScale[m_iScaleIndex]);
+
+
+		if (iC_img_Local < 0){return false;}
+		if (iR_img_Local < 0){return false;}
+		if (iC_img_Local >= img->GetWidth()){return false;}
+		if (iR_img_Local >= img->GetHeight()){return false;}
+
+		*iR_img = iR_img_Local;
+		*iC_img = iC_img_Local;
+
+		switch(img->enumImageType)
+		{
+		case IMAGE_TYPE_IIMAGE:
+			{
+				int iValue;
+				img->GetValue(iR_img_Local,iC_img_Local,&iValue);
+				colorValue->iValue=iValue;
+				colorValue->valueType=VALUE_TYPE_INT;
+				return true;
+			}
+		case IMAGE_TYPE_DIMAGE:
+			{
+				double dValue;
+				img->GetValue(iR_img_Local,iC_img_Local,&dValue);
+				colorValue->dValue=dValue;
+				colorValue->valueType=VALUE_TYPE_DOUBLE;
+				return true;
+			}
+		case IMAGE_TYPE_CIMAGE:
+			{
+				return GetColorAtCursor(&(img->cImage), point_v, iR_img, iC_img, colorValue);
+			}
+			default:{return false;}
+		}
+		return false;
+	}
+	bool CSImageViewerView::GetColorAtCursor(CImage* img, CPoint point_v, int* iR_img, int* iC_img, ColorValue* colorValue)
+	{
+		colorValue->Init();
+		CPoint point_tv((int)(point_v.x + GetDispOriginC_tv()), (int)(point_v.y + GetDispOriginR_tv()));
+
+		int iC_img_Local = (int)((point_tv.x) / g_dScale[m_iScaleIndex]);
+		int iR_img_Local = (int)((point_tv.y) / g_dScale[m_iScaleIndex]);
+
+
+		if (iC_img_Local < 0){return false;}
+		if (iR_img_Local < 0){return false;}
+		if (iC_img_Local >= img->GetWidth()){return false;}
+		if (iR_img_Local >= img->GetHeight()){return false;}
+
+		*iR_img = iR_img_Local;
+		*iC_img = iC_img_Local;
+
+		if(img->IsNull()==true){return false;}
+		if(img->GetBPP() == 32)
+		{
+			BYTE* pbyData = (BYTE*)img->GetBits();
+			int iPitch = img->GetPitch();
+
+			colorValue->byR = pbyData[iR_img_Local * iPitch +iC_img_Local *4+2];
+			colorValue->byG = pbyData[iR_img_Local * iPitch +iC_img_Local *4+1];
+			colorValue->byB = pbyData[iR_img_Local * iPitch +iC_img_Local *4+0];
+			colorValue->byA = pbyData[iR_img_Local * iPitch +iC_img_Local *4+3];
+			colorValue->valueType=VALUE_TYPE_RGBA;
+			return true;
+		}
+
+		COLORREF col = img->GetPixel(iC_img_Local,iR_img_Local);
+		colorValue->byR = GetRValue(col);
+		colorValue->byG = GetGValue(col);
+		colorValue->byB = GetBValue(col);
+		colorValue->valueType=VALUE_TYPE_RGB;
+		return true;
+		return true;
+	}
+
 	bool CSImageViewerView::GetColorAtCursor(CImage* img, CPoint point_v, int* iR_img, int* iC_img, BYTE* byR, BYTE* byG, BYTE* byB, BYTE* byA)
 	{
 		if(img->IsNull()==true){return false;}
@@ -1381,68 +1448,46 @@ IMPLEMENT_DYNCREATE(CSImageViewerView, CView)
 		CString sFileName = m_sFilePath.Mid(m_sFilePath.ReverseFind('\\') + 1);
 
 		int iR_img,iC_img;
-		BYTE byR=0,byG=0,byB=0, byA=0;
-		BYTE byR_Processed = 0,byG_Processed = 0,byB_Processed = 0,byA_Processed = 0;
 		CString sCaption;
 		CMainFrame* pFrame = (CMainFrame*)AfxGetMainWnd();
 		bool bRet_Original;
-		if(m_image[m_iImageIndex].enumImageType==IMAGE_TYPE_CIMAGE)
+
+		ColorValue colorValue;
+		bRet_Original = GetColorAtCursor(&(m_image[m_iImageIndex]), point_v, &iR_img, &iC_img, &colorValue);
+		if(bRet_Original == false)
 		{
-					if(m_image[m_iImageIndex].cImage.GetBPP() == 24)
-		{
-			bRet_Original = GetColorAtCursor(&(m_image[m_iImageIndex].cImage), point_v, &iR_img, &iC_img, &byR, &byG, &byB);
-			if(bRet_Original == false)
-			{
-				pFrame->m_sStatusRGBOriginal.Format(_T("out of range"));
-			}
-			else
-			{
-				pFrame->m_sStatusRGBOriginal.Format(_T("(%d, %d, %d)"), byR, byG, byB);
-			}
+			pFrame->m_sStatusRGBOriginal.Format(_T("out of range"));
 		}
 		else
 		{
-			bRet_Original = GetColorAtCursor(&(m_image[m_iImageIndex].cImage), point_v, &iR_img, &iC_img, &byR, &byG, &byB,&byA);
-			if(bRet_Original == false)
+			switch(colorValue.valueType)
 			{
-				pFrame->m_sStatusRGBOriginal.Format(_T("out of range"));
-			}
-			else
-			{
-				pFrame->m_sStatusRGBOriginal.Format(_T("(%d, %d, %d, %d)"), byR, byG, byB,byA);
+			case VALUE_TYPE_INT:{pFrame->m_sStatusRGBOriginal.Format(_T("% 14d"), colorValue.iValue); break;}
+			case VALUE_TYPE_DOUBLE:{pFrame->m_sStatusRGBOriginal.Format(_T("%e"), colorValue.dValue); break;}
+			case VALUE_TYPE_RGB:{pFrame->m_sStatusRGBOriginal.Format(_T("(%d, %d, %d)"), colorValue.byR, colorValue.byG, colorValue.byB); break;}
+			case VALUE_TYPE_RGBA:{pFrame->m_sStatusRGBOriginal.Format(_T("(%d, %d, %d, %d)"), colorValue.byR, colorValue.byG, colorValue.byB, colorValue.byA); break;}
 			}
 		}
 
 		bool bRet_Processed=false;
 		pFrame->m_sStatusRGBProcessed.Format(_T("not processed"));
 
-		if(m_imageProcessed[(m_iImgProcessIndex % MAX_IMG_BUF)].GetBPP() == 24)
+		if(m_iImgProcessIndex != 0)
 		{
-			if(m_iImgProcessIndex != 0)
+			bRet_Processed = GetColorAtCursor(&(m_imageProcessed[(m_iImgProcessIndex % MAX_IMG_BUF)]), point_v, &iR_img, &iC_img, &colorValue);
+			if(bRet_Processed == false)
 			{
-				bRet_Processed = GetColorAtCursor(&(m_imageProcessed[(m_iImgProcessIndex % MAX_IMG_BUF)]), point_v, &iR_img, &iC_img, &byR_Processed, &byG_Processed, &byB_Processed);
-				if(bRet_Processed == false)
-				{
-					pFrame->m_sStatusRGBProcessed.Format(_T("out of range"));
-				}
-				else
-				{
-					pFrame->m_sStatusRGBProcessed.Format(_T("(%d, %d, %d)"), byR_Processed, byG_Processed, byB_Processed);
-				}
+				pFrame->m_sStatusRGBProcessed.Format(_T("out of range"));
 			}
-		}
-		else
-		{
-			if(m_iImgProcessIndex != 0)
+			else
 			{
-				bRet_Processed = GetColorAtCursor(&(m_imageProcessed[(m_iImgProcessIndex % MAX_IMG_BUF)]), point_v, &iR_img, &iC_img, &byR_Processed, &byG_Processed, &byB_Processed, &byA_Processed);
-				if(bRet_Processed == false)
+				if(colorValue.valueType==VALUE_TYPE_RGB)
 				{
-					pFrame->m_sStatusRGBProcessed.Format(_T("out of range"));
+					pFrame->m_sStatusRGBProcessed.Format(_T("(%d, %d, %d)"), colorValue.byR, colorValue.byG, colorValue.byB);
 				}
 				else
 				{
-					pFrame->m_sStatusRGBProcessed.Format(_T("(%d, %d, %d, %d)"), byR_Processed, byG_Processed, byB_Processed, byA_Processed);
+					pFrame->m_sStatusRGBProcessed.Format(_T("(%d, %d, %d, %d)"), colorValue.byR, colorValue.byG, colorValue.byB, colorValue.byA);
 				}
 			}
 		}
@@ -1488,36 +1533,6 @@ IMPLEMENT_DYNCREATE(CSImageViewerView, CView)
 		sCaption.Format(sFileName);
 		AfxGetMainWnd()->SetWindowText(sCaption);
 
-		}
-		else
-		{
-			int iValue;
-			bRet_Original = GetValueAtCursor(&m_image[m_iImageIndex], point_v, &iR_img, &iC_img, &iValue);
-			if(bRet_Original == false)
-			{
-				pFrame->m_sStatusRGBOriginal.Format(_T("out of range"));
-				pFrame->m_sStatusMousePos.Format(_T("out of range"));
-			}
-			else
-			{
-				pFrame->m_sStatusRGBOriginal.Format(_T("% 14d"), iValue);
-				pFrame->m_sStatusMousePos.Format(_T("(%d, %d)"),iC_img, iR_img);
-			}
-
-
-
-
-
-			pFrame->SendMessage(WM_COMMAND, ID_DISP_STATUS_MOUSE_POS);
-
-			pFrame->m_sStatusZoom.Format(_T("%.3f%%"), 100*g_dScale[m_iScaleIndex]);
-			pFrame->SendMessage(WM_COMMAND, ID_DISP_STATUS_ZOOM);
-
-
-			sCaption.Format(sFileName);
-			AfxGetMainWnd()->SetWindowText(sCaption);
-			return;
-		}
 		return;
 	}
 	bool isNearTheBoarder(double d, double dBoarder, double dMargin)

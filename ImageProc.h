@@ -20,6 +20,39 @@ enum IMAGE_TYPE
 	IMAGE_TYPE_DIMAGE=3,
 };
 
+enum VALUE_TYPE
+{
+	VALUE_TYPE_UNDEFINED=-1,
+	VALUE_TYPE_INT=0,
+	VALUE_TYPE_DOUBLE=1,
+	VALUE_TYPE_BYTE=2,
+	VALUE_TYPE_RGB=3,
+	VALUE_TYPE_RGBA=4,
+};
+struct ColorValue
+{
+	VALUE_TYPE valueType;
+	BYTE byR;
+	BYTE byG;
+	BYTE byB;
+	BYTE byA;
+	BYTE byValue;
+	int iValue;
+	double dValue;
+
+	void Init()
+	{
+		valueType=VALUE_TYPE_UNDEFINED;
+		byR=0;
+		byG=0;
+		byB=0;
+		byA=255;
+		byValue=0;
+		iValue=0;
+		dValue=0;
+	}
+	ColorValue(){Init();}
+};
 class PanImage
 {
 public:
@@ -31,8 +64,8 @@ public:
 	double* dImage;
 
 	bool Set(IMAGE_TYPE enumImageType, int* iImage_in, double* dImage_in, int iWidth, int iHeight, CImage* cImage_in, VALUE_IMAGE enumValueImage);
-	int GetWidth(){return iWidth;}
-	int GetHeight(){return iHeight;}
+	int GetWidth(){if(enumImageType==IMAGE_TYPE_CIMAGE){return cImage.GetWidth();} return iWidth;}
+	int GetHeight(){if(enumImageType==IMAGE_TYPE_CIMAGE){return cImage.GetHeight();}return iHeight;}
 	~PanImage()
 	{
 		Init();
