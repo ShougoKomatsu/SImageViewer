@@ -242,7 +242,7 @@ IMPLEMENT_DYNCREATE(CSImageViewerView, CView)
 		ImposeGrid(&imgZoomed, &imgZoomed, iGrid, int(dR0_i)-dR0_i, int(dC0_i)-dC0_i,g_dScale[m_iScaleIndex], 10, iRMax, iCMax);
 		if(pFrame->m_bValue==true)
 		{
-			ImposeRGBValue(&imgZoomed, &imgZoomed, iGrid, int(dR0_i)-dR0_i, int(dC0_i)-dC0_i,g_dScale[m_iScaleIndex], 10, iRMax, iCMax);
+			ImposeRGBValue(&(m_image[m_iImageIndex]), &imgZoomed, &imgZoomed, iGrid, int(dR0_i)-dR0_i, int(dC0_i)-dC0_i,g_dScale[m_iScaleIndex], 10, int(dR0_i),int(dC0_i),iRMax, iCMax);
 		}
 		if(m_bDragging==true)
 		{

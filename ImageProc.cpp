@@ -1901,6 +1901,81 @@ BYTE g_byFont_8_16[160]={
 
 		return true;
 	}
+	
+	bool ImposeRGBValue(PanImage* imgSrc, CImage* imgZoomed, CImage* imgDst,
+		const int iType,const double dROffset, const double dCOffset, const double dScale, const double dScaleThresh,const int iRs_i, const int iCs_i, const int iRe_i, const int iCe_i)
+	{
+		if(imgZoomed != imgDst)
+		{
+			CopyImage(imgZoomed,imgDst);
+		}
+		if(dScale<dScaleThresh){return true;}
+		
+		if(imgSrc->enumImageType==IMAGE_TYPE_IIMAGE)
+		{
+		}
+		if(imgSrc->enumImageType==IMAGE_TYPE_CIMAGE)
+		{
+			BYTE* pbyDataDst = (BYTE*)imgDst->GetBits();
+			int iBPP = imgDst->GetBPP();
+			if(iBPP != 32){return false;}
+			int iPitchDst=imgDst->GetPitch();
+			int iWidthDst = imgDst->GetWidth();
+			int iHeightDst = imgDst->GetHeight();
+			int iRMaxDst = int(iHeightDst/dScale+2);
+			int iCMaxDst = int(iWidthDst/dScale+2);
+
+			for(int ir_i=iRs_i; ir_i<=iRe_i; ir_i++)
+			{
+				int ir0_v=int(((ir_i-iRs_i)+0.5+dROffset)*dScale);
+
+				if(ir0_v<0){continue;}
+				if(ir0_v>=iHeightDst){continue;}
+				for(int ic_i=iCs_i; ic_i<=iCe_i; ic_i++)
+				{
+					int ic0_v=int(((ic_i-iCs_i)+1+dCOffset)*dScale);
+
+					if(ic0_v<0){continue;}
+					if(ic0_v>=iWidthDst){continue;}
+
+					COLORREF col = imgSrc->cImage.GetPixel(ic_i, ir_i);
+					int iValueR =  GetRValue(col);
+					int iValueG =  GetGValue(col);
+					int iValueB =  GetBValue(col);
+
+					BYTE byDot=iValueR+iValueG+iValueB<480 ? 255:0;
+
+					if(dScale>48)
+					{
+						if((iValueR==iValueG) && (iValueR==iValueB))
+						{
+							ImposeValue_8_16(pbyDataDst, iPitchDst, iHeightDst, iWidthDst, iValueG,ir0_v-8-0, ic0_v-2-16, byDot);
+						}
+						else
+						{
+							ImposeValue_8_16(pbyDataDst, iPitchDst, iHeightDst, iWidthDst, iValueR,ir0_v-8-16, ic0_v-2-16, byDot);
+							ImposeValue_8_16(pbyDataDst, iPitchDst, iHeightDst, iWidthDst, iValueG,ir0_v-8-0, ic0_v-2-16, byDot);
+							ImposeValue_8_16(pbyDataDst, iPitchDst, iHeightDst, iWidthDst, iValueB,ir0_v-8+16, ic0_v-2-16, byDot);
+						}
+					}
+					else
+					{
+						if((iValueR==iValueG) && (iValueR==iValueB))
+						{
+							ImposeValue_4_8(pbyDataDst, iPitchDst, iHeightDst, iWidthDst, iValueG,ir0_v-4-0, ic0_v-2-8, byDot);
+						}
+						else
+						{
+							ImposeValue_4_8(pbyDataDst, iPitchDst, iHeightDst, iWidthDst, iValueR,ir0_v-4-8, ic0_v-2-8, byDot);
+							ImposeValue_4_8(pbyDataDst, iPitchDst, iHeightDst, iWidthDst, iValueG,ir0_v-4-0, ic0_v-2-8, byDot);
+							ImposeValue_4_8(pbyDataDst, iPitchDst, iHeightDst, iWidthDst, iValueB,ir0_v-4+8, ic0_v-2-8, byDot);
+						}
+					}
+				}
+			}
+		}
+		return true;
+	}
 	bool ImposeGrid(CImage* imgSrc, CImage* imgDst, const int iType, const double dROffset, const double dCOffset, const double dScale, const double dScaleThresh,const int iRMax_i, const int iCMax_i)
 	{
 		if(imgSrc != imgDst)
