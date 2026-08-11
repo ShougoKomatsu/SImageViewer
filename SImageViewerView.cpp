@@ -525,52 +525,6 @@ IMPLEMENT_DYNCREATE(CSImageViewerView, CView)
 	}
 
 
-	int aaa()
-	{
-		HICON hIconLarge = nullptr;
-		HICON hIconSmall = nullptr;
-
-		UINT iconCount = ExtractIconEx(
-			_T("shell32.dll"),
-			0, 
-			&hIconLarge,
-			&hIconSmall, 
-			1
-			);
-
-		if (iconCount == 0 || hIconLarge == nullptr) 
-		{
-			return 1;
-		}
-
-		// CImage ‚ÉƒAƒCƒRƒ“‚ð•`‰æ
-		CImage image;
-		ICONINFO iconInfo = {};
-		BITMAP bmp = {};
-
-		if (GetIconInfo(hIconLarge, &iconInfo)) 
-		{
-			if (GetObject(iconInfo.hbmColor, sizeof(BITMAP), &bmp)) 
-			{
-				HRESULT hr = image.Create(					bmp.bmWidth,					bmp.bmHeight,					32, 					CImage::createAlphaChannel					);
-
-				if (SUCCEEDED(hr)) 
-				{
-					HDC hdc = image.GetDC();
-					PatBlt(hdc, 0, 0, bmp.bmWidth, bmp.bmHeight, BLACKNESS);
-					DrawIconEx(hdc, 0, 0, hIconLarge, bmp.bmWidth, bmp.bmHeight, 0, nullptr, DI_NORMAL);
-					image.ReleaseDC();
-				}
-			}
-		}
-
-		if (iconInfo.hbmColor) DeleteObject(iconInfo.hbmColor);
-		if (iconInfo.hbmMask)  DeleteObject(iconInfo.hbmMask);
-		if (hIconLarge) DestroyIcon(hIconLarge);
-		if (hIconSmall) DestroyIcon(hIconSmall);
-
-		return 0;
-	}
 
 
 	bool CSImageViewerView::ReadImage(CString sFilePath)
@@ -1273,30 +1227,6 @@ IMPLEMENT_DYNCREATE(CSImageViewerView, CView)
 	}
 	
 
-	bool CSImageViewerView::GetColorAtCursor(CImage* img, CPoint point_v, int* iR_img, int* iC_img, BYTE* byR, BYTE* byG, BYTE* byB)
-	{
-		if(img->IsNull()==true){return false;}
-		CPoint point_tv(point_v.x + (int)GetDispOriginC_tv(), point_v.y +  (int)GetDispOriginR_tv());
-
-		int iC_img_Local = (int)((point_tv.x) / g_dScale[m_iScaleIndex]);
-		int iR_img_Local = (int)((point_tv.y) / g_dScale[m_iScaleIndex]);
-
-
-		if (iC_img_Local < 0){return false;}
-		if (iR_img_Local < 0){return false;}
-		if (iC_img_Local >= img->GetWidth()){return false;}
-		if (iR_img_Local >= img->GetHeight()){return false;}
-
-		COLORREF col = img->GetPixel(iC_img_Local,iR_img_Local);
-
-		*iR_img = iR_img_Local;
-		*iC_img = iC_img_Local;
-		*byR = GetRValue(col);
-		*byG = GetGValue(col);
-		*byB = GetBValue(col);
-
-		return true;
-	}
 
 	bool CSImageViewerView::GetColorAtCursor(PanImage* img, CPoint point_v, int* iR_img, int* iC_img, ColorValue* colorValue)
 	{
@@ -1381,68 +1311,6 @@ IMPLEMENT_DYNCREATE(CSImageViewerView, CView)
 		return true;
 	}
 
-	bool CSImageViewerView::GetColorAtCursor(CImage* img, CPoint point_v, int* iR_img, int* iC_img, BYTE* byR, BYTE* byG, BYTE* byB, BYTE* byA)
-	{
-		if(img->IsNull()==true){return false;}
-		CPoint point_tv((int)(point_v.x + GetDispOriginC_tv()), (int)(point_v.y + GetDispOriginR_tv()));
-
-		int iC_img_Local = (int)((point_tv.x) / g_dScale[m_iScaleIndex]);
-		int iR_img_Local = (int)((point_tv.y) / g_dScale[m_iScaleIndex]);
-
-
-		if (iC_img_Local < 0){return false;}
-		if (iR_img_Local < 0){return false;}
-		if (iC_img_Local >= img->GetWidth()){return false;}
-		if (iR_img_Local >= img->GetHeight()){return false;}
-
-		BYTE* byData = (BYTE*)img->GetBits();
-		int iPitch = img->GetPitch();
-		int iBPP = img->GetBPP();
-
-		(iC_img_Local,iR_img_Local);
-
-		*iR_img = iR_img_Local;
-		*iC_img = iC_img_Local;
-
-		if(iBPP == 32)
-		{
-			*byR = byData[iR_img_Local * iPitch +iC_img_Local *4+2];
-			*byG = byData[iR_img_Local * iPitch +iC_img_Local *4+1];
-			*byB = byData[iR_img_Local * iPitch +iC_img_Local *4+0];
-			*byA = byData[iR_img_Local * iPitch +iC_img_Local *4+3];
-			return true;
-		}
-		if(iBPP == 24)
-		{
-			*byR = byData[iR_img_Local * iPitch +iC_img_Local *3+2];
-			*byG = byData[iR_img_Local * iPitch +iC_img_Local *3+1];
-			*byB = byData[iR_img_Local * iPitch +iC_img_Local *3+0];
-			*byA = 255;
-			return true;
-		}
-		RGBQUAD* srcTable=NULL;
-		int iColors = img->GetMaxColorTableEntries();
-		if (iColors > 0) 
-		{
-			srcTable = new RGBQUAD[iColors];
-			img->GetColorTable(0, iColors, srcTable);
-			
-			int iPosition= iR_img_Local*iPitch+iC_img_Local/(8/iBPP);
-			int iDigit = (8/iBPP)-(iC_img_Local%(8/iBPP))-1;
-			
-			const BYTE byMasks[9]={0,1,3,0,15,0,0,0,255};
-			BYTE byIndex = (byData[iPosition] & (byMasks[iBPP]<< (iDigit*iBPP))) >> (iDigit*iBPP);
-			*byR=srcTable[byIndex].rgbRed;
-			*byG=srcTable[byIndex].rgbGreen;
-			*byB=srcTable[byIndex].rgbBlue;
-			*byA = srcTable[byIndex].rgbReserved;
-
-			SAFE_DELETE(srcTable);
-		}
-
-		return true;
-	}
-
 	void CSImageViewerView::DispStatus(CPoint point_v)
 	{
 		CString sFileName = m_sFilePath.Mid(m_sFilePath.ReverseFind('\\') + 1);
@@ -1500,6 +1368,7 @@ IMPLEMENT_DYNCREATE(CSImageViewerView, CView)
 		{
 			pFrame->m_sStatusMousePos.Format(_T("(%d, %d)"),iC_img, iR_img);
 		}
+
 		if(m_bDragging == true)
 		{
 			if(m_Rect_v.IsRectEmpty()==TRUE)
