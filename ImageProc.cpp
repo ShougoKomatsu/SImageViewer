@@ -3782,6 +3782,9 @@ BYTE g_byFont_8_16[160]={
 				if(iWidth<=0){return false;}
 				if(iHeight<=0){return false;}
 				this->iImage=new int[iWidth*iHeight];
+				this->iWidth=iWidth;
+				this->iHeight=iHeight;
+				this->enumImageType=IMAGE_TYPE_IIMAGE;
 				for(int r=0; r<iHeight; r++)
 				{
 					for(int c=0; c<iWidth; c++)
@@ -3798,6 +3801,9 @@ BYTE g_byFont_8_16[160]={
 				if(iWidth<=0){return false;}
 				if(iHeight<=0){return false;}
 				this->dImage=new double[iWidth*iHeight];
+				this->iWidth=iWidth;
+				this->iHeight=iHeight;
+				this->enumImageType=IMAGE_TYPE_DIMAGE;
 				for(int r=0; r<iHeight; r++)
 				{
 					for(int c=0; c<iWidth; c++)

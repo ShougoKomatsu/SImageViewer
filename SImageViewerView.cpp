@@ -699,12 +699,6 @@ IMPLEMENT_DYNCREATE(CSImageViewerView, CView)
 		pFrame->m_bFileOpened = true;
 		pFrame->m_bRegionSelected = true;
 
-		SAFE_DELETE(m_image);
-		m_iImageIndex=0;
-		m_iImagemax=1;
-		m_image = new PanImage[m_iImagemax];
-		pFrame->m_iImageIndex=m_iImageIndex;
-		m_image[0].cImage.Create(1,1,24);
 
 
 		ResetImage(true);
