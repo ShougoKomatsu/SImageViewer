@@ -1911,24 +1911,24 @@ BYTE g_byFont_8_16[160]={
 		}
 		if(dScale<dScaleThresh){return true;}
 		
+
+		BYTE* pbyDataDst = (BYTE*)imgDst->GetBits();
+		int iBPP = imgDst->GetBPP();
+		if(iBPP != 32){return false;}
+		int iPitchDst=imgDst->GetPitch();
+		int iWidthDst = imgDst->GetWidth();
+		int iHeightDst = imgDst->GetHeight();
+		int iRMaxDst = int(iHeightDst/dScale+2);
+		int iCMaxDst = int(iWidthDst/dScale+2);
 		if(imgSrc->enumImageType==IMAGE_TYPE_IIMAGE)
 		{
 		}
 		if(imgSrc->enumImageType==IMAGE_TYPE_CIMAGE)
 		{
-			BYTE* pbyDataDst = (BYTE*)imgDst->GetBits();
-			int iBPP = imgDst->GetBPP();
-			if(iBPP != 32){return false;}
-			int iPitchDst=imgDst->GetPitch();
-			int iWidthDst = imgDst->GetWidth();
-			int iHeightDst = imgDst->GetHeight();
-			int iRMaxDst = int(iHeightDst/dScale+2);
-			int iCMaxDst = int(iWidthDst/dScale+2);
 
 			for(int ir_i=iRs_i; ir_i<=iRe_i; ir_i++)
 			{
 				int ir0_v=int(((ir_i-iRs_i)+0.5+dROffset)*dScale);
-
 				if(ir0_v<0){continue;}
 				if(ir0_v>=iHeightDst){continue;}
 				for(int ic_i=iCs_i; ic_i<=iCe_i; ic_i++)

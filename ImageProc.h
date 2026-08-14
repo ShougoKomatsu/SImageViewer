@@ -85,7 +85,7 @@ public:
 		iHeight=0;
 		enumImageType=IMAGE_TYPE_UNDEFINED;
 	}
-
+	bool GetColor(int r, int c. ColorValue* colorValue);
 	bool Convert(VALUE_IMAGE enumMode, CImage* imgDst);
 	bool GetValue(int r, int c, double* dValue);
 	bool GetValue(int r, int c, int* iValue);
