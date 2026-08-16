@@ -1827,42 +1827,41 @@ BYTE g_byFont_8_16[176]={
 
 	inline void ImposeValue_8_16(BYTE* pbyData, int iPitch, int iHeight, int iWidth, const int iValue_in,int ir_Origin, int ic_Origin_0, BYTE byDot)
 	{
-		int iValue=iValue_in;
-		int iDigit = CountDigit(iValue);
+		UINT uiValue=iValue_in;
+		int iDigit = CountDigit(iValue_in);
 		if(iDigit<0)
 		{
 			ImposeSingleValue_8_16(pbyData, iPitch, iHeight, iWidth, 10, ir_Origin, ic_Origin_0 - 8*iDigit*(-1), byDot);
 			iDigit*=-1;
-			iValue*=-1;
+			uiValue = iValue_in*(-1);
 		}
 
 		for(int i=iDigit-1; i>=0; i--)
 		{
-			BYTE byDigitValue = iValue/(int(pow(10,(double)i)));
+			BYTE byDigitValue = uiValue/(int(pow(10,(double)i)));
 			ImposeSingleValue_8_16(pbyData, iPitch, iHeight, iWidth, byDigitValue,ir_Origin, ic_Origin_0 - 8*i, byDot);
-			iValue-=byDigitValue*(int(pow(10,(double)i)));
+			uiValue-=byDigitValue*(int(pow(10,(double)i)));
 		}
 
 	}
 
 	inline void ImposeValue_4_8(BYTE* pbyData, int iPitch, int iHeight, int iWidth, const int iValue_in,int ir_Origin, int ic_Origin_0, BYTE byDot)
 	{
-		int iValue=iValue_in;
-		int iDigit = CountDigit(iValue);
+		UINT uiValue=iValue_in;
+		int iDigit = CountDigit(iValue_in);
 		if(iDigit<0)
 		{
 			ImposeSingleValue_4_8(pbyData, iPitch, iHeight, iWidth, 10, ir_Origin, ic_Origin_0 - 4*iDigit*(-1), byDot);
 			iDigit*=-1;
-			iValue*=-1;
+			uiValue = iValue_in*(-1);
 		}
 
 		for(int i=iDigit-1; i>=0; i--)
 		{
-			BYTE byDigitValue = iValue/(int(pow(10,(double)i)));
+			BYTE byDigitValue = uiValue/(int(pow(10,(double)i)));
 			ImposeSingleValue_4_8(pbyData, iPitch, iHeight, iWidth, byDigitValue,ir_Origin, ic_Origin_0 - 4*i, byDot);
-			iValue-=byDigitValue*(int(pow(10,(double)i)));
+			uiValue-=byDigitValue*(int(pow(10,(double)i)));
 		}
-
 	}
 
 	/*
