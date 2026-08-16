@@ -19,8 +19,9 @@ protected: // ÉVÉäÉAÉãâªÇ©ÇÁÇÃÇ›çÏê¨ÇµÇ‹Ç∑ÅB
 public:
 	void FullDomain();
 	CString m_sFilePath;
+
 	CImage m_imageZoomed;
-	CImage* m_image;
+	PanImage * m_image;
 	int m_iImageIndex;
 	int m_iImagemax;
 	CImage m_imageProcessed[32];
@@ -72,8 +73,8 @@ public:
 	void OperateConvertColorSpace();
 	void OperateChangeColorDepth();
 	void SetGridEnableDesable();
-	bool GetColorAtCursor(CImage* img, CPoint point, int* iR_img, int* iC_img, BYTE* byR, BYTE* byG, BYTE* bYB);
-	bool GetColorAtCursor(CImage* img, CPoint point, int* iR_img, int* iC_img, BYTE* byR, BYTE* byG, BYTE* bYB, BYTE* bYA);
+	bool GetColorAtCursor(CImage* img, CPoint point_v, int* iR_img, int* iC_img, ColorValue* colorValue);
+	bool GetColorAtCursor(PanImage* img, CPoint point_v, int* iR_img, int* iC_img, ColorValue* colorValue);
 	void OnScroll(int iSB, int nSBCode, int nPos);
 	void DispStatus(CPoint point);
 // ëÄçÏ
