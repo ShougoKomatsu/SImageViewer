@@ -4,6 +4,22 @@
 #include "CommonFunction.h"
 #include "math.h"
 
+
+inline void SetRGBAValue(BYTE* pbyData, const int r, const int c, const int iPitch, const BYTE byR, const BYTE byG, const BYTE byB, const BYTE byA)
+{
+	pbyData[r*iPitch+4*c+2]=byR;
+	pbyData[r*iPitch+4*c+1]=byG;
+	pbyData[r*iPitch+4*c+0]=byB;
+	pbyData[r*iPitch+4*c+3]=byA;
+}
+inline void SetRGBValue(BYTE* pbyData, const int r, const int c, const int iPitch, const BYTE byR, const BYTE byG, const BYTE byB)
+{
+	pbyData[r*iPitch+3*c+2]=byR;
+	pbyData[r*iPitch+3*c+1]=byG;
+	pbyData[r*iPitch+3*c+0]=byB;
+}
+
+
 bool SetColorTable(CImage* imgDst, const RGBQUAD* rgbTable, const int iLength)
 {
 	if(imgDst==NULL){return false;}
@@ -181,53 +197,52 @@ inline bool HSVValue(BYTE* pbyData, int iPitch, int r, int c, UINT uiValue_in, i
 
 	if(uiValue<uiMax)
 	{
-		pbyData[r*iPitch+3*c + 2]=uiMax-1;
-		pbyData[r*iPitch+3*c + 1]=uiValue-0;
-		pbyData[r*iPitch+3*c + 0]=0;
+		SetRGBValue(pbyData, r, c, iPitch, uiMax-1, uiValue-0, 0);
 		return true;
 	}
 	uiValue-=uiMax;
 	if(uiValue<uiMax)
 	{
-		pbyData[r*iPitch+3*c + 2]=uiMax-1-uiValue;
-		pbyData[r*iPitch+3*c + 1]=uiMax-1;
-		pbyData[r*iPitch+3*c + 0]=0;
+		SetRGBValue(pbyData, r, c, iPitch, uiMax-1-uiValue, uiMax-1, 0);
 		return true;
 	}
 	uiValue-=uiMax;
 	if(uiValue<uiMax)
 	{
-		pbyData[r*iPitch+3*c + 2]=0;
-		pbyData[r*iPitch+3*c + 1]=uiMax-1;
-		pbyData[r*iPitch+3*c + 0]=uiValue;
+		SetRGBValue(pbyData, r, c, iPitch, 0, uiMax-1, uiValue);
 		return true;
 	}
 
 	uiValue-=uiMax;
 	if(uiValue<uiMax)
 	{
-		pbyData[r*iPitch+3*c + 2]=0;
-		pbyData[r*iPitch+3*c + 1]=uiMax-1-uiValue;
-		pbyData[r*iPitch+3*c + 0]=uiMax-1;
+		SetRGBValue(pbyData, r, c, iPitch, 0, uiMax-1-uiValue, uiMax-1);
 		return true;
 	}
 	uiValue-=uiMax;
 	if(uiValue<uiMax)
 	{
-		pbyData[r*iPitch+3*c + 2]=uiValue;
-		pbyData[r*iPitch+3*c + 1]=0;
-		pbyData[r*iPitch+3*c + 0]=uiMax-1;
+		SetRGBValue(pbyData, r, c, iPitch, uiValue, 0, uiMax-1);
 		return true;
 	}
 	uiValue-=uiMax;
 	if(uiValue<uiMax)
 	{
-		pbyData[r*iPitch+3*c + 2]=uiMax-1;
-		pbyData[r*iPitch+3*c + 1]=0;
-		pbyData[r*iPitch+3*c + 0]=uiMax-1-uiValue;
+		SetRGBValue(pbyData, r, c, iPitch, uiMax-1, 0, uiMax-1-uiValue);
 		return true;
 	}
 	return false;
+}
+inline bool SetHSVValue(BYTE* pbyData, int iPitch, int r, int c, UINT uiValue, const int iDigit)
+{
+	bool bRet;
+	for (int i=1;i<=256/iDigit; i++)
+	{
+		bRet = HSVValue(pbyData, iPitch, r, c, uiValue, iDigit*i);
+		if(bRet == true){break;}
+		uiValue-=iDigit*i*6;
+	}
+	return true;
 }
 bool ConvertStrToPanImage(const CString sImage,const CString sSeparator,  VALUE_IMAGE enumMode, VALUE_IMAGE enumImageMode, PanImage* imgDst)
 {
@@ -1731,6 +1746,8 @@ imgTemp.ReleaseDC();
 return true;
 }*/
 
+
+
 BYTE g_byFont_8_16[176]={
 	0x00, 0x00, 0x18, 0x24, 0x42, 0x42, 0x42, 0x42, 0x42, 0x42, 0x42, 0x42, 0x42, 0x24, 0x18, 0x00,
 	0x00, 0x00, 0x08, 0x38, 0x08, 0x08, 0x08, 0x08, 0x08, 0x08, 0x08, 0x08, 0x08, 0x08, 0x08, 0x00,
@@ -1771,10 +1788,7 @@ BYTE g_byFont_8_16[176]={
 				if(ic_Origin+icc<0){continue;}
 				if( (g_byFont_8_16[byDigitValue*16 + ir] & (1<<(7-icc))) == 1<<(7-icc))
 				{
-					pbyData[(ir_Origin+ir)*iPitch+4*(ic_Origin+icc)+0]=byDot;
-					pbyData[(ir_Origin+ir)*iPitch+4*(ic_Origin+icc)+1]=byDot;
-					pbyData[(ir_Origin+ir)*iPitch+4*(ic_Origin+icc)+2]=byDot;
-					pbyData[(ir_Origin+ir)*iPitch+4*(ic_Origin+icc)+3]=255;
+					SetRGBAValue(pbyData, ir_Origin+ir, ic_Origin+icc, iPitch, byDot, byDot, byDot, 255);
 				}
 			}
 		}
@@ -1792,10 +1806,7 @@ BYTE g_byFont_8_16[176]={
 				if(ic_Origin+icc<0){continue;}
 				if( (g_byFont_4_8[byDigitValue*8 + ir] & (1<<(3-icc))) == 1<<(3-icc))
 				{
-					pbyData[(ir_Origin+ir)*iPitch+4*(ic_Origin+icc)+0]=byDot;
-					pbyData[(ir_Origin+ir)*iPitch+4*(ic_Origin+icc)+1]=byDot;
-					pbyData[(ir_Origin+ir)*iPitch+4*(ic_Origin+icc)+2]=byDot;
-					pbyData[(ir_Origin+ir)*iPitch+4*(ic_Origin+icc)+3]=255;
+					SetRGBAValue(pbyData, ir_Origin+ir, ic_Origin+icc, iPitch, byDot, byDot, byDot, 255);
 				}
 			}
 		}
@@ -1863,77 +1874,7 @@ BYTE g_byFont_8_16[176]={
 			uiValue-=byDigitValue*(int(pow(10,(double)i)));
 		}
 	}
-
-	/*
-	bool ImposeRGBValue(CImage* imgSrc, CImage* imgDst,  const int iType,const double dROffset, const double dCOffset, const double dScale, const double dScaleThresh,const int iRMax_i, const int iCMax_i)
-	{
-		if(imgSrc != imgDst)
-		{
-			CopyImage(imgSrc,imgDst);
-		}
-		if(dScale<dScaleThresh){return true;}
-
-		BYTE* pbyData = (BYTE*)imgDst->GetBits();
-		int iBPP = imgDst->GetBPP();
-		if(iBPP != 32){return false;}
-		int iPitch =imgDst->GetPitch();
-		int iWidth = imgDst->GetWidth();
-		int iHeight = imgDst->GetHeight();
-		int iRMax = int(iHeight/dScale+2);
-		int iCMax = int(iWidth/dScale+2);
-
-		for(int ir=0; ir<min(iRMax_i+1-dROffset, iRMax); ir++)
-		{
-			int r0=int((ir+0.5+dROffset)*dScale);
-			if(r0<0){continue;}
-			if(r0>=iHeight){continue;}
-			for(int ic=0; ic<min(iCMax_i+1-dCOffset,iCMax); ic++)
-			{
-				int r=r0;
-				int c=int((ic+0.5+dCOffset)*dScale);
-
-				if(c<0){continue;}
-				if(c>=iWidth){continue;}
-				int iValueR = pbyData[r*iPitch+4*c+2];
-				int iValueG = pbyData[r*iPitch+4*c+1];
-				int iValueB = pbyData[r*iPitch+4*c+0];
-
-				BYTE byDot=iValueR+iValueG+iValueB<480 ? 255:0;
-
-				if(dScale>48)
-				{
-					if((iValueR==iValueG) && (iValueR==iValueB))
-					{
-						ImposeValue_8_16(pbyData, iPitch, iHeight, iWidth, iValueG,int((ir+0.5+dROffset)*dScale)-8-0, int((ic+1+dCOffset)*dScale)-2-16, byDot);
-					}
-					else
-					{
-						ImposeValue_8_16(pbyData, iPitch, iHeight, iWidth, iValueR,int((ir+0.5+dROffset)*dScale)-8-16, int((ic+1+dCOffset)*dScale)-2-16, byDot);
-						ImposeValue_8_16(pbyData, iPitch, iHeight, iWidth, iValueG,int((ir+0.5+dROffset)*dScale)-8-0, int((ic+1+dCOffset)*dScale)-2-16, byDot);
-						ImposeValue_8_16(pbyData, iPitch, iHeight, iWidth, iValueB,int((ir+0.5+dROffset)*dScale)-8+16, int((ic+1+dCOffset)*dScale)-2-16, byDot);
-					}
-				}
-				else
-				{
-					if((iValueR==iValueG) && (iValueR==iValueB))
-					{
-						ImposeValue_4_8(pbyData, iPitch, iHeight, iWidth, iValueG,int((ir+0.5+dROffset)*dScale)-4-0, int((ic+1+dCOffset)*dScale)-2-8, byDot);
-					}
-					else
-					{
-						ImposeValue_4_8(pbyData, iPitch, iHeight, iWidth, iValueR,int((ir+0.5+dROffset)*dScale)-4-8, int((ic+1+dCOffset)*dScale)-2-8, byDot);
-						ImposeValue_4_8(pbyData, iPitch, iHeight, iWidth, iValueG,int((ir+0.5+dROffset)*dScale)-4-0, int((ic+1+dCOffset)*dScale)-2-8, byDot);
-						ImposeValue_4_8(pbyData, iPitch, iHeight, iWidth, iValueB,int((ir+0.5+dROffset)*dScale)-4+8, int((ic+1+dCOffset)*dScale)-2-8, byDot);
-					}
-				}
-			}
-		}
-
-		return true;
-	}
-	*/
-	bool ImposeRGBValue(PanImage* imgSrc, CImage* imgZoomed, CImage* imgDst,
-		const int iType,const double dROffset, const double dCOffset, const double dScale, const double dScaleThresh,const int iRs_i, const int iCs_i, const int iRe_i, const int iCe_i)
+	bool ImposeRGBValue(PanImage* imgSrc, CImage* imgZoomed, CImage* imgDst, const int iType,const double dROffset, const double dCOffset, const double dScale, const double dScaleThresh,const int iRs_i, const int iCs_i, const int iRe_i, const int iCe_i)
 	{
 		if(imgZoomed != imgDst)
 		{
@@ -1950,93 +1891,98 @@ BYTE g_byFont_8_16[176]={
 		int iHeightDst = imgDst->GetHeight();
 		int iRMaxDst = int(iHeightDst/dScale+2);
 		int iCMaxDst = int(iWidthDst/dScale+2);
-		if(imgSrc->enumImageType==IMAGE_TYPE_IIMAGE)
+
+		switch(imgSrc->enumImageType)
 		{
-			for(int ir_i=iRs_i; ir_i<=iRe_i; ir_i++)
+		case IMAGE_TYPE_IIMAGE:
 			{
-				int ir0_v=int(((ir_i-iRs_i)+0.5+dROffset)*dScale);
-				if(ir0_v<0){continue;}
-				if(ir0_v>=iHeightDst){continue;}
-				for(int ic_i=iCs_i; ic_i<=iCe_i; ic_i++)
+				for(int ir_i=iRs_i; ir_i<=iRe_i; ir_i++)
 				{
-					int ic0_v=int(((ic_i-iCs_i)+1+dCOffset)*dScale);
-					int ic1_v=int(((ic_i-iCs_i)+0.5+dCOffset)*dScale);
-
-					if(ic0_v<0){continue;}
-					if(ic0_v>=iWidthDst){continue;}
-
-					COLORREF col = imgDst->GetPixel(ic1_v, ir0_v);
-
-					int iValueR =  GetRValue(col);
-					int iValueG =  GetGValue(col);
-					int iValueB =  GetBValue(col);
-					BYTE byDot=iValueR+iValueG+iValueB<480 ? 255:0;
-					int iValue;
-					imgSrc->GetValue(ir_i, ic_i,&iValue);
-					if(dScale>48)
+					int ir0_v=int(((ir_i-iRs_i)+0.5+dROffset)*dScale);
+					if(ir0_v<0){continue;}
+					if(ir0_v>=iHeightDst){continue;}
+					for(int ic_i=iCs_i; ic_i<=iCe_i; ic_i++)
 					{
-						ImposeValue_8_16(pbyDataDst, iPitchDst, iHeightDst, iWidthDst, iValue,ir0_v-8-0, ic0_v-2-16, byDot);
-					}
-					else
-					{
-						ImposeValue_4_8(pbyDataDst, iPitchDst, iHeightDst, iWidthDst, iValue,ir0_v-4-0, ic0_v-2-8, byDot);
-					}
-				}
-			}
+						int ic0_v=int(((ic_i-iCs_i)+1+dCOffset)*dScale);
+						int ic1_v=int(((ic_i-iCs_i)+0.5+dCOffset)*dScale);
 
-		}
-		if(imgSrc->enumImageType==IMAGE_TYPE_CIMAGE)
-		{
+						if(ic0_v<0){continue;}
+						if(ic0_v>=iWidthDst){continue;}
 
-			for(int ir_i=iRs_i; ir_i<=iRe_i; ir_i++)
-			{
-				int ir0_v=int(((ir_i-iRs_i)+0.5+dROffset)*dScale);
-				if(ir0_v<0){continue;}
-				if(ir0_v>=iHeightDst){continue;}
-				for(int ic_i=iCs_i; ic_i<=iCe_i; ic_i++)
-				{
-					int ic0_v=int(((ic_i-iCs_i)+1+dCOffset)*dScale);
+						COLORREF col = imgDst->GetPixel(ic1_v, ir0_v);
 
-					if(ic0_v<0){continue;}
-					if(ic0_v>=iWidthDst){continue;}
-
-					COLORREF col = imgSrc->cImage.GetPixel(ic_i, ir_i);
-					int iValueR =  GetRValue(col);
-					int iValueG =  GetGValue(col);
-					int iValueB =  GetBValue(col);
-
-					BYTE byDot=iValueR+iValueG+iValueB<480 ? 255:0;
-
-					if(dScale>48)
-					{
-						if((iValueR==iValueG) && (iValueR==iValueB))
+						int iValueR =  GetRValue(col);
+						int iValueG =  GetGValue(col);
+						int iValueB =  GetBValue(col);
+						BYTE byDot=iValueR+iValueG+iValueB<480 ? 255:0;
+						int iValue;
+						imgSrc->GetValue(ir_i, ic_i,&iValue);
+						if(dScale>48)
 						{
-							ImposeValue_8_16(pbyDataDst, iPitchDst, iHeightDst, iWidthDst, iValueG,ir0_v-8-0, ic0_v-2-16, byDot);
+							ImposeValue_8_16(pbyDataDst, iPitchDst, iHeightDst, iWidthDst, iValue,ir0_v-8-0, ic0_v-2-16, byDot);
 						}
 						else
 						{
-							ImposeValue_8_16(pbyDataDst, iPitchDst, iHeightDst, iWidthDst, iValueR,ir0_v-8-16, ic0_v-2-16, byDot);
-							ImposeValue_8_16(pbyDataDst, iPitchDst, iHeightDst, iWidthDst, iValueG,ir0_v-8-0, ic0_v-2-16, byDot);
-							ImposeValue_8_16(pbyDataDst, iPitchDst, iHeightDst, iWidthDst, iValueB,ir0_v-8+16, ic0_v-2-16, byDot);
-						}
-					}
-					else
-					{
-						if((iValueR==iValueG) && (iValueR==iValueB))
-						{
-							ImposeValue_4_8(pbyDataDst, iPitchDst, iHeightDst, iWidthDst, iValueG,ir0_v-4-0, ic0_v-2-8, byDot);
-						}
-						else
-						{
-							ImposeValue_4_8(pbyDataDst, iPitchDst, iHeightDst, iWidthDst, iValueR,ir0_v-4-8, ic0_v-2-8, byDot);
-							ImposeValue_4_8(pbyDataDst, iPitchDst, iHeightDst, iWidthDst, iValueG,ir0_v-4-0, ic0_v-2-8, byDot);
-							ImposeValue_4_8(pbyDataDst, iPitchDst, iHeightDst, iWidthDst, iValueB,ir0_v-4+8, ic0_v-2-8, byDot);
+							ImposeValue_4_8(pbyDataDst, iPitchDst, iHeightDst, iWidthDst, iValue,ir0_v-4-0, ic0_v-2-8, byDot);
 						}
 					}
 				}
+				return true;
+			}
+		case IMAGE_TYPE_CIMAGE:
+			{
+
+				for(int ir_i=iRs_i; ir_i<=iRe_i; ir_i++)
+				{
+					int ir0_v=int(((ir_i-iRs_i)+0.5+dROffset)*dScale);
+					if(ir0_v<0){continue;}
+					if(ir0_v>=iHeightDst){continue;}
+					for(int ic_i=iCs_i; ic_i<=iCe_i; ic_i++)
+					{
+						int ic0_v=int(((ic_i-iCs_i)+1+dCOffset)*dScale);
+
+						if(ic0_v<0){continue;}
+						if(ic0_v>=iWidthDst){continue;}
+
+						COLORREF col = imgSrc->cImage.GetPixel(ic_i, ir_i);
+						int iValueR =  GetRValue(col);
+						int iValueG =  GetGValue(col);
+						int iValueB =  GetBValue(col);
+
+						BYTE byDot=iValueR+iValueG+iValueB<480 ? 255:0;
+
+						if(dScale>48)
+						{
+							if((iValueR==iValueG) && (iValueR==iValueB))
+							{
+								ImposeValue_8_16(pbyDataDst, iPitchDst, iHeightDst, iWidthDst, iValueG,ir0_v-8-0, ic0_v-2-16, byDot);
+							}
+							else
+							{
+								ImposeValue_8_16(pbyDataDst, iPitchDst, iHeightDst, iWidthDst, iValueR,ir0_v-8-16, ic0_v-2-16, byDot);
+								ImposeValue_8_16(pbyDataDst, iPitchDst, iHeightDst, iWidthDst, iValueG,ir0_v-8-0, ic0_v-2-16, byDot);
+								ImposeValue_8_16(pbyDataDst, iPitchDst, iHeightDst, iWidthDst, iValueB,ir0_v-8+16, ic0_v-2-16, byDot);
+							}
+						}
+						else
+						{
+							if((iValueR==iValueG) && (iValueR==iValueB))
+							{
+								ImposeValue_4_8(pbyDataDst, iPitchDst, iHeightDst, iWidthDst, iValueG,ir0_v-4-0, ic0_v-2-8, byDot);
+							}
+							else
+							{
+								ImposeValue_4_8(pbyDataDst, iPitchDst, iHeightDst, iWidthDst, iValueR,ir0_v-4-8, ic0_v-2-8, byDot);
+								ImposeValue_4_8(pbyDataDst, iPitchDst, iHeightDst, iWidthDst, iValueG,ir0_v-4-0, ic0_v-2-8, byDot);
+								ImposeValue_4_8(pbyDataDst, iPitchDst, iHeightDst, iWidthDst, iValueB,ir0_v-4+8, ic0_v-2-8, byDot);
+							}
+						}
+					}
+				}
+				return true;
 			}
 		}
-		return true;
+		return false;
 	}
 	bool ImposeGrid(CImage* imgSrc, CImage* imgDst, const int iType, const double dROffset, const double dCOffset, const double dScale, const double dScaleThresh,const int iRMax_i, const int iCMax_i)
 	{
@@ -2072,17 +2018,11 @@ BYTE g_byFont_8_16[176]={
 					if(c>=iWidth){continue;}
 					int iValue = pbyData[r*iPitch+4*c+0]+pbyData[r*iPitch+4*c+1]+pbyData[r*iPitch+4*c+2];
 					BYTE byDot=iValue<576 ? 255:0;
-					pbyData[r*iPitch+4*c+0]=byDot;
-					pbyData[r*iPitch+4*c+1]=byDot;
-					pbyData[r*iPitch+4*c+2]=byDot;
-					pbyData[r*iPitch+4*c+3]=255;
+					SetRGBAValue(pbyData, r, c, iPitch, byDot, byDot, byDot, 255);
 
 					c=int((ic+dCOffset)*dScale + 1);
 					if(c>=iWidth){continue;}
-					pbyData[r*iPitch+4*c+0]=byDot;
-					pbyData[r*iPitch+4*c+1]=byDot;
-					pbyData[r*iPitch+4*c+2]=byDot;
-					pbyData[r*iPitch+4*c+3]=255;
+					SetRGBAValue(pbyData, r, c, iPitch, byDot, byDot, byDot, 255);
 
 					r=r0 + 1;
 					if(r>=iHeight){break;}
@@ -2090,17 +2030,11 @@ BYTE g_byFont_8_16[176]={
 					c=int((ic+dCOffset)*dScale);
 					if(c<0){continue;}
 					if(c>=iWidth){continue;}
-					pbyData[r*iPitch+4*c+0]=byDot;
-					pbyData[r*iPitch+4*c+1]=byDot;
-					pbyData[r*iPitch+4*c+2]=byDot;
-					pbyData[r*iPitch+4*c+3]=255;
+					SetRGBAValue(pbyData, r, c, iPitch, byDot, byDot, byDot, 255);
 
 					c=int((ic+dCOffset)*dScale + 1);
 					if(c>=iWidth){continue;}
-					pbyData[r*iPitch+4*c+0]=byDot;
-					pbyData[r*iPitch+4*c+1]=byDot;
-					pbyData[r*iPitch+4*c+2]=byDot;
-					pbyData[r*iPitch+4*c+3]=255;
+					SetRGBAValue(pbyData, r, c, iPitch, byDot, byDot, byDot, 255);
 				}
 
 			}
@@ -2144,19 +2078,13 @@ BYTE g_byFont_8_16[176]={
 
 				for(int c=0; c<min((iCMax_i+dCOffset+1)*dScale,iWidth); c++)
 				{
-					pbyData[r*iPitch+4*c+0]=byDot;
-					pbyData[r*iPitch+4*c+1]=byDot;
-					pbyData[r*iPitch+4*c+2]=byDot;
-					pbyData[r*iPitch+4*c+3]=255;
+					SetRGBAValue(pbyData, r, c, iPitch, byDot, byDot, byDot, 255);
 				}
 				r=int((ir+dROffset)*dScale+1);
 				if(r>=iHeight){continue;}
 				for(int c=0; c<min((iCMax_i+dCOffset+1)*dScale,iWidth); c++)
 				{
-					pbyData[r*iPitch+4*c+0]=byDot;
-					pbyData[r*iPitch+4*c+1]=byDot;
-					pbyData[r*iPitch+4*c+2]=byDot;
-					pbyData[r*iPitch+4*c+3]=255;
+					SetRGBAValue(pbyData, r, c, iPitch, byDot, byDot, byDot, 255);
 				}
 			}
 
@@ -2168,19 +2096,13 @@ BYTE g_byFont_8_16[176]={
 				if(c>=iWidth){continue;}
 				for(int r=0; r<min((iRMax_i+dROffset+1)*dScale,iHeight); r++)
 				{
-					pbyData[r*iPitch+4*c+0]=byDot;
-					pbyData[r*iPitch+4*c+1]=byDot;
-					pbyData[r*iPitch+4*c+2]=byDot;
-					pbyData[r*iPitch+4*c+3]=255;
+					SetRGBAValue(pbyData, r, c, iPitch, byDot, byDot, byDot, 255);
 				}
 				c=int((ic+dCOffset)*dScale+1);
 				if(c>=iWidth){continue;}
 				for(int r=0; r<min((iRMax_i+dROffset+1)*dScale,iHeight); r++)
 				{
-					pbyData[r*iPitch+4*c+0]=byDot;
-					pbyData[r*iPitch+4*c+1]=byDot;
-					pbyData[r*iPitch+4*c+2]=byDot;
-					pbyData[r*iPitch+4*c+3]=255;
+					SetRGBAValue(pbyData, r, c, iPitch, byDot, byDot, byDot, 255);
 				}
 			}
 			return true;
@@ -2200,20 +2122,13 @@ BYTE g_byFont_8_16[176]={
 					{
 						int iValue = pbyDataTemp[r*iPitch+4*c+0]+pbyDataTemp[r*iPitch+4*c+1]+pbyDataTemp[r*iPitch+4*c+2];
 						BYTE byDot=iValue<576 ? 255:0;
-
-						pbyData[r*iPitch+4*c+0]=byDot;
-						pbyData[r*iPitch+4*c+1]=byDot;
-						pbyData[r*iPitch+4*c+2]=byDot;
-						pbyData[r*iPitch+4*c+3]=255;
+					SetRGBAValue(pbyData, r, c, iPitch, byDot, byDot, byDot, 255);
 					}
 					if(( pbyDataTemp[r*iPitch+4*c+0] != pbyDataTemp[(r+1)*iPitch+4*c+0]) || ( pbyDataTemp[r*iPitch+4*c+1] != pbyDataTemp[(r+1)*iPitch+4*c+1]) || ( pbyDataTemp[r*iPitch+4*c+2] != pbyDataTemp[(r+1)*iPitch+4*c+2]))
 					{
 						int iValue = pbyDataTemp[r*iPitch+4*c+0]+pbyDataTemp[r*iPitch+4*c+1]+pbyDataTemp[r*iPitch+4*c+2];
 						BYTE byDot=iValue<576 ? 255:0;
-						pbyData[r*iPitch+4*c+0]=byDot;
-						pbyData[r*iPitch+4*c+1]=byDot;
-						pbyData[r*iPitch+4*c+2]=byDot;
-						pbyData[r*iPitch+4*c+3]=255;
+					SetRGBAValue(pbyData, r, c, iPitch, byDot, byDot, byDot, 255);
 					}
 				}
 			}
@@ -2273,10 +2188,7 @@ BYTE g_byFont_8_16[176]={
 				{
 					for(int c=0; c<iWidth_Dst; c++)
 					{
-						dst[r*iPitch_dst+c*4+2]=127;
-						dst[r*iPitch_dst+c*4+1]=127;
-						dst[r*iPitch_dst+c*4+0]=127;
-						dst[r*iPitch_dst+c*4+3]=255;
+					SetRGBAValue(dst, r, c, iPitch_dst, 127, 127, 127, 255);
 					}
 					continue;
 				}
@@ -2286,10 +2198,7 @@ BYTE g_byFont_8_16[176]={
 					int ic_Src=int(c/dScale+dC0_Src);
 					if((ic_Src<0)||(ic_Src>=iWidthSrc))
 					{
-						dst[r*iPitch_dst+c*4+2]=127;
-						dst[r*iPitch_dst+c*4+1]=127;
-						dst[r*iPitch_dst+c*4+0]=127;
-						dst[r*iPitch_dst+c*4+3]=255;
+					SetRGBAValue(dst, r, c, iPitch_dst, 127, 127, 127, 255);
 						continue;
 					}
 					dst[r*iPitch_dst+c*4+2]=src[ir_Src*iPitch_src+ic_Src*iColorPitch+2];
@@ -2312,10 +2221,7 @@ BYTE g_byFont_8_16[176]={
 				{
 					for(int c=0; c<iWidth_Dst; c++)
 					{
-						dst[r*iPitch_dst+c*4+2]=127;
-						dst[r*iPitch_dst+c*4+1]=127;
-						dst[r*iPitch_dst+c*4+0]=127;
-						dst[r*iPitch_dst+c*4+3]=255;
+					SetRGBAValue(dst, r, c, iPitch_dst, 127, 127, 127, 255);
 					}
 					continue;
 				}
@@ -2325,10 +2231,7 @@ BYTE g_byFont_8_16[176]={
 					int ic_Src=int(c/dScale+dC0_Src);
 					if((ic_Src<0)||(ic_Src>=iWidthSrc))
 					{
-						dst[r*iPitch_dst+c*4+2]=127;
-						dst[r*iPitch_dst+c*4+1]=127;
-						dst[r*iPitch_dst+c*4+0]=127;
-						dst[r*iPitch_dst+c*4+3]=255;
+					SetRGBAValue(dst, r, c, iPitch_dst, 127, 127, 127, 255);
 						continue;
 					}
 					dst[r*iPitch_dst+c*4+2]=src[ir_Src*iPitch_src+ic_Src*iColorPitch+2];
@@ -2358,10 +2261,7 @@ BYTE g_byFont_8_16[176]={
 			{
 				for(int c=0; c<iWidth_Dst; c++)
 				{
-					dst[r*iPitch_dst+c*4+2]=127;
-					dst[r*iPitch_dst+c*4+1]=127;
-					dst[r*iPitch_dst+c*4+0]=127;
-					dst[r*iPitch_dst+c*4+3]=255;
+					SetRGBAValue(dst, r, c, iPitch_dst, 127, 127, 127, 255);
 				}
 				continue;
 			}
@@ -2371,10 +2271,7 @@ BYTE g_byFont_8_16[176]={
 				int ic_Src=int(c/dScale+dC0_Src);
 				if((ic_Src<0)||(ic_Src>=iWidthSrc))
 				{
-					dst[r*iPitch_dst+c*4+2]=127;
-					dst[r*iPitch_dst+c*4+1]=127;
-					dst[r*iPitch_dst+c*4+0]=127;
-					dst[r*iPitch_dst+c*4+3]=255;
+					SetRGBAValue(dst, r, c, iPitch_dst, 127, 127, 127, 255);
 					continue;
 				}
 
@@ -3743,20 +3640,24 @@ BYTE g_byFont_8_16[176]={
 			{
 			case IMAGE_TYPE_IIMAGE:
 				{
+					int iMax=INT_MIN;
+					int iMin=INT_MAX;
 					for(int r=0; r<iHeight; r++)
 					{
 						for(int c=0; c<iWidth; c++)
 						{
-							int uiValue = iImage[r*iWidth+c];
+							iMax=max(iMax,iImage[r*iWidth+c]);
+							iMin=min(iMin,iImage[r*iWidth+c]);
+						}
+					}
+					if(iMin==iMax){for(int r=0; r<iHeight; r++){for(int c=0; c<iWidth; c++){pbyData[r*iPitch+c]=255;}return true;}}
 
-							int iDigit =32;
-							bool bRet;
-							for (int i=1;i<=256/iDigit; i++)
-							{
-								bRet = HSVValue(pbyData, iPitch, r, c, uiValue, iDigit*i);
-								if(bRet == true){break;}
-								uiValue-=iDigit*i*6;
-							}
+					for(int r=0; r<iHeight; r++)
+					{
+						for(int c=0; c<iWidth; c++)
+						{
+							int uiValue = int(6910 * (iImage[r*iWidth+c] - iMin)/double(iMax-iMin));
+							bool bRet = SetHSVValue(pbyData, iPitch, r, c, uiValue, 32);
 						}
 					}
 					return true;

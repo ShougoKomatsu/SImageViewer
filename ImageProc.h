@@ -141,9 +141,7 @@ bool MakeReservedChannelZero(CImage* imgSrc, CImage* imgDst);
 UINT CountIconNum(const CString sFilePath);
 bool LoadICOFile(const CString sFilePath, PanImage* img, UINT uiNum);
 bool LoadICON2(const CString sFilePath, PanImage* imgs, UINT uiNum);
-//bool ImposeRGBValue(CImage* imgSrc, CImage* imgDst,  const int iType,const double dROffset, const double dCOffset, const double dScale, const double dScaleThresh,const int iRMax_i, const int iCMax_i);
 bool ConvertStrToPanImage(const CString sImage,const CString sSeparator,  VALUE_IMAGE enumMode, VALUE_IMAGE enumImageMode, PanImage* imgDst);
 bool CopyFromClipBoardStrAsImg(const CString sSeparator,VALUE_IMAGE enumMode, VALUE_IMAGE enumImageMode, PanImage* imgDst);
 
-	bool ImposeRGBValue(PanImage* imgSrc, CImage* imgZoomed, CImage* imgDst,
-		const int iType,const double dROffset, const double dCOffset, const double dScale, const double dScaleThresh,const int iRs_i, const int iCs_i, const int iRe_i, const int iCe_i);
+bool ImposeRGBValue(PanImage* imgSrc, CImage* imgZoomed, CImage* imgDst, const int iType,const double dROffset, const double dCOffset, const double dScale, const double dScaleThresh,const int iRs_i, const int iCs_i, const int iRe_i, const int iCe_i);
