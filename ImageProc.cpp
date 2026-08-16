@@ -270,7 +270,7 @@ bool ConvertStrToPanImage(const CString sImage,const CString sSeparator,  VALUE_
 	}
 	int* iImage;
 	iImage=new int[iLineCount*iMaxLineLength];
-	
+
 	for(int r=0; r<iLineCount; r++)
 	{
 		for(int c=0; c<iMaxLineLength; c++)
@@ -1731,7 +1731,7 @@ imgTemp.ReleaseDC();
 return true;
 }*/
 
-BYTE g_byFont_8_16[160]={
+BYTE g_byFont_8_16[176]={
 	0x00, 0x00, 0x18, 0x24, 0x42, 0x42, 0x42, 0x42, 0x42, 0x42, 0x42, 0x42, 0x42, 0x24, 0x18, 0x00,
 	0x00, 0x00, 0x08, 0x38, 0x08, 0x08, 0x08, 0x08, 0x08, 0x08, 0x08, 0x08, 0x08, 0x08, 0x08, 0x00,
 	0x00, 0x00, 0x18, 0x24, 0x42, 0x42, 0x02, 0x04, 0x04, 0x08, 0x10, 0x10, 0x20, 0x40, 0x7e, 0x00,
@@ -1741,10 +1741,11 @@ BYTE g_byFont_8_16[160]={
 	0x00, 0x00, 0x18, 0x24, 0x42, 0x42, 0x40, 0x58, 0x64, 0x42, 0x42, 0x42, 0x42, 0x24, 0x18, 0x00,
 	0x00, 0x00, 0x7e, 0x02, 0x02, 0x04, 0x04, 0x04, 0x08, 0x08, 0x08, 0x10, 0x10, 0x10, 0x10, 0x00,
 	0x00, 0x00, 0x18, 0x24, 0x42, 0x42, 0x42, 0x24, 0x18, 0x24, 0x42, 0x42, 0x42, 0x24, 0x18, 0x00,
-	0x00, 0x00, 0x18, 0x24, 0x42, 0x42, 0x42, 0x42, 0x26, 0x1a, 0x02, 0x42, 0x42, 0x24, 0x18, 0x00};
+	0x00, 0x00, 0x18, 0x24, 0x42, 0x42, 0x42, 0x42, 0x26, 0x1a, 0x02, 0x42, 0x42, 0x24, 0x18, 0x00,
+	0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x7c, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
 
 
-	BYTE g_byFont_4_8[80]={
+	BYTE g_byFont_4_8[88]={
 		0, 0, 7, 5, 5, 5, 7, 0,
 		0, 0, 2, 2, 2, 2, 2, 0,
 		0, 0, 7, 1, 7, 4, 7, 0,
@@ -1754,7 +1755,8 @@ BYTE g_byFont_8_16[160]={
 		0, 0, 7, 4, 7, 5, 7, 0,
 		0, 0, 7, 1, 1, 1, 1, 0,
 		0, 0, 7, 5, 7, 5, 7, 0,
-		0, 0, 7, 5, 7, 1, 7, 0
+		0, 0, 7, 5, 7, 1, 7, 0,
+		0, 0, 0, 0, 7, 0, 0, 0,
 	};
 
 	inline void ImposeSingleValue_8_16(BYTE* pbyData, int iPitch, int iHeight, int iWidth, const BYTE byDigitValue,int ir_Origin, int ic_Origin, BYTE byDot)
@@ -1799,42 +1801,71 @@ BYTE g_byFont_8_16[160]={
 		}
 	}
 
-
-	inline void ImposeValue_8_16(BYTE* pbyData, int iPitch, int iHeight, int iWidth, const BYTE byValue,int ir_Origin, int ic_Origin_0, BYTE byDot)
+	int CountDigit(int iValue)
 	{
-		BYTE byDigitValue100 = byValue/100;
-		BYTE byDigitValue10 = (byValue % 100)/10;
-		BYTE byDigitValue1 = (byValue % 10);
-
-		ImposeSingleValue_8_16(pbyData, iPitch, iHeight, iWidth, byDigitValue1,ir_Origin, ic_Origin_0, byDot);
-		if(byDigitValue10==0)
-		{
-			if(byDigitValue100 == 0){return;}
-		}
-		ImposeSingleValue_8_16(pbyData, iPitch, iHeight, iWidth, byDigitValue10,ir_Origin, ic_Origin_0-8, byDot);
-
-		if(byDigitValue100==0){return;}
-		ImposeSingleValue_8_16(pbyData, iPitch, iHeight, iWidth, byDigitValue100,ir_Origin, ic_Origin_0-16, byDot);
+		if(iValue>=1000000000){return 10;}
+		if(iValue>=100000000){return 9;}
+		if(iValue>=10000000){return 8;}
+		if(iValue>=1000000){return 7;}
+		if(iValue>=100000){return 6;}
+		if(iValue>=10000){return 5;}
+		if(iValue>=1000){return 4;}
+		if(iValue>=100){return 3;}
+		if(iValue>=10){return 2;}
+		if(iValue>=0){return 1;}
+		if(iValue>=-9){return -1;}
+		if(iValue>=-99){return -2;}
+		if(iValue>=-999){return -3;}
+		if(iValue>=-9999){return -4;}
+		if(iValue>=-99999){return -5;}
+		if(iValue>=-999999){return -6;}
+		if(iValue>=-9999999){return -7;}
+		if(iValue>=-99999999){return -8;}
+		if(iValue>=-999999999){return -9;}
+		return -10;
 	}
 
-	inline void ImposeValue_4_8(BYTE* pbyData, int iPitch, int iHeight, int iWidth, const BYTE byValue,int ir_Origin, int ic_Origin_0, BYTE byDot)
+	inline void ImposeValue_8_16(BYTE* pbyData, int iPitch, int iHeight, int iWidth, const int iValue_in,int ir_Origin, int ic_Origin_0, BYTE byDot)
 	{
-		BYTE byDigitValue100 = byValue/100;
-		BYTE byDigitValue10 = (byValue % 100)/10;
-		BYTE byDigitValue1 = (byValue % 10);
-
-		ImposeSingleValue_4_8(pbyData, iPitch, iHeight, iWidth, byDigitValue1,ir_Origin, ic_Origin_0, byDot);
-		if(byDigitValue10==0)
+		int iValue=iValue_in;
+		int iDigit = CountDigit(iValue);
+		if(iDigit<0)
 		{
-			if(byDigitValue100 == 0){return;}
+			ImposeSingleValue_8_16(pbyData, iPitch, iHeight, iWidth, 10, ir_Origin, ic_Origin_0 - 8*iDigit*(-1), byDot);
+			iDigit*=-1;
+			iValue*=-1;
 		}
-		ImposeSingleValue_4_8(pbyData, iPitch, iHeight, iWidth, byDigitValue10,ir_Origin, ic_Origin_0-4, byDot);
 
-		if(byDigitValue100==0){return;}
-		ImposeSingleValue_4_8(pbyData, iPitch, iHeight, iWidth, byDigitValue100,ir_Origin, ic_Origin_0-8, byDot);
+		for(int i=iDigit-1; i>=0; i--)
+		{
+			BYTE byDigitValue = iValue/(int(pow(10,(double)i)));
+			ImposeSingleValue_8_16(pbyData, iPitch, iHeight, iWidth, byDigitValue,ir_Origin, ic_Origin_0 - 8*i, byDot);
+			iValue-=byDigitValue*(int(pow(10,(double)i)));
+		}
+
 	}
 
+	inline void ImposeValue_4_8(BYTE* pbyData, int iPitch, int iHeight, int iWidth, const int iValue_in,int ir_Origin, int ic_Origin_0, BYTE byDot)
+	{
+		int iValue=iValue_in;
+		int iDigit = CountDigit(iValue);
+		if(iDigit<0)
+		{
+			ImposeSingleValue_4_8(pbyData, iPitch, iHeight, iWidth, 10, ir_Origin, ic_Origin_0 - 4*iDigit*(-1), byDot);
+			iDigit*=-1;
+			iValue*=-1;
+		}
 
+		for(int i=iDigit-1; i>=0; i--)
+		{
+			BYTE byDigitValue = iValue/(int(pow(10,(double)i)));
+			ImposeSingleValue_4_8(pbyData, iPitch, iHeight, iWidth, byDigitValue,ir_Origin, ic_Origin_0 - 4*i, byDot);
+			iValue-=byDigitValue*(int(pow(10,(double)i)));
+		}
+
+	}
+
+	/*
 	bool ImposeRGBValue(CImage* imgSrc, CImage* imgDst,  const int iType,const double dROffset, const double dCOffset, const double dScale, const double dScaleThresh,const int iRMax_i, const int iCMax_i)
 	{
 		if(imgSrc != imgDst)
@@ -1901,7 +1932,7 @@ BYTE g_byFont_8_16[160]={
 
 		return true;
 	}
-	
+	*/
 	bool ImposeRGBValue(PanImage* imgSrc, CImage* imgZoomed, CImage* imgDst,
 		const int iType,const double dROffset, const double dCOffset, const double dScale, const double dScaleThresh,const int iRs_i, const int iCs_i, const int iRe_i, const int iCe_i)
 	{
@@ -1910,7 +1941,7 @@ BYTE g_byFont_8_16[160]={
 			CopyImage(imgZoomed,imgDst);
 		}
 		if(dScale<dScaleThresh){return true;}
-		
+
 
 		BYTE* pbyDataDst = (BYTE*)imgDst->GetBits();
 		int iBPP = imgDst->GetBPP();
@@ -1922,6 +1953,38 @@ BYTE g_byFont_8_16[160]={
 		int iCMaxDst = int(iWidthDst/dScale+2);
 		if(imgSrc->enumImageType==IMAGE_TYPE_IIMAGE)
 		{
+			for(int ir_i=iRs_i; ir_i<=iRe_i; ir_i++)
+			{
+				int ir0_v=int(((ir_i-iRs_i)+0.5+dROffset)*dScale);
+				if(ir0_v<0){continue;}
+				if(ir0_v>=iHeightDst){continue;}
+				for(int ic_i=iCs_i; ic_i<=iCe_i; ic_i++)
+				{
+					int ic0_v=int(((ic_i-iCs_i)+1+dCOffset)*dScale);
+					int ic1_v=int(((ic_i-iCs_i)+0.5+dCOffset)*dScale);
+
+					if(ic0_v<0){continue;}
+					if(ic0_v>=iWidthDst){continue;}
+
+					COLORREF col = imgDst->GetPixel(ic1_v, ir0_v);
+
+					int iValueR =  GetRValue(col);
+					int iValueG =  GetGValue(col);
+					int iValueB =  GetBValue(col);
+					BYTE byDot=iValueR+iValueG+iValueB<480 ? 255:0;
+					int iValue;
+					imgSrc->GetValue(ir_i, ic_i,&iValue);
+					if(dScale>48)
+					{
+						ImposeValue_8_16(pbyDataDst, iPitchDst, iHeightDst, iWidthDst, iValue,ir0_v-8-0, ic0_v-2-16, byDot);
+					}
+					else
+					{
+						ImposeValue_4_8(pbyDataDst, iPitchDst, iHeightDst, iWidthDst, iValue,ir0_v-4-0, ic0_v-2-8, byDot);
+					}
+				}
+			}
+
 		}
 		if(imgSrc->enumImageType==IMAGE_TYPE_CIMAGE)
 		{
@@ -3716,8 +3779,8 @@ BYTE g_byFont_8_16[160]={
 		if(c>=iWidth){return false;}
 		if(dImage == NULL){return false;}
 		if(enumImageType != IMAGE_TYPE_DIMAGE){return false;}
-		 *dValue = dImage[r*iWidth+c];
-		 return true;
+		*dValue = dImage[r*iWidth+c];
+		return true;
 	}
 	bool PanImage::GetValue(int r, int c, int* iValue)
 	{
