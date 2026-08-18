@@ -715,7 +715,7 @@ IMPLEMENT_DYNCREATE(CSImageViewerView, CView)
 		m_image = new PanImage[m_iImagemax];
 		pFrame->m_iImageIndex=m_iImageIndex;
 		BOOL bRet = CopyFromClipBoardImg(&(m_image[m_iImageIndex]));
-		m_image[m_iImageIndex].enumImageType=IMAGE_TYPE_CIMAGE;
+		
 		if(bRet != TRUE){return;}
 		m_sFilePath.Format(_T("Clipboard"));
 

@@ -739,6 +739,7 @@ bool CopyFromClipBoardImg(PanImage* imgDst)
 		memcpy(pDstLine, pSrcLine, iBytesPerLine);
 	}
 	SAFE_DELETE(byData); 
+	imgDst->enumImageType=IMAGE_TYPE_CIMAGE;
 	return true;
 }
 int GetColorTableIndex(const RGBQUAD* rgbqTable, const int iLength, const BYTE byR, const BYTE byG, const BYTE byB, const BYTE byA)
