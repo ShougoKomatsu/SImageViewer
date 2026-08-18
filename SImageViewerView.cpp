@@ -1404,6 +1404,12 @@ IMPLEMENT_DYNCREATE(CSImageViewerView, CView)
 		if(d>dBoarder+dMargin){return false;}
 		return true;
 	}
+	bool isInTheRange(double d, double dMin, double dMax)
+	{
+		if(d<dMin){return false;}
+		if(d>dMax){return false;}
+		return true;
+	}
 	void CSImageViewerView::OnMouseMove(UINT nFlags, CPoint point_v)
 	{
 
@@ -1446,10 +1452,10 @@ IMPLEMENT_DYNCREATE(CSImageViewerView, CView)
 
 		switch(iBoarder)
 		{
-		case 1:{m_iMouseMode=CHANGE_U; CView::OnMouseMove(nFlags, point_v); return;}
-		case 2:{m_iMouseMode=CHANGE_L; CView::OnMouseMove(nFlags, point_v); return;}
-		case 4:{m_iMouseMode=CHANGE_R; CView::OnMouseMove(nFlags, point_v); return;}
-		case 8:{m_iMouseMode=CHANGE_B; CView::OnMouseMove(nFlags, point_v); return;}
+		case 1:{if(isInTheRange(point_v.x,rectTemp_v.left,rectTemp_v.right)==true){m_iMouseMode=CHANGE_U;} CView::OnMouseMove(nFlags, point_v); return;}
+		case 2:{if(isInTheRange(point_v.y,rectTemp_v.top,rectTemp_v.bottom)==true){m_iMouseMode=CHANGE_L;} CView::OnMouseMove(nFlags, point_v); return;}
+		case 4:{if(isInTheRange(point_v.y,rectTemp_v.top,rectTemp_v.bottom)==true){m_iMouseMode=CHANGE_R;} CView::OnMouseMove(nFlags, point_v); return;}
+		case 8:{if(isInTheRange(point_v.x,rectTemp_v.left,rectTemp_v.right)==true){m_iMouseMode=CHANGE_B;} CView::OnMouseMove(nFlags, point_v); return;}
 		case 3:{m_iMouseMode=CHANGE_LU; CView::OnMouseMove(nFlags, point_v); return;}
 		case 5:{m_iMouseMode=CHANGE_RU; CView::OnMouseMove(nFlags, point_v); return;}
 		case 10:{m_iMouseMode=CHANGE_LB; CView::OnMouseMove(nFlags, point_v); return;}
