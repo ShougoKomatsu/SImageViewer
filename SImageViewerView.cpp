@@ -1607,7 +1607,8 @@ IMPLEMENT_DYNCREATE(CSImageViewerView, CView)
 			,(int)(((rect_v->top+ iROrigin_tv) / g_dScale[m_iScaleIndex])    +0.5)
 			,(int)(((rect_v->right+ iCOrigin_tv) / g_dScale[m_iScaleIndex])  -0.5)
 			,(int)(((rect_v->bottom+ iROrigin_tv) / g_dScale[m_iScaleIndex]) -0.5));
-
+		if(rect_i.right<rect_i.left){rect_i.right=rect_i.left;}
+		if(rect_i.bottom<rect_i.top){rect_i.bottom=rect_i.top;}
 		return rect_i;
 	}
 
