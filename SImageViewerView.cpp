@@ -134,7 +134,7 @@ IMPLEMENT_DYNCREATE(CSImageViewerView, CView)
 	
 	void CSImageViewerView::OnCopyAs()
 	{
-		if(m_Rect_i.IsRectEmpty()==TRUE){return;}
+		if(m_Rect_i.IsRectNull()==TRUE){return;}
 
 		CCopyAsDlg copyAsdlg;
 
@@ -172,7 +172,7 @@ IMPLEMENT_DYNCREATE(CSImageViewerView, CView)
 	void CSImageViewerView::OnSetSelection()
 	{
 		CSetSelectionDlg setdlg;
-		if(m_Rect_i.IsRectEmpty() != TRUE)
+		if(m_Rect_i.IsRectNull() != TRUE)
 		{
 			setdlg.m_iC0=m_Rect_i.left;
 			setdlg.m_iR0=m_Rect_i.top;
@@ -246,7 +246,7 @@ IMPLEMENT_DYNCREATE(CSImageViewerView, CView)
 		}
 		if(m_bDragging==true)
 		{
-			if (m_Rect_v.IsRectEmpty()==FALSE)
+			if (m_Rect_v.IsRectNull()==FALSE)
 			{
 				CRect rect_i= v_to_i(&m_Rect_v);
 				CRect rect_v = i_to_v(&rect_i);
@@ -255,7 +255,7 @@ IMPLEMENT_DYNCREATE(CSImageViewerView, CView)
 		}
 		else
 		{
-			if (m_Rect_i.IsRectEmpty()==FALSE)
+			if (m_Rect_i.IsRectNull()==FALSE)
 			{
 				CRect rect_v = i_to_v(&m_Rect_i);
 				ImposeRect(&imgZoomed, &imgZoomed,&rect_v);
@@ -658,7 +658,7 @@ IMPLEMENT_DYNCREATE(CSImageViewerView, CView)
 	}
 	void CSImageViewerView::OnEditCopy()
 	{
-		if(m_Rect_i.IsRectEmpty()==TRUE){return;}
+		if(m_Rect_i.IsRectNull()==TRUE){return;}
 
 		CImage imgClipped;
 		ClipImage(&m_imageProcessed[(m_iImgProcessIndex % MAX_IMG_BUF)],&imgClipped, m_Rect_i.top,m_Rect_i.left, m_Rect_i.bottom, m_Rect_i.right); 
@@ -735,7 +735,7 @@ IMPLEMENT_DYNCREATE(CSImageViewerView, CView)
 	void CSImageViewerView::OperateEquHistImage()
 	{
 		bool bAutoFull = false;
-		if(m_Rect_i.IsRectEmpty()==TRUE){bAutoFull=true; FullDomain();}
+		if(m_Rect_i.IsRectNull()==TRUE){bAutoFull=true; FullDomain();}
 
 		ImgRGB imgRGB;
 		ImgRGB imgMeaned;
@@ -758,7 +758,7 @@ IMPLEMENT_DYNCREATE(CSImageViewerView, CView)
 	{
 
 		bool bAutoFull = false;
-		if(m_Rect_i.IsRectEmpty()==TRUE){bAutoFull=true; FullDomain();}
+		if(m_Rect_i.IsRectNull()==TRUE){bAutoFull=true; FullDomain();}
 
 		CResampleDlg dlg;
 		dlg.m_iHeightOrg = m_imageProcessed[(m_iImgProcessIndex % MAX_IMG_BUF)].GetHeight();
@@ -855,7 +855,7 @@ IMPLEMENT_DYNCREATE(CSImageViewerView, CView)
 	void CSImageViewerView::OperateBrightnessContrastGamma()
 	{
 		bool bAutoFull = false;
-		if(m_Rect_i.IsRectEmpty()==TRUE){bAutoFull=true;FullDomain();}
+		if(m_Rect_i.IsRectNull()==TRUE){bAutoFull=true;FullDomain();}
 
 		CImageModifyDlg dlgModify;
 
@@ -1368,7 +1368,7 @@ IMPLEMENT_DYNCREATE(CSImageViewerView, CView)
 
 		if(m_bDragging == true)
 		{
-			if(m_Rect_v.IsRectEmpty()==TRUE)
+			if(m_Rect_v.IsRectNull()==TRUE)
 			{
 				pFrame->m_sStatusSelection.Format(_T("not selected"));
 			}
@@ -1380,7 +1380,7 @@ IMPLEMENT_DYNCREATE(CSImageViewerView, CView)
 		}
 		else
 		{
-			if(m_Rect_i.IsRectEmpty()==TRUE)
+			if(m_Rect_i.IsRectNull()==TRUE)
 			{
 				pFrame->m_sStatusSelection.Format(_T("not selected"));
 			}
@@ -1594,7 +1594,7 @@ IMPLEMENT_DYNCREATE(CSImageViewerView, CView)
 	{
 		CRect rect_i;
 		rect_i.SetRectEmpty();
-		if(rect_v->IsRectEmpty()==TRUE)
+		if(rect_v->IsRectNull()==TRUE)
 		{
 			return rect_i;
 		}
@@ -1614,7 +1614,7 @@ IMPLEMENT_DYNCREATE(CSImageViewerView, CView)
 	CRect CSImageViewerView::i_to_v(const CRect* rect_i)
 	{
 		CRect rect_v;
-		if(rect_i->IsRectEmpty()==TRUE)
+		if(rect_i->IsRectNull()==TRUE)
 		{
 			rect_v.SetRectEmpty();
 			return rect_v;
