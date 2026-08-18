@@ -386,6 +386,7 @@ IMPLEMENT_DYNCREATE(CSImageViewerView, CView)
 		}
 		else
 		{
+			m_dDispOriginR_tv=0;
 			si.nMin=0;
 			si.nMax=0;
 			si.nPage =0;
@@ -405,6 +406,7 @@ IMPLEMENT_DYNCREATE(CSImageViewerView, CView)
 		}
 		else
 		{
+			m_dDispOriginC_tv=0;
 			si.nMin=0;
 			si.nMax=0;
 			si.nPage =0;
