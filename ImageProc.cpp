@@ -3493,7 +3493,7 @@ BYTE g_byFont_8_16[1992]={
 		{
 			CImage imgTemp;
 			bool bRet = ConvertIconToImg(hScreenDC, hSmallIcons[ui], &imgTemp);
-			imgs[uiNum+ui].Set(IMAGE_TYPE_CIMAGE,NULL,NULL,0,0,&imgTemp,VALUE_IMAGE_0_TO_255);
+			imgs[uiNum+ui].Set(IMAGE_TYPE_CIMAGE,NULL,NULL,0,0,&imgTemp,VALUE_IMAGE_RESCALE_0_TO_255);
 			::DestroyIcon(hSmallIcons[ui]);
 		}
 
@@ -3543,7 +3543,7 @@ BYTE g_byFont_8_16[1992]={
 	{
 		if(enumImageType==IMAGE_TYPE_CIMAGE){return CopyImage(&(this->cImage), imgDst);}
 
-		if(enumMode == VALUE_IMAGE_0_TO_255)
+		if(enumMode == VALUE_IMAGE_RESCALE_0_TO_255)
 		{
 			imgDst->Create(iWidth, iHeight, 8);
 
@@ -3608,6 +3608,37 @@ BYTE g_byFont_8_16[1992]={
 				}
 			}
 			return false;
+		}
+		if(enumMode == VALUE_IMAGE_CLIP_0_TO_255)
+		{
+			imgDst->Create(iWidth, iHeight,24);
+
+			BYTE* pbyDataDst = (BYTE*)imgDst->GetBits();
+			int iPitch = imgDst->GetPitch();
+			switch(enumImageType)
+			{
+			case IMAGE_TYPE_IIMAGE:
+				{
+					for(int r=0; r<iHeight; r++)
+					{
+						for(int c=0; c<iWidth; c++)
+						{
+							pbyDataDst[r*iPitch+c]=min(255,max(0, iImage[r*iWidth+c]));
+						}
+					}
+					return true;
+				}
+			case IMAGE_TYPE_DIMAGE:
+				{
+					for(int r=0; r<iHeight; r++)
+					{
+						for(int c=0; c<iWidth; c++)
+						{
+							pbyDataDst[r*iPitch+c]=min(255,max(0, dImage[r*iWidth+c]));
+						}
+					}
+				}
+			}
 		}
 		if(enumMode == VALUE_IMAGE_RAINBOW)
 		{

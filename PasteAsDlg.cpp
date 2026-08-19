@@ -53,7 +53,7 @@ void CPasteAsDlg::OnBnClickedOk()
 	}
 	if( ((CButton*)GetDlgItem(IDC_RADIO_PASTE_AS_0TO255))->GetCheck() == TRUE)
 	{
-		m_enumPasteAs=VALUE_IMAGE_0_TO_255;
+		m_enumPasteAs=VALUE_IMAGE_RESCALE_0_TO_255;
 	}
 	if( ((CButton*)GetDlgItem(IDC_RADIO_PASTE_AS_RAINBOW))->GetCheck() == TRUE)
 	{
