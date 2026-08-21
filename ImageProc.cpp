@@ -616,6 +616,107 @@ bool CopyFromClipBoardStrAsImg(const CString sSeparator, VALUE_IMAGE enumImageMo
 	return true;
 }
 
+bool ReadCImageFromData(BYTE* byData, SIZE_T dataSize, CImage* imgDst)
+{
+
+	BITMAPINFOHEADER* bih = (BITMAPINFOHEADER*)byData;
+
+	int iWidth  = bih->biWidth;
+	int iHeight = bih->biHeight;
+	int iBPP_src= bih->biBitCount;
+
+	if(iWidth <= 0){SAFE_DELETE(byData); return false;}
+	if(iHeight == 0){SAFE_DELETE(byData); return false;}
+	if(iBPP_src == 0){SAFE_DELETE(byData); return false;}
+
+	int iColors = 0;
+	if (iBPP_src <= 8) 
+	{
+		iColors = bih->biClrUsed;
+		if (iColors == 0) 
+		{
+			iColors = 1 << min(24, iBPP_src);
+		}
+	}
+
+	int iPaletteSize = iColors * sizeof(RGBQUAD);
+
+	BYTE* pPalette = &(byData[sizeof(BITMAPINFOHEADER)]);
+	BYTE* pbyDataSrc;
+	int iBytesPerLine = ((iWidth * iBPP_src + 31) / 32) * 4;
+	if(iBPP_src == 32)
+	{
+		if(dataSize == sizeof(BITMAPINFOHEADER) + iPaletteSize + abs(iHeight)*iBytesPerLine)
+		{
+			pbyDataSrc = &(byData[sizeof(BITMAPINFOHEADER)+iPaletteSize ]);
+		}
+		else
+		{
+			pbyDataSrc = &(byData[dataSize - iWidth*abs(iHeight)*iBPP_src/8 ]);
+		}
+	}
+	else if(iBPP_src == 24)
+	{
+		if(dataSize == sizeof(BITMAPINFOHEADER) + iPaletteSize + abs(iHeight)*iBytesPerLine)
+		{
+			pbyDataSrc = &(byData[sizeof(BITMAPINFOHEADER)+iPaletteSize ]);
+		}
+		else
+		{
+			pbyDataSrc = &(byData[sizeof(BITMAPINFOHEADER)+iPaletteSize ]);
+		}
+	}
+	else
+	{
+		pbyDataSrc = &(byData[sizeof(BITMAPINFOHEADER)+iPaletteSize ]);;
+	}
+
+	if(imgDst->IsNull()!=true){imgDst->Destroy();};
+	HRESULT hr = imgDst->Create(iWidth, abs(iHeight), iBPP_src);
+	if (FAILED(hr)) {SAFE_DELETE(byData); return false;}
+
+	if ((iBPP_src <= 8) && (iColors > 0))
+	{
+		SetColorTable(imgDst,(RGBQUAD*)pPalette,iColors);
+	}
+
+	int iPitch_dst = imgDst->GetPitch();
+	BYTE* pbyDataDst = (BYTE*)imgDst->GetBits();
+
+	bool bDstBottomUp = (iPitch_dst > 0);
+	bool bSrcBottomUp = (iHeight > 0); 
+
+	int iAbsHeight = abs(iHeight);
+
+	for (int r = 0; r < iAbsHeight; r++)
+	{
+
+		BYTE* pSrcLine = nullptr;
+		BYTE* pDstLine = nullptr;
+
+		if (bSrcBottomUp) 
+		{
+			pSrcLine = &(pbyDataSrc[(iAbsHeight - 1 - r) * iBytesPerLine]);
+		}
+		else
+		{
+			pSrcLine = &(pbyDataSrc[r * iBytesPerLine]);
+		}
+
+		if (bDstBottomUp) 
+		{
+			pDstLine = &(pbyDataDst[(iAbsHeight - 1 - r) * iPitch_dst]);
+		}
+		else
+		{
+			pDstLine = &(pbyDataDst[r * iPitch_dst]);
+		}
+
+		memcpy(pDstLine, pSrcLine, iBytesPerLine);
+	}
+	return true;
+}
+
 bool CopyFromClipBoardImg(PanImage* imgDst)
 {
 	BOOL bRet;
@@ -672,102 +773,9 @@ bool CopyFromClipBoardImg(PanImage* imgDst)
 
 	bRet = CloseClipboard();
 	if(bRet == FALSE){SAFE_DELETE(byData); return false;}
+	
+	bRet = ReadCImageFromData(byData, dataSize, &imgDst->cImage);
 
-
-	BITMAPINFOHEADER* bih = (BITMAPINFOHEADER*)byData;
-
-	int iWidth  = bih->biWidth;
-	int iHeight = bih->biHeight;
-	int iBPP_src= bih->biBitCount;
-
-	if(iWidth <= 0){SAFE_DELETE(byData); return false;}
-	if(iHeight == 0){SAFE_DELETE(byData); return false;}
-	if(iBPP_src == 0){SAFE_DELETE(byData); return false;}
-
-	int iColors = 0;
-	if (iBPP_src <= 8) 
-	{
-		iColors = bih->biClrUsed;
-		if (iColors == 0) 
-		{
-			iColors = 1 << min(24, iBPP_src);
-		}
-	}
-
-	int iPaletteSize = iColors * sizeof(RGBQUAD);
-
-	BYTE* pPalette = &(byData[sizeof(BITMAPINFOHEADER)]);
-	BYTE* pbyDataSrc;
-	int iBytesPerLine = ((iWidth * iBPP_src + 31) / 32) * 4;
-	if(iBPP_src == 32)
-	{
-		if(dataSize == sizeof(BITMAPINFOHEADER) + iPaletteSize + abs(iHeight)*iBytesPerLine)
-		{
-			pbyDataSrc = &(byData[sizeof(BITMAPINFOHEADER)+iPaletteSize ]);
-		}
-		else
-		{
-			pbyDataSrc = &(byData[dataSize - iWidth*abs(iHeight)*iBPP_src/8 ]);
-		}
-	}
-	else if(iBPP_src == 24)
-	{
-		if(dataSize == sizeof(BITMAPINFOHEADER) + iPaletteSize + abs(iHeight)*iBytesPerLine)
-		{
-			pbyDataSrc = &(byData[sizeof(BITMAPINFOHEADER)+iPaletteSize ]);
-		}
-		else
-		{
-			pbyDataSrc = &(byData[sizeof(BITMAPINFOHEADER)+iPaletteSize ]);
-		}
-	}
-	else
-	{
-		pbyDataSrc = &(byData[sizeof(BITMAPINFOHEADER)+iPaletteSize ]);;
-	}
-	imgDst->Init();
-	HRESULT hr = imgDst->cImage.Create(iWidth, abs(iHeight), iBPP_src);
-	if (FAILED(hr)) {SAFE_DELETE(byData); return false;}
-
-	if ((iBPP_src <= 8) && (iColors > 0))
-	{
-		SetColorTable(&(imgDst->cImage),(RGBQUAD*)pPalette,iColors);
-	}
-
-	int iPitch_dst = imgDst->cImage.GetPitch();
-	BYTE* pbyDataDst = (BYTE*)imgDst->cImage.GetBits();
-
-	bool bDstBottomUp = (iPitch_dst > 0);
-	bool bSrcBottomUp = (iHeight > 0); 
-
-	int iAbsHeight = abs(iHeight);
-
-	for (int r = 0; r < iAbsHeight; r++)
-	{
-
-		BYTE* pSrcLine = nullptr;
-		BYTE* pDstLine = nullptr;
-
-		if (bSrcBottomUp) 
-		{
-			pSrcLine = &(pbyDataSrc[(iAbsHeight - 1 - r) * iBytesPerLine]);
-		}
-		else
-		{
-			pSrcLine = &(pbyDataSrc[r * iBytesPerLine]);
-		}
-
-		if (bDstBottomUp) 
-		{
-			pDstLine = &(pbyDataDst[(iAbsHeight - 1 - r) * iPitch_dst]);
-		}
-		else
-		{
-			pDstLine = &(pbyDataDst[r * iPitch_dst]);
-		}
-
-		memcpy(pDstLine, pSrcLine, iBytesPerLine);
-	}
 	SAFE_DELETE(byData); 
 	imgDst->enumImageType=IMAGE_TYPE_CIMAGE;
 	return true;
