@@ -244,7 +244,7 @@ inline bool SetHSVValue(BYTE* pbyData, int iPitch, int r, int c, UINT uiValue, c
 	}
 	return true;
 }
-bool ConvertStrToPanImage(const CString sImage,const CString sSeparator,  VALUE_IMAGE enumMode, VALUE_IMAGE enumImageMode, PanImage* imgDst)
+bool ConvertStrToPanImage(const CString sImage,const CString sSeparator,   VALUE_IMAGE enumImageMode, PanImage* imgDst)
 {
 	int iStart=0;
 	int iLineCount=0;
@@ -582,7 +582,7 @@ bool CopyToClipBoardImg(const CImage* imgSrc)
 	return true;
 }
 
-bool CopyFromClipBoardStrAsImg(const CString sSeparator, VALUE_IMAGE enumMode, VALUE_IMAGE enumImageMode, PanImage* imgDst)
+bool CopyFromClipBoardStrAsImg(const CString sSeparator, VALUE_IMAGE enumImageMode, PanImage* imgDst)
 {
 	BOOL bRet;
 
@@ -612,7 +612,7 @@ bool CopyFromClipBoardStrAsImg(const CString sSeparator, VALUE_IMAGE enumMode, V
 	sData.Format(_T("%s"),byData);
 	SAFE_DELETE(byData); 
 
-	ConvertStrToPanImage(sData,sSeparator,enumMode,enumImageMode, imgDst);
+	ConvertStrToPanImage(sData,sSeparator,enumImageMode, imgDst);
 	return true;
 }
 

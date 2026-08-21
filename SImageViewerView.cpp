@@ -685,12 +685,12 @@ IMPLEMENT_DYNCREATE(CSImageViewerView, CView)
 		case PASTE_FROM_IMAGE:{bRet = CopyFromClipBoardImg(&(m_image[m_iImageIndex]));break;}
 		case PASTE_FROM_CSV:
 			{
-				bRet = CopyFromClipBoardStrAsImg(_T(","),pasteAsdlg.m_enumPasteAs, pasteAsdlg.m_enumPasteAs,&m_image[m_iImageIndex]);
+				bRet = CopyFromClipBoardStrAsImg(_T(","), pasteAsdlg.m_enumPasteAs,&m_image[m_iImageIndex]);
 				break;
 			}
 		case PASTE_FROM_TSV:
 			{
-				bRet = CopyFromClipBoardStrAsImg(_T("\t"),pasteAsdlg.m_enumPasteAs, pasteAsdlg.m_enumPasteAs,&m_image[m_iImageIndex]);
+				bRet = CopyFromClipBoardStrAsImg(_T("\t"), pasteAsdlg.m_enumPasteAs,&m_image[m_iImageIndex]);
 				break;
 			}
 		}
