@@ -669,6 +669,12 @@ IMPLEMENT_DYNCREATE(CSImageViewerView, CView)
 	void CSImageViewerView::OnPasteAs()
 	{
 		CMainFrame* pFrame = (CMainFrame*)AfxGetMainWnd();
+		
+		PanImage imgTemp;
+		bool bRet = CopyFromClipBoardImg(&imgTemp);
+		if(bRet != TRUE){return;}
+
+
 		SAFE_DELETE(m_image);
 		m_iImageIndex=0;
 		m_iImagemax=1;
@@ -676,25 +682,19 @@ IMPLEMENT_DYNCREATE(CSImageViewerView, CView)
 		pFrame->m_iImageIndex=m_iImageIndex;
 		
 		CPasteAsDlg pasteAsdlg;
+		
+		switch(imgTemp.enumImageType)
+		{
+		case IMAGE_TYPE_IIMAGE:{pasteAsdlg.m_sEditImageType.Format(_T("Value"));break;}
+		case IMAGE_TYPE_DIMAGE:{pasteAsdlg.m_sEditImageType.Format(_T("Value"));break;}
+		case IMAGE_TYPE_CIMAGE:{pasteAsdlg.m_sEditImageType.Format(_T("Image"));break;}
+		default:{}
+		}
 
 		INT_PTR iRet = pasteAsdlg.DoModal();
 		if(iRet != IDOK){return;}
-		BOOL bRet;
-		switch(pasteAsdlg.m_enumPasteFrom)
-		{
-		case PASTE_FROM_IMAGE:{bRet = CopyFromClipBoardImg(&(m_image[m_iImageIndex]));break;}
-		case PASTE_FROM_CSV:
-			{
-				bRet = CopyFromClipBoardStrAsImg(_T(","), pasteAsdlg.m_enumPasteAs,&m_image[m_iImageIndex]);
-				break;
-			}
-		case PASTE_FROM_TSV:
-			{
-				bRet = CopyFromClipBoardStrAsImg(_T("\t"), pasteAsdlg.m_enumPasteAs,&m_image[m_iImageIndex]);
-				break;
-			}
-		}
 
+		m_image[m_iImageIndex].Set(imgTemp.enumImageType, imgTemp.iImage, imgTemp.dImage, imgTemp.iWidth, imgTemp.iHeight, &(imgTemp.cImage),pasteAsdlg.m_enumPasteAs);
 		if(bRet != TRUE){return;}
 		m_sFilePath.Format(_T("Clipboard"));
 

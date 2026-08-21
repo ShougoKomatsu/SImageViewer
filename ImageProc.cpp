@@ -624,6 +624,36 @@ bool CopyFromClipBoardImg(PanImage* imgDst)
 	if(bRet == FALSE){return false;}
 
 	HANDLE hResult;
+
+	hResult = GetClipboardData(CF_UNICODETEXT );
+	if(hResult != NULL)
+	{
+		LPVOID byDataTemp = GlobalLock(hResult);
+		if(byDataTemp==NULL){CloseClipboard();return false;}
+
+		SIZE_T dataSize = GlobalSize(hResult);
+		if (dataSize == 0) { GlobalUnlock(hResult);CloseClipboard(); return false;} 
+
+		BYTE* byData;
+		byData = new BYTE[dataSize];
+
+		memcpy(byData, byDataTemp, dataSize);
+
+		GlobalUnlock(hResult);
+
+		bRet = CloseClipboard();
+		if(bRet == FALSE){SAFE_DELETE(byData); return false;}
+		CString sData;
+		sData.Format(_T("%s"),byData);
+		SAFE_DELETE(byData); 
+
+		int iPlace = sData.Find(_T("\t"));
+		if(iPlace>=0){return ConvertStrToPanImage(sData,_T("\t"),VALUE_IMAGE_CLIP_0_TO_255, imgDst);}
+		iPlace = sData.Find(_T(","));
+		if(iPlace>=0){return ConvertStrToPanImage(sData,_T(","),VALUE_IMAGE_CLIP_0_TO_255, imgDst);}
+		return false;
+	}
+
 	hResult = GetClipboardData(CF_DIB);
 	if(hResult == NULL){CloseClipboard();return false;}
 
@@ -3611,7 +3641,17 @@ BYTE g_byFont_8_16[1992]={
 		}
 		if(enumMode == VALUE_IMAGE_CLIP_0_TO_255)
 		{
-			imgDst->Create(iWidth, iHeight,24);
+			imgDst->Create(iWidth, iHeight, 8);
+
+			RGBQUAD colorTable[256];
+			for(int i=0; i<256; i++)
+			{
+				colorTable[i].rgbBlue=i;
+				colorTable[i].rgbGreen=i;
+				colorTable[i].rgbRed=i;
+				colorTable[i].rgbReserved=0;
+			}
+			SetColorTable(imgDst, colorTable, 256);
 
 			BYTE* pbyDataDst = (BYTE*)imgDst->GetBits();
 			int iPitch = imgDst->GetPitch();

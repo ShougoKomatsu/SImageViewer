@@ -30,4 +30,5 @@ public:
 	afx_msg void OnBnClickedCancel();
 	afx_msg void OnBnClickedOk();
 	virtual BOOL OnInitDialog();
+	CString m_sEditImageType;
 };
