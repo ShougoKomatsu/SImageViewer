@@ -244,8 +244,21 @@ inline bool SetHSVValue(BYTE* pbyData, int iPitch, int r, int c, UINT uiValue, c
 	}
 	return true;
 }
-bool ConvertStrToPanImage(const CString sImage,const CString sSeparator,   VALUE_IMAGE enumImageMode, PanImage* imgDst)
+bool ConvertStrToPanImage(const CString sImage,  VALUE_IMAGE enumImageMode, PanImage* imgDst)
 {
+
+	CString sSeparator;
+	int iPlace = sImage.Find(_T("\t"));
+	if(iPlace>=0){sSeparator.Format(_T("\t"));}
+	else
+	{
+		iPlace = sImage.Find(_T(","));
+		if(iPlace>=0){sSeparator.Format(_T(","));}
+		else
+		{
+			return false;
+		}
+	}
 	int iStart=0;
 	int iLineCount=0;
 	while(1)
@@ -582,40 +595,6 @@ bool CopyToClipBoardImg(const CImage* imgSrc)
 	return true;
 }
 
-bool CopyFromClipBoardStrAsImg(const CString sSeparator, VALUE_IMAGE enumImageMode, PanImage* imgDst)
-{
-	BOOL bRet;
-
-	bRet = OpenClipboard(NULL);
-	if(bRet == FALSE){return false;}
-
-	HANDLE hResult;
-	hResult = GetClipboardData(CF_UNICODETEXT );
-	if(hResult == NULL){CloseClipboard();return false;}
-
-	LPVOID byDataTemp = GlobalLock(hResult);
-	if(byDataTemp==NULL){CloseClipboard();return false;}
-
-	SIZE_T dataSize = GlobalSize(hResult);
-	if (dataSize == 0) { GlobalUnlock(hResult);CloseClipboard(); return false;} 
-
-	BYTE* byData;
-	byData = new BYTE[dataSize];
-
-	memcpy(byData, byDataTemp, dataSize);
-
-	GlobalUnlock(hResult);
-
-	bRet = CloseClipboard();
-	if(bRet == FALSE){SAFE_DELETE(byData); return false;}
-	CString sData;
-	sData.Format(_T("%s"),byData);
-	SAFE_DELETE(byData); 
-
-	ConvertStrToPanImage(sData,sSeparator,enumImageMode, imgDst);
-	return true;
-}
-
 bool ReadCImageFromData(BYTE* byData, SIZE_T dataSize, CImage* imgDst)
 {
 
@@ -747,12 +726,8 @@ bool CopyFromClipBoardImg(PanImage* imgDst)
 		CString sData;
 		sData.Format(_T("%s"),byData);
 		SAFE_DELETE(byData); 
-
-		int iPlace = sData.Find(_T("\t"));
-		if(iPlace>=0){return ConvertStrToPanImage(sData,_T("\t"),VALUE_IMAGE_CLIP_0_TO_255, imgDst);}
-		iPlace = sData.Find(_T(","));
-		if(iPlace>=0){return ConvertStrToPanImage(sData,_T(","),VALUE_IMAGE_CLIP_0_TO_255, imgDst);}
-		return false;
+		
+		return ConvertStrToPanImage(sData,VALUE_IMAGE_CLIP_0_TO_255, imgDst);
 	}
 
 	hResult = GetClipboardData(CF_DIB);
@@ -775,6 +750,7 @@ bool CopyFromClipBoardImg(PanImage* imgDst)
 	if(bRet == FALSE){SAFE_DELETE(byData); return false;}
 	
 	bRet = ReadCImageFromData(byData, dataSize, &imgDst->cImage);
+	if(bRet == FALSE){SAFE_DELETE(byData); return false;}
 
 	SAFE_DELETE(byData); 
 	imgDst->enumImageType=IMAGE_TYPE_CIMAGE;
