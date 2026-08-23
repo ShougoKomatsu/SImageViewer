@@ -244,11 +244,13 @@ inline bool SetHSVValue(BYTE* pbyData, int iPitch, int r, int c, UINT uiValue, c
 	}
 	return true;
 }
-bool ConvertStrToPanImage(const CString sImage,  VALUE_IMAGE enumImageMode, PanImage* imgDst)
-{
 
+bool AnalizeStrAsImage(CString sImage, int* iWidth, int* iHeight, CString* sSeparator_out, bool* bColored, bool* bFloat)
+{
+	int iPlace =sImage.Find(_T("."),0);
+	if(iPlace>=0){*bFloat=true;}
 	CString sSeparator;
-	int iPlace = sImage.Find(_T("\t"));
+	iPlace = sImage.Find(_T("\t"));
 	if(iPlace>=0){sSeparator.Format(_T("\t"));}
 	else
 	{
@@ -259,6 +261,7 @@ bool ConvertStrToPanImage(const CString sImage,  VALUE_IMAGE enumImageMode, PanI
 			return false;
 		}
 	}
+
 	int iStart=0;
 	int iLineCount=0;
 	while(1)
@@ -269,10 +272,89 @@ bool ConvertStrToPanImage(const CString sImage,  VALUE_IMAGE enumImageMode, PanI
 		iStart=iFound+1;
 	}
 
+	bool bChecking= true;
+	int iWidthPreserved=0;
 	CStringArray* saLines;
 	saLines = new CStringArray[iLineCount];
 	iStart=0;
 	for(int i=0; i<iLineCount; i++)
+	{
+		saLines[i].RemoveAll();
+		int iPos=0;
+		int iWidthR=0;
+		int iWidthG=0;
+		int iWidthB=0;
+
+		while(1)
+		{
+			int iFound = sImage.Find(sSeparator,iStart);
+			if(bChecking==true)
+			{
+				if(iFound == iStart)
+				{
+					if(iWidthR==0){iWidthR=iPos;}
+					else
+					{
+						if(iWidthG==0){iWidthG=iPos-iWidthR;}
+						else
+						{
+							if(iWidthB==0){iWidthB=iPos-iWidthG;}
+						}
+					}
+				}
+			}
+			int iFoundLineEnd =sImage.Find(_T("\r\n"),iStart);
+			if(iFoundLineEnd<iFound)
+			{
+				saLines[i].Add(sImage.Mid(iStart,iFoundLineEnd-iStart));
+				iStart=iFoundLineEnd+1;
+				break;
+			}
+			if(iFound<0){saLines[i].Add(sImage.Mid(iStart,sImage.GetLength()-iStart));break;}
+			saLines[i].Add(sImage.Mid(iStart,iFound-iStart));
+			iStart=iFound+1;
+			iPos++;
+		}
+		if(bChecking==true)
+		{
+			if(iWidthR != 0)
+			{
+				if(iWidthR != iWidthG){iWidthPreserved=-1; bChecking = false;}
+				if(iWidthR != iWidthB){iWidthPreserved=-1; bChecking = false;}
+				if(iWidthR != iWidthPreserved){iWidthPreserved=-1; bChecking = false;}
+				iWidthPreserved=iWidthR;
+			}
+			if(iWidthR != iWidthPreserved){iWidthPreserved=-1; bChecking = false;}
+		}
+	}
+
+	sSeparator_out->Format(_T("%s"),sSeparator);
+	*iHeight=iLineCount;
+	if(iWidthPreserved>0)
+	{
+		*iWidth=iWidthPreserved;
+		*bColored=true;
+	}
+	else
+	{
+		int iMaxLineLength=0;
+		for(int i=0; i<iLineCount; i++)
+		{
+			iMaxLineLength = (int)max(iMaxLineLength,saLines[i].GetCount());
+		}
+		*iWidth=iMaxLineLength;
+		*bColored=false;
+	}
+
+	SAFE_DELETE(saLines);
+	return true;
+}
+bool ConvertStrToInt(const CString sImage, const CString sSeparator, const int iHeight, const int iWidth, int* iImage)
+{
+	CStringArray* saLines;
+	saLines = new CStringArray[iHeight];
+	int iStart=0;
+	for(int i=0; i<iHeight; i++)
 	{
 		saLines[i].RemoveAll();
 		while(1)
@@ -290,34 +372,126 @@ bool ConvertStrToPanImage(const CString sImage,  VALUE_IMAGE enumImageMode, PanI
 			iStart=iFound+1;
 		}
 	}
-	int iMaxLineLength=0;
 
-	for(int i=0; i<iLineCount; i++)
+	for(int r=0; r<iHeight; r++)
 	{
-		iMaxLineLength = (int)max(iMaxLineLength,saLines[i].GetCount());
-	}
-	int* iImage;
-	iImage=new int[iLineCount*iMaxLineLength];
-
-	for(int r=0; r<iLineCount; r++)
-	{
-		for(int c=0; c<iMaxLineLength; c++)
+		for(int c=0; c<iWidth; c++)
 		{
-			iImage[r*iMaxLineLength+c]=0;
+			iImage[r*iWidth+c]=0;
 		}
 	}
 
-	for(int r=0; r<iLineCount; r++)
+	for(int r=0; r<iHeight; r++)
 	{
-		for(int c=0; c<iMaxLineLength; c++)
+		for(int c=0; c<iWidth; c++)
 		{
-			iImage[r*iMaxLineLength+c]=_ttoi(saLines[r].GetAt(c));
+			iImage[r*iWidth+c]=_ttoi(saLines[r].GetAt(c));
 		}
 	}
 	SAFE_DELETE(saLines);
-	imgDst->Set(IMAGE_TYPE_IIMAGE,iImage,NULL, iMaxLineLength,iLineCount,NULL,enumImageMode);
-	SAFE_DELETE(iImage);
 	return true;
+}
+
+bool ConvertStrToByte3(const CString sImage, const CString sSeparator, const int iHeight, const int iWidth, BYTE* byImageR, BYTE* byImageG, BYTE* byImageB)
+{
+	CStringArray* saLines;
+	saLines = new CStringArray[iHeight];
+	int iStart=0;
+	for(int i=0; i<iHeight; i++)
+	{
+		saLines[i].RemoveAll();
+		while(1)
+		{
+			int iFound = sImage.Find(sSeparator,iStart);
+			if(iFound==iStart){iStart=iFound+1;continue;}
+			int iFoundLineEnd =sImage.Find(_T("\r\n"),iStart);
+			if(iFoundLineEnd<iFound)
+			{
+				saLines[i].Add(sImage.Mid(iStart,iFoundLineEnd-iStart));
+				iStart=iFoundLineEnd+1;
+				break;
+			}
+			if(iFound<0){saLines[i].Add(sImage.Mid(iStart,sImage.GetLength()-iStart));break;}
+			saLines[i].Add(sImage.Mid(iStart,iFound-iStart));
+			iStart=iFound+1;
+		}
+	}
+
+	for(int r=0; r<iHeight; r++)
+	{
+		for(int c=0; c<iWidth; c++)
+		{
+			if(c*3>=saLines[r].GetCount())
+			{
+				byImageR[r*iWidth+c]=0;
+				byImageG[r*iWidth+c]=0;
+				byImageB[r*iWidth+c]=0;
+				continue;
+			}
+			byImageR[r*iWidth+c]=max(0, min(255, _ttoi(saLines[r].GetAt(c))));
+			byImageG[r*iWidth+c]=max(0, min(255, _ttoi(saLines[r].GetAt(c+iWidth))));
+			byImageB[r*iWidth+c]=max(0, min(255, _ttoi(saLines[r].GetAt(c+iWidth*2))));
+		}
+	}
+	SAFE_DELETE(saLines);
+	return true;
+}
+
+
+
+bool ConvertStrToPanImage(const CString sImage,  VALUE_IMAGE enumImageMode, PanImage* imgDst)
+{
+	CString sSeparator;
+	int iHeight;
+	int iWidth;
+	bool bColored;
+	bool bFloat;
+	bool bRet = AnalizeStrAsImage(sImage, &iWidth, &iHeight, &sSeparator, &bColored, &bFloat);
+	if(bRet != true){return false;}
+	if(bColored==true)
+	{
+		BYTE* byImageR;
+		BYTE* byImageG;
+		BYTE* byImageB;
+		byImageR = new BYTE[iWidth*iHeight];
+		byImageG = new BYTE[iWidth*iHeight];
+		byImageB = new BYTE[iWidth*iHeight];
+		bRet = ConvertStrToByte3(sImage, sSeparator, iHeight, iWidth, byImageR, byImageG, byImageB);
+		CImage imgTemp;
+		imgTemp.Create(iWidth, iHeight, 24);
+		BYTE* pbyData=(BYTE*)imgTemp.GetBits();
+		int iPitch = imgTemp.GetPitch();
+		for(int r=0; r<iHeight; r++)
+		{
+			for(int c=0; c<iWidth; c++)
+			{
+				pbyData[r*iPitch+3*c+2]=byImageR[r*iWidth+c];
+				pbyData[r*iPitch+3*c+1]=byImageG[r*iWidth+c];
+				pbyData[r*iPitch+3*c+0]=byImageB[r*iWidth+c];
+			}
+		}
+		SAFE_DELETE(byImageR);
+		SAFE_DELETE(byImageG);
+		SAFE_DELETE(byImageB);
+		imgDst->Set(IMAGE_TYPE_CIMAGE, NULL, NULL, iWidth, iHeight, &imgTemp, VALUE_IMAGE_CLIP_0_TO_255);
+		return true;
+	}
+
+	if(bFloat == true)
+	{
+	}
+	else
+	{
+		int* iImage;
+		iImage = new int[iWidth*iHeight];
+		bRet = ConvertStrToInt(sImage, sSeparator, iHeight, iWidth, iImage);
+		if(bRet != true){SAFE_DELETE(iImage); return false;}
+
+		imgDst->Set(IMAGE_TYPE_IIMAGE,iImage,NULL, iWidth,iHeight,NULL,enumImageMode);
+		SAFE_DELETE(iImage);
+		return true;
+	}
+	return false;
 }
 
 
