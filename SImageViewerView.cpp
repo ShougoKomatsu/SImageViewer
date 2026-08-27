@@ -227,7 +227,7 @@ IMPLEMENT_DYNCREATE(CSImageViewerView, CView)
 
 		int iRMax=m_imageProcessed[(m_iImgProcessIndex % MAX_IMG_BUF)].GetHeight()-1;
 		int iCMax=m_imageProcessed[(m_iImgProcessIndex % MAX_IMG_BUF)].GetWidth()-1;
-		ZoomImage(&(m_imageProcessed[(m_iImgProcessIndex % MAX_IMG_BUF)]),&imgZoomed,dR0_i,dC0_i,g_dScale[m_iScaleIndex],iWidth_v,iHeight_v);
+		ZoomImage(&(m_imageProcessed[(m_iImgProcessIndex % MAX_IMG_BUF)]),&imgZoomed,dR0_i,dC0_i,g_dScale[m_iScaleIndex],iWidth_v,iHeight_v,false);
 
 		CMainFrame* pFrame = (CMainFrame*)AfxGetMainWnd();
 		int iGrid=0;

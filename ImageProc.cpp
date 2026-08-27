@@ -2328,7 +2328,8 @@ BYTE g_byFont_8_16[1992]={
 
 		return true;
 	}
-	bool ZoomImage(CImage* imgSrc, CImage* imgDst, const double dR0_Src, const double dC0_Src, const double dScale, const int iWidth_Dst, const int iHeight_Dst)
+
+	bool ZoomImage(CImage* imgSrc, CImage* imgDst, const double dR0_Src, const double dC0_Src, const double dScale, const int iWidth_Dst, const int iHeight_Dst, const bool bRGBSeparated)
 	{
 
 		int iWidthSrc = imgSrc->GetWidth();
@@ -2355,7 +2356,7 @@ BYTE g_byFont_8_16[1992]={
 				{
 					for(int c=0; c<iWidth_Dst; c++)
 					{
-					SetRGBAValue(pbyDataDst, r, c, iPitch_dst, 127, 127, 127, 255);
+						SetRGBAValue(pbyDataDst, r, c, iPitch_dst, 127, 127, 127, 255);
 					}
 					continue;
 				}
@@ -2365,12 +2366,37 @@ BYTE g_byFont_8_16[1992]={
 					int ic_Src=int(c/dScale+dC0_Src);
 					if((ic_Src<0)||(ic_Src>=iWidthSrc))
 					{
-					SetRGBAValue(pbyDataDst, r, c, iPitch_dst, 127, 127, 127, 255);
+						SetRGBAValue(pbyDataDst, r, c, iPitch_dst, 127, 127, 127, 255);
 						continue;
 					}
-					pbyDataDst[r*iPitch_dst+c*4+2]=pbyDataSrc[ir_Src*iPitch_src+ic_Src*iColorPitch+2];
-					pbyDataDst[r*iPitch_dst+c*4+1]=pbyDataSrc[ir_Src*iPitch_src+ic_Src*iColorPitch+1];
-					pbyDataDst[r*iPitch_dst+c*4+0]=pbyDataSrc[ir_Src*iPitch_src+ic_Src*iColorPitch+0];
+					if(bRGBSeparated == true)
+					{
+						double dFlac = c/dScale+dC0_Src - int(c/dScale+dC0_Src);
+						if(dFlac<1/3.0)
+						{
+							pbyDataDst[r*iPitch_dst+c*4+2]=pbyDataSrc[ir_Src*iPitch_src+ic_Src*iColorPitch+2];
+							pbyDataDst[r*iPitch_dst+c*4+1]=0;
+							pbyDataDst[r*iPitch_dst+c*4+0]=0;
+						}
+						else if(dFlac<2/3.0)
+						{
+							pbyDataDst[r*iPitch_dst+c*4+2]=0;
+							pbyDataDst[r*iPitch_dst+c*4+1]=pbyDataSrc[ir_Src*iPitch_src+ic_Src*iColorPitch+1];
+							pbyDataDst[r*iPitch_dst+c*4+0]=0;
+						}
+						else
+						{
+							pbyDataDst[r*iPitch_dst+c*4+2]=0;
+							pbyDataDst[r*iPitch_dst+c*4+1]=0;
+							pbyDataDst[r*iPitch_dst+c*4+0]=pbyDataSrc[ir_Src*iPitch_src+ic_Src*iColorPitch+0];
+						}
+					}
+					else
+					{
+						pbyDataDst[r*iPitch_dst+c*4+2]=pbyDataSrc[ir_Src*iPitch_src+ic_Src*iColorPitch+2];
+						pbyDataDst[r*iPitch_dst+c*4+1]=pbyDataSrc[ir_Src*iPitch_src+ic_Src*iColorPitch+1];
+						pbyDataDst[r*iPitch_dst+c*4+0]=pbyDataSrc[ir_Src*iPitch_src+ic_Src*iColorPitch+0];
+					}
 					pbyDataDst[r*iPitch_dst+c*4+3]=255;
 				}
 			}
@@ -2388,7 +2414,7 @@ BYTE g_byFont_8_16[1992]={
 				{
 					for(int c=0; c<iWidth_Dst; c++)
 					{
-					SetRGBAValue(pbyDataDst, r, c, iPitch_dst, 127, 127, 127, 255);
+						SetRGBAValue(pbyDataDst, r, c, iPitch_dst, 127, 127, 127, 255);
 					}
 					continue;
 				}
@@ -2398,13 +2424,41 @@ BYTE g_byFont_8_16[1992]={
 					int ic_Src=int(c/dScale+dC0_Src);
 					if((ic_Src<0)||(ic_Src>=iWidthSrc))
 					{
-					SetRGBAValue(pbyDataDst, r, c, iPitch_dst, 127, 127, 127, 255);
+						SetRGBAValue(pbyDataDst, r, c, iPitch_dst, 127, 127, 127, 255);
 						continue;
 					}
+					if(bRGBSeparated == true)
+					{
+						double dFlac = c/dScale+dC0_Src - int(c/dScale+dC0_Src);
+						if(dFlac<1/3.0)
+						{
+							pbyDataDst[r*iPitch_dst+c*4+2]=pbyDataSrc[ir_Src*iPitch_src+ic_Src*iColorPitch+2];
+							pbyDataDst[r*iPitch_dst+c*4+1]=0;
+							pbyDataDst[r*iPitch_dst+c*4+0]=0;
+							pbyDataDst[r*iPitch_dst+c*4+3]=pbyDataSrc[ir_Src*iPitch_src+ic_Src*iColorPitch+3];
+						}
+						else if(dFlac<2/3.0)
+						{
+							pbyDataDst[r*iPitch_dst+c*4+2]=0;
+							pbyDataDst[r*iPitch_dst+c*4+1]=pbyDataSrc[ir_Src*iPitch_src+ic_Src*iColorPitch+1];
+							pbyDataDst[r*iPitch_dst+c*4+0]=0;
+							pbyDataDst[r*iPitch_dst+c*4+3]=pbyDataSrc[ir_Src*iPitch_src+ic_Src*iColorPitch+3];
+						}
+						else
+						{
+							pbyDataDst[r*iPitch_dst+c*4+2]=0;
+							pbyDataDst[r*iPitch_dst+c*4+1]=0;
+							pbyDataDst[r*iPitch_dst+c*4+0]=pbyDataSrc[ir_Src*iPitch_src+ic_Src*iColorPitch+0];
+							pbyDataDst[r*iPitch_dst+c*4+3]=pbyDataSrc[ir_Src*iPitch_src+ic_Src*iColorPitch+3];
+						}
+					}
+					else
+					{
 					pbyDataDst[r*iPitch_dst+c*4+2]=pbyDataSrc[ir_Src*iPitch_src+ic_Src*iColorPitch+2];
 					pbyDataDst[r*iPitch_dst+c*4+1]=pbyDataSrc[ir_Src*iPitch_src+ic_Src*iColorPitch+1];
 					pbyDataDst[r*iPitch_dst+c*4+0]=pbyDataSrc[ir_Src*iPitch_src+ic_Src*iColorPitch+0];
 					pbyDataDst[r*iPitch_dst+c*4+3]=pbyDataSrc[ir_Src*iPitch_src+ic_Src*iColorPitch+3];
+					}
 				}
 			}
 			return true;
@@ -2447,10 +2501,39 @@ BYTE g_byFont_8_16[1992]={
 				int iDigit = (8/iBPP)-(ic_Src%(8/iBPP))-1;
 
 				BYTE byIndex = (pbyDataSrc[iPosition] & (byMasks[iBPP]<< (iDigit*iBPP))) >> (iDigit*iBPP);
-				pbyDataDst[r*iPitch_dst+c*4+2]=srcTable[byIndex].rgbRed;
-				pbyDataDst[r*iPitch_dst+c*4+1]=srcTable[byIndex].rgbGreen;
-				pbyDataDst[r*iPitch_dst+c*4+0]=srcTable[byIndex].rgbBlue;
-				pbyDataDst[r*iPitch_dst+c*4+3]=((bAlpha == true) ? srcTable[byIndex].rgbReserved : 255);
+
+				if(bRGBSeparated == true)
+				{
+					double dFlac = c/dScale+dC0_Src - int(c/dScale+dC0_Src);
+					if(dFlac<1/3.0)
+					{
+						pbyDataDst[r*iPitch_dst+c*4+2]=srcTable[byIndex].rgbRed;
+						pbyDataDst[r*iPitch_dst+c*4+1]=0;
+						pbyDataDst[r*iPitch_dst+c*4+0]=0;
+						pbyDataDst[r*iPitch_dst+c*4+3]=((bAlpha == true) ? srcTable[byIndex].rgbReserved : 255);
+					}
+					else if(dFlac<2/3.0)
+					{
+						pbyDataDst[r*iPitch_dst+c*4+2]=0;
+						pbyDataDst[r*iPitch_dst+c*4+1]=srcTable[byIndex].rgbGreen;
+						pbyDataDst[r*iPitch_dst+c*4+0]=0;
+						pbyDataDst[r*iPitch_dst+c*4+3]=((bAlpha == true) ? srcTable[byIndex].rgbReserved : 255);
+					}
+					else
+					{
+						pbyDataDst[r*iPitch_dst+c*4+2]=0;
+						pbyDataDst[r*iPitch_dst+c*4+1]=0;
+						pbyDataDst[r*iPitch_dst+c*4+0]=srcTable[byIndex].rgbBlue;
+						pbyDataDst[r*iPitch_dst+c*4+3]=((bAlpha == true) ? srcTable[byIndex].rgbReserved : 255);
+					}
+				}
+				else
+				{
+					pbyDataDst[r*iPitch_dst+c*4+2]=srcTable[byIndex].rgbRed;
+					pbyDataDst[r*iPitch_dst+c*4+1]=srcTable[byIndex].rgbGreen;
+					pbyDataDst[r*iPitch_dst+c*4+0]=srcTable[byIndex].rgbBlue;
+					pbyDataDst[r*iPitch_dst+c*4+3]=((bAlpha == true) ? srcTable[byIndex].rgbReserved : 255);
+				}
 			}
 		}
 		SAFE_DELETE(srcTable);

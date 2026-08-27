@@ -20,7 +20,7 @@ void CPictureCtrlEx::OnPaint()
 			0,
 			0,
 			dZoom,
-			rc.Width(), rc.Height());
+			rc.Width(), rc.Height(),false);
 
 		
 		imgZoomed.BitBlt( dc.GetSafeHdc(), 0, 0,imgZoomed.GetWidth(), imgZoomed.GetHeight(), 0, 0  );
