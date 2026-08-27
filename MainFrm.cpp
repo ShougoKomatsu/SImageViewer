@@ -49,12 +49,14 @@ BEGIN_MESSAGE_MAP(CMainFrame, CFrameWndEx)
     ON_UPDATE_COMMAND_UI(ID_BUTTON_IMAGE_PP, &CMainFrame::OnUpdateMenu)
     ON_UPDATE_COMMAND_UI(ID_BUTTON_IMAGE_FW, &CMainFrame::OnUpdateMenu)
     ON_UPDATE_COMMAND_UI(ID_BUTTON_VALUE, &CMainFrame::OnUpdateMenu)
+    ON_UPDATE_COMMAND_UI(ID_BUTTON_RGBSEPARATE, &CMainFrame::OnUpdateMenu)
 	
     ON_COMMAND(ID_BUTTON_GRID_DOT, &CMainFrame::OnButtonGridDot)
     ON_COMMAND(ID_BUTTON_GRID_LINE, &CMainFrame::OnButtonGridLine)
     ON_COMMAND(ID_BUTTON_GRID_CONNECT, &CMainFrame::OnButtonGridConnect)
 	
     ON_COMMAND(ID_BUTTON_VALUE, &CMainFrame::OnButtonValue)
+    ON_COMMAND(ID_BUTTON_RGBSEPARATE, &CMainFrame::OnButtonRGBSeparate)
 
 	ON_COMMAND(IDM_ZOOMDOWN, &CMainFrame::OnZoomdown)
 	ON_COMMAND(IDM_ZOOMUP, &CMainFrame::OnZoomup)
@@ -151,6 +153,7 @@ int CMainFrame::OnCreate(LPCREATESTRUCT lpCreateStruct)
 	}
 	m_iGrid = ID_BUTTON_GRID_NONE;
 	m_bValue = false;
+	m_bRGB_Separate = false;
 
 	CString strToolBarName;
 	bNameValid = strToolBarName.LoadString(IDS_TOOLBAR_STANDARD);
@@ -639,6 +642,19 @@ void CMainFrame::OnButtonValue()
 	Invalidate();
 }
 
+void CMainFrame::OnButtonRGBSeparate()
+{
+	if(m_bRGB_Separate == true)
+	{
+		m_bRGB_Separate = false;
+		Invalidate();
+		return;
+	}
+	m_bRGB_Separate = true;
+	Invalidate();
+}
+
+
 void CMainFrame::OnButtonGridDot()
 {
 	if(m_iGrid == ID_BUTTON_GRID_DOT)
@@ -723,6 +739,11 @@ void CMainFrame::OnUpdateMenu(CCmdUI* pCmdUI)
 			pCmdUI->Enable(m_bFileOpened & m_bGridAble);
 		break;
 		}
+	case ID_BUTTON_RGBSEPARATE:
+		{
+			pCmdUI->Enable(m_bFileOpened & m_bGridAble);
+		break;
+		}
 	case ID_BUTTON_GRID_DOT:{pCmdUI->Enable(m_bFileOpened & m_bGridAble);break;}
 	case ID_BUTTON_GRID_LINE:{pCmdUI->Enable(m_bFileOpened & m_bGridAble);break;}
 	case ID_BUTTON_GRID_CONNECT:{pCmdUI->Enable(m_bFileOpened & m_bGridAble);break;}
@@ -747,6 +768,10 @@ void CMainFrame::OnUpdateMenu(CCmdUI* pCmdUI)
 	if(pCmdUI->m_nID== ID_BUTTON_VALUE)
 	{
 		pCmdUI->SetCheck(m_bValue == true);
+	}
+	if(pCmdUI->m_nID== ID_BUTTON_RGBSEPARATE)
+	{
+		pCmdUI->SetCheck(m_bRGB_Separate == true);
 	}
 	switch (pCmdUI->m_nID)
 	{

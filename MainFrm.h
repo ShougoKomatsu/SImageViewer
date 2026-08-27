@@ -32,6 +32,7 @@ public:
 	CString m_sStatusSelection;
 int m_iGrid;
 bool m_bValue;
+bool m_bRGB_Separate;
 	// ëÄçÏ
 public:
 	void ShowNormal();
@@ -75,6 +76,7 @@ protected:
 	afx_msg void OnButtonGridDot();
 	afx_msg void OnButtonGridLine();
 	afx_msg void OnButtonValue();
+	afx_msg void OnButtonRGBSeparate();
 	afx_msg void OnButtonGridConnect();
 	DECLARE_MESSAGE_MAP()
 public:
