@@ -2151,7 +2151,7 @@ BYTE g_byFont_8_16[1992]={
 		}
 		return false;
 	}
-	bool ImposeGrid(CImage* imgSrc, CImage* imgDst, const int iType, const double dROffset, const double dCOffset, const double dScale, const double dScaleThresh,const int iRMax_i, const int iCMax_i)
+	bool ImposeGrid(CImage* imgValueSrc, CImage* imgSrc, CImage* imgDst, const int iType, const double dROffset, const double dCOffset, const double dScale, const double dScaleThresh,const int iRMax_i, const int iCMax_i)
 	{
 		if(imgSrc != imgDst)
 		{
@@ -2278,7 +2278,7 @@ BYTE g_byFont_8_16[1992]={
 		if(iType==3)
 		{
 			CImage imgTemp;
-			CopyImage(imgSrc,&imgTemp);
+			CopyImage(imgValueSrc,&imgTemp);
 			BYTE* pbyDataTemp = (BYTE*)imgTemp.GetBits();
 
 			for(int r=0; r<iHeight-1;r++)

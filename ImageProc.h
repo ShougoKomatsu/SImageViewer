@@ -133,7 +133,7 @@ bool SetColorTable(CImage* img, const RGBQUAD* rgbTable, int iLength);
 bool Resample(const CImage* imgSrc, CImage* imgDst, const RESAMPLE resample);
 bool ConvertImage(const ImgRGB* imgRGB, CImage* imgDst, const int iBPPDst, const RGBQUAD* rgbqTable, const int iColors);
 bool Resize(const CImage* imgSrc, CImage* imgDst, const int iWidth_dst, const int iHeight_dst, const RESAMPLE resample);
-bool ImposeGrid(CImage* imgSrc, CImage* imgDst, const int iType, const double dROffset, const double dCOffset, const double dScale, const double dScaleThresh,const int iRMax_i, const int iCMax_i);
+bool ImposeGrid(CImage* imgValueSrc, CImage* imgSrc, CImage* imgDst, const int iType, const double dROffset, const double dCOffset, const double dScale, const double dScaleThresh,const int iRMax_i, const int iCMax_i);
 
 bool ImposeRect(CImage* imgSrc, CImage* imgDst, CRect* rect);
 bool ImposeAlphaChannel(CImage* imgSrc, CImage* imgDst);

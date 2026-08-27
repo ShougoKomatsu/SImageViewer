@@ -227,7 +227,10 @@ IMPLEMENT_DYNCREATE(CSImageViewerView, CView)
 
 		int iRMax=m_imageProcessed[(m_iImgProcessIndex % MAX_IMG_BUF)].GetHeight()-1;
 		int iCMax=m_imageProcessed[(m_iImgProcessIndex % MAX_IMG_BUF)].GetWidth()-1;
+
 		ZoomImage(&(m_imageProcessed[(m_iImgProcessIndex % MAX_IMG_BUF)]),&imgZoomed,dR0_i,dC0_i,g_dScale[m_iScaleIndex],iWidth_v,iHeight_v,false);
+		CImage imgValue;
+		ZoomImage(&(m_imageProcessed[(m_iImgProcessIndex % MAX_IMG_BUF)]),&imgValue,dR0_i,dC0_i,g_dScale[m_iScaleIndex],iWidth_v,iHeight_v,false);
 
 		CMainFrame* pFrame = (CMainFrame*)AfxGetMainWnd();
 		int iGrid=0;
@@ -239,7 +242,7 @@ IMPLEMENT_DYNCREATE(CSImageViewerView, CView)
 		case ID_BUTTON_GRID_CONNECT:{iGrid=3;break;}
 		default:{iGrid=0;}
 		}
-		ImposeGrid(&imgZoomed, &imgZoomed, iGrid, int(dR0_i)-dR0_i, int(dC0_i)-dC0_i,g_dScale[m_iScaleIndex], 10, iRMax, iCMax);
+		ImposeGrid(&imgValue, &imgZoomed, &imgZoomed, iGrid, int(dR0_i)-dR0_i, int(dC0_i)-dC0_i,g_dScale[m_iScaleIndex], 10, iRMax, iCMax);
 		if(pFrame->m_bValue==true)
 		{
 			ImposeRGBValue(&(m_image[m_iImageIndex]), &imgZoomed, &imgZoomed, iGrid, int(dR0_i)-dR0_i, int(dC0_i)-dC0_i,g_dScale[m_iScaleIndex], 10, int(dR0_i),int(dC0_i),iRMax, iCMax);
