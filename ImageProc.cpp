@@ -74,23 +74,9 @@ bool IsImageMonochrome(const CImage* imgSrc)
 			return bMono;
 		}
 	case 24:
-		{
-			BYTE* pbyDataSrc = (BYTE*)imgSrc->GetBits();
-			int iWidth = imgSrc->GetWidth();
-			int iHeight= imgSrc->GetHeight();
-			int iPitch = imgSrc->GetPitch();
-			for(int r=0; r<iHeight; r++)
-			{
-				for(int c=0; c< iWidth; c++)
-				{
-					if(pbyDataSrc[r*iPitch+c*3+0] != pbyDataSrc[r*iPitch+c*3+1]){return false;}
-					if(pbyDataSrc[r*iPitch+c*3+0] != pbyDataSrc[r*iPitch+c*3+2]){return false;}
-				}
-			}
-			return true;
-		}
 	case 32:
 		{
+			int iColorPitch = (iBPP==24 ? 3 : 4);
 			BYTE* pbyDataSrc = (BYTE*)imgSrc->GetBits();
 			int iWidth = imgSrc->GetWidth();
 			int iHeight= imgSrc->GetHeight();
@@ -99,8 +85,8 @@ bool IsImageMonochrome(const CImage* imgSrc)
 			{
 				for(int c=0; c< iWidth; c++)
 				{
-					if(pbyDataSrc[r*iPitch+c*4+0] != pbyDataSrc[r*iPitch+c*4+1]){return false;}
-					if(pbyDataSrc[r*iPitch+c*4+0] != pbyDataSrc[r*iPitch+c*4+2]){return false;}
+					if(pbyDataSrc[r*iPitch+c*iColorPitch+0] != pbyDataSrc[r*iPitch+c*iColorPitch+1]){return false;}
+					if(pbyDataSrc[r*iPitch+c*iColorPitch+0] != pbyDataSrc[r*iPitch+c*iColorPitch+2]){return false;}
 				}
 			}
 			return true;
@@ -185,12 +171,10 @@ bool CopyImage(const CImage* imgSrc, CImage* imgDst)
 		{
 			pbyDataDst[r*iPitch_dst+c] = pbyDataSrc[r*iPitch_src+c];
 		}
-
 	}
-
-
 	return true;
 }
+
 inline bool HSVValue(BYTE* pbyData, int iPitch, int r, int c, UINT uiValue_in, int uiMax)
 {
 	int uiValue = uiValue_in;
@@ -952,7 +936,8 @@ bool ConvertImage(const CImage* imgSrc, ImgRGB* imgRGB)
 	int iBPP = imgSrc->GetBPP();
 	BYTE* pbyDataSrc = (BYTE*)imgSrc->GetBits();
 	int iPitch_src=imgSrc->GetPitch();
-	if(iBPP==24)
+
+	if((iBPP==24) || (iBPP==32))
 	{
 		int iColorPitch = (iBPP==24 ? 3 : 4);
 		for(int r=0; r<iHeight_src; r++)
@@ -962,31 +947,11 @@ bool ConvertImage(const CImage* imgSrc, ImgRGB* imgRGB)
 				imgRGB->byImgR[r*imgRGB->iWidth+c]=pbyDataSrc[r*iPitch_src+c*iColorPitch+2];
 				imgRGB->byImgG[r*imgRGB->iWidth+c]=pbyDataSrc[r*iPitch_src+c*iColorPitch+1];
 				imgRGB->byImgB[r*imgRGB->iWidth+c]=pbyDataSrc[r*iPitch_src+c*iColorPitch+0];
-				imgRGB->byImgA[r*imgRGB->iWidth+c]=255;
+				imgRGB->byImgA[r*imgRGB->iWidth+c]=(iBPP==24 ? 255 : pbyDataSrc[r*iPitch_src+c*iColorPitch+3]);
 			}
 		}
 		return true;
 	}
-
-	if(iBPP==32)
-	{
-		int iColorPitch = (iBPP==24 ? 3 : 4);
-		for(int r=0; r<iHeight_src; r++)
-		{
-			for(int c=0; c<iWidth_src; c++)
-			{
-				imgRGB->byImgR[r*imgRGB->iWidth+c]=pbyDataSrc[r*iPitch_src+c*iColorPitch+2];
-				imgRGB->byImgG[r*imgRGB->iWidth+c]=pbyDataSrc[r*iPitch_src+c*iColorPitch+1];
-				imgRGB->byImgB[r*imgRGB->iWidth+c]=pbyDataSrc[r*iPitch_src+c*iColorPitch+0];
-				imgRGB->byImgA[r*imgRGB->iWidth+c]=pbyDataSrc[r*iPitch_src+c*iColorPitch+3];
-			}
-		}
-		return true;
-	}
-
-
-
-
 
 
 	bool bAlpha = IsAlphaChanneled(imgSrc);
@@ -1112,11 +1077,13 @@ bool Resample(const CImage* imgSrc, CImage* imgDst, const RESAMPLE resample)
 			case RESAMPLE_2:{iStep=2;break;}
 			case RESAMPLE_3:{iStep=3;break;}
 			case RESAMPLE_4:{iStep=4;break;}
+			default:{return false;}
 			}
 			ConvertImage(imgSrc, &imgRGBSrc);
-			if(iBPP==24)
+			if((iBPP==24) || (iBPP==32))
 			{
-				imgRGBDst.Set((imgRGBSrc.iWidth + (iStep-1))/iStep, (imgRGBSrc.iHeight+(iStep-1))/iStep,CHANNEL_3_8RGB);
+				if(iBPP==24){imgRGBDst.Set((imgRGBSrc.iWidth + (iStep-1))/iStep, (imgRGBSrc.iHeight+(iStep-1))/iStep,CHANNEL_3_8RGB);}
+				if(iBPP==32){imgRGBDst.Set((imgRGBSrc.iWidth + (iStep-1))/iStep, (imgRGBSrc.iHeight+(iStep-1))/iStep,CHANNEL_4_8RGBA);}
 				for(int r=0; r<imgRGBDst.iHeight; r++)
 				{
 					for(int c=0; c<imgRGBDst.iWidth; c++)
@@ -1126,38 +1093,23 @@ bool Resample(const CImage* imgSrc, CImage* imgDst, const RESAMPLE resample)
 						imgRGBDst.byImgR[iPosDsc ]=imgRGBSrc.byImgR[iPosSrc];
 						imgRGBDst.byImgG[iPosDsc ]=imgRGBSrc.byImgG[iPosSrc];
 						imgRGBDst.byImgB[iPosDsc ]=imgRGBSrc.byImgB[iPosSrc];
+						if(iBPP==32){imgRGBDst.byImgA[iPosDsc ]=imgRGBSrc.byImgA[iPosSrc];}
 					}
 				}
+				ConvertImage(&imgRGBDst,imgDst);
+				return true;
 			}
-			if(iBPP==32)
-			{
-				imgRGBDst.Set((imgRGBSrc.iWidth + (iStep-1))/iStep, (imgRGBSrc.iHeight+(iStep-1))/iStep,CHANNEL_4_8RGBA);
-				for(int r=0; r<imgRGBDst.iHeight; r++)
-				{
-					for(int c=0; c<imgRGBDst.iWidth; c++)
-					{
-						int iPosDsc = r*imgRGBDst.iWidth+c;
-						int iPosSrc = (r*iStep)*imgRGBSrc.iWidth+(c*iStep);
-						imgRGBDst.byImgR[iPosDsc ]=imgRGBSrc.byImgR[iPosSrc];
-						imgRGBDst.byImgG[iPosDsc ]=imgRGBSrc.byImgG[iPosSrc];
-						imgRGBDst.byImgB[iPosDsc ]=imgRGBSrc.byImgB[iPosSrc];
-						imgRGBDst.byImgA[iPosDsc ]=imgRGBSrc.byImgA[iPosSrc];
-					}
-				}
-			}
-			if(iBPP<24)
-			{
-				imgRGBDst.Set((imgRGBSrc.iWidth + (iStep-1))/iStep, (imgRGBSrc.iHeight+(iStep-1))/iStep,CHANNEL_3_8RGB);
-				int iColors = imgSrc->GetMaxColorTableEntries();
-				if (iColors > 0) 
-				{
-					RGBQUAD* srcTable = new RGBQUAD[iColors];
-					imgSrc->GetColorTable(0, iColors, srcTable);
 
-					ConvertImage(&imgRGBDst,imgDst, iBPP, srcTable, iColors);
-					SAFE_DELETE(srcTable);
-					return true;
-				}
+			imgRGBDst.Set((imgRGBSrc.iWidth + (iStep-1))/iStep, (imgRGBSrc.iHeight+(iStep-1))/iStep,CHANNEL_3_8RGB);
+			int iColors = imgSrc->GetMaxColorTableEntries();
+			if (iColors > 0) 
+			{
+				RGBQUAD* srcTable = new RGBQUAD[iColors];
+				imgSrc->GetColorTable(0, iColors, srcTable);
+
+				ConvertImage(&imgRGBDst,imgDst, iBPP, srcTable, iColors);
+				SAFE_DELETE(srcTable);
+				return true;
 			}
 			ConvertImage(&imgRGBDst,imgDst);
 			return true;
@@ -1175,9 +1127,10 @@ bool Resample(const CImage* imgSrc, CImage* imgDst, const RESAMPLE resample)
 			}
 			ConvertImage(imgSrc, &imgRGBSrc);
 
-			if(iBPP==24)
+			if((iBPP==24) || (iBPP==32))
 			{
-				imgRGBDst.Set(imgRGBSrc.iWidth*iStep, imgRGBSrc.iHeight*iStep,CHANNEL_3_8RGB);
+				if(iBPP==24){imgRGBDst.Set(imgRGBSrc.iWidth*iStep, imgRGBSrc.iHeight*iStep,CHANNEL_3_8RGB);}
+				if(iBPP==32){imgRGBDst.Set(imgRGBSrc.iWidth*iStep, imgRGBSrc.iHeight*iStep,CHANNEL_4_8RGBA);}
 				for(int r=0; r<imgRGBDst.iHeight; r++)
 				{
 					for(int c=0; c<imgRGBDst.iWidth; c++)
@@ -1187,38 +1140,23 @@ bool Resample(const CImage* imgSrc, CImage* imgDst, const RESAMPLE resample)
 						imgRGBDst.byImgR[iPosDsc ]=imgRGBSrc.byImgR[iPosSrc];
 						imgRGBDst.byImgG[iPosDsc ]=imgRGBSrc.byImgG[iPosSrc];
 						imgRGBDst.byImgB[iPosDsc ]=imgRGBSrc.byImgB[iPosSrc];
+						if(iBPP==32){imgRGBDst.byImgA[iPosDsc ]=imgRGBSrc.byImgA[iPosSrc];}
 					}
 				}
+				ConvertImage(&imgRGBDst,imgDst);
+				return true;
 			}
-			if(iBPP==32)
-			{
-				imgRGBDst.Set(imgRGBSrc.iWidth*iStep, imgRGBSrc.iHeight*iStep,CHANNEL_4_8RGBA);
-				for(int r=0; r<imgRGBDst.iHeight; r++)
-				{
-					for(int c=0; c<imgRGBDst.iWidth; c++)
-					{
-						int iPosDsc = r*imgRGBDst.iWidth+c;
-						int iPosSrc = (r/iStep)*imgRGBSrc.iWidth+(c/iStep);
-						imgRGBDst.byImgR[iPosDsc ]=imgRGBSrc.byImgR[iPosSrc];
-						imgRGBDst.byImgG[iPosDsc ]=imgRGBSrc.byImgG[iPosSrc];
-						imgRGBDst.byImgB[iPosDsc ]=imgRGBSrc.byImgB[iPosSrc];
-						imgRGBDst.byImgA[iPosDsc ]=imgRGBSrc.byImgA[iPosSrc];
-					}
-				}
-			}
-			if(iBPP<24)
-			{
-				imgRGBDst.Set(imgRGBSrc.iWidth*iStep, imgRGBSrc.iHeight*iStep,CHANNEL_3_8RGB);
-				int iColors = imgSrc->GetMaxColorTableEntries();
-				if (iColors > 0) 
-				{
-					RGBQUAD* srcTable = new RGBQUAD[iColors];
-					imgSrc->GetColorTable(0, iColors, srcTable);
 
-					ConvertImage(&imgRGBDst,imgDst, iBPP, srcTable, iColors);
-					SAFE_DELETE(srcTable);
-					return true;
-				}
+			imgRGBDst.Set(imgRGBSrc.iWidth*iStep, imgRGBSrc.iHeight*iStep,CHANNEL_3_8RGB);
+			int iColors = imgSrc->GetMaxColorTableEntries();
+			if (iColors > 0) 
+			{
+				RGBQUAD* srcTable = new RGBQUAD[iColors];
+				imgSrc->GetColorTable(0, iColors, srcTable);
+
+				ConvertImage(&imgRGBDst,imgDst, iBPP, srcTable, iColors);
+				SAFE_DELETE(srcTable);
+				return true;
 			}
 			ConvertImage(&imgRGBDst,imgDst);
 			return true;
@@ -1233,46 +1171,29 @@ bool ConvertImage(const ImgRGB* imgRGB, CImage* imgDst)
 	int iWidth_src = imgRGB->iWidth;;
 	int iHeight_src= imgRGB->iHeight;;
 
-	if(imgRGB->iChannel==CHANNEL_3_8RGB)
+	if((imgRGB->iChannel==CHANNEL_3_8RGB) || (imgRGB->iChannel==CHANNEL_4_8RGBA))
 	{
+
 		if(imgDst->IsNull() != true){imgDst->Destroy();}
-		imgDst->Create(iWidth_src, iHeight_src, 24);
+		if(imgRGB->iChannel==CHANNEL_3_8RGB){imgDst->Create(iWidth_src, iHeight_src, 24);}
+		if(imgRGB->iChannel==CHANNEL_4_8RGBA){imgDst->Create(iWidth_src, iHeight_src, 32);}
 
-
+		int iColorPitch = ((imgRGB->iChannel==CHANNEL_3_8RGB) ? 3 : 4);
 		BYTE* pbyDataDst = (BYTE*)imgDst->GetBits();
 		int iPitch_dst=imgDst->GetPitch();
 		for(int r=0; r<iHeight_src; r++)
 		{
 			for(int c=0; c<iWidth_src; c++)
 			{
-				pbyDataDst[r*iPitch_dst+c*3+2]=imgRGB->byImgR[r*iWidth_src+c];
-				pbyDataDst[r*iPitch_dst+c*3+1]=imgRGB->byImgG[r*iWidth_src+c];
-				pbyDataDst[r*iPitch_dst+c*3+0]=imgRGB->byImgB[r*iWidth_src+c];
+				pbyDataDst[r*iPitch_dst+c*iColorPitch+2]=imgRGB->byImgR[r*iWidth_src+c];
+				pbyDataDst[r*iPitch_dst+c*iColorPitch+1]=imgRGB->byImgG[r*iWidth_src+c];
+				pbyDataDst[r*iPitch_dst+c*iColorPitch+0]=imgRGB->byImgB[r*iWidth_src+c];
+				if(imgRGB->iChannel==CHANNEL_4_8RGBA){pbyDataDst[r*iPitch_dst+c*iColorPitch+3]=imgRGB->byImgA[r*iWidth_src+c];}
 			}
 		}
 		return true;
 	}
 
-	if(imgRGB->iChannel==CHANNEL_4_8RGBA)
-	{
-		if(imgDst->IsNull() != true){imgDst->Destroy();}
-		imgDst->Create(iWidth_src, iHeight_src, 32);
-
-
-		BYTE* pbyDataDst = (BYTE*)imgDst->GetBits();
-		int iPitch_dst=imgDst->GetPitch();
-		for(int r=0; r<iHeight_src; r++)
-		{
-			for(int c=0; c<iWidth_src; c++)
-			{
-				pbyDataDst[r*iPitch_dst+c*4+2]=imgRGB->byImgR[r*iWidth_src+c];
-				pbyDataDst[r*iPitch_dst+c*4+1]=imgRGB->byImgG[r*iWidth_src+c];
-				pbyDataDst[r*iPitch_dst+c*4+0]=imgRGB->byImgB[r*iWidth_src+c];
-				pbyDataDst[r*iPitch_dst+c*4+3]=imgRGB->byImgA[r*iWidth_src+c];
-			}
-		}
-		return true;
-	}
 
 	if(imgRGB->iChannel==CHANNEL_1_8)
 	{
@@ -1393,8 +1314,10 @@ bool ConvertImage_LossLess(const CImage* imgSrc, const int iBPPDst, CImage* imgD
 	int iPitch_dst=imgDst->GetPitch();
 
 
-	if(iBPPDst==24)
+	if((iBPPDst==24) || (iBPPDst==32))
 	{
+		int iColorPitch = ((iBPPDst==24) ? 3 : 4);
+
 		for(int r=0; r< imgRGB.iHeight; r++)
 		{
 			for(int c=0; c<imgRGB.iWidth; c++)
@@ -1402,20 +1325,7 @@ bool ConvertImage_LossLess(const CImage* imgSrc, const int iBPPDst, CImage* imgD
 				pbyDataDst[r*iPitch_dst+c*3+2]=imgRGB.byImgR[r*imgRGB.iWidth+c];
 				pbyDataDst[r*iPitch_dst+c*3+1]=imgRGB.byImgG[r*imgRGB.iWidth+c];
 				pbyDataDst[r*iPitch_dst+c*3+0]=imgRGB.byImgB[r*imgRGB.iWidth+c];
-			}
-		}
-		return true;
-	}
-	if(iBPPDst==32)
-	{
-		for(int r=0; r< imgRGB.iHeight; r++)
-		{
-			for(int c=0; c<imgRGB.iWidth; c++)
-			{
-				pbyDataDst[r*iPitch_dst+c*4+3]=0;
-				pbyDataDst[r*iPitch_dst+c*4+2]=imgRGB.byImgR[r*imgRGB.iWidth+c];
-				pbyDataDst[r*iPitch_dst+c*4+1]=imgRGB.byImgG[r*imgRGB.iWidth+c];
-				pbyDataDst[r*iPitch_dst+c*4+0]=imgRGB.byImgB[r*imgRGB.iWidth+c];
+				if(iBPPDst==32){pbyDataDst[r*iPitch_dst+c*iColorPitch+3]=255;}
 			}
 		}
 		return true;
@@ -1528,43 +1438,23 @@ bool ExtractChannel_Gray(CImage* imgSrc, CImage* imgDst, ENUM_COLOR color)
 	ConvertImage(imgSrc, &imgRGB);
 	int iPitch_dst=imgDst->GetPitch();
 	BYTE* pbyDataDst = (BYTE*)imgDst->GetBits();
+
+	BYTE* pbySrc;
 	switch(color)
 	{
-	case COLOR_RED_GRAY: 
-		{
-			for(int r=0; r<iHeight; r++)
-			{
-				for(int c=0; c<iWidth; c++)
-				{
-					pbyDataDst[r*iPitch_dst+c]=imgRGB.byImgR[r*iWidth+c];
-				}
-			}
-			return true;
-		}
-	case COLOR_GREEN_GRAY: 
-		{
-			for(int r=0; r<iHeight; r++)
-			{
-				for(int c=0; c<iWidth; c++)
-				{
-					pbyDataDst[r*iPitch_dst+c]=imgRGB.byImgG[r*iWidth+c];
-				}
-			}
-			return true;
-		}
-	case COLOR_BLUE_GRAY: 
-		{
-			for(int r=0; r<iHeight; r++)
-			{
-				for(int c=0; c<iWidth; c++)
-				{
-					pbyDataDst[r*iPitch_dst+c]=imgRGB.byImgB[r*iWidth+c];
-				}
-			}
-			return true;
-		}
+	case COLOR_RED_GRAY: {pbySrc=imgRGB.byImgR; break;}
+	case COLOR_GREEN_GRAY: {pbySrc=imgRGB.byImgG;break;}
+	case COLOR_BLUE_GRAY: {pbySrc=imgRGB.byImgB;break;}
+	default : {return false;}
 	}
 
+	for(int r=0; r<iHeight; r++)
+	{
+		for(int c=0; c<iWidth; c++)
+		{
+			pbyDataDst[r*iPitch_dst+c]=pbySrc[r*iWidth+c];
+		}
+	}
 	return true;
 }
 
@@ -2345,7 +2235,7 @@ BYTE g_byFont_8_16[1992]={
 
 		int iBPP = imgSrc->GetBPP();
 
-		if(iBPP==24)
+		if((iBPP==24) || (iBPP==32))
 		{
 			int iColorPitch = (iBPP==24 ? 3 : 4);
 			for(int r=0; r<iHeight_Dst; r++)
@@ -2369,96 +2259,40 @@ BYTE g_byFont_8_16[1992]={
 						SetRGBAValue(pbyDataDst, r, c, iPitch_dst, 127, 127, 127, 255);
 						continue;
 					}
-					if(bRGBSeparated == true)
-					{
-						double dFlac = c/dScale+dC0_Src - int(c/dScale+dC0_Src);
-						if(dFlac<1/3.0)
-						{
-							pbyDataDst[r*iPitch_dst+c*4+2]=pbyDataSrc[ir_Src*iPitch_src+ic_Src*iColorPitch+2];
-							pbyDataDst[r*iPitch_dst+c*4+1]=0;
-							pbyDataDst[r*iPitch_dst+c*4+0]=0;
-						}
-						else if(dFlac<2/3.0)
-						{
-							pbyDataDst[r*iPitch_dst+c*4+2]=0;
-							pbyDataDst[r*iPitch_dst+c*4+1]=pbyDataSrc[ir_Src*iPitch_src+ic_Src*iColorPitch+1];
-							pbyDataDst[r*iPitch_dst+c*4+0]=0;
-						}
-						else
-						{
-							pbyDataDst[r*iPitch_dst+c*4+2]=0;
-							pbyDataDst[r*iPitch_dst+c*4+1]=0;
-							pbyDataDst[r*iPitch_dst+c*4+0]=pbyDataSrc[ir_Src*iPitch_src+ic_Src*iColorPitch+0];
-						}
-					}
-					else
+
+					if(bRGBSeparated == false)
 					{
 						pbyDataDst[r*iPitch_dst+c*4+2]=pbyDataSrc[ir_Src*iPitch_src+ic_Src*iColorPitch+2];
 						pbyDataDst[r*iPitch_dst+c*4+1]=pbyDataSrc[ir_Src*iPitch_src+ic_Src*iColorPitch+1];
 						pbyDataDst[r*iPitch_dst+c*4+0]=pbyDataSrc[ir_Src*iPitch_src+ic_Src*iColorPitch+0];
-					}
-					pbyDataDst[r*iPitch_dst+c*4+3]=255;
-				}
-			}
-			return true;
-		}
-
-		if(iBPP==32)
-		{
-			int iColorPitch = (iBPP==24 ? 3 : 4);
-			for(int r=0; r<iHeight_Dst; r++)
-			{
-				int ir_Src=int(r/dScale+dR0_Src);
-
-				if((ir_Src<0)||(ir_Src>=iHeightSrc))
-				{
-					for(int c=0; c<iWidth_Dst; c++)
-					{
-						SetRGBAValue(pbyDataDst, r, c, iPitch_dst, 127, 127, 127, 255);
-					}
-					continue;
-				}
-
-				for(int c=0; c<iWidth_Dst; c++)
-				{
-					int ic_Src=int(c/dScale+dC0_Src);
-					if((ic_Src<0)||(ic_Src>=iWidthSrc))
-					{
-						SetRGBAValue(pbyDataDst, r, c, iPitch_dst, 127, 127, 127, 255);
+						if(iBPP==32){pbyDataDst[r*iPitch_dst+c*4+3]=pbyDataSrc[ir_Src*iPitch_src+ic_Src*iColorPitch+3];}
+						else{pbyDataDst[r*iPitch_dst+c*4+3]=255;}
 						continue;
 					}
-					if(bRGBSeparated == true)
+
+					double dFlac = c/dScale+dC0_Src - int(c/dScale+dC0_Src);
+					if(dFlac<1/3.0)
 					{
-						double dFlac = c/dScale+dC0_Src - int(c/dScale+dC0_Src);
-						if(dFlac<1/3.0)
-						{
-							pbyDataDst[r*iPitch_dst+c*4+2]=pbyDataSrc[ir_Src*iPitch_src+ic_Src*iColorPitch+2];
-							pbyDataDst[r*iPitch_dst+c*4+1]=0;
-							pbyDataDst[r*iPitch_dst+c*4+0]=0;
-							pbyDataDst[r*iPitch_dst+c*4+3]=pbyDataSrc[ir_Src*iPitch_src+ic_Src*iColorPitch+3];
-						}
-						else if(dFlac<2/3.0)
-						{
-							pbyDataDst[r*iPitch_dst+c*4+2]=0;
-							pbyDataDst[r*iPitch_dst+c*4+1]=pbyDataSrc[ir_Src*iPitch_src+ic_Src*iColorPitch+1];
-							pbyDataDst[r*iPitch_dst+c*4+0]=0;
-							pbyDataDst[r*iPitch_dst+c*4+3]=pbyDataSrc[ir_Src*iPitch_src+ic_Src*iColorPitch+3];
-						}
-						else
-						{
-							pbyDataDst[r*iPitch_dst+c*4+2]=0;
-							pbyDataDst[r*iPitch_dst+c*4+1]=0;
-							pbyDataDst[r*iPitch_dst+c*4+0]=pbyDataSrc[ir_Src*iPitch_src+ic_Src*iColorPitch+0];
-							pbyDataDst[r*iPitch_dst+c*4+3]=pbyDataSrc[ir_Src*iPitch_src+ic_Src*iColorPitch+3];
-						}
+						pbyDataDst[r*iPitch_dst+c*4+2]=pbyDataSrc[ir_Src*iPitch_src+ic_Src*iColorPitch+2];
+						pbyDataDst[r*iPitch_dst+c*4+1]=0;
+						pbyDataDst[r*iPitch_dst+c*4+0]=0;
+						if(iBPP==32){pbyDataDst[r*iPitch_dst+c*4+3]=pbyDataSrc[ir_Src*iPitch_src+ic_Src*iColorPitch+3];}
+					}
+					else if(dFlac<2/3.0)
+					{
+						pbyDataDst[r*iPitch_dst+c*4+2]=0;
+						pbyDataDst[r*iPitch_dst+c*4+1]=pbyDataSrc[ir_Src*iPitch_src+ic_Src*iColorPitch+1];
+						pbyDataDst[r*iPitch_dst+c*4+0]=0;
+						if(iBPP==32){pbyDataDst[r*iPitch_dst+c*4+3]=pbyDataSrc[ir_Src*iPitch_src+ic_Src*iColorPitch+3];}
 					}
 					else
 					{
-					pbyDataDst[r*iPitch_dst+c*4+2]=pbyDataSrc[ir_Src*iPitch_src+ic_Src*iColorPitch+2];
-					pbyDataDst[r*iPitch_dst+c*4+1]=pbyDataSrc[ir_Src*iPitch_src+ic_Src*iColorPitch+1];
-					pbyDataDst[r*iPitch_dst+c*4+0]=pbyDataSrc[ir_Src*iPitch_src+ic_Src*iColorPitch+0];
-					pbyDataDst[r*iPitch_dst+c*4+3]=pbyDataSrc[ir_Src*iPitch_src+ic_Src*iColorPitch+3];
+						pbyDataDst[r*iPitch_dst+c*4+2]=0;
+						pbyDataDst[r*iPitch_dst+c*4+1]=0;
+						pbyDataDst[r*iPitch_dst+c*4+0]=pbyDataSrc[ir_Src*iPitch_src+ic_Src*iColorPitch+0];
+						if(iBPP==32){pbyDataDst[r*iPitch_dst+c*4+3]=pbyDataSrc[ir_Src*iPitch_src+ic_Src*iColorPitch+3];}
 					}
+					if(iBPP==24){pbyDataDst[r*iPitch_dst+c*4+3]=255;}
 				}
 			}
 			return true;
@@ -2768,6 +2602,7 @@ BYTE g_byFont_8_16[1992]={
 		}
 		return -1;
 	}
+	/*
 	bool Set8bitsColorTableImage(const CImage* imgSrc,const RGBQUAD* rgbqTable256, CImage* imgDst)
 	{
 		int iWidth = imgSrc->GetWidth();
@@ -2825,10 +2660,9 @@ BYTE g_byFont_8_16[1992]={
 				}
 			}
 		}
-
-
 		return true;
 	}
+	*/
 	bool SetAsc8bitsMonoColorTableImage(const CImage* imgSrc, CImage* imgDst)
 	{
 		if(IsImageMonochrome(imgSrc)==false){return false;}
