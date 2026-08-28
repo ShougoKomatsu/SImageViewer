@@ -229,7 +229,7 @@ inline bool SetHSVValue(BYTE* pbyData, int iPitch, int r, int c, UINT uiValue, c
 	return true;
 }
 
-bool AnalizeStrAsImage(CString sImage, int* iWidth, int* iHeight, CString* sSeparator_out, bool* bColored, bool* bFloat)
+bool AnalyzeStrAsImage(CString sImage, int* iWidth, int* iHeight, CString* sSeparator_out, bool* bColored, bool* bFloat)
 {
 	int iPlace =sImage.Find(_T("."),0);
 	if(iPlace>=0){*bFloat=true;}
@@ -430,7 +430,7 @@ bool ConvertStrToPanImage(const CString sImage,  VALUE_IMAGE enumImageMode, PanI
 	int iWidth;
 	bool bColored;
 	bool bFloat;
-	bool bRet = AnalizeStrAsImage(sImage, &iWidth, &iHeight, &sSeparator, &bColored, &bFloat);
+	bool bRet = AnalyzeStrAsImage(sImage, &iWidth, &iHeight, &sSeparator, &bColored, &bFloat);
 	if(bRet != true){return false;}
 	if(bColored==true)
 	{
@@ -1171,60 +1171,58 @@ bool ConvertImage(const ImgRGB* imgRGB, CImage* imgDst)
 	int iWidth_src = imgRGB->iWidth;;
 	int iHeight_src= imgRGB->iHeight;;
 
-	if((imgRGB->iChannel==CHANNEL_3_8RGB) || (imgRGB->iChannel==CHANNEL_4_8RGBA))
+	switch(imgRGB->iChannel)
 	{
-
-		if(imgDst->IsNull() != true){imgDst->Destroy();}
-		if(imgRGB->iChannel==CHANNEL_3_8RGB){imgDst->Create(iWidth_src, iHeight_src, 24);}
-		if(imgRGB->iChannel==CHANNEL_4_8RGBA){imgDst->Create(iWidth_src, iHeight_src, 32);}
-
-		int iColorPitch = ((imgRGB->iChannel==CHANNEL_3_8RGB) ? 3 : 4);
-		BYTE* pbyDataDst = (BYTE*)imgDst->GetBits();
-		int iPitch_dst=imgDst->GetPitch();
-		for(int r=0; r<iHeight_src; r++)
+	case CHANNEL_3_8RGB:
+	case CHANNEL_4_8RGBA:
 		{
-			for(int c=0; c<iWidth_src; c++)
+			if(imgDst->IsNull() != true){imgDst->Destroy();}
+			if(imgRGB->iChannel==CHANNEL_3_8RGB){imgDst->Create(iWidth_src, iHeight_src, 24);}
+			if(imgRGB->iChannel==CHANNEL_4_8RGBA){imgDst->Create(iWidth_src, iHeight_src, 32);}
+
+			int iColorPitch = ((imgRGB->iChannel==CHANNEL_3_8RGB) ? 3 : 4);
+			BYTE* pbyDataDst = (BYTE*)imgDst->GetBits();
+			int iPitch_dst=imgDst->GetPitch();
+			for(int r=0; r<iHeight_src; r++)
 			{
-				pbyDataDst[r*iPitch_dst+c*iColorPitch+2]=imgRGB->byImgR[r*iWidth_src+c];
-				pbyDataDst[r*iPitch_dst+c*iColorPitch+1]=imgRGB->byImgG[r*iWidth_src+c];
-				pbyDataDst[r*iPitch_dst+c*iColorPitch+0]=imgRGB->byImgB[r*iWidth_src+c];
-				if(imgRGB->iChannel==CHANNEL_4_8RGBA){pbyDataDst[r*iPitch_dst+c*iColorPitch+3]=imgRGB->byImgA[r*iWidth_src+c];}
+				for(int c=0; c<iWidth_src; c++)
+				{
+					pbyDataDst[r*iPitch_dst+c*iColorPitch+2]=imgRGB->byImgR[r*iWidth_src+c];
+					pbyDataDst[r*iPitch_dst+c*iColorPitch+1]=imgRGB->byImgG[r*iWidth_src+c];
+					pbyDataDst[r*iPitch_dst+c*iColorPitch+0]=imgRGB->byImgB[r*iWidth_src+c];
+					if(imgRGB->iChannel==CHANNEL_4_8RGBA){pbyDataDst[r*iPitch_dst+c*iColorPitch+3]=imgRGB->byImgA[r*iWidth_src+c];}
+				}
 			}
+			return true;
 		}
-		return true;
-	}
-
-
-	if(imgRGB->iChannel==CHANNEL_1_8)
-	{
-		if(imgDst->IsNull() != true){imgDst->Destroy();}
-		imgDst->Create(iWidth_src, iHeight_src, 8);
-
-		RGBQUAD colorTable[256];
-		for(int i=0; i<256; i++)
+	case CHANNEL_1_8:
 		{
-			colorTable[i].rgbBlue=i;
-			colorTable[i].rgbGreen=i;
-			colorTable[i].rgbRed=i;
-			colorTable[i].rgbReserved=0;
-		}
+			if(imgDst->IsNull() != true){imgDst->Destroy();}
+			imgDst->Create(iWidth_src, iHeight_src, 8);
 
-
-		SetColorTable(imgDst, colorTable, 256);
-
-
-		BYTE* pbyDataDst = (BYTE*)imgDst->GetBits();
-		int iPitch_dst=imgDst->GetPitch();
-		for(int r=0; r<iHeight_src; r++)
-		{
-			for(int c=0; c<iWidth_src; c++)
+			RGBQUAD colorTable[256];
+			for(int i=0; i<256; i++)
 			{
-				pbyDataDst[r*iPitch_dst+c]=imgRGB->byImg[r*iWidth_src+c];
+				colorTable[i].rgbBlue=i;
+				colorTable[i].rgbGreen=i;
+				colorTable[i].rgbRed=i;
+				colorTable[i].rgbReserved=0;
 			}
-		}
-		return true;
-	}
+			SetColorTable(imgDst, colorTable, 256);
 
+			BYTE* pbyDataDst = (BYTE*)imgDst->GetBits();
+			int iPitch_dst=imgDst->GetPitch();
+			for(int r=0; r<iHeight_src; r++)
+			{
+				for(int c=0; c<iWidth_src; c++)
+				{
+					pbyDataDst[r*iPitch_dst+c]=imgRGB->byImg[r*iWidth_src+c];
+				}
+			}
+			return true;
+		}
+	default : {return false;}
+	}
 	return true;
 }
 
@@ -3830,15 +3828,15 @@ BYTE g_byFont_8_16[1992]={
 		return true;
 	}
 
-	bool PanImage::Set(IMAGE_TYPE enumImageType, int* iImage_in, double* dImage_in, int iWidth, int iHeight, CImage* cImage_in, VALUE_IMAGE enumValueImage)
+	bool PanImage::Set(IMAGE_TYPE enumImageType, int* piImage_in, double* pdImage_in, int iWidth, int iHeight, CImage* pcImage_in, VALUE_IMAGE enumValueImage)
 	{
 		this->Init();
 		switch(enumImageType)
 		{
 		case IMAGE_TYPE_CIMAGE:
 			{
-				if(cImage_in == NULL){return false;}
-				bool bRet = CopyImage(cImage_in, &(this->cImage));
+				if(pcImage_in == NULL){return false;}
+				bool bRet = CopyImage(pcImage_in, &(this->cImage));
 				if(bRet != true){return false;}
 				this->enumImageType = IMAGE_TYPE_CIMAGE;
 				this->iWidth=this->cImage.GetWidth();
@@ -3847,7 +3845,7 @@ BYTE g_byFont_8_16[1992]={
 			}
 		case IMAGE_TYPE_IIMAGE:
 			{
-				if(iImage_in == NULL){return false;}
+				if(piImage_in == NULL){return false;}
 				if(iWidth<=0){return false;}
 				if(iHeight<=0){return false;}
 				this->iImage=new int[iWidth*iHeight];
@@ -3858,7 +3856,7 @@ BYTE g_byFont_8_16[1992]={
 				{
 					for(int c=0; c<iWidth; c++)
 					{
-						this->iImage[r*iWidth+c]=iImage_in[r*iWidth+c];
+						this->iImage[r*iWidth+c]=piImage_in[r*iWidth+c];
 					}
 				}
 				Convert(enumValueImage, &(this->cImage));
@@ -3866,7 +3864,7 @@ BYTE g_byFont_8_16[1992]={
 			}
 		case IMAGE_TYPE_DIMAGE:
 			{
-				if(dImage_in == NULL){return false;}
+				if(pdImage_in == NULL){return false;}
 				if(iWidth<=0){return false;}
 				if(iHeight<=0){return false;}
 				this->dImage=new double[iWidth*iHeight];
@@ -3877,7 +3875,7 @@ BYTE g_byFont_8_16[1992]={
 				{
 					for(int c=0; c<iWidth; c++)
 					{
-						this->dImage[r*iWidth+c]=dImage_in[r*iWidth+c];
+						this->dImage[r*iWidth+c]=pdImage_in[r*iWidth+c];
 					}
 				}
 				Convert(enumValueImage, &(this->cImage));
