@@ -1799,6 +1799,22 @@ IMPLEMENT_DYNCREATE(CSImageViewerView, CView)
 					Invalidate();
 					return TRUE; 
 				}
+				
+				if(pMsg->wParam == VK_LEFT)
+				{
+					CMainFrame* pFrame = (CMainFrame*)AfxGetMainWnd();
+					pFrame->OnImagePP();
+					Invalidate();
+					return TRUE;
+				}
+				
+				if(pMsg->wParam == VK_RIGHT)
+				{
+					CMainFrame* pFrame = (CMainFrame*)AfxGetMainWnd();
+					pFrame->OnImageFW();
+					Invalidate();
+					return TRUE;
+				}
 			}
 
 			if(GetKeyState(VK_SHIFT)<0)
