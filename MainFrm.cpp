@@ -43,26 +43,26 @@ BEGIN_MESSAGE_MAP(CMainFrame, CFrameWndEx)
 	ON_UPDATE_COMMAND_UI(IDM_ZOOMDOWN, &CMainFrame::OnUpdateMenu)
 	ON_UPDATE_COMMAND_UI(ID_EDIT_PASTE, &CMainFrame::OnUpdateMenu)
 	ON_UPDATE_COMMAND_UI(ID_MENU_RESAMPLE, &CMainFrame::OnUpdateMenu)	
-    ON_UPDATE_COMMAND_UI(ID_BUTTON_GRID_DOT, &CMainFrame::OnUpdateMenu)
-    ON_UPDATE_COMMAND_UI(ID_BUTTON_GRID_LINE, &CMainFrame::OnUpdateMenu)
-    ON_UPDATE_COMMAND_UI(ID_BUTTON_GRID_CONNECT, &CMainFrame::OnUpdateMenu)
-    ON_UPDATE_COMMAND_UI(ID_BUTTON_IMAGE_PP, &CMainFrame::OnUpdateMenu)
-    ON_UPDATE_COMMAND_UI(ID_BUTTON_IMAGE_FW, &CMainFrame::OnUpdateMenu)
-    ON_UPDATE_COMMAND_UI(ID_BUTTON_VALUE, &CMainFrame::OnUpdateMenu)
-    ON_UPDATE_COMMAND_UI(ID_BUTTON_RGBSEPARATE, &CMainFrame::OnUpdateMenu)
-	
-    ON_COMMAND(ID_BUTTON_GRID_DOT, &CMainFrame::OnButtonGridDot)
-    ON_COMMAND(ID_BUTTON_GRID_LINE, &CMainFrame::OnButtonGridLine)
-    ON_COMMAND(ID_BUTTON_GRID_CONNECT, &CMainFrame::OnButtonGridConnect)
-	
-    ON_COMMAND(ID_BUTTON_VALUE, &CMainFrame::OnButtonValue)
-    ON_COMMAND(ID_BUTTON_RGBSEPARATE, &CMainFrame::OnButtonRGBSeparate)
+	ON_UPDATE_COMMAND_UI(ID_BUTTON_GRID_DOT, &CMainFrame::OnUpdateMenu)
+	ON_UPDATE_COMMAND_UI(ID_BUTTON_GRID_LINE, &CMainFrame::OnUpdateMenu)
+	ON_UPDATE_COMMAND_UI(ID_BUTTON_GRID_CONNECT, &CMainFrame::OnUpdateMenu)
+	ON_UPDATE_COMMAND_UI(ID_BUTTON_IMAGE_PP, &CMainFrame::OnUpdateMenu)
+	ON_UPDATE_COMMAND_UI(ID_BUTTON_IMAGE_FW, &CMainFrame::OnUpdateMenu)
+	ON_UPDATE_COMMAND_UI(ID_BUTTON_VALUE, &CMainFrame::OnUpdateMenu)
+	ON_UPDATE_COMMAND_UI(ID_BUTTON_RGBSEPARATE, &CMainFrame::OnUpdateMenu)
+
+	ON_COMMAND(ID_BUTTON_GRID_DOT, &CMainFrame::OnButtonGridDot)
+	ON_COMMAND(ID_BUTTON_GRID_LINE, &CMainFrame::OnButtonGridLine)
+	ON_COMMAND(ID_BUTTON_GRID_CONNECT, &CMainFrame::OnButtonGridConnect)
+
+	ON_COMMAND(ID_BUTTON_VALUE, &CMainFrame::OnButtonValue)
+	ON_COMMAND(ID_BUTTON_RGBSEPARATE, &CMainFrame::OnButtonRGBSeparate)
 
 	ON_COMMAND(IDM_ZOOMDOWN, &CMainFrame::OnZoomdown)
 	ON_COMMAND(IDM_ZOOMUP, &CMainFrame::OnZoomup)
 	ON_COMMAND(ID_BUTTON_IMAGE_FW, &CMainFrame::OnImageFW)
 	ON_COMMAND(ID_BUTTON_IMAGE_PP, &CMainFrame::OnImagePP)
-    ON_WM_INITMENUPOPUP()
+	ON_WM_INITMENUPOPUP()
 	ON_WM_DROPFILES()
 	ON_WM_DESTROY()
 	ON_MESSAGE(WM_COMMAND_CHANGE_CHANNEL, &CMainFrame::OnCommandChangeChannel)
@@ -120,12 +120,12 @@ int CMainFrame::OnCreate(LPCREATESTRUCT lpCreateStruct)
 		m_cfStatus.DeleteObject();
 	}
 	LOGFONT lf = {};
-    lf.lfHeight = -18;                     // 高さ（負値で論理単位）
-	lf.lfWeight = FW_NORMAL;                 // 太字
-    lf.lfCharSet = DEFAULT_CHARSET;
-    _tcscpy_s(lf.lfFaceName, _T("MS Gothic"));  // お好みのフォント名
+	lf.lfHeight = -18;                     // 高さ（負値で論理単位）
+	lf.lfWeight = FW_NORMAL;
+	lf.lfCharSet = DEFAULT_CHARSET;
+	_tcscpy_s(lf.lfFaceName, _T("MS Gothic"));
 
-    m_cfStatus.CreateFontIndirect(&lf);
+	m_cfStatus.CreateFontIndirect(&lf);
 
 
 
@@ -136,7 +136,7 @@ int CMainFrame::OnCreate(LPCREATESTRUCT lpCreateStruct)
 	if (!m_wndMenuBar.Create(this))
 	{
 		TRACE0("メニュー バーを作成できませんでした\n");
-		return -1;      // 作成できませんでした。
+		return -1;
 	}
 	m_wndMenuBar.SetPaneStyle(CBRS_FLOATING);
 
@@ -149,7 +149,7 @@ int CMainFrame::OnCreate(LPCREATESTRUCT lpCreateStruct)
 		!m_wndToolBar.LoadToolBar(theApp.m_bHiColorIcons ? IDR_MAINFRAME_256 : IDR_MAINFRAME))
 	{
 		TRACE0("ツール バーの作成に失敗しました。\n");
-		return -1;      // 作成できませんでした。
+		return -1;
 	}
 	m_iGrid = ID_BUTTON_GRID_NONE;
 	m_bValue = false;
@@ -172,12 +172,12 @@ int CMainFrame::OnCreate(LPCREATESTRUCT lpCreateStruct)
 	if (!m_wndStatusBar.Create(this))
 	{
 		TRACE0("ステータス バーの作成に失敗しました。\n");
-		return -1;      // 作成できない場合
+		return -1;
 	}
-        m_wndStatusBar.SetFont(&m_cfStatus);
+	m_wndStatusBar.SetFont(&m_cfStatus);
 
 
-		m_bGridAble=false;
+	m_bGridAble=false;
 
 	m_wndStatusBar.SetIndicators(indicators, _countof(indicators));
 
@@ -196,7 +196,7 @@ int CMainFrame::OnCreate(LPCREATESTRUCT lpCreateStruct)
 		m_wndStatusBar.SetPaneTextColor(i, RGB(0,0,0));
 		m_wndStatusBar.SetPaneBackgroundColor(i, RGB(255, 255, 255));
 	}
-	
+
 
 	// TODO: ツール バーおよびメニュー バーをドッキング可能にしない場合は、この 5 つの行を削除します
 	m_wndMenuBar.EnableDocking(CBRS_ALIGN_ANY);
@@ -239,7 +239,7 @@ int CMainFrame::OnCreate(LPCREATESTRUCT lpCreateStruct)
 	lstBasicCommands.AddTail(ID_APP_ABOUT);
 	lstBasicCommands.AddTail(ID_VIEW_STATUS_BAR);
 	lstBasicCommands.AddTail(ID_VIEW_TOOLBAR);
-	
+
 	lstBasicCommands.AddTail(ID_FILE_SAVE_AS);
 	lstBasicCommands.AddTail(ID_EDIT_COPY);
 
@@ -497,10 +497,10 @@ void CMainFrame::OnDropFiles(HDROP hDropInfo)
 	UINT uiFileCount = DragQueryFile(hDropInfo, 0xFFFFFFFF, NULL, 0);
 	CStringArray saFilePath;
 	saFilePath.RemoveAll();
-	for(int i=0; i<uiFileCount; i++)
+	for(UINT ui=0; ui<uiFileCount; ui++)
 	{
 		TCHAR tchFilePath[MAX_PATH];
-		DragQueryFile(hDropInfo, i, tchFilePath, MAX_PATH);
+		DragQueryFile(hDropInfo, ui, tchFilePath, MAX_PATH);
 		saFilePath.Add(tchFilePath);
 	}
 
@@ -607,7 +607,6 @@ void CMainFrame::ExitFullScreen()
 	{
 		pToolBar->ShowPane(TRUE, FALSE, FALSE);
 	}
-
 	CMFCStatusBar* pStatusBar = DYNAMIC_DOWNCAST(CMFCStatusBar, GetControlBar(AFX_IDW_STATUS_BAR));
 	if (pStatusBar != NULL)
 	{
@@ -643,7 +642,7 @@ void CMainFrame::OnDestroy()
 }
 void CMainFrame::OnButtonGridNone()
 {
-    m_iGrid = ID_BUTTON_GRID_NONE;
+	m_iGrid = ID_BUTTON_GRID_NONE;
 	Invalidate();
 }
 
@@ -693,7 +692,7 @@ void CMainFrame::OnButtonGridLine()
 		Invalidate();
 		return;
 	}
-    m_iGrid = ID_BUTTON_GRID_LINE;
+	m_iGrid = ID_BUTTON_GRID_LINE;
 	Invalidate();
 }
 
@@ -705,7 +704,7 @@ void CMainFrame::OnButtonGridConnect()
 		Invalidate();
 		return;
 	}
-    m_iGrid = ID_BUTTON_GRID_CONNECT;
+	m_iGrid = ID_BUTTON_GRID_CONNECT;
 	Invalidate();
 }
 
@@ -731,7 +730,7 @@ void CMainFrame::OnImagePP()
 
 void CMainFrame::OnUpdateMenu(CCmdUI* pCmdUI)
 {
-	
+
 	CView* pView = GetActiveView();
 	switch (pCmdUI->m_nID)
 	{
@@ -749,18 +748,18 @@ void CMainFrame::OnUpdateMenu(CCmdUI* pCmdUI)
 	case ID_BUTTON_VALUE:
 		{
 			pCmdUI->Enable(m_bFileOpened & m_bGridAble);
-		break;
+			break;
 		}
 	case ID_BUTTON_RGBSEPARATE:
 		{
 			pCmdUI->Enable(m_bFileOpened & m_bGridAble);
-		break;
+			break;
 		}
 	case ID_BUTTON_GRID_DOT:{pCmdUI->Enable(m_bFileOpened & m_bGridAble);break;}
 	case ID_BUTTON_GRID_LINE:{pCmdUI->Enable(m_bFileOpened & m_bGridAble);break;}
 	case ID_BUTTON_GRID_CONNECT:{pCmdUI->Enable(m_bFileOpened & m_bGridAble);break;}
-								
-	case ID_BUTTON_IMAGE_FW:{ CSImageViewerView* pView = (CSImageViewerView*)GetActiveView(); pCmdUI->Enable(pView->m_iImageIndex+1 < pView->m_iImageMax);break;}
+
+	case ID_BUTTON_IMAGE_FW:{CSImageViewerView* pView = (CSImageViewerView*)GetActiveView();pCmdUI->Enable(pView->m_iImageIndex+1 < pView->m_iImageMax);break;}
 	case ID_BUTTON_IMAGE_PP:{CSImageViewerView* pView = (CSImageViewerView*)GetActiveView();pCmdUI->Enable(pView->m_iImageIndex >= 1);break;}
 
 	case IDM_ZOOMDOWN:
@@ -773,10 +772,12 @@ void CMainFrame::OnUpdateMenu(CCmdUI* pCmdUI)
 	case ID_MENU_COLOR_CORRECTON:
 	case ID_MENU_SET_SELECTION:
 	case ID_MENU_RESAMPLE:
+		{
 		pCmdUI->Enable(m_bFileOpened);
 		break;
+		}
 	}
-	
+
 	if(pCmdUI->m_nID== ID_BUTTON_VALUE)
 	{
 		pCmdUI->SetCheck(m_bValue == true);

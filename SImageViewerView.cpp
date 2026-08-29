@@ -113,6 +113,8 @@ IMPLEMENT_DYNCREATE(CSImageViewerView, CView)
 		m_iImgProcessIndex=0;
 		m_iUnDoAvailableCount=0;
 		m_iReDoAvailableCount=0;
+		m_iImageIndex=0;
+		m_iImageMax=0;
 		m_iScaleIndex=8;
 		m_bCBar=false;
 		m_bRBar=false;

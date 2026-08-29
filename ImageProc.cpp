@@ -3729,7 +3729,7 @@ BYTE g_byFont_8_16[1992]={
 					{
 						for(int c=0; c<iWidth; c++)
 						{
-							pbyDataDst[r*iPitch+c]=min(255,max(0, dImage[r*iWidth+c]));
+							pbyDataDst[r*iPitch+c]=(BYTE)min(255,max(0, dImage[r*iWidth+c]));
 						}
 					}
 				}
