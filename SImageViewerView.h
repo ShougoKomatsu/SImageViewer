@@ -23,7 +23,7 @@ public:
 	CImage m_imageZoomed;
 	PanImage * m_image;
 	int m_iImageIndex;
-	int m_iImagemax;
+	int m_iImageMax;
 	CImage m_imageProcessed[32];
 	int m_iImgProcessIndex;
 	int m_iUnDoAvailableCount;

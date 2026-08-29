@@ -661,7 +661,7 @@ IMPLEMENT_DYNCREATE(CSImageViewerView, CView)
 
 	bool CSImageViewerView::ReadImage(CString sFilePath)
 	{
-		for(int i=0; i<m_iImagemax; i++)
+		for(int i=0; i<m_iImageMax; i++)
 		{
 			m_image[i].Init();
 		}
@@ -682,9 +682,7 @@ IMPLEMENT_DYNCREATE(CSImageViewerView, CView)
 
 		CMainFrame* pFrame = (CMainFrame*)AfxGetMainWnd();
 		m_iImageIndex=0;
-		m_iImagemax=iImageNum;
-		pFrame->m_iImageIndex=m_iImageIndex;
-		pFrame->m_iImageMax=m_iImagemax;
+		m_iImageMax=iImageNum;
 		pFrame->m_bFileOpened = true;
 		pFrame->m_bRegionSelected = true;
 
@@ -768,9 +766,8 @@ IMPLEMENT_DYNCREATE(CSImageViewerView, CView)
 
 		SAFE_DELETE(m_image);
 		m_iImageIndex=0;
-		m_iImagemax=1;
-		m_image = new PanImage[m_iImagemax];
-		pFrame->m_iImageIndex=m_iImageIndex;
+		m_iImageMax=1;
+		m_image = new PanImage[m_iImageMax];
 		
 		CPasteAsDlg pasteAsdlg;
 		
@@ -802,9 +799,8 @@ IMPLEMENT_DYNCREATE(CSImageViewerView, CView)
 		CMainFrame* pFrame = (CMainFrame*)AfxGetMainWnd();
 		SAFE_DELETE(m_image);
 		m_iImageIndex=0;
-		m_iImagemax=1;
-		m_image = new PanImage[m_iImagemax];
-		pFrame->m_iImageIndex=m_iImageIndex;
+		m_iImageMax=1;
+		m_image = new PanImage[m_iImageMax];
 		BOOL bRet = CopyFromClipBoardImg(&(m_image[m_iImageIndex]));
 		
 		if(bRet != TRUE){return;}
@@ -1012,7 +1008,7 @@ IMPLEMENT_DYNCREATE(CSImageViewerView, CView)
 		pFrame->m_sStatusBPP.Format(_T("0 BPP"));
 		pFrame->SendMessage(WM_COMMAND, ID_DISP_STATUS_BPP);
 		m_bRefresh=false;
-		m_iImagemax=0;
+		m_iImageMax=0;
 		/*
 		CImage imgTest;
 		imgTest.Create(16,16,8);
@@ -1088,6 +1084,7 @@ IMPLEMENT_DYNCREATE(CSImageViewerView, CView)
 	
 	bool CSImageViewerView::OnImagePP()
 	{
+		m_iImageIndex--;
 		m_iImageIndex=max(m_iImageIndex,0);
 				ResetImage(false);
 		Invalidate();
@@ -1095,7 +1092,8 @@ IMPLEMENT_DYNCREATE(CSImageViewerView, CView)
 	}
 	bool CSImageViewerView::OnImageFW()
 	{
-		m_iImageIndex=min(m_iImageIndex,m_iImagemax-1);
+		m_iImageIndex++;
+		m_iImageIndex=min(m_iImageIndex,m_iImageMax-1);
 				ResetImage(false);
 		Invalidate();
 		return true;
@@ -1802,16 +1800,14 @@ IMPLEMENT_DYNCREATE(CSImageViewerView, CView)
 				
 				if(pMsg->wParam == VK_LEFT)
 				{
-					CMainFrame* pFrame = (CMainFrame*)AfxGetMainWnd();
-					pFrame->OnImagePP();
+					OnImagePP();
 					Invalidate();
 					return TRUE;
 				}
 				
 				if(pMsg->wParam == VK_RIGHT)
 				{
-					CMainFrame* pFrame = (CMainFrame*)AfxGetMainWnd();
-					pFrame->OnImageFW();
+					OnImageFW();
 					Invalidate();
 					return TRUE;
 				}

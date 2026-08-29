@@ -13,8 +13,6 @@ protected: // ƒVƒŠƒAƒ‹‰»‚©‚ç‚Ì‚İì¬‚µ‚Ü‚·B
 	
 	// ‘®«
 public:
-	int m_iImageIndex;
-	int m_iImageMax;
 	bool m_bGridAble;
 	bool m_bFileOpened;
 	bool m_bRegionSelected;

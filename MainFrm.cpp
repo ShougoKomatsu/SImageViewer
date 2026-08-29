@@ -711,12 +711,9 @@ void CMainFrame::OnButtonGridConnect()
 
 void CMainFrame::OnImageFW()
 {
-	m_iImageIndex++;
-	if(m_iImageIndex>=m_iImageMax){m_iImageIndex=m_iImageMax-1;}
 	CView* pView = GetActiveView();
 	if (pView != nullptr)
 	{
-		((CSImageViewerView*)pView)->m_iImageIndex=m_iImageIndex;
 		((CSImageViewerView*)pView)->OnImageFW();
 	}
 	Invalidate();
@@ -724,12 +721,9 @@ void CMainFrame::OnImageFW()
 
 void CMainFrame::OnImagePP()
 {
-	m_iImageIndex--;
-	if(m_iImageIndex<0){m_iImageIndex=0;}
 	CView* pView = GetActiveView();
 	if (pView != nullptr)
 	{
-		((CSImageViewerView*)pView)->m_iImageIndex=m_iImageIndex;
 		((CSImageViewerView*)pView)->OnImagePP();
 	}
 	Invalidate();
@@ -766,8 +760,8 @@ void CMainFrame::OnUpdateMenu(CCmdUI* pCmdUI)
 	case ID_BUTTON_GRID_LINE:{pCmdUI->Enable(m_bFileOpened & m_bGridAble);break;}
 	case ID_BUTTON_GRID_CONNECT:{pCmdUI->Enable(m_bFileOpened & m_bGridAble);break;}
 								
-	case ID_BUTTON_IMAGE_FW:{pCmdUI->Enable(m_iImageIndex+1 < m_iImageMax);break;}
-	case ID_BUTTON_IMAGE_PP:{pCmdUI->Enable(m_iImageIndex >= 1);break;}
+	case ID_BUTTON_IMAGE_FW:{ CSImageViewerView* pView = (CSImageViewerView*)GetActiveView(); pCmdUI->Enable(pView->m_iImageIndex+1 < pView->m_iImageMax);break;}
+	case ID_BUTTON_IMAGE_PP:{CSImageViewerView* pView = (CSImageViewerView*)GetActiveView();pCmdUI->Enable(pView->m_iImageIndex >= 1);break;}
 
 	case IDM_ZOOMDOWN:
 	case IDM_ZOOMUP:
