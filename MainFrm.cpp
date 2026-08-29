@@ -463,13 +463,20 @@ void CMainFrame::OnZoomup()
 	}
 }
 
-void CMainFrame::LaunchNewInstance(CString sFilePath)
+void CMainFrame::LaunchNewInstance(CStringArray* saFilePath)
 {
 	TCHAR tszExePath[MAX_PATH];
 	::GetModuleFileName(NULL, tszExePath, MAX_PATH);
-
 	CString sCommand;
-	sCommand.Format(_T("\"%s\" \"%s\""), tszExePath, sFilePath);
+	sCommand.Format(_T("\"%s\" "), tszExePath);
+
+	for(int i=0; i<saFilePath->GetCount(); i++)
+	{
+		CString sTemp;
+		sTemp.Format(_T("\"%s\""), saFilePath->GetAt(i));
+		sCommand.Append(sTemp);
+	}
+
 
 	STARTUPINFO si = { sizeof(si) };
 	PROCESS_INFORMATION pi;
@@ -484,12 +491,20 @@ void CMainFrame::LaunchNewInstance(CString sFilePath)
 
 void CMainFrame::OnDropFiles(HDROP hDropInfo)
 {
-	TCHAR tchFilePath[MAX_PATH];
-	DragQueryFile(hDropInfo, 0, tchFilePath, MAX_PATH);
-
-	LaunchNewInstance(tchFilePath);
+	UINT uiFileCount = DragQueryFile(hDropInfo, 0xFFFFFFFF, NULL, 0);
+	CStringArray saFilePath;
+	saFilePath.RemoveAll();
+	for(int i=0; i<uiFileCount; i++)
+	{
+		TCHAR tchFilePath[MAX_PATH];
+		DragQueryFile(hDropInfo, i, tchFilePath, MAX_PATH);
+		saFilePath.Add(tchFilePath);
+	}
 
 	DragFinish(hDropInfo);
+
+	LaunchNewInstance(&saFilePath);
+
 	CFrameWndEx::OnDropFiles(hDropInfo);
 }
 

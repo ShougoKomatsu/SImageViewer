@@ -40,7 +40,7 @@ public:
 	void ExitFullScreen();
 	void AdjustViewClientSize(int desiredClientWidth, int desiredClientHeight,int iNowWidth, int iNowHeight);
 
-	void LaunchNewInstance(CString sFilePath);
+	void LaunchNewInstance(CStringArray* saFilePath);
 	// オーバーライド
 public:
 	virtual BOOL PreCreateWindow(CREATESTRUCT& cs);

@@ -530,17 +530,122 @@ IMPLEMENT_DYNCREATE(CSImageViewerView, CView)
 		pFrame->SendMessage(WM_COMMAND, ID_DISP_STATUS_BPP);
 	}
 
-
-
-
-	bool CSImageViewerView::ReadImage(CString sFilePath)
+	bool IsImageFIle(CString sFilePath)
 	{
-	//	aaa();
+		if(sFilePath.Right(4).CompareNoCase(_T(".bmp"))==0){return true;}
+		if(sFilePath.Right(4).CompareNoCase(_T(".png"))==0){return true;}
+		if(sFilePath.Right(4).CompareNoCase(_T(".jpg"))==0){return true;}
+		if(sFilePath.Right(4).CompareNoCase(_T(".ico"))==0){return true;}
+		if(sFilePath.Right(4).CompareNoCase(_T(".exe"))==0){return true;}
+		if(sFilePath.Right(4).CompareNoCase(_T(".dll"))==0){return true;}
+		return false;
+	}
+	
+	UINT CountImageInFile(CString sFilePath)
+	{
+		if(sFilePath.Right(4).CompareNoCase(_T(".bmp"))==0){return 1;}
+		if(sFilePath.Right(4).CompareNoCase(_T(".png"))==0){return 1;}
+		if(sFilePath.Right(4).CompareNoCase(_T(".jpg"))==0){return 1;}
+		if(sFilePath.Right(4).CompareNoCase(_T(".ico"))==0){return 2*CountIconNum(sFilePath); }
+		if(sFilePath.Right(4).CompareNoCase(_T(".exe"))==0){return 2*CountIconNum(sFilePath); }
+		if(sFilePath.Right(4).CompareNoCase(_T(".dll"))==0){return 2*CountIconNum(sFilePath); }
+		return 0;
+	}
+	bool GetImageFilePaths(CString sFileOrFolderPath, CStringArray* saFilePath)
+	{
+		DWORD dwAttribute = GetFileAttributes(sFileOrFolderPath);
+		    if (dwAttribute == INVALID_FILE_ATTRIBUTES) {return false;}
+
+    if ((dwAttribute & FILE_ATTRIBUTE_DIRECTORY) == 0) 
+	{
+				if(IsImageFIle(sFileOrFolderPath)==true)
+				{
+				saFilePath->Add(sFileOrFolderPath);
+				}
+		return true;
+    }
+
+
+		CString searchPath = sFileOrFolderPath;
+		if (searchPath.Right(1) != _T("\\")) 
+		{
+			searchPath += _T("\\");
+		}
+		searchPath += _T("*.*");
 
 		CFileFind cf;
-		BOOL bRet = cf.FindFile(sFilePath);
+		BOOL bWorking = cf.FindFile(searchPath);
 
-		if(bRet != TRUE){return false;}
+		while (bWorking) 
+		{
+			bWorking = cf.FindNextFile();
+
+			if (cf.IsDots()) {continue;}
+
+			CString sFilePath = cf.GetFilePath();
+
+			if (cf.IsDirectory()) 
+			{
+				GetImageFilePaths(sFilePath, saFilePath);
+			}
+			else 
+			{
+				if(IsImageFIle(sFilePath)!=true){continue;}
+				saFilePath->Add(sFilePath);
+			}
+		}
+
+		cf.Close();
+		return true;
+	}
+
+	int CountImages(CString sFilePath)
+	{
+		CStringArray saFilePath;
+		saFilePath.RemoveAll();
+		GetImageFilePaths(sFilePath, &saFilePath);
+		int FileNum = (int)saFilePath.GetCount();
+		
+		int iImageCount=0;
+		for(int i=0; i<FileNum; i++)
+		{
+			iImageCount += CountImageInFile(saFilePath.GetAt(i));
+		}
+		return iImageCount;
+	}
+	bool _ReadImage(CString sFilePath, PanImage* panImage, int iImageIndex, int* iImageIndexNew)
+	{
+		
+		if(((sFilePath.Right(4)).CompareNoCase(_T(".ico"))==0)
+			||((sFilePath.Right(4)).CompareNoCase(_T(".exe"))==0)
+			||((sFilePath.Right(4)).CompareNoCase(_T(".dll"))==0))
+		{
+		
+			UINT uiIconNum = CountIconNum(sFilePath);
+			bool bbRet = LoadICOFile(sFilePath,panImage,uiIconNum);
+			if(bbRet != true)
+			{
+				return false;
+			}
+			*iImageIndexNew = iImageIndex+uiIconNum;
+			return true;
+		}
+		else
+		{
+			HRESULT hResult = panImage->cImage.Load(sFilePath);
+			if(hResult != S_OK){return false;}
+			panImage->enumImageType=IMAGE_TYPE_CIMAGE;
+			*iImageIndexNew = iImageIndex+1;
+		}
+		return true;
+	}
+	bool CSImageViewerView::ReadImage(CString sFilePath)
+	{
+	
+		CFileFind cf;
+		BOOL bbRet = cf.FindFile(sFilePath);
+
+		if(bbRet != TRUE){return false;}
 
 		for(int i=0; i<m_iImagemax; i++)
 		{
@@ -549,56 +654,25 @@ IMPLEMENT_DYNCREATE(CSImageViewerView, CView)
 		SAFE_DELETE(m_image);
 		CMainFrame* pFrame = (CMainFrame*)AfxGetMainWnd();
 
-		if(((sFilePath.Right(4)).CompareNoCase(_T(".ico"))==0)
-			||((sFilePath.Right(4)).CompareNoCase(_T(".exe"))==0)
-			||((sFilePath.Right(4)).CompareNoCase(_T(".dll"))==0))
+		CStringArray saFilePath;
+	bool bRet = GetImageFilePaths(sFilePath, &saFilePath);
+	int iImageNum = CountImages(sFilePath);
+	
+		m_image=new PanImage[iImageNum];
+
+		int iImageIndex=0;
+		for(int i=0; i<saFilePath.GetCount(); i++)
 		{
-		
-//			m_image=new CImage[2];
-//bRet =  LoadICON2(sFilePath, m_image, 1);
-			UINT uiIconNum = CountIconNum(sFilePath);
-			m_image=new PanImage[uiIconNum*2];
-			bool bbRet = LoadICOFile(sFilePath,m_image,uiIconNum);
-			if(bbRet != true)
-			{
-				for(int i=0; i<m_iImagemax; i++)
-				{
-					m_image[i].Init();
-				}
-				SAFE_DELETE(m_image);
-				pFrame->m_bFileOpened = false;
-				pFrame->m_bRegionSelected = false;
-				return false;
-			}
-			m_iImageIndex=0;
-			m_image[m_iImageIndex].enumImageType=IMAGE_TYPE_CIMAGE;
-			m_iImagemax=uiIconNum*2;
+			_ReadImage(saFilePath.GetAt(i), &m_image[iImageIndex], iImageIndex,&iImageIndex);
+//			if(iImageIndex>=iImageNum){break;}
+		}
+
+		m_iImageIndex=0;
+			m_iImagemax=iImageNum;
 			pFrame->m_iImageIndex=m_iImageIndex;
 			pFrame->m_iImageMax=m_iImagemax;
 			pFrame->m_bFileOpened = true;
 			pFrame->m_bRegionSelected = true;
-		}
-		else
-		{
-			m_iImageIndex=0;
-			m_iImagemax=1;
-			SAFE_DELETE(m_image);
-			m_image=new PanImage[m_iImagemax];
-
-			m_image[m_iImageIndex].enumImageType=IMAGE_TYPE_CIMAGE;
-			HRESULT hResult = m_image[m_iImageIndex].cImage.Load(m_sFilePath);
-
-
-			pFrame->m_iImageIndex=m_iImageIndex;
-			pFrame->m_iImageMax=m_iImagemax;
-			m_image[m_iImageIndex].Init();
-			hResult = m_image[m_iImageIndex].cImage.Load(m_sFilePath);
-			if(hResult != S_OK){return false;}
-			m_image[m_iImageIndex].enumImageType=IMAGE_TYPE_CIMAGE;
-		}
-
-		pFrame->m_bFileOpened = true;
-		pFrame->m_bRegionSelected = true;
 
 
 		ResetImage(true);

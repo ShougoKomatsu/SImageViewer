@@ -3570,6 +3570,7 @@ BYTE g_byFont_8_16[1992]={
 		for (UINT ui = 0; ui < uiExtracted; ui++)
 		{
 			bool bRet = ConvertIconToImg(hScreenDC, hLargeIcons[ui], &(imgs[ui].cImage));
+			imgs[ui].enumImageType=IMAGE_TYPE_CIMAGE;
 			::DestroyIcon(hLargeIcons[ui]);
 		}
 

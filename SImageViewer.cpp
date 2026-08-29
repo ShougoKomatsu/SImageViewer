@@ -70,7 +70,7 @@ BOOL CSImageViewerApp::InitInstance()
 	//RegDeleteTree(HKEY_CURRENT_USER, _T("Software\\ShougoKomatsu\\SImageViewer"));
 	SetRegistryKey(_T("ShougoKomatsu"));
 	LoadStdProfileSettings(4);  // 標準の INI ファイルのオプションをロードします (MRU を含む)
-
+	AfxMessageBox(L"");
 	g_sParam.Format(_T("%s"),m_lpCmdLine); 
 	g_sParam.Trim(_T("\""));
 	g_sParam.Trim();
@@ -104,6 +104,9 @@ BOOL CSImageViewerApp::InitInstance()
 	ParseCommandLine(cmdInfo);
 
 
+	//フォルダを処理できるように、コマンドラインを改ざんする。フォルダの情報はすでに入手済みである。
+	cmdInfo.m_strFileName.Empty();
+	cmdInfo.m_nShellCommand = CCommandLineInfo::FileNew;
 
 	// コマンド ラインで指定されたディスパッチ コマンドです。アプリケーションが
 	// /RegServer、/Register、/Unregserver または /Unregister で起動された場合、False を返します。
