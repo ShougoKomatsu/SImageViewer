@@ -553,17 +553,40 @@ IMPLEMENT_DYNCREATE(CSImageViewerView, CView)
 	}
 	bool GetImageFilePaths(CString sFileOrFolderPath, CStringArray* saFilePath)
 	{
-		DWORD dwAttribute = GetFileAttributes(sFileOrFolderPath);
-		    if (dwAttribute == INVALID_FILE_ATTRIBUTES) {return false;}
-
-    if ((dwAttribute & FILE_ATTRIBUTE_DIRECTORY) == 0) 
-	{
-				if(IsImageFIle(sFileOrFolderPath)==true)
+		if(sFileOrFolderPath.Find(_T("|"))>=0)
+		{
+			CStringArray saFilePathTemp;
+			saFilePathTemp.RemoveAll();
+			int iPlaceStart=0;
+			while(1)
+			{
+				int iPlaceEnd = sFileOrFolderPath.Find(_T("|"),iPlaceStart);
+				if(iPlaceEnd<0)
 				{
-				saFilePath->Add(sFileOrFolderPath);
+					saFilePathTemp.Add(sFileOrFolderPath.Mid(iPlaceStart,sFileOrFolderPath.GetLength()-iPlaceStart));
+					break;
 				}
-		return true;
-    }
+					saFilePathTemp.Add(sFileOrFolderPath.Mid(iPlaceStart,iPlaceEnd-iPlaceStart));
+				iPlaceStart=iPlaceEnd+1;
+			}
+			for(int i=0; i<saFilePathTemp.GetCount(); i++)
+			{
+				bool bRet = GetImageFilePaths(saFilePathTemp.GetAt(i), saFilePath);
+				if(bRet != true){return false;}
+			}
+			return true;
+		}
+		DWORD dwAttribute = GetFileAttributes(sFileOrFolderPath);
+		if (dwAttribute == INVALID_FILE_ATTRIBUTES) {return false;}
+
+		if ((dwAttribute & FILE_ATTRIBUTE_DIRECTORY) == 0) 
+		{
+			if(IsImageFIle(sFileOrFolderPath)==true)
+			{
+				saFilePath->Add(sFileOrFolderPath);
+			}
+			return true;
+		}
 
 
 		CString searchPath = sFileOrFolderPath;
@@ -641,11 +664,8 @@ IMPLEMENT_DYNCREATE(CSImageViewerView, CView)
 	}
 	bool CSImageViewerView::ReadImage(CString sFilePath)
 	{
-	
-		CFileFind cf;
-		BOOL bbRet = cf.FindFile(sFilePath);
 
-		if(bbRet != TRUE){return false;}
+		CFileFind cf;
 
 		for(int i=0; i<m_iImagemax; i++)
 		{
@@ -655,16 +675,16 @@ IMPLEMENT_DYNCREATE(CSImageViewerView, CView)
 		CMainFrame* pFrame = (CMainFrame*)AfxGetMainWnd();
 
 		CStringArray saFilePath;
-	bool bRet = GetImageFilePaths(sFilePath, &saFilePath);
-	int iImageNum = CountImages(sFilePath);
-	
+		bool bRet = GetImageFilePaths(sFilePath, &saFilePath);
+		int iImageNum = CountImages(sFilePath);
+
 		m_image=new PanImage[iImageNum];
 
 		int iImageIndex=0;
 		for(int i=0; i<saFilePath.GetCount(); i++)
 		{
 			_ReadImage(saFilePath.GetAt(i), &m_image[iImageIndex], iImageIndex,&iImageIndex);
-//			if(iImageIndex>=iImageNum){break;}
+			//			if(iImageIndex>=iImageNum){break;}
 		}
 
 		m_iImageIndex=0;

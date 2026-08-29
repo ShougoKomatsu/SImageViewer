@@ -70,11 +70,9 @@ BOOL CSImageViewerApp::InitInstance()
 	//RegDeleteTree(HKEY_CURRENT_USER, _T("Software\\ShougoKomatsu\\SImageViewer"));
 	SetRegistryKey(_T("ShougoKomatsu"));
 	LoadStdProfileSettings(4);  // 標準の INI ファイルのオプションをロードします (MRU を含む)
-	AfxMessageBox(L"");
 	g_sParam.Format(_T("%s"),m_lpCmdLine); 
 	g_sParam.Trim(_T("\""));
 	g_sParam.Trim();
-
 	InitContextMenuManager();
 
 	InitKeyboardManager();

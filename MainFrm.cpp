@@ -468,14 +468,17 @@ void CMainFrame::LaunchNewInstance(CStringArray* saFilePath)
 	TCHAR tszExePath[MAX_PATH];
 	::GetModuleFileName(NULL, tszExePath, MAX_PATH);
 	CString sCommand;
-	sCommand.Format(_T("\"%s\" "), tszExePath);
+	sCommand.Format(_T("\"%s\" \""), tszExePath);
 
-	for(int i=0; i<saFilePath->GetCount(); i++)
+	for(int i=0; i<saFilePath->GetCount()-1; i++)
 	{
 		CString sTemp;
-		sTemp.Format(_T("\"%s\""), saFilePath->GetAt(i));
+		sTemp.Format(_T("%s|"), saFilePath->GetAt(i));
 		sCommand.Append(sTemp);
 	}
+	CString sTemp;
+	sTemp.Format(_T("%s\""), saFilePath->GetAt(saFilePath->GetCount()-1));
+	sCommand.Append(sTemp);
 
 
 	STARTUPINFO si = { sizeof(si) };
