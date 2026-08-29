@@ -541,7 +541,7 @@ IMPLEMENT_DYNCREATE(CSImageViewerView, CView)
 		return false;
 	}
 	
-	UINT CountImageInFile(CString sFilePath)
+	UINT CountImageInOneFile(CString sFilePath)
 	{
 		if(sFilePath.Right(4).CompareNoCase(_T(".bmp"))==0){return 1;}
 		if(sFilePath.Right(4).CompareNoCase(_T(".png"))==0){return 1;}
@@ -551,7 +551,7 @@ IMPLEMENT_DYNCREATE(CSImageViewerView, CView)
 		if(sFilePath.Right(4).CompareNoCase(_T(".dll"))==0){return 2*CountIconNum(sFilePath); }
 		return 0;
 	}
-	bool GetImageFilePaths(CString sFileOrFolderPath, CStringArray* saFilePath)
+	bool RecursivelyGetImageFilePaths(CString sFileOrFolderPath, CStringArray* saFilePath)
 	{
 		if(sFileOrFolderPath.Find(_T("|"))>=0)
 		{
@@ -571,11 +571,12 @@ IMPLEMENT_DYNCREATE(CSImageViewerView, CView)
 			}
 			for(int i=0; i<saFilePathTemp.GetCount(); i++)
 			{
-				bool bRet = GetImageFilePaths(saFilePathTemp.GetAt(i), saFilePath);
+				bool bRet = RecursivelyGetImageFilePaths(saFilePathTemp.GetAt(i), saFilePath);
 				if(bRet != true){return false;}
 			}
 			return true;
 		}
+
 		DWORD dwAttribute = GetFileAttributes(sFileOrFolderPath);
 		if (dwAttribute == INVALID_FILE_ATTRIBUTES) {return false;}
 
@@ -602,18 +603,18 @@ IMPLEMENT_DYNCREATE(CSImageViewerView, CView)
 		while (bWorking) 
 		{
 			bWorking = cf.FindNextFile();
-
-			if (cf.IsDots()) {continue;}
+			if (cf.IsDots() == TRUE){continue;}
 
 			CString sFilePath = cf.GetFilePath();
 
 			if (cf.IsDirectory()) 
 			{
-				GetImageFilePaths(sFilePath, saFilePath);
+				bool bRet = RecursivelyGetImageFilePaths(sFilePath, saFilePath);
+				if(bRet != true){return false;}
 			}
 			else 
 			{
-				if(IsImageFIle(sFilePath)!=true){continue;}
+				if(IsImageFIle(sFilePath) != true){continue;}
 				saFilePath->Add(sFilePath);
 			}
 		}
@@ -622,60 +623,53 @@ IMPLEMENT_DYNCREATE(CSImageViewerView, CView)
 		return true;
 	}
 
-	int CountImages(CString sFilePath)
+	int CountImages(CString sFileOrFolderPath)
 	{
 		CStringArray saFilePath;
 		saFilePath.RemoveAll();
-		GetImageFilePaths(sFilePath, &saFilePath);
-		int FileNum = (int)saFilePath.GetCount();
-		
+		bool bRet = RecursivelyGetImageFilePaths(sFileOrFolderPath, &saFilePath);
+		if(bRet != true){return 0;}
+
+		int iFileNum = (int)saFilePath.GetCount();
 		int iImageCount=0;
-		for(int i=0; i<FileNum; i++)
+		for(int i=0; i<iFileNum; i++)
 		{
-			iImageCount += CountImageInFile(saFilePath.GetAt(i));
+			iImageCount += CountImageInOneFile(saFilePath.GetAt(i));
 		}
 		return iImageCount;
 	}
+
 	bool _ReadImage(CString sFilePath, PanImage* panImage, int iImageIndex, int* iImageIndexNew)
 	{
-		
 		if(((sFilePath.Right(4)).CompareNoCase(_T(".ico"))==0)
 			||((sFilePath.Right(4)).CompareNoCase(_T(".exe"))==0)
 			||((sFilePath.Right(4)).CompareNoCase(_T(".dll"))==0))
 		{
 		
 			UINT uiIconNum = CountIconNum(sFilePath);
-			bool bbRet = LoadICOFile(sFilePath,panImage,uiIconNum);
-			if(bbRet != true)
-			{
-				return false;
-			}
+			bool bRet = LoadICOFile(sFilePath,panImage,uiIconNum);
+			if(bRet != true){return false;}
 			*iImageIndexNew = iImageIndex+uiIconNum;
 			return true;
 		}
-		else
-		{
-			HRESULT hResult = panImage->cImage.Load(sFilePath);
-			if(hResult != S_OK){return false;}
-			panImage->enumImageType=IMAGE_TYPE_CIMAGE;
-			*iImageIndexNew = iImageIndex+1;
-		}
+		HRESULT hResult = panImage->cImage.Load(sFilePath);
+		if(hResult != S_OK){return false;}
+		panImage->enumImageType=IMAGE_TYPE_CIMAGE;
+		*iImageIndexNew = iImageIndex+1;
 		return true;
 	}
+
 	bool CSImageViewerView::ReadImage(CString sFilePath)
 	{
-
-		CFileFind cf;
-
 		for(int i=0; i<m_iImagemax; i++)
 		{
 			m_image[i].Init();
 		}
 		SAFE_DELETE(m_image);
-		CMainFrame* pFrame = (CMainFrame*)AfxGetMainWnd();
 
 		CStringArray saFilePath;
-		bool bRet = GetImageFilePaths(sFilePath, &saFilePath);
+		bool bRet = RecursivelyGetImageFilePaths(sFilePath, &saFilePath);
+		if(bRet != true){return false;}
 		int iImageNum = CountImages(sFilePath);
 
 		m_image=new PanImage[iImageNum];
@@ -683,17 +677,16 @@ IMPLEMENT_DYNCREATE(CSImageViewerView, CView)
 		int iImageIndex=0;
 		for(int i=0; i<saFilePath.GetCount(); i++)
 		{
-			_ReadImage(saFilePath.GetAt(i), &m_image[iImageIndex], iImageIndex,&iImageIndex);
-			//			if(iImageIndex>=iImageNum){break;}
+			_ReadImage(saFilePath.GetAt(i), &m_image[iImageIndex], iImageIndex, &iImageIndex);
 		}
 
+		CMainFrame* pFrame = (CMainFrame*)AfxGetMainWnd();
 		m_iImageIndex=0;
-			m_iImagemax=iImageNum;
-			pFrame->m_iImageIndex=m_iImageIndex;
-			pFrame->m_iImageMax=m_iImagemax;
-			pFrame->m_bFileOpened = true;
-			pFrame->m_bRegionSelected = true;
-
+		m_iImagemax=iImageNum;
+		pFrame->m_iImageIndex=m_iImageIndex;
+		pFrame->m_iImageMax=m_iImagemax;
+		pFrame->m_bFileOpened = true;
+		pFrame->m_bRegionSelected = true;
 
 		ResetImage(true);
 		return true;
