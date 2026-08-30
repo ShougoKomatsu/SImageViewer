@@ -186,6 +186,11 @@ bool CopyToClipBoardStr(const CString sValue)
 		if(hResult != S_OK){return false;}
 		panImage->enumImageType=IMAGE_TYPE_CIMAGE;
 		panImage->sDataSource.Format(_T("%s"), sFilePath);
+		CopyImage(&panImage->cImage, &panImage->m_imageProcessed[0]);
+		panImage->m_iImgProcessIndex=0;
+		panImage->m_iReDoAvailableCount=0;
+		panImage->m_iUnDoAvailableCount=0;
+
 		*iImageIndexNew = iImageIndex+1;
 		return true;
 	}

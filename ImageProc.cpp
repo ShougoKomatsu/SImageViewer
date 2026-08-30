@@ -3552,6 +3552,10 @@ const BYTE g_byFont_4_8[96]={
 			sDataSource.Format(_T("%s: Large%d"), sFilePath, ui);
 			imgs[ui].Set(IMAGE_TYPE_CIMAGE,NULL,NULL,0,0,&imgTemp,VALUE_IMAGE_RESCALE_0_TO_255, sDataSource);
 			::DestroyIcon(hLargeIcons[ui]);
+			CopyImage(&imgs[ui].cImage, &imgs[ui].m_imageProcessed[0]);
+			imgs[ui].m_iImgProcessIndex=0;
+			imgs[ui].m_iReDoAvailableCount=0;
+			imgs[ui].m_iUnDoAvailableCount=0;
 		}
 
 		for (UINT ui = 0; ui < uiExtracted; ui++)
@@ -3562,6 +3566,10 @@ const BYTE g_byFont_4_8[96]={
 			sDataSource.Format(_T("%s: Small%d"), sFilePath, ui);
 			imgs[uiNum+ui].Set(IMAGE_TYPE_CIMAGE,NULL,NULL,0,0,&imgTemp,VALUE_IMAGE_RESCALE_0_TO_255, sDataSource);
 			::DestroyIcon(hSmallIcons[ui]);
+			CopyImage(&imgs[ui].cImage, &imgs[ui].m_imageProcessed[0]);
+			imgs[ui].m_iImgProcessIndex=0;
+			imgs[ui].m_iReDoAvailableCount=0;
+			imgs[ui].m_iUnDoAvailableCount=0;
 		}
 
 		SAFE_DELETE(hLargeIcons);

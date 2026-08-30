@@ -3,7 +3,6 @@
 //
 
 #pragma once
-#define MAX_IMG_BUF (32)
 
 #include "SImageViewerDoc.h"
 #include "SImgProc_ex.h"
@@ -24,10 +23,6 @@ public:
 	PanImage * m_image;
 	int m_iImageIndex;
 	int m_iImageMax;
-	CImage m_imageProcessed[32];
-	int m_iImgProcessIndex;
-	int m_iUnDoAvailableCount;
-	int m_iReDoAvailableCount;
 	bool m_bRefresh;
 
 	int m_iScaleIndex;
@@ -52,7 +47,7 @@ public:
 	CRect v_to_i(const CRect* rect_v);
 	CRect i_to_v(const CRect* rect_i);
 	void SetCaption();
-	void ResetImage(bool bZoomReset);
+	void ResetImage(bool bZoomReset, bool bProcessReset);
 	void AdjustViewClientSize(int desiredClientWidth, int desiredClientHeight);
 	bool ReadImage(CString sFilePath);
 	bool AddImage(CString sFilePath);

@@ -69,6 +69,7 @@ struct ColorValue
 	}
 	ColorValue(){Init();}
 };
+#define MAX_IMG_BUF (32)
 class PanImage
 {
 public:
@@ -76,6 +77,12 @@ public:
 	VALUE_IMAGE enumValueImage;
 	CString sDataSource;
 	CImage cImage;
+
+	CImage m_imageProcessed[MAX_IMG_BUF];
+	int m_iImgProcessIndex;
+	int m_iUnDoAvailableCount;
+	int m_iReDoAvailableCount;
+
 	int iWidth;
 	int iHeight;
 	int* iImage;
@@ -104,6 +111,9 @@ public:
 		sDataSource.Format(_T(""));
 		enumImageType=IMAGE_TYPE_UNDEFINED;
 		enumValueImage=VALUE_IMAGE_UNDEFINED;
+		m_iImgProcessIndex=0;
+		m_iUnDoAvailableCount=0;
+		m_iReDoAvailableCount=0;
 	}
 //	bool GetColor(int r, int c, ColorValue* colorValue);
 	bool Convert(const VALUE_IMAGE enumMode, CImage* imgDst);
