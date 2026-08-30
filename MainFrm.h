@@ -79,6 +79,7 @@ protected:
 	DECLARE_MESSAGE_MAP()
 public:
 	afx_msg void OnUpdateAfxIdpCommandFailure(CCmdUI *pCmdUI);
+	afx_msg void OnButtonAdd();
 	afx_msg void OnZoomdown();
 	afx_msg void OnZoomup();
 	afx_msg void OnImagePP();

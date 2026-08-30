@@ -58,6 +58,7 @@ BEGIN_MESSAGE_MAP(CMainFrame, CFrameWndEx)
 
 	ON_COMMAND(ID_TOOLBAR_VALUE, &CMainFrame::OnButtonValue)
 	ON_COMMAND(ID_TOOLBAR_RGBSEPARATE, &CMainFrame::OnButtonRGBSeparate)
+	ON_COMMAND(ID_TOOLBAR_ADD, &CMainFrame::OnButtonAdd)
 
 	ON_COMMAND(ID_TOOLBAR_ZOOMDOWN, &CMainFrame::OnZoomdown)
 	ON_COMMAND(ID_TOOLBAR_ZOOMUP, &CMainFrame::OnZoomup)
@@ -232,6 +233,7 @@ int CMainFrame::OnCreate(LPCREATESTRUCT lpCreateStruct)
 
 	lstBasicCommands.AddTail(ID_FILE_NEW);
 	lstBasicCommands.AddTail(ID_FILE_OPEN);
+	lstBasicCommands.AddTail(ID_MENU_FILE_ADD);
 	lstBasicCommands.AddTail(ID_FILE_SAVE);
 	lstBasicCommands.AddTail(ID_FILE_PRINT);
 	lstBasicCommands.AddTail(ID_APP_EXIT);
@@ -248,7 +250,6 @@ int CMainFrame::OnCreate(LPCREATESTRUCT lpCreateStruct)
 	lstBasicCommands.AddTail(ID_MENU_EDIT_SET_SELECTION);
 	lstBasicCommands.AddTail(ID_MENU_EDIT_COPY_AS);
 	lstBasicCommands.AddTail(ID_MENU_EDIT_PASTE_AS);
-	lstBasicCommands.AddTail(ID_MENU_FILE_ADD);
 	lstBasicCommands.AddTail(ID_MENU_EDIT_CONVERT_COLOR_SPACE);
 	lstBasicCommands.AddTail(ID_MENU_EDIT_CHANGE_COLOR_DEPTH);
 	lstBasicCommands.AddTail(ID_MENU_EDIT_COLOR_CORRECTON);
@@ -670,6 +671,15 @@ void CMainFrame::OnButtonRGBSeparate()
 		return;
 	}
 	m_bRGB_Separate = true;
+	Invalidate();
+}
+void CMainFrame::OnButtonAdd()
+{
+	CView* pView = GetActiveView();
+	if (pView != nullptr)
+	{
+		((CSImageViewerView*)pView)->OnFileAdd();
+	}
 	Invalidate();
 }
 
