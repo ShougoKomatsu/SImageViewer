@@ -175,7 +175,7 @@ bool CopyImage(const CImage* imgSrc, CImage* imgDst)
 	return true;
 }
 
-inline bool HSVValue(BYTE* pbyData, int iPitch, int r, int c, UINT uiValue_in, int uiMax)
+inline bool HSVValue(BYTE* pbyData, const int iPitch, const int r, const int c, const UINT uiValue_in, const int uiMax)
 {
 	int uiValue = uiValue_in;
 
@@ -217,19 +217,20 @@ inline bool HSVValue(BYTE* pbyData, int iPitch, int r, int c, UINT uiValue_in, i
 	}
 	return false;
 }
-inline bool SetHSVValue(BYTE* pbyData, int iPitch, int r, int c, UINT uiValue, const int iDigit)
+inline bool SetHSVValue(BYTE* pbyData, const int iPitch, const int r, const int c, const UINT uiValue, const int iDigit)
 {
 	bool bRet;
+	UINT uiValue_local=uiValue;
 	for (int i=1;i<=256/iDigit; i++)
 	{
 		bRet = HSVValue(pbyData, iPitch, r, c, uiValue, iDigit*i);
 		if(bRet == true){break;}
-		uiValue-=iDigit*i*6;
+		uiValue_local-=iDigit*i*6;
 	}
 	return true;
 }
 
-bool AnalyzeStrAsImage(CString sImage, int* iWidth, int* iHeight, CString* sSeparator_out, bool* bColored, bool* bFloat)
+bool AnalyzeStrAsImage(const CString sImage, int* iWidth, int* iHeight, CString* sSeparator_out, bool* bColored, bool* bFloat)
 {
 	int iPlace =sImage.Find(_T("."),0);
 	if(iPlace>=0){*bFloat=true;}
@@ -423,7 +424,7 @@ bool ConvertStrToByte3(const CString sImage, const CString sSeparator, const int
 
 
 
-bool ConvertStrToPanImage(const CString sImage,  VALUE_IMAGE enumImageMode, PanImage* imgDst)
+bool ConvertStrToPanImage(const CString sImage,  const VALUE_IMAGE enumImageMode, PanImage* imgDst)
 {
 	CString sSeparator;
 	int iHeight;
@@ -753,7 +754,7 @@ bool CopyToClipBoardImg(const CImage* imgSrc)
 	return true;
 }
 
-bool ReadCImageFromData(BYTE* byData, SIZE_T dataSize, CImage* imgDst)
+bool ReadCImageFromData(const BYTE* byData, const SIZE_T dataSize, CImage* imgDst)
 {
 
 	BITMAPINFOHEADER* bih = (BITMAPINFOHEADER*)byData;
@@ -778,8 +779,8 @@ bool ReadCImageFromData(BYTE* byData, SIZE_T dataSize, CImage* imgDst)
 
 	int iPaletteSize = iColors * sizeof(RGBQUAD);
 
-	BYTE* pPalette = &(byData[sizeof(BITMAPINFOHEADER)]);
-	BYTE* pbyDataSrc;
+	const BYTE* pPalette = &(byData[sizeof(BITMAPINFOHEADER)]);
+	const BYTE* pbyDataSrc;
 	int iBytesPerLine = ((iWidth * iBPP_src + 31) / 32) * 4;
 	if(iBPP_src == 32)
 	{
@@ -827,10 +828,7 @@ bool ReadCImageFromData(BYTE* byData, SIZE_T dataSize, CImage* imgDst)
 
 	for (int r = 0; r < iAbsHeight; r++)
 	{
-
-		BYTE* pSrcLine = nullptr;
-		BYTE* pDstLine = nullptr;
-
+		const BYTE* pSrcLine;
 		if (bSrcBottomUp) 
 		{
 			pSrcLine = &(pbyDataSrc[(iAbsHeight - 1 - r) * iBytesPerLine]);
@@ -840,6 +838,7 @@ bool ReadCImageFromData(BYTE* byData, SIZE_T dataSize, CImage* imgDst)
 			pSrcLine = &(pbyDataSrc[r * iBytesPerLine]);
 		}
 
+		BYTE* pDstLine = nullptr;
 		if (bDstBottomUp) 
 		{
 			pDstLine = &(pbyDataDst[(iAbsHeight - 1 - r) * iPitch_dst]);
@@ -1285,7 +1284,7 @@ bool GetColorConversionTable(const RGBQUAD* rgbqTable, const int* iPopularOrder,
 	return true;
 }
 
-inline void CopyRGBQ(RGBQUAD* rgbq_src, RGBQUAD* rgbq_dst)
+inline void CopyRGBQ(const RGBQUAD* rgbq_src, RGBQUAD* rgbq_dst)
 {
 	rgbq_dst->rgbRed = rgbq_src->rgbRed;
 	rgbq_dst->rgbGreen = rgbq_src->rgbGreen;
@@ -1409,7 +1408,7 @@ bool ConvertImage_LossLess(const CImage* imgSrc, const int iBPPDst, CImage* imgD
 }
 
 
-bool ExtractChannel_Gray(CImage* imgSrc, CImage* imgDst, ENUM_COLOR color)
+bool ExtractChannel_Gray(const CImage* imgSrc, CImage* imgDst, const ENUM_COLOR color)
 {
 	int iWidth = imgSrc->GetWidth();
 	int iHeight = imgSrc->GetHeight();
@@ -1457,7 +1456,7 @@ bool ExtractChannel_Gray(CImage* imgSrc, CImage* imgDst, ENUM_COLOR color)
 }
 
 
-bool ExtractChannel_Color(CImage* imgSrc, CImage* imgDst, ENUM_COLOR color)
+bool ExtractChannel_Color(const CImage* imgSrc, CImage* imgDst, const ENUM_COLOR color)
 {
 	int iWidth = imgSrc->GetWidth();
 	int iHeight = imgSrc->GetHeight();
@@ -1516,7 +1515,7 @@ bool ExtractChannel_Color(CImage* imgSrc, CImage* imgDst, ENUM_COLOR color)
 	return true;
 }
 
-bool ExtractChannel(CImage* imgSrc, CImage* imgDst, ENUM_COLOR color)
+bool ExtractChannel(const CImage* imgSrc, CImage* imgDst, const ENUM_COLOR color)
 {
 	if((color==COLOR_RED)||(color==COLOR_GREEN)||(color==COLOR_BLUE))
 	{
@@ -1534,7 +1533,7 @@ bool ExtractChannel(CImage* imgSrc, CImage* imgDst, ENUM_COLOR color)
 	return ConvertImage(&imgDstRGB,imgDst);
 }
 
-bool ImposeRect(CImage* imgSrc, CImage* imgDst, CRect* rect)
+bool ImposeRect(const CImage* imgSrc, CImage* imgDst, const CRect* rect)
 {
 	if(imgSrc != imgDst)
 	{
@@ -1611,7 +1610,7 @@ bool ImposeRect(CImage* imgSrc, CImage* imgDst, CRect* rect)
 	return true;
 }
 
-bool ImposeAlphaChannel(CImage* imgSrc, CImage* imgDst)
+bool ImposeAlphaChannel(const CImage* imgSrc, CImage* imgDst)
 {
 	SYSTEMTIME st;
 	GetSystemTime(&st);
@@ -1801,7 +1800,7 @@ return true;
 
 
 
-BYTE g_byFont_8_16[1992]={
+const BYTE g_byFont_8_16[1992]={
 	0x00, 0x00, 0x18, 0x24, 0x42, 0x42, 0x42, 0x42, 0x42, 0x42, 0x42, 0x42, 0x42, 0x24, 0x18, 0x00,
 	0x00, 0x00, 0x08, 0x38, 0x08, 0x08, 0x08, 0x08, 0x08, 0x08, 0x08, 0x08, 0x08, 0x08, 0x08, 0x00,
 	0x00, 0x00, 0x18, 0x24, 0x42, 0x42, 0x02, 0x04, 0x04, 0x08, 0x10, 0x10, 0x20, 0x40, 0x7e, 0x00,
@@ -1816,7 +1815,7 @@ BYTE g_byFont_8_16[1992]={
 	0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x1c, 0x22, 0x41, 0x7f, 0x40, 0x40, 0x21, 0x1e, 0x00};
 
 
-	BYTE g_byFont_4_8[96]={
+const BYTE g_byFont_4_8[96]={
 		0, 0, 7, 5, 5, 5, 7, 0,
 		0, 0, 2, 2, 2, 2, 2, 0,
 		0, 0, 7, 1, 7, 4, 7, 0,
@@ -1831,7 +1830,7 @@ BYTE g_byFont_8_16[1992]={
 		0, 0, 0, 2, 5, 7, 4, 3,
 	};
 
-	inline void ImposeSingleValue_8_16(BYTE* pbyData, int iPitch, int iHeight, int iWidth, const BYTE byDigitValue,int ir_Origin, int ic_Origin, BYTE byDot)
+	inline void ImposeSingleValue_8_16(BYTE* pbyData, const int iPitch, const int iHeight, const int iWidth, const BYTE byDigitValue, const int ir_Origin, const int ic_Origin, const BYTE byDot)
 	{
 		for(int ir=0; ir<16; ir++)
 		{
@@ -1849,7 +1848,7 @@ BYTE g_byFont_8_16[1992]={
 		}
 	}
 
-	inline void ImposeSingleValue_4_8(BYTE* pbyData, int iPitch, int iHeight, int iWidth, const BYTE byDigitValue,int ir_Origin, int ic_Origin, BYTE byDot)
+	inline void ImposeSingleValue_4_8(BYTE* pbyData, const int iPitch, const int iHeight, const int iWidth, const BYTE byDigitValue,const int ir_Origin, int ic_Origin, BYTE byDot)
 	{
 		for(int ir=0; ir<8; ir++)
 		{
@@ -1867,7 +1866,7 @@ BYTE g_byFont_8_16[1992]={
 		}
 	}
 
-	int CountDigit(int iValue)
+	int CountDigit(const int iValue)
 	{
 		if(iValue>=1000000000){return 10;}
 		if(iValue>=100000000){return 9;}
@@ -1891,7 +1890,7 @@ BYTE g_byFont_8_16[1992]={
 		return -10;
 	}
 
-	inline void ImposeValue_8_16(BYTE* pbyData, int iPitch, int iHeight, int iWidth, const int iValue_in,int ir_Origin, int ic_Origin_0, BYTE byDot)
+	inline void ImposeValue_8_16(BYTE* pbyData, const int iPitch, const int iHeight, const int iWidth, const int iValue_in, const int ir_Origin, const int ic_Origin_0, const BYTE byDot)
 	{
 		UINT uiValue=iValue_in;
 		int iDigit = CountDigit(iValue_in);
@@ -1911,7 +1910,7 @@ BYTE g_byFont_8_16[1992]={
 
 	}
 
-	inline void ImposeValue_4_8(BYTE* pbyData, int iPitch, int iHeight, int iWidth, const int iValue_in,int ir_Origin, int ic_Origin_0, BYTE byDot)
+	inline void ImposeValue_4_8(BYTE* pbyData, const int iPitch, const int iHeight, const int iWidth, const int iValue_in, const int ir_Origin, const int ic_Origin_0, const BYTE byDot)
 	{
 		UINT uiValue=iValue_in;
 		int iDigit = CountDigit(iValue_in);
@@ -1929,7 +1928,8 @@ BYTE g_byFont_8_16[1992]={
 			uiValue-=byDigitValue*(int(pow(10,(double)i)));
 		}
 	}
-	bool ImposeRGBValue(PanImage* imgSrc, CImage* imgZoomed, CImage* imgDst, const int iType,const double dROffset, const double dCOffset, const double dScale, const double dScaleThresh,const int iRs_i, const int iCs_i, const int iRe_i, const int iCe_i)
+
+	bool ImposeRGBValue(const PanImage* imgSrc, const CImage* imgZoomed, CImage* imgDst, const int iType,const double dROffset, const double dCOffset, const double dScale, const double dScaleThresh,const int iRs_i, const int iCs_i, const int iRe_i, const int iCe_i)
 	{
 		if(imgZoomed != imgDst)
 		{
@@ -2039,7 +2039,7 @@ BYTE g_byFont_8_16[1992]={
 		}
 		return false;
 	}
-	bool ImposeGrid(CImage* imgValueSrc, CImage* imgSrc, CImage* imgDst, const int iType, const double dROffset, const double dCOffset, const double dScale, const double dScaleThresh,const int iRMax_i, const int iCMax_i)
+	bool ImposeGrid(const CImage* imgValueSrc, const CImage* imgSrc, CImage* imgDst, const int iType, const double dROffset, const double dCOffset, const double dScale, const double dScaleThresh,const int iRMax_i, const int iCMax_i)
 	{
 		if(imgSrc != imgDst)
 		{
@@ -2192,7 +2192,7 @@ BYTE g_byFont_8_16[1992]={
 		}
 		return false;
 	}
-	bool MakeReservedChannelZero(CImage* imgSrc, CImage* imgDst)
+	bool MakeReservedChannelZero(const CImage* imgSrc, CImage* imgDst)
 	{
 		CopyImage(imgSrc, imgDst);
 
@@ -2217,7 +2217,7 @@ BYTE g_byFont_8_16[1992]={
 		return true;
 	}
 
-	bool ZoomImage(CImage* imgSrc, CImage* imgDst, const double dR0_Src, const double dC0_Src, const double dScale, const int iWidth_Dst, const int iHeight_Dst, const bool bRGBSeparated)
+	bool ZoomImage(const CImage* imgSrc, CImage* imgDst, const double dR0_Src, const double dC0_Src, const double dScale, const int iWidth_Dst, const int iHeight_Dst, const bool bRGBSeparated)
 	{
 
 		int iWidthSrc = imgSrc->GetWidth();
@@ -2373,7 +2373,7 @@ BYTE g_byFont_8_16[1992]={
 		return true;
 	}
 
-	bool CountColorNum(ImgRGB* imgRGB, int* iColorNum_out, UINT* uiMap_out)
+	bool CountColorNum(const ImgRGB* imgRGB, int* iColorNum_out, UINT* uiMap_out)
 	{
 		int iWidth = imgRGB->iWidth;
 		int iHeight = imgRGB->iHeight;
@@ -2419,7 +2419,7 @@ BYTE g_byFont_8_16[1992]={
 		ConvertImage(imgSrc, &imgRGB);
 		return CountColorNum(&imgRGB, iColorNum_out, uiMap_out);
 	}
-	bool MakeColorTable(ImgRGB* imgRGB, RGBQUAD* rgbqTable_out, ULONGLONG* ullFrequency_out, int iLength, int* iUsedColors_out, bool* bGrayScale_out)
+	bool MakeColorTable(const ImgRGB* imgRGB, RGBQUAD* rgbqTable_out, ULONGLONG* ullFrequency_out, const int iLength, int* iUsedColors_out, bool* bGrayScale_out)
 	{
 
 		int iWidth = imgRGB->iWidth;
@@ -2494,7 +2494,7 @@ BYTE g_byFont_8_16[1992]={
 		return true;
 	}
 
-	bool MakeColorTable(const CImage* imgSrc, RGBQUAD* rgbqTable_out, ULONGLONG* ullFrequency_out, int iLength, int* iUsedColors_out, bool* bGrayScale_out)
+	bool MakeColorTable(const CImage* imgSrc, RGBQUAD* rgbqTable_out, ULONGLONG* ullFrequency_out, const int iLength, int* iUsedColors_out, bool* bGrayScale_out)
 	{
 		int iBPP = imgSrc->GetBPP();
 		if((iBPP==24) || (iBPP==32))
@@ -2782,43 +2782,6 @@ BYTE g_byFont_8_16[1992]={
 		return true;
 	}
 
-	inline void SwapInt(int *a, int *b)
-	{
-		int iTemp = *a;
-		*a = *b;
-		*b = iTemp;
-	}
-
-	void QuickSortIndex(const ULONGLONG* iValues, int* iIndex, const int iL, const int iR)
-	{
-		int iL_Local=iL;
-		int iR_Local=iR;
-		ULONGLONG iPivot = iValues[iIndex[(iL_Local + iR_Local) / 2]];
-
-		while (iL_Local <= iR_Local) 
-		{
-			while (iValues[iIndex[iL_Local]] < iPivot) {iL_Local++;}
-			while (iValues[iIndex[iR_Local]] > iPivot) {iR_Local--;}
-
-			if (iL_Local <= iR_Local) 
-			{
-				SwapInt(&iIndex[iL_Local], &iIndex[iR_Local]);
-				iL_Local++;
-				iR_Local--;
-			}
-		}
-
-		if (iL < iR_Local) {QuickSortIndex(iValues, iIndex, iL, iR_Local);}
-		if (iL_Local < iR) {QuickSortIndex(iValues, iIndex, iL_Local, iR);}
-	}
-
-	bool index_i(const ULONGLONG* iValues, const int iLength, int* iIndex)
-	{
-		for (int i = 0; i < iLength; i++) {iIndex[i] = i;}
-
-		QuickSortIndex(iValues, iIndex, 0, iLength - 1);
-		return true;
-	}
 
 
 	inline UINT GetRGBDistanceSq(const RGBQUAD rgbqTable, const BYTE byR, const BYTE byG, const BYTE byB)
@@ -3162,7 +3125,7 @@ BYTE g_byFont_8_16[1992]={
 		return true;
 	}
 
-	bool GetCluster_K_mean(RGBQUAD* rgbqTable, ULONGLONG* ullFrequency, int* iClaaes_out, int iLength, RGBQUAD* rgbqResult, const int iMaxClassNum)
+	bool GetCluster_K_mean(const RGBQUAD* rgbqTable, ULONGLONG* ullFrequency, int* iClaaes_out, const int iLength, RGBQUAD* rgbqResult, const int iMaxClassNum)
 	{
 		RGBQUAD* rgbqTable_classed;
 		rgbqTable_classed = new RGBQUAD[iMaxClassNum];
@@ -3248,7 +3211,7 @@ BYTE g_byFont_8_16[1992]={
 		return true;
 	}
 
-	bool ConvertImage_ByDeviation(const CImage* imgSrc, const int iBPP,CImage* imgDst)
+	bool ConvertImage_ByDeviation(const CImage* imgSrc, const int iBPP, CImage* imgDst)
 	{
 		if(iBPP>=24)
 		{
@@ -3338,6 +3301,8 @@ BYTE g_byFont_8_16[1992]={
 		}
 		return true;
 	}
+
+#include "float.h"
 #include <gdiplus.h>
 #pragma comment(lib, "gdiplus.lib")
 
@@ -3353,9 +3318,8 @@ BYTE g_byFont_8_16[1992]={
 		return nIcons;
 	}
 
-#include <vector>
 
-	bool ConvertIconToImg(HDC hScreenDC, HICON hIcon, CImage* img)
+	bool ConvertIconToImg(const HDC hScreenDC, const HICON hIcon, CImage* img)
 	{
 		if (hIcon==NULL)
 		{
@@ -3544,7 +3508,8 @@ BYTE g_byFont_8_16[1992]={
 		::DeleteObject(ii.hbmMask);
 		return true;
 	}
-	bool LoadICOFile(const CString sFilePath, PanImage* imgs, UINT uiNum)
+
+	bool LoadICOFile(const CString sFilePath, PanImage* imgs, const UINT uiNum)
 	{
 		HICON* hLargeIcons=NULL;
 		HICON* hSmallIcons=NULL;
@@ -3588,7 +3553,8 @@ BYTE g_byFont_8_16[1992]={
 		return true;
 
 	}
-	bool LoadICON2(const CString sFilePath, PanImage* imgs, UINT uiNum)
+
+	bool LoadICON2(const CString sFilePath, PanImage* imgs, const UINT uiNum)
 	{
 		HINSTANCE hExe;
 		hExe = LoadLibrary(sFilePath);
@@ -3624,7 +3590,7 @@ BYTE g_byFont_8_16[1992]={
 		return true;
 	}
 
-	bool PanImage::Convert(VALUE_IMAGE enumMode, CImage* imgDst)
+	bool PanImage::Convert(const VALUE_IMAGE enumMode, CImage* imgDst)
 	{
 		if(enumImageType==IMAGE_TYPE_CIMAGE){return CopyImage(&(this->cImage), imgDst);}
 
@@ -3776,7 +3742,7 @@ BYTE g_byFont_8_16[1992]={
 	}
 
 
-	bool PanImage::GetValue(int r, int c, double* dValue)
+	bool PanImage::GetValue(const int r, const int c, double* dValue) const
 	{
 		if(r<0){return false;}
 		if(c<0){return false;}
@@ -3787,7 +3753,7 @@ BYTE g_byFont_8_16[1992]={
 		*dValue = dImage[r*iWidth+c];
 		return true;
 	}
-	bool PanImage::GetValue(int r, int c, int* iValue)
+	bool PanImage::GetValue(const int r, const int c, int* iValue) const
 	{
 		if(r<0){return false;}
 		if(c<0){return false;}
@@ -3798,7 +3764,7 @@ BYTE g_byFont_8_16[1992]={
 		*iValue = iImage[r*iWidth+c];
 		return true;
 	}
-	bool PanImage::GetValue(int r, int c, RGBQUAD* rgbValue, BYTE* pbyAlpha, int* iBPP_out)
+	bool PanImage::GetValue(const int r, const int c, RGBQUAD* rgbValue, BYTE* pbyAlpha, int* iBPP_out) const
 	{
 		if(r<0){return false;}
 		if(c<0){return false;}
@@ -3829,7 +3795,7 @@ BYTE g_byFont_8_16[1992]={
 		return true;
 	}
 
-	bool PanImage::Set(IMAGE_TYPE enumImageType, int* piImage_in, double* pdImage_in, int iWidth, int iHeight, CImage* pcImage_in, VALUE_IMAGE enumValueImage)
+	bool PanImage::Set(const IMAGE_TYPE enumImageType, const int* piImage_in, const double* pdImage_in, const int iWidth, const int iHeight, const CImage* pcImage_in, const VALUE_IMAGE enumValueImage)
 	{
 		this->Init();
 		switch(enumImageType)
