@@ -38,6 +38,7 @@ BEGIN_MESSAGE_MAP(CMainFrame, CFrameWndEx)
 	ON_UPDATE_COMMAND_UI(ID_MENU_EDIT_COLOR_CORRECTON, &CMainFrame::OnUpdateMenu)
 	ON_UPDATE_COMMAND_UI(ID_MENU_EDIT_SET_SELECTION, &CMainFrame::OnUpdateMenu)
 	ON_UPDATE_COMMAND_UI(ID_FILE_SAVE_AS, &CMainFrame::OnUpdateMenu)
+	ON_UPDATE_COMMAND_UI(ID_MENU_FILE_ADD, &CMainFrame::OnUpdateMenu)
 	ON_UPDATE_COMMAND_UI(ID_EDIT_COPY, &CMainFrame::OnUpdateMenu)
 	ON_UPDATE_COMMAND_UI(ID_TOOLBAR_ZOOMUP, &CMainFrame::OnUpdateMenu)
 	ON_UPDATE_COMMAND_UI(ID_TOOLBAR_ZOOMDOWN, &CMainFrame::OnUpdateMenu)
@@ -247,6 +248,7 @@ int CMainFrame::OnCreate(LPCREATESTRUCT lpCreateStruct)
 	lstBasicCommands.AddTail(ID_MENU_EDIT_SET_SELECTION);
 	lstBasicCommands.AddTail(ID_MENU_EDIT_COPY_AS);
 	lstBasicCommands.AddTail(ID_MENU_EDIT_PASTE_AS);
+	lstBasicCommands.AddTail(ID_MENU_FILE_ADD);
 	lstBasicCommands.AddTail(ID_MENU_EDIT_CONVERT_COLOR_SPACE);
 	lstBasicCommands.AddTail(ID_MENU_EDIT_CHANGE_COLOR_DEPTH);
 	lstBasicCommands.AddTail(ID_MENU_EDIT_COLOR_CORRECTON);

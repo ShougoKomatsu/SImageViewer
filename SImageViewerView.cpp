@@ -79,6 +79,7 @@ IMPLEMENT_DYNCREATE(CSImageViewerView, CView)
 	BEGIN_MESSAGE_MAP(CSImageViewerView, CView)
 		ON_WM_RBUTTONUP()
 		ON_COMMAND(ID_FILE_OPEN, &CSImageViewerView::OnFileOpen)
+		ON_COMMAND(ID_MENU_FILE_ADD, &CSImageViewerView::OnFileAdd)
 		ON_COMMAND(ID_FILE_SAVE_AS, &CSImageViewerView::OnFileSave)
 		ON_COMMAND(ID_EDIT_COPY, &CSImageViewerView::OnEditCopy)
 		ON_COMMAND(ID_EDIT_PASTE, &CSImageViewerView::OnEditPaste)
@@ -531,6 +532,51 @@ IMPLEMENT_DYNCREATE(CSImageViewerView, CView)
 		}
 		pFrame->SendMessage(WM_COMMAND, ID_DISP_STATUS_BPP);
 	}
+	bool CSImageViewerView::AddImage(CString sFilePath)
+	{
+		CStringArray saFilePath;
+		bool bRet = RecursivelyGetImageFilePaths(sFilePath, &saFilePath);
+		if(bRet != true){return false;}
+		int iImageNum = CountImages(sFilePath);
+
+		int iOldNum = m_iImageMax;
+		PanImage* imgTemp;
+		imgTemp=new PanImage[iOldNum];
+		for(int i=0; i<iOldNum; i++)
+		{
+			CopyImage(&m_image[i],&imgTemp[i]);
+		}
+
+		for(int i=0; i<m_iImageMax; i++)
+		{
+			m_image[i].Init();
+		}
+		SAFE_DELETE(m_image);
+		int iNewImageNum = iOldNum + iImageNum;
+		m_image = new PanImage[iOldNum + iImageNum];
+		for(int i=0; i<iOldNum; i++)
+		{
+			CopyImage(&imgTemp[i], &m_image[i]);
+		}
+		SAFE_DELETE(imgTemp);
+
+		int iImageIndex=iOldNum;
+		for(int i=0; i<iImageNum; i++)
+		{
+			bRet = ReadAndAppendImage(saFilePath.GetAt(i), &m_image[iImageIndex], iImageIndex, &iImageIndex);
+			if(bRet != true){return false;}
+		}
+
+		CMainFrame* pFrame = (CMainFrame*)AfxGetMainWnd();
+		m_iImageIndex=iOldNum;
+		m_iImageMax=iNewImageNum;
+		pFrame->m_bFileOpened = true;
+		pFrame->m_bRegionSelected = true;
+
+		ResetImage(true);
+		return true;
+
+	}
 
 	bool CSImageViewerView::ReadImage(CString sFilePath)
 	{
@@ -610,6 +656,44 @@ IMPLEMENT_DYNCREATE(CSImageViewerView, CView)
 	{
 		SaveImage(&m_imageProcessed[(m_iImgProcessIndex % MAX_IMG_BUF)]);
 	}
+
+	void CSImageViewerView::OnFileAdd()
+	{
+		CFileDialog cf(TRUE, NULL, NULL, OFN_ALLOWMULTISELECT , _T(""));
+		TCHAR* tchBuf;
+		tchBuf = new TCHAR[100*MAX_PATH];
+		for(int i=0; i<100*MAX_PATH; i++)
+		{
+			tchBuf[i]='\0';
+		}
+		cf.m_ofn.lpstrFile=tchBuf;
+
+		//		cf.m_ofn.lpstrInitialDir = sMacroFolderPath;		
+		if(cf.DoModal()!=IDOK){ SAFE_DELETE(tchBuf); return;}
+
+		POSITION pos = cf.GetStartPosition();
+		int iNum=0;
+		while(pos)
+		{
+			cf.GetNextPathName(pos);
+			iNum++;
+		}
+		if(iNum <= 0){SAFE_DELETE(tchBuf); return;}
+
+		CString sFiles;
+		pos=cf.GetStartPosition();
+		for(int i=0; i<iNum-1; i++)
+		{
+			CString sTemp;
+			sTemp.Format(_T("%s|"), cf.GetNextPathName(pos));
+			sFiles.Append(sTemp);
+		}
+		sFiles.Append(cf.GetNextPathName(pos));
+		SAFE_DELETE(tchBuf); 
+
+		AddImage(sFiles);
+	}
+
 	void CSImageViewerView::OnFileOpen()
 	{
 		CFileDialog cf(TRUE, NULL, NULL, OFN_ALLOWMULTISELECT , _T(""));

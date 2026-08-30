@@ -8,6 +8,7 @@
 
 enum VALUE_IMAGE
 {
+	VALUE_IMAGE_UNDEFINED = -1,
 	VALUE_IMAGE_RESCALE_0_TO_255 = 0,
 	VALUE_IMAGE_CLIP_0_TO_255 = 1,
 	VALUE_IMAGE_RAINBOW = 2,
@@ -27,7 +28,7 @@ enum VALUE_TYPE
 	VALUE_TYPE_INT=0,
 	VALUE_TYPE_DOUBLE=1,
 	VALUE_TYPE_BYTE=2,
-	VALUE_TYPE_RGB=3,
+	VALUE_TYPE_RGB=3, 
 	VALUE_TYPE_RGBA=4,
 };
 
@@ -72,13 +73,14 @@ class PanImage
 {
 public:
 	IMAGE_TYPE enumImageType;
+	VALUE_IMAGE enumValueImage;
 	CImage cImage;
 	int iWidth;
 	int iHeight;
 	int* iImage;
 	double* dImage;
 
-	bool Set(const IMAGE_TYPE enumImageType, const int* iImage_in, const double* dImage_in, const int iWidth, const int iHeight, const CImage* cImage_in, const VALUE_IMAGE enumValueImage);
+	bool Set(const IMAGE_TYPE enumImageType, const int* iImage_in, const double* dImage_in, const int iWidth, const int iHeight, const CImage* cImage_in, const VALUE_IMAGE enumValueImage_in);
 	int GetWidth(){if(enumImageType==IMAGE_TYPE_CIMAGE){return cImage.GetWidth();} return iWidth;}
 	int GetHeight(){if(enumImageType==IMAGE_TYPE_CIMAGE){return cImage.GetHeight();}return iHeight;}
 	~PanImage()
@@ -99,6 +101,7 @@ public:
 		iWidth=0;
 		iHeight=0;
 		enumImageType=IMAGE_TYPE_UNDEFINED;
+		enumValueImage=VALUE_IMAGE_UNDEFINED;
 	}
 //	bool GetColor(int r, int c, ColorValue* colorValue);
 	bool Convert(const VALUE_IMAGE enumMode, CImage* imgDst);
@@ -115,6 +118,7 @@ public:
 bool CopyToClipBoardImg(const CImage* img);
 bool CopyFromClipBoardImg(PanImage* img);
 
+bool CopyImage(const PanImage* imgSrc, PanImage* imgDst);
 bool CopyImage(const CImage* imgSrc, CImage* imgDst);
 bool ClipImage(const CImage* imgOriginal, CImage* imgClipped, const int iR0, const int iC0, const int iR1, const int iC1);
 

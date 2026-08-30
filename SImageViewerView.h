@@ -54,6 +54,7 @@ public:
 	void ResetImage(bool bZoomReset);
 	void AdjustViewClientSize(int desiredClientWidth, int desiredClientHeight);
 	bool ReadImage(CString sFilePath);
+	bool AddImage(CString sFilePath);
 	bool ZoomChange(int iChange);
 	bool OnImagePP();
 	bool OnImageFW();
@@ -109,6 +110,7 @@ public:
 	virtual void OnInitialUpdate();
 	virtual BOOL PreTranslateMessage(MSG* pMsg);
 	afx_msg void OnFileOpen();
+	afx_msg void OnFileAdd();
 	afx_msg void OnFileSave();
 	afx_msg void OnEditCopy();
 	afx_msg void OnEditPaste();

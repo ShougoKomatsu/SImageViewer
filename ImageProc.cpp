@@ -135,6 +135,17 @@ bool IsAlphaChanneled(const CImage* imgSrc)
 	return false;
 }
 
+bool CopyImage(const PanImage* imgSrc, PanImage* imgDst)
+{
+	bool bRet = imgDst->Set(imgSrc->enumImageType, imgSrc->iImage, imgSrc->dImage, imgSrc->iWidth, imgSrc->iHeight, &imgSrc->cImage, imgSrc->enumValueImage);
+	if(bRet != true){return false;}
+	if(imgSrc->enumImageType != IMAGE_TYPE_CIMAGE)
+	{
+		bRet = CopyImage(&(imgSrc->cImage), &(imgDst->cImage));
+		if(bRet != true){return false;}
+	}
+	return true;
+}
 bool CopyImage(const CImage* imgSrc, CImage* imgDst)
 {
 
@@ -3795,7 +3806,7 @@ const BYTE g_byFont_4_8[96]={
 		return true;
 	}
 
-	bool PanImage::Set(const IMAGE_TYPE enumImageType, const int* piImage_in, const double* pdImage_in, const int iWidth, const int iHeight, const CImage* pcImage_in, const VALUE_IMAGE enumValueImage)
+	bool PanImage::Set(const IMAGE_TYPE enumImageType, const int* piImage_in, const double* pdImage_in, const int iWidth, const int iHeight, const CImage* pcImage_in, const VALUE_IMAGE enumValueImage_in)
 	{
 		this->Init();
 		switch(enumImageType)
@@ -3808,6 +3819,7 @@ const BYTE g_byFont_4_8[96]={
 				this->enumImageType = IMAGE_TYPE_CIMAGE;
 				this->iWidth=this->cImage.GetWidth();
 				this->iHeight=this->cImage.GetHeight();
+				this->enumValueImage = VALUE_IMAGE_UNDEFINED;
 				return true;
 			}
 		case IMAGE_TYPE_IIMAGE:
@@ -3819,6 +3831,7 @@ const BYTE g_byFont_4_8[96]={
 				this->iWidth=iWidth;
 				this->iHeight=iHeight;
 				this->enumImageType=IMAGE_TYPE_IIMAGE;
+				this->enumValueImage = enumValueImage_in;
 				for(int r=0; r<iHeight; r++)
 				{
 					for(int c=0; c<iWidth; c++)
@@ -3838,6 +3851,7 @@ const BYTE g_byFont_4_8[96]={
 				this->iWidth=iWidth;
 				this->iHeight=iHeight;
 				this->enumImageType=IMAGE_TYPE_DIMAGE;
+				this->enumValueImage = enumValueImage_in;
 				for(int r=0; r<iHeight; r++)
 				{
 					for(int c=0; c<iWidth; c++)
