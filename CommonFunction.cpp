@@ -168,7 +168,18 @@ bool CopyToClipBoardStr(const CString sValue)
 		}
 		return iImageCount;
 	}
-
+	
+	void PanImage::ResetProcessImage()
+	{
+		for(int i=0; i<MAX_IMG_PROCESS; i++)
+		{
+			if(m_imageProcessed[i].IsNull() != true){m_imageProcessed[i].Destroy();}
+		}
+		CopyImage(&cImage, &(m_imageProcessed[0]));
+		m_iImgProcessIndex=0;
+		m_iReDoAvailableCount=0;
+		m_iUnDoAvailableCount=0;
+	}
 	bool ReadAndAppendImage(CString sFilePath, PanImage* panImage, int iImageIndex, int* iImageIndexNew)
 	{
 		if(((sFilePath.Right(4)).CompareNoCase(_T(".ico"))==0)
@@ -186,10 +197,7 @@ bool CopyToClipBoardStr(const CString sValue)
 		if(hResult != S_OK){return false;}
 		panImage->enumImageType=IMAGE_TYPE_CIMAGE;
 		panImage->sDataSource.Format(_T("%s"), sFilePath);
-		CopyImage(&panImage->cImage, &panImage->m_imageProcessed[0]);
-		panImage->m_iImgProcessIndex=0;
-		panImage->m_iReDoAvailableCount=0;
-		panImage->m_iUnDoAvailableCount=0;
+		panImage->ResetProcessImage();
 
 		*iImageIndexNew = iImageIndex+1;
 		return true;

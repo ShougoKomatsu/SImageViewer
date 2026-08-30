@@ -144,7 +144,7 @@ IMPLEMENT_DYNCREATE(CSImageViewerView, CView)
 
 		CImage imgClipped;
 
-		ClipImage(&m_image[m_iImageIndex].m_imageProcessed[(m_image[m_iImageIndex].m_iImgProcessIndex % MAX_IMG_BUF)],&imgClipped, m_Rect_i.top,m_Rect_i.left, m_Rect_i.bottom, m_Rect_i.right); 
+		ClipImage(m_image[m_iImageIndex].GetCurrentProcess(),&imgClipped, m_Rect_i.top,m_Rect_i.left, m_Rect_i.bottom, m_Rect_i.right); 
 		switch(copyAsdlg.m_enumCopyMode)
 		{
 		case COPY_AS_IMAGE:
@@ -225,16 +225,16 @@ IMPLEMENT_DYNCREATE(CSImageViewerView, CView)
 
 		double dR0_i = (dDispOriginR_tv/g_dScale[m_iScaleIndex]);
 		double dC0_i = (dDispOriginC_tv/g_dScale[m_iScaleIndex]);
-		if (m_image[m_iImageIndex].m_imageProcessed[(m_image[m_iImageIndex].m_iImgProcessIndex % MAX_IMG_BUF)].IsNull()){return;}
+		if (m_image[m_iImageIndex].GetCurrentProcess()->IsNull()){return;}
 
-		int iRMax=m_image[m_iImageIndex].m_imageProcessed[(m_image[m_iImageIndex].m_iImgProcessIndex % MAX_IMG_BUF)].GetHeight()-1;
-		int iCMax=m_image[m_iImageIndex].m_imageProcessed[(m_image[m_iImageIndex].m_iImgProcessIndex % MAX_IMG_BUF)].GetWidth()-1;
+		int iRMax=m_image[m_iImageIndex].GetCurrentProcess()->GetHeight()-1;
+		int iCMax=m_image[m_iImageIndex].GetCurrentProcess()->GetWidth()-1;
 		
 		CMainFrame* pFrame = (CMainFrame*)AfxGetMainWnd();
 
-		ZoomImage(&(m_image[m_iImageIndex].m_imageProcessed[(m_image[m_iImageIndex].m_iImgProcessIndex % MAX_IMG_BUF)]),&imgZoomed,dR0_i,dC0_i,g_dScale[m_iScaleIndex],iWidth_v,iHeight_v,pFrame->m_bRGB_Separate);
+		ZoomImage(m_image[m_iImageIndex].GetCurrentProcess(),&imgZoomed,dR0_i,dC0_i,g_dScale[m_iScaleIndex],iWidth_v,iHeight_v,pFrame->m_bRGB_Separate);
 		CImage imgValue;
-		ZoomImage(&(m_image[m_iImageIndex].m_imageProcessed[(m_image[m_iImageIndex].m_iImgProcessIndex % MAX_IMG_BUF)]),&imgValue,dR0_i,dC0_i,g_dScale[m_iScaleIndex],iWidth_v,iHeight_v,false);
+		ZoomImage(m_image[m_iImageIndex].GetCurrentProcess(),&imgValue,dR0_i,dC0_i,g_dScale[m_iScaleIndex],iWidth_v,iHeight_v,false);
 
 		int iGrid=0;
 		switch(pFrame->m_iGrid)
@@ -355,8 +355,8 @@ IMPLEMENT_DYNCREATE(CSImageViewerView, CView)
 		int iBarWidth= ::GetSystemMetrics(SM_CYHSCROLL);
 		int iBarHeight= ::GetSystemMetrics(SM_CXVSCROLL);
 
-		int iWidth_i =max(0,m_image[m_iImageIndex].m_imageProcessed[(m_image[m_iImageIndex].m_iImgProcessIndex % MAX_IMG_BUF)].GetWidth());
-		int iHeight_i =max(0,m_image[m_iImageIndex].m_imageProcessed[(m_image[m_iImageIndex].m_iImgProcessIndex % MAX_IMG_BUF)].GetHeight());
+		int iWidth_i =max(0,m_image[m_iImageIndex].GetCurrentProcess()->GetWidth());
+		int iHeight_i =max(0,m_image[m_iImageIndex].GetCurrentProcess()->GetHeight());
 
 		int iWidth_tv = (int)(iWidth_i*g_dScale[m_iScaleIndex]);
 		int iHeight_tv= (int)(iHeight_i*g_dScale[m_iScaleIndex]);
@@ -449,28 +449,19 @@ IMPLEMENT_DYNCREATE(CSImageViewerView, CView)
 				{
 					pFrame->SendMessage(ID_DISP_STATUS_CHANGE_CHANNEL, 32);
 				}
-				if(bProcessReset==true)
-				{
-					CopyImage(&(m_image[m_iImageIndex].cImage),&(m_image[m_iImageIndex].m_imageProcessed[(m_image[m_iImageIndex].m_iImgProcessIndex % MAX_IMG_BUF)]));
-				}
 				break;
 			}
 		case IMAGE_TYPE_IIMAGE:
 		case IMAGE_TYPE_DIMAGE:
 			{
 				pFrame->SendMessage(ID_DISP_STATUS_CHANGE_CHANNEL, 24);
-				if(bProcessReset==true)
-				{
-					CopyImage(&(m_image[m_iImageIndex].cImage),&(m_image[m_iImageIndex].m_imageProcessed[(m_image[m_iImageIndex].m_iImgProcessIndex % MAX_IMG_BUF)]));
-				}
 				break;
 			}
 		default:{return;}
 		}
 		if(bProcessReset==true)
 		{
-			m_image[m_iImageIndex].m_iUnDoAvailableCount=0;
-			m_image[m_iImageIndex].m_iReDoAvailableCount=0;
+			m_image[m_iImageIndex].ResetProcessImage();
 		}
 		SetGridEnableDesable();
 
@@ -486,8 +477,8 @@ IMPLEMENT_DYNCREATE(CSImageViewerView, CView)
 			int iBarWidth= ::GetSystemMetrics(SM_CYHSCROLL);
 			int iBarHeight= ::GetSystemMetrics(SM_CXVSCROLL);
 
-			int iWidth_i =max(0,m_image[m_iImageIndex].m_imageProcessed[(m_image[m_iImageIndex].m_iImgProcessIndex % MAX_IMG_BUF)].GetWidth());
-			int iHeight_i =max(0,m_image[m_iImageIndex].m_imageProcessed[(m_image[m_iImageIndex].m_iImgProcessIndex % MAX_IMG_BUF)].GetHeight());
+			int iWidth_i =max(0,m_image[m_iImageIndex].GetCurrentProcess()->GetWidth());
+			int iHeight_i =max(0,m_image[m_iImageIndex].GetCurrentProcess()->GetHeight());
 
 			int iWidth_tv = (int)(iWidth_i*g_dScale[m_iScaleIndex]);
 			int iHeight_tv= (int)(iHeight_i*g_dScale[m_iScaleIndex]);
@@ -670,7 +661,7 @@ IMPLEMENT_DYNCREATE(CSImageViewerView, CView)
 	void CSImageViewerView::OnFileSave()
 	{
 		if(m_iImageMax<=0){return;}
-		SaveImage(&m_image[m_iImageIndex].m_imageProcessed[(m_image[m_iImageIndex].m_iImgProcessIndex % MAX_IMG_BUF)]);
+		SaveImage(m_image[m_iImageIndex].GetCurrentProcess());
 	}
 
 	void CSImageViewerView::OnFileAdd()
@@ -695,7 +686,7 @@ IMPLEMENT_DYNCREATE(CSImageViewerView, CView)
 		if(m_Rect_i.IsRectNull()==TRUE){return;}
 
 		CImage imgClipped;
-		ClipImage(&m_image[m_iImageIndex].m_imageProcessed[(m_image[m_iImageIndex].m_iImgProcessIndex % MAX_IMG_BUF)],&imgClipped, m_Rect_i.top,m_Rect_i.left, m_Rect_i.bottom, m_Rect_i.right); 
+		ClipImage(m_image[m_iImageIndex].GetCurrentProcess(),&imgClipped, m_Rect_i.top,m_Rect_i.left, m_Rect_i.bottom, m_Rect_i.right); 
 		CopyToClipBoardImg(&imgClipped);
 		return;
 	}
@@ -774,7 +765,7 @@ IMPLEMENT_DYNCREATE(CSImageViewerView, CView)
 	void CSImageViewerView::FullDomain()
 	{
 		if(m_iImageMax<=0){return;}
-		m_Rect_i.SetRect(0, 0, m_image[m_iImageIndex].m_imageProcessed[(m_image[m_iImageIndex].m_iImgProcessIndex % MAX_IMG_BUF)].GetWidth()-1,m_image[m_iImageIndex].m_imageProcessed[(m_image[m_iImageIndex].m_iImgProcessIndex % MAX_IMG_BUF)].GetHeight()-1);
+		m_Rect_i.SetRect(0, 0, m_image[m_iImageIndex].GetCurrentProcess()->GetWidth()-1,m_image[m_iImageIndex].GetCurrentProcess()->GetHeight()-1);
 		CMainFrame* pFrame = (CMainFrame*)AfxGetMainWnd();
 		pFrame->m_bRegionSelected = true;
 	}
@@ -787,7 +778,7 @@ IMPLEMENT_DYNCREATE(CSImageViewerView, CView)
 
 		ImgRGB imgRGB;
 		ImgRGB imgMeaned;
-		ConvertImage(&m_image[m_iImageIndex].m_imageProcessed[(m_image[m_iImageIndex].m_iImgProcessIndex % MAX_IMG_BUF)], &imgRGB);
+		ConvertImage(m_image[m_iImageIndex].GetCurrentProcess(), &imgRGB);
 		EquHistImage(&imgRGB,&imgMeaned,m_Rect_i.top,m_Rect_i.left,m_Rect_i.bottom,m_Rect_i.right);
 		if(bAutoFull==true)
 		{
@@ -796,10 +787,7 @@ IMPLEMENT_DYNCREATE(CSImageViewerView, CView)
 			pFrame->m_bRegionSelected = false;
 		}
 
-		m_image[m_iImageIndex].m_iImgProcessIndex++;
-		m_image[m_iImageIndex].m_iUnDoAvailableCount++;
-		if(m_image[m_iImageIndex].m_iUnDoAvailableCount>=MAX_IMG_BUF-1){m_image[m_iImageIndex].m_iUnDoAvailableCount=MAX_IMG_BUF-1;}
-		ConvertImage(&imgMeaned,&m_image[m_iImageIndex].m_imageProcessed[(m_image[m_iImageIndex].m_iImgProcessIndex % MAX_IMG_BUF)]);
+		ConvertImage(&imgMeaned,m_image[m_iImageIndex].ProgressImageProcess());
 		Invalidate();
 	}
 	void CSImageViewerView::OperateResample()
@@ -809,22 +797,20 @@ IMPLEMENT_DYNCREATE(CSImageViewerView, CView)
 		if(m_Rect_i.IsRectNull()==TRUE){bAutoFull=true; FullDomain();}
 
 		CResampleDlg dlg;
-		dlg.m_iHeightOrg = m_image[m_iImageIndex].m_imageProcessed[(m_image[m_iImageIndex].m_iImgProcessIndex % MAX_IMG_BUF)].GetHeight();
-		dlg.m_iWidthOrg = m_image[m_iImageIndex].m_imageProcessed[(m_image[m_iImageIndex].m_iImgProcessIndex % MAX_IMG_BUF)].GetWidth();
+		dlg.m_iHeightOrg = m_image[m_iImageIndex].GetCurrentProcess()->GetHeight();
+		dlg.m_iWidthOrg = m_image[m_iImageIndex].GetCurrentProcess()->GetWidth();
 		INT_PTR iRet = dlg.DoModal();
 		if(iRet != IDOK){return;}
 
 		CImage imgSrc;
-		CopyImage(&m_image[m_iImageIndex].m_imageProcessed[(m_image[m_iImageIndex].m_iImgProcessIndex % MAX_IMG_BUF)], &imgSrc);
-		m_image[m_iImageIndex].m_iImgProcessIndex++;
-		m_image[m_iImageIndex].m_iUnDoAvailableCount++;
+		CopyImage(m_image[m_iImageIndex].GetCurrentProcess(), &imgSrc);
 		if((dlg.m_resample==RESIZE_NEAREST) || (dlg.m_resample==RESIZE_BILINEAR))
 		{
-			Resize(&imgSrc, &m_image[m_iImageIndex].m_imageProcessed[(m_image[m_iImageIndex].m_iImgProcessIndex % MAX_IMG_BUF)], dlg.m_iWidth,dlg.m_iHeight,dlg.m_resample);
+			Resize(&imgSrc, m_image[m_iImageIndex].GetCurrentProcess(), dlg.m_iWidth,dlg.m_iHeight,dlg.m_resample);
 		}
 		else
 		{
-			Resample(&imgSrc, &m_image[m_iImageIndex].m_imageProcessed[(m_image[m_iImageIndex].m_iImgProcessIndex % MAX_IMG_BUF)], dlg.m_resample);
+			Resample(&imgSrc, m_image[m_iImageIndex].GetCurrentProcess(), dlg.m_resample);
 		}
 		Invalidate();
 	}
@@ -836,30 +822,27 @@ IMPLEMENT_DYNCREATE(CSImageViewerView, CView)
 		int iUsedColors;
 		bool bGrayScale;
 
-		CountColorNum(&m_image[m_iImageIndex].m_imageProcessed[(m_image[m_iImageIndex].m_iImgProcessIndex % MAX_IMG_BUF)], &iUsedColors, NULL);
+		CountColorNum(m_image[m_iImageIndex].GetCurrentProcess(), &iUsedColors, NULL);
 
-		MakeColorTable(&m_image[m_iImageIndex].m_imageProcessed[(m_image[m_iImageIndex].m_iImgProcessIndex % MAX_IMG_BUF)],NULL,NULL, 1<<min(24, m_image[m_iImageIndex].m_imageProcessed[(m_image[m_iImageIndex].m_iImgProcessIndex % MAX_IMG_BUF)].GetBPP()), &iUsedColors, &bGrayScale);
+		MakeColorTable(m_image[m_iImageIndex].GetCurrentProcess(), NULL,NULL, 1<<min(24, m_image[m_iImageIndex].GetCurrentProcess()->GetBPP()), &iUsedColors, &bGrayScale);
 
 		colorDepthDlg.m_iColors = iUsedColors;
 		colorDepthDlg.m_bGrayScale = bGrayScale;
-		colorDepthDlg.m_iBPP = m_image[m_iImageIndex].m_imageProcessed[(m_image[m_iImageIndex].m_iImgProcessIndex % MAX_IMG_BUF)].GetBPP();
+		colorDepthDlg.m_iBPP = m_image[m_iImageIndex].GetCurrentProcess()->GetBPP();
 
 		INT_PTR iRet = colorDepthDlg.DoModal();
 		if(iRet != IDOK){return;}
 
 		CImage imgSrc;
-		CopyImage(&m_image[m_iImageIndex].m_imageProcessed[(m_image[m_iImageIndex].m_iImgProcessIndex % MAX_IMG_BUF)], &imgSrc);
-		m_image[m_iImageIndex].m_iImgProcessIndex++;
-		m_image[m_iImageIndex].m_iUnDoAvailableCount++;
-		if(m_image[m_iImageIndex].m_iUnDoAvailableCount>=MAX_IMG_BUF-1){m_image[m_iImageIndex].m_iUnDoAvailableCount=MAX_IMG_BUF-1;}
+		CopyImage(m_image[m_iImageIndex].GetCurrentProcess(), &imgSrc);
 
 		switch(colorDepthDlg.m_iMode)
 		{
-		case 0:{ConvertImage_LossLess(&imgSrc, colorDepthDlg.m_iBPP, &m_image[m_iImageIndex].m_imageProcessed[(m_image[m_iImageIndex].m_iImgProcessIndex % MAX_IMG_BUF)]);break;}
-		case 1:{ConvertImage_AreaCoverage(&imgSrc,colorDepthDlg.m_iBPP, &m_image[m_iImageIndex].m_imageProcessed[(m_image[m_iImageIndex].m_iImgProcessIndex % MAX_IMG_BUF)]);break;}
-		case 2:{ConvertImage_ByDeviation(&imgSrc, colorDepthDlg.m_iBPP, &m_image[m_iImageIndex].m_imageProcessed[(m_image[m_iImageIndex].m_iImgProcessIndex % MAX_IMG_BUF)]);break;}
+		case 0:{ConvertImage_LossLess(&imgSrc, colorDepthDlg.m_iBPP, m_image[m_iImageIndex].ProgressImageProcess());break;}
+		case 1:{ConvertImage_AreaCoverage(&imgSrc,colorDepthDlg.m_iBPP, m_image[m_iImageIndex].ProgressImageProcess());break;}
+		case 2:{ConvertImage_ByDeviation(&imgSrc, colorDepthDlg.m_iBPP, m_image[m_iImageIndex].ProgressImageProcess());break;}
 		}
-		//		m_image[m_iImageIndex].m_imageProcessed[(m_image[m_iImageIndex].m_iImgProcessIndex % MAX_IMG_BUF)].Save(_T("D:\\test.bmp"));
+		//		m_image[m_iImageIndex].m_imageProcessed[(m_image[m_iImageIndex].m_iImgProcessIndex % MAX_IMG_PROCESS)].Save(_T("D:\\test.bmp"));
 		Invalidate();
 	}
 
@@ -875,12 +858,9 @@ IMPLEMENT_DYNCREATE(CSImageViewerView, CView)
 		color= extractDlg.m_enumColor;
 
 		CImage imgSrc;
-		CopyImage(&m_image[m_iImageIndex].m_imageProcessed[(m_image[m_iImageIndex].m_iImgProcessIndex % MAX_IMG_BUF)], &imgSrc);
-		m_image[m_iImageIndex].m_iImgProcessIndex++;
-		m_image[m_iImageIndex].m_iUnDoAvailableCount++;
-		if(m_image[m_iImageIndex].m_iUnDoAvailableCount>=MAX_IMG_BUF-1){m_image[m_iImageIndex].m_iUnDoAvailableCount=MAX_IMG_BUF-1;}
+		CopyImage(m_image[m_iImageIndex].GetCurrentProcess(), &imgSrc);
 
-		ExtractChannel(&imgSrc,&m_image[m_iImageIndex].m_imageProcessed[(m_image[m_iImageIndex].m_iImgProcessIndex % MAX_IMG_BUF)], color);
+		ExtractChannel(&imgSrc,m_image[m_iImageIndex].ProgressImageProcess(), color);
 		Invalidate();
 		return;
 	}
@@ -891,13 +871,9 @@ IMPLEMENT_DYNCREATE(CSImageViewerView, CView)
 
 		ImgRGB imgRGB;
 		ImgRGB imgResult;
-		ConvertImage(&m_image[m_iImageIndex].m_imageProcessed[(m_image[m_iImageIndex].m_iImgProcessIndex % MAX_IMG_BUF)], &imgRGB);
+		ConvertImage(m_image[m_iImageIndex].GetCurrentProcess(), &imgRGB);
 
-		RotateImage(&imgRGB, &imgResult, rotate);
-		m_image[m_iImageIndex].m_iImgProcessIndex++;
-		m_image[m_iImageIndex].m_iUnDoAvailableCount++;
-		if(m_image[m_iImageIndex].m_iUnDoAvailableCount>=MAX_IMG_BUF-1){m_image[m_iImageIndex].m_iUnDoAvailableCount=MAX_IMG_BUF-1;}
-		ConvertImage(&imgResult,&m_image[m_iImageIndex].m_imageProcessed[(m_image[m_iImageIndex].m_iImgProcessIndex % MAX_IMG_BUF)]);
+		ConvertImage(&imgResult, m_image[m_iImageIndex].ProgressImageProcess());
 		SetScroll();
 		Invalidate();
 	}
@@ -911,7 +887,7 @@ IMPLEMENT_DYNCREATE(CSImageViewerView, CView)
 		CImageModifyDlg dlgModify;
 
 		CImage imgClipped;
-		ClipImage(&m_image[m_iImageIndex].m_imageProcessed[(m_image[m_iImageIndex].m_iImgProcessIndex % MAX_IMG_BUF)],&imgClipped, m_Rect_i.top,m_Rect_i.left, m_Rect_i.bottom, m_Rect_i.right); 
+		ClipImage(m_image[m_iImageIndex].GetCurrentProcess(), &imgClipped, m_Rect_i.top,m_Rect_i.left, m_Rect_i.bottom, m_Rect_i.right); 
 		CopyImage(&imgClipped, &dlgModify.m_image);
 		INT_PTR iRet;
 		dlgModify.DoModal();
@@ -934,7 +910,7 @@ IMPLEMENT_DYNCREATE(CSImageViewerView, CView)
 		ImgRGB imgRGB;
 		ImgRGB imgResult1;
 		ImgRGB imgResult2;
-		ConvertImage(&m_image[m_iImageIndex].m_imageProcessed[(m_image[m_iImageIndex].m_iImgProcessIndex % MAX_IMG_BUF)], &imgRGB);
+		ConvertImage(m_image[m_iImageIndex].GetCurrentProcess(), &imgRGB);
 		BrightnessContrast(&imgRGB,&imgResult1,m_Rect_i.top,m_Rect_i.left,m_Rect_i.bottom,m_Rect_i.right,(double)iBrightness,(double)iContrast);
 		Gamma(&imgResult1,&imgResult2,m_Rect_i.top,m_Rect_i.left,m_Rect_i.bottom,m_Rect_i.right,dGamma);
 		if(bAutoFull==true)
@@ -944,10 +920,7 @@ IMPLEMENT_DYNCREATE(CSImageViewerView, CView)
 			pFrame->m_bRegionSelected = false;
 		}
 
-		m_image[m_iImageIndex].m_iImgProcessIndex++;
-		m_image[m_iImageIndex].m_iUnDoAvailableCount++;
-		if(m_image[m_iImageIndex].m_iUnDoAvailableCount>=MAX_IMG_BUF-1){m_image[m_iImageIndex].m_iUnDoAvailableCount=MAX_IMG_BUF-1;}
-		ConvertImage(&imgResult2,&m_image[m_iImageIndex].m_imageProcessed[(m_image[m_iImageIndex].m_iImgProcessIndex % MAX_IMG_BUF)]);
+		ConvertImage(&imgResult2, m_image[m_iImageIndex].ProgressImageProcess());
 		Invalidate();
 	}
 
@@ -959,7 +932,7 @@ IMPLEMENT_DYNCREATE(CSImageViewerView, CView)
 		CView::OnSize(nType, cx, cy);
 
 		if(m_iImageMax<=0){return;}
-		if(m_image[m_iImageIndex].m_imageProcessed[(m_image[m_iImageIndex].m_iImgProcessIndex % MAX_IMG_BUF)].IsNull()==true){return;}
+		if(m_image[m_iImageIndex].GetCurrentProcess()->IsNull()==true){return;}
 
 		SetScroll();
 		Invalidate();
@@ -1077,8 +1050,8 @@ IMPLEMENT_DYNCREATE(CSImageViewerView, CView)
 		double dOldDispOriginR_tv = GetDispOriginR_tv();
 		double dOldDispOriginC_tv = GetDispOriginC_tv();
 
-		int iWidth_i =max(0,m_image[m_iImageIndex].m_imageProcessed[(m_image[m_iImageIndex].m_iImgProcessIndex % MAX_IMG_BUF)].GetWidth());
-		int iHeight_i =max(0,m_image[m_iImageIndex].m_imageProcessed[(m_image[m_iImageIndex].m_iImgProcessIndex % MAX_IMG_BUF)].GetHeight());
+		int iWidth_i =max(0,m_image[m_iImageIndex].GetCurrentProcess()->GetWidth());
+		int iHeight_i =max(0,m_image[m_iImageIndex].GetCurrentProcess()->GetHeight());
 
 		int iOldZoom = m_iScaleIndex;
 		double dOldWidth_tv = iWidth_i*g_dScale[iOldZoom];
@@ -1154,8 +1127,8 @@ IMPLEMENT_DYNCREATE(CSImageViewerView, CView)
 		double dOldDispOriginR_tv = GetDispOriginR_tv();
 		double dOldDispOriginC_tv = GetDispOriginC_tv();
 
-		int iWidth_i =max(0,m_image[m_iImageIndex].m_imageProcessed[(m_image[m_iImageIndex].m_iImgProcessIndex % MAX_IMG_BUF)].GetWidth());
-		int iHeight_i =max(0,m_image[m_iImageIndex].m_imageProcessed[(m_image[m_iImageIndex].m_iImgProcessIndex % MAX_IMG_BUF)].GetHeight());
+		int iWidth_i =max(0,m_image[m_iImageIndex].GetCurrentProcess()->GetWidth());
+		int iHeight_i =max(0,m_image[m_iImageIndex].GetCurrentProcess()->GetHeight());
 
 		double dWidth_tv = iWidth_i*g_dScale[m_iScaleIndex];
 		double dHeight_tv= iHeight_i*g_dScale[m_iScaleIndex];
@@ -1395,7 +1368,7 @@ IMPLEMENT_DYNCREATE(CSImageViewerView, CView)
 
 		if(m_image[m_iImageIndex].m_iImgProcessIndex != 0)
 		{
-			bRet_Processed = GetColorAtCursor(&(m_image[m_iImageIndex].m_imageProcessed[(m_image[m_iImageIndex].m_iImgProcessIndex % MAX_IMG_BUF)]), point_v, &iR_img, &iC_img, &colorValue);
+			bRet_Processed = GetColorAtCursor(m_image[m_iImageIndex].GetCurrentProcess(), point_v, &iR_img, &iC_img, &colorValue);
 			if(bRet_Processed == false)
 			{
 				pFrame->m_sStatusRGBProcessed.Format(_T("out of range"));
@@ -1456,7 +1429,7 @@ IMPLEMENT_DYNCREATE(CSImageViewerView, CView)
 	void CSImageViewerView::OnMouseMove(UINT nFlags, CPoint point_v)
 	{
 		if(m_iImageMax<=0){return;}
-		if(m_image[m_iImageIndex].m_imageProcessed[(m_image[m_iImageIndex].m_iImgProcessIndex % MAX_IMG_BUF)].IsNull()==true){return;}
+		if(m_image[m_iImageIndex].GetCurrentProcess()->IsNull()==true){return;}
 
 		DispStatus(point_v);
 
@@ -1811,8 +1784,8 @@ IMPLEMENT_DYNCREATE(CSImageViewerView, CView)
 		int iBarWidth= ::GetSystemMetrics(SM_CYHSCROLL);
 		int iBarHeight= ::GetSystemMetrics(SM_CXVSCROLL);
 
-		int iWidth_i =max(0,m_image[m_iImageIndex].m_imageProcessed[(m_image[m_iImageIndex].m_iImgProcessIndex % MAX_IMG_BUF)].GetWidth());
-		int iHeight_i =max(0,m_image[m_iImageIndex].m_imageProcessed[(m_image[m_iImageIndex].m_iImgProcessIndex % MAX_IMG_BUF)].GetHeight());
+		int iWidth_i = max(0,m_image[m_iImageIndex].GetCurrentProcess()->GetWidth());
+		int iHeight_i = max(0,m_image[m_iImageIndex].GetCurrentProcess()->GetHeight());
 
 		int iWidth_tv = (int)(iWidth_i*g_dScale[m_iScaleIndex]);
 		int iHeight_tv= (int)(iHeight_i*g_dScale[m_iScaleIndex]);

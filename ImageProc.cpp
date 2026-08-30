@@ -135,6 +135,20 @@ bool IsAlphaChanneled(const CImage* imgSrc)
 	return false;
 }
 
+CImage* PanImage::ProgressImageProcess()
+{
+	m_iImgProcessIndex++;
+	m_iUnDoAvailableCount++;
+	if(m_iUnDoAvailableCount>=MAX_IMG_PROCESS-1){m_iUnDoAvailableCount=MAX_IMG_PROCESS-1;}
+	return &(m_imageProcessed[(m_iImgProcessIndex % MAX_IMG_PROCESS)]);
+}
+
+CImage* PanImage::GetCurrentProcess()
+{
+	return &(m_imageProcessed[(m_iImgProcessIndex % MAX_IMG_PROCESS)]);
+}
+
+
 bool CopyImage(const PanImage* imgSrc, PanImage* imgDst)
 {
 	bool bRet = imgDst->Set(imgSrc->enumImageType, imgSrc->iImage, imgSrc->dImage, imgSrc->iWidth, imgSrc->iHeight, &imgSrc->cImage, imgSrc->enumValueImage, imgSrc->sDataSource);
@@ -144,15 +158,27 @@ bool CopyImage(const PanImage* imgSrc, PanImage* imgDst)
 		bRet = CopyImage(&(imgSrc->cImage), &(imgDst->cImage));
 		if(bRet != true){return false;}
 	}
+	for(int i=0; i<MAX_IMG_PROCESS; i++)
+	{
+		if(imgSrc->m_imageProcessed[i].IsNull() != true)
+		{
+			CopyImage(&(imgSrc->m_imageProcessed[i]), &(imgDst->m_imageProcessed[i]));
+		}
+
+		imgDst->m_iImgProcessIndex = imgSrc->m_iImgProcessIndex;
+		imgDst->m_iUnDoAvailableCount = imgSrc->m_iUnDoAvailableCount;
+		imgDst->m_iReDoAvailableCount = imgSrc->m_iReDoAvailableCount;
+
+	}
 	return true;
 }
 bool CopyImage(const CImage* imgSrc, CImage* imgDst)
 {
+	if (imgSrc->IsNull() == true) {return false;}
 
 	int iWidth = imgSrc->GetWidth();
 	int iHeight = imgSrc->GetHeight();
 
-	if (imgSrc->IsNull()) {return false;}
 
 	if (imgDst->IsNull() != true) {imgDst->Destroy();}
 	HRESULT hr = imgDst->Create(imgSrc->GetWidth(),imgSrc->GetHeight(),imgSrc->GetBPP());
@@ -3552,10 +3578,7 @@ const BYTE g_byFont_4_8[96]={
 			sDataSource.Format(_T("%s: Large%d"), sFilePath, ui);
 			imgs[ui].Set(IMAGE_TYPE_CIMAGE,NULL,NULL,0,0,&imgTemp,VALUE_IMAGE_RESCALE_0_TO_255, sDataSource);
 			::DestroyIcon(hLargeIcons[ui]);
-			CopyImage(&imgs[ui].cImage, &imgs[ui].m_imageProcessed[0]);
-			imgs[ui].m_iImgProcessIndex=0;
-			imgs[ui].m_iReDoAvailableCount=0;
-			imgs[ui].m_iUnDoAvailableCount=0;
+			imgs[ui].ResetProcessImage();
 		}
 
 		for (UINT ui = 0; ui < uiExtracted; ui++)
@@ -3566,10 +3589,7 @@ const BYTE g_byFont_4_8[96]={
 			sDataSource.Format(_T("%s: Small%d"), sFilePath, ui);
 			imgs[uiNum+ui].Set(IMAGE_TYPE_CIMAGE,NULL,NULL,0,0,&imgTemp,VALUE_IMAGE_RESCALE_0_TO_255, sDataSource);
 			::DestroyIcon(hSmallIcons[ui]);
-			CopyImage(&imgs[ui].cImage, &imgs[ui].m_imageProcessed[0]);
-			imgs[ui].m_iImgProcessIndex=0;
-			imgs[ui].m_iReDoAvailableCount=0;
-			imgs[ui].m_iUnDoAvailableCount=0;
+			imgs[ui].ResetProcessImage();
 		}
 
 		SAFE_DELETE(hLargeIcons);
