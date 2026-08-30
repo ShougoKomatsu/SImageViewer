@@ -18,6 +18,8 @@ bool CopyToClipBoardStr(const CString sValue);
 int CountImages(CString sFileOrFolderPath);
 bool RecursivelyGetImageFilePaths(CString sFileOrFolderPath, CStringArray* saFilePath);
 bool ReadAndAppendImage(CString sFilePath, PanImage* panImage, int iImageIndex, int* iImageIndexNew);
+bool GetOpenFileList(CString* sFilePaths);
+
 
 void QuickSortIndex(const ULONGLONG* iValues, int* iIndex, const int iL, const int iR);
 bool index_i(const ULONGLONG* iValues, const int iLength, int* iIndex);

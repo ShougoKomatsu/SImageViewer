@@ -232,3 +232,40 @@ bool CopyToClipBoardStr(const CString sValue)
 		QuickSortIndex(iValues, iIndex, 0, iLength - 1);
 		return true;
 	}
+
+	bool GetOpenFileList(CString* sFilePaths)
+	{
+		
+		CFileDialog cf(TRUE, NULL, NULL, OFN_ALLOWMULTISELECT , _T(""));
+		TCHAR* tchBuf;
+		tchBuf = new TCHAR[100*MAX_PATH];
+		for(int i=0; i<100*MAX_PATH; i++)
+		{
+			tchBuf[i]='\0';
+		}
+		cf.m_ofn.lpstrFile=tchBuf;
+
+		//		cf.m_ofn.lpstrInitialDir = sMacroFolderPath;		
+		if(cf.DoModal()!=IDOK){ SAFE_DELETE(tchBuf); return false;}
+
+		POSITION pos = cf.GetStartPosition();
+		int iNum=0;
+		while(pos)
+		{
+			cf.GetNextPathName(pos);
+			iNum++;
+		}
+		if(iNum <= 0){SAFE_DELETE(tchBuf); return false;}
+
+		sFilePaths->Format(_T(""));
+		pos=cf.GetStartPosition();
+		for(int i=0; i<iNum-1; i++)
+		{
+			CString sTemp;
+			sTemp.Format(_T("%s|"), cf.GetNextPathName(pos));
+			sFilePaths->Append(sTemp);
+		}
+		sFilePaths->Append(cf.GetNextPathName(pos));
+		SAFE_DELETE(tchBuf); 
+		return true;
+	}
