@@ -612,13 +612,41 @@ IMPLEMENT_DYNCREATE(CSImageViewerView, CView)
 	}
 	void CSImageViewerView::OnFileOpen()
 	{
-		CFileDialog cf(TRUE);
-		//		cf.m_ofn.lpstrInitialDir = sMacroFolderPath;
-		if(cf.DoModal()!=IDOK){ return;}
-		m_sFilePath.Format(_T("%s"),cf.GetPathName());
-		ReadImage(m_sFilePath);
+		CFileDialog cf(TRUE, NULL, NULL, OFN_ALLOWMULTISELECT , _T(""));
+		TCHAR* tchBuf;
+		tchBuf = new TCHAR[100*MAX_PATH];
+		for(int i=0; i<100*MAX_PATH; i++)
+		{
+			tchBuf[i]='\0';
+		}
+		cf.m_ofn.lpstrFile=tchBuf;
 
+		//		cf.m_ofn.lpstrInitialDir = sMacroFolderPath;		
+		if(cf.DoModal()!=IDOK){ SAFE_DELETE(tchBuf); return;}
+
+		POSITION pos = cf.GetStartPosition();
+		int iNum=0;
+		while(pos)
+		{
+			cf.GetNextPathName(pos);
+			iNum++;
+		}
+		if(iNum <= 0){SAFE_DELETE(tchBuf); return;}
+
+		CString sFiles;
+		pos=cf.GetStartPosition();
+		for(int i=0; i<iNum-1; i++)
+		{
+			CString sTemp;
+			sTemp.Format(_T("%s|"), cf.GetNextPathName(pos));
+			sFiles.Append(sTemp);
+		}
+		sFiles.Append(cf.GetNextPathName(pos));
+		SAFE_DELETE(tchBuf); 
+
+		ReadImage(sFiles);
 	}
+
 	void CSImageViewerView::OnEditCopy()
 	{
 		if(m_Rect_i.IsRectNull()==TRUE){return;}
