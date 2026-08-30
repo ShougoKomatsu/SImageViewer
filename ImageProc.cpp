@@ -137,7 +137,7 @@ bool IsAlphaChanneled(const CImage* imgSrc)
 
 bool CopyImage(const PanImage* imgSrc, PanImage* imgDst)
 {
-	bool bRet = imgDst->Set(imgSrc->enumImageType, imgSrc->iImage, imgSrc->dImage, imgSrc->iWidth, imgSrc->iHeight, &imgSrc->cImage, imgSrc->enumValueImage);
+	bool bRet = imgDst->Set(imgSrc->enumImageType, imgSrc->iImage, imgSrc->dImage, imgSrc->iWidth, imgSrc->iHeight, &imgSrc->cImage, imgSrc->enumValueImage, imgSrc->sDataSource);
 	if(bRet != true){return false;}
 	if(imgSrc->enumImageType != IMAGE_TYPE_CIMAGE)
 	{
@@ -435,7 +435,7 @@ bool ConvertStrToByte3(const CString sImage, const CString sSeparator, const int
 
 
 
-bool ConvertStrToPanImage(const CString sImage,  const VALUE_IMAGE enumImageMode, PanImage* imgDst)
+bool ConvertStrToPanImage(const CString sImage,  const VALUE_IMAGE enumImageMode, const CString sDataSource, PanImage* imgDst)
 {
 	CString sSeparator;
 	int iHeight;
@@ -469,7 +469,7 @@ bool ConvertStrToPanImage(const CString sImage,  const VALUE_IMAGE enumImageMode
 		SAFE_DELETE(byImageR);
 		SAFE_DELETE(byImageG);
 		SAFE_DELETE(byImageB);
-		imgDst->Set(IMAGE_TYPE_CIMAGE, NULL, NULL, iWidth, iHeight, &imgTemp, VALUE_IMAGE_CLIP_0_TO_255);
+		imgDst->Set(IMAGE_TYPE_CIMAGE, NULL, NULL, iWidth, iHeight, &imgTemp, VALUE_IMAGE_CLIP_0_TO_255, sDataSource);
 		return true;
 	}
 
@@ -483,7 +483,7 @@ bool ConvertStrToPanImage(const CString sImage,  const VALUE_IMAGE enumImageMode
 		bRet = ConvertStrToInt(sImage, sSeparator, iHeight, iWidth, iImage);
 		if(bRet != true){SAFE_DELETE(iImage); return false;}
 
-		imgDst->Set(IMAGE_TYPE_IIMAGE,iImage,NULL, iWidth,iHeight,NULL,enumImageMode);
+		imgDst->Set(IMAGE_TYPE_IIMAGE,iImage,NULL, iWidth,iHeight,NULL,enumImageMode, sDataSource);
 		SAFE_DELETE(iImage);
 		return true;
 	}
@@ -895,7 +895,7 @@ bool CopyFromClipBoardImg(PanImage* imgDst)
 		sData.Format(_T("%s"),byData);
 		SAFE_DELETE(byData); 
 		
-		return ConvertStrToPanImage(sData,VALUE_IMAGE_CLIP_0_TO_255, imgDst);
+		return ConvertStrToPanImage(sData,VALUE_IMAGE_CLIP_0_TO_255, _T("Clipboard"), imgDst);
 	}
 
 	hResult = GetClipboardData(CF_DIB);
@@ -922,6 +922,7 @@ bool CopyFromClipBoardImg(PanImage* imgDst)
 
 	SAFE_DELETE(byData); 
 	imgDst->enumImageType=IMAGE_TYPE_CIMAGE;
+	imgDst->sDataSource.Format(_T("Clipboard"));
 	return true;
 }
 int GetColorTableIndex(const RGBQUAD* rgbqTable, const int iLength, const BYTE byR, const BYTE byG, const BYTE byB, const BYTE byA)
@@ -3545,8 +3546,11 @@ const BYTE g_byFont_4_8[96]={
 
 		for (UINT ui = 0; ui < uiExtracted; ui++)
 		{
-			bool bRet = ConvertIconToImg(hScreenDC, hLargeIcons[ui], &(imgs[ui].cImage));
-			imgs[ui].enumImageType=IMAGE_TYPE_CIMAGE;
+			CImage imgTemp;
+			bool bRet = ConvertIconToImg(hScreenDC, hLargeIcons[ui], &imgTemp);
+			CString sDataSource;
+			sDataSource.Format(_T("%s: Large%d"), sFilePath, ui);
+			imgs[ui].Set(IMAGE_TYPE_CIMAGE,NULL,NULL,0,0,&imgTemp,VALUE_IMAGE_RESCALE_0_TO_255, sDataSource);
 			::DestroyIcon(hLargeIcons[ui]);
 		}
 
@@ -3554,7 +3558,9 @@ const BYTE g_byFont_4_8[96]={
 		{
 			CImage imgTemp;
 			bool bRet = ConvertIconToImg(hScreenDC, hSmallIcons[ui], &imgTemp);
-			imgs[uiNum+ui].Set(IMAGE_TYPE_CIMAGE,NULL,NULL,0,0,&imgTemp,VALUE_IMAGE_RESCALE_0_TO_255);
+			CString sDataSource;
+			sDataSource.Format(_T("%s: Small%d"), sFilePath, ui);
+			imgs[uiNum+ui].Set(IMAGE_TYPE_CIMAGE,NULL,NULL,0,0,&imgTemp,VALUE_IMAGE_RESCALE_0_TO_255, sDataSource);
 			::DestroyIcon(hSmallIcons[ui]);
 		}
 
@@ -3806,7 +3812,7 @@ const BYTE g_byFont_4_8[96]={
 		return true;
 	}
 
-	bool PanImage::Set(const IMAGE_TYPE enumImageType, const int* piImage_in, const double* pdImage_in, const int iWidth, const int iHeight, const CImage* pcImage_in, const VALUE_IMAGE enumValueImage_in)
+	bool PanImage::Set(const IMAGE_TYPE enumImageType, const int* piImage_in, const double* pdImage_in, const int iWidth, const int iHeight, const CImage* pcImage_in, const VALUE_IMAGE enumValueImage_in, const CString sDataSource_in)
 	{
 		this->Init();
 		switch(enumImageType)
@@ -3820,6 +3826,7 @@ const BYTE g_byFont_4_8[96]={
 				this->iWidth=this->cImage.GetWidth();
 				this->iHeight=this->cImage.GetHeight();
 				this->enumValueImage = VALUE_IMAGE_UNDEFINED;
+				this->sDataSource.Format(_T("%s"), (LPCTSTR)sDataSource_in);
 				return true;
 			}
 		case IMAGE_TYPE_IIMAGE:
@@ -3839,6 +3846,7 @@ const BYTE g_byFont_4_8[96]={
 						this->iImage[r*iWidth+c]=piImage_in[r*iWidth+c];
 					}
 				}
+				this->sDataSource.Format(_T("%s"), (LPCTSTR)sDataSource_in);
 				Convert(enumValueImage, &(this->cImage));
 				return true;
 			}
@@ -3859,6 +3867,7 @@ const BYTE g_byFont_4_8[96]={
 						this->dImage[r*iWidth+c]=pdImage_in[r*iWidth+c];
 					}
 				}
+				this->sDataSource.Format(_T("%s"), (LPCTSTR)sDataSource_in);
 				Convert(enumValueImage, &(this->cImage));
 				return true;
 			}

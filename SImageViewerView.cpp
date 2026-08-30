@@ -574,6 +574,7 @@ IMPLEMENT_DYNCREATE(CSImageViewerView, CView)
 		pFrame->m_bRegionSelected = true;
 
 		ResetImage(true);
+		SetCaption();
 		return true;
 
 	}
@@ -607,6 +608,8 @@ IMPLEMENT_DYNCREATE(CSImageViewerView, CView)
 		pFrame->m_bRegionSelected = true;
 
 		ResetImage(true);
+		SetCaption();
+
 		return true;
 	}
 
@@ -710,7 +713,7 @@ IMPLEMENT_DYNCREATE(CSImageViewerView, CView)
 		INT_PTR iRet = pasteAsdlg.DoModal();
 		if(iRet != IDOK){return;}
 
-		m_image[m_iImageIndex].Set(imgTemp.enumImageType, imgTemp.iImage, imgTemp.dImage, imgTemp.iWidth, imgTemp.iHeight, &(imgTemp.cImage),pasteAsdlg.m_enumPasteAs);
+		m_image[m_iImageIndex].Set(imgTemp.enumImageType, imgTemp.iImage, imgTemp.dImage, imgTemp.iWidth, imgTemp.iHeight, &(imgTemp.cImage),pasteAsdlg.m_enumPasteAs, _T("Clipboard"));
 		if(bRet != TRUE){return;}
 		m_sFilePath.Format(_T("Clipboard"));
 
@@ -720,6 +723,20 @@ IMPLEMENT_DYNCREATE(CSImageViewerView, CView)
 
 
 		ResetImage(true);
+		SetCaption();
+	}
+	void CSImageViewerView::SetCaption()
+	{
+		CString sCaption;
+		if(m_iImageMax>0)
+		{
+			sCaption.Format(_T("%s - SImageViewer"), m_image[m_iImageIndex].sDataSource);
+		}
+		else
+		{
+			sCaption.Format(_T("UnLoaded - SImageViewer"));
+		}
+		AfxGetMainWnd()->SetWindowText(sCaption);
 	}
 
 	void CSImageViewerView::OnEditPaste()
@@ -737,7 +754,7 @@ IMPLEMENT_DYNCREATE(CSImageViewerView, CView)
 		pFrame->m_bFileOpened = true;
 		pFrame->m_bRegionSelected = true;
 		ResetImage(true);
-
+		SetCaption();
 	}
 
 	void CSImageViewerView::FullDomain()
@@ -1014,7 +1031,8 @@ IMPLEMENT_DYNCREATE(CSImageViewerView, CView)
 	{
 		m_iImageIndex--;
 		m_iImageIndex=max(m_iImageIndex,0);
-				ResetImage(false);
+		ResetImage(false);
+		SetCaption();
 		Invalidate();
 		return true;
 	}
@@ -1022,7 +1040,8 @@ IMPLEMENT_DYNCREATE(CSImageViewerView, CView)
 	{
 		m_iImageIndex++;
 		m_iImageIndex=min(m_iImageIndex,m_iImageMax-1);
-				ResetImage(false);
+		ResetImage(false);
+		SetCaption();
 		Invalidate();
 		return true;
 	}
@@ -1329,7 +1348,6 @@ IMPLEMENT_DYNCREATE(CSImageViewerView, CView)
 		CString sFileName = m_sFilePath.Mid(m_sFilePath.ReverseFind('\\') + 1);
 
 		int iR_img,iC_img;
-		CString sCaption;
 		CMainFrame* pFrame = (CMainFrame*)AfxGetMainWnd();
 		bool bRet_Original;
 
@@ -1410,10 +1428,6 @@ IMPLEMENT_DYNCREATE(CSImageViewerView, CView)
 
 		pFrame->m_sStatusZoom.Format(_T("%.3f%%"), 100*g_dScale[m_iScaleIndex]);
 		pFrame->SendMessage(WM_COMMAND, ID_DISP_STATUS_ZOOM);
-
-
-		sCaption.Format(sFileName);
-		AfxGetMainWnd()->SetWindowText(sCaption);
 
 		return;
 	}

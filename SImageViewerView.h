@@ -51,6 +51,7 @@ public:
 	CSImageViewerDoc* GetDocument() const;
 	CRect v_to_i(const CRect* rect_v);
 	CRect i_to_v(const CRect* rect_i);
+	void SetCaption();
 	void ResetImage(bool bZoomReset);
 	void AdjustViewClientSize(int desiredClientWidth, int desiredClientHeight);
 	bool ReadImage(CString sFilePath);

@@ -74,13 +74,14 @@ class PanImage
 public:
 	IMAGE_TYPE enumImageType;
 	VALUE_IMAGE enumValueImage;
+	CString sDataSource;
 	CImage cImage;
 	int iWidth;
 	int iHeight;
 	int* iImage;
 	double* dImage;
 
-	bool Set(const IMAGE_TYPE enumImageType, const int* iImage_in, const double* dImage_in, const int iWidth, const int iHeight, const CImage* cImage_in, const VALUE_IMAGE enumValueImage_in);
+	bool Set(const IMAGE_TYPE enumImageType, const int* iImage_in, const double* dImage_in, const int iWidth, const int iHeight, const CImage* cImage_in, const VALUE_IMAGE enumValueImage_in, const CString sDataSource_in);
 	int GetWidth(){if(enumImageType==IMAGE_TYPE_CIMAGE){return cImage.GetWidth();} return iWidth;}
 	int GetHeight(){if(enumImageType==IMAGE_TYPE_CIMAGE){return cImage.GetHeight();}return iHeight;}
 	~PanImage()
@@ -100,6 +101,7 @@ public:
 		SAFE_DELETE(dImage);
 		iWidth=0;
 		iHeight=0;
+		sDataSource.Format(_T(""));
 		enumImageType=IMAGE_TYPE_UNDEFINED;
 		enumValueImage=VALUE_IMAGE_UNDEFINED;
 	}
@@ -136,7 +138,7 @@ bool MakeReservedChannelZero(const CImage* imgSrc, CImage* imgDst);
 bool SetColorTable(CImage* img, const RGBQUAD* rgbTable, int iLength);
 
 bool ConvertImage(const ImgRGB* imgRGB, CImage* imgDst, const int iBPPDst, const RGBQUAD* rgbqTable, const int iColors);
-bool ConvertStrToPanImage(const CString sImage, const VALUE_IMAGE enumImageMode, PanImage* imgDst);
+bool ConvertStrToPanImage(const CString sImage, const VALUE_IMAGE enumImageMode, const CString sDataSource, PanImage* imgDst);
 bool ConvertImage_AreaCoverage(const CImage* imgSrc,const int iBPP, CImage* imgDst);
 bool ConvertImage_ByDeviation(const CImage* imgSrc,const int iBPP,  CImage* imgDst);
 bool ConvertImage_LossLess(const CImage* imgSrc, const int iBPP, CImage* imgDst);
