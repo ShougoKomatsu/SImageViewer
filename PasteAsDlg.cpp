@@ -24,7 +24,7 @@ CPasteAsDlg::~CPasteAsDlg()
 void CPasteAsDlg::DoDataExchange(CDataExchange* pDX)
 {
 	CDialogEx::DoDataExchange(pDX);
-	DDX_Text(pDX, IDC_EDIT_PASTE_AS_IMAGE_TYPE, m_sEditImageType);
+	DDX_Text(pDX, IDC_PASTE_AS_EDIT_IMAGE_TYPE, m_sEditImageType);
 }
 
 
@@ -44,15 +44,15 @@ void CPasteAsDlg::OnBnClickedCancel()
 
 void CPasteAsDlg::OnBnClickedOk()
 {
-	if( ((CButton*)GetDlgItem(IDC_RADIO_PASTE_AS_CLIP_0TO255))->GetCheck() == TRUE)
+	if( ((CButton*)GetDlgItem(IDC_PASTE_AS_RADIO_CLIP_0TO255))->GetCheck() == TRUE)
 	{
 		m_enumPasteAs=VALUE_IMAGE_CLIP_0_TO_255;
 	}
-	if( ((CButton*)GetDlgItem(IDC_RADIO_PASTE_AS_RAINBOW))->GetCheck() == TRUE)
+	if( ((CButton*)GetDlgItem(IDC_PASTE_AS_RADIO_RAINBOW))->GetCheck() == TRUE)
 	{
 		m_enumPasteAs=VALUE_IMAGE_RAINBOW;
 	}
-	if( ((CButton*)GetDlgItem(IDC_RADIO_PASTE_AS_RESCALE_0TO255))->GetCheck() == TRUE)
+	if( ((CButton*)GetDlgItem(IDC_PASTE_AS_RADIO_RESCALE_0TO255))->GetCheck() == TRUE)
 	{
 		m_enumPasteAs=VALUE_IMAGE_RESCALE_0_TO_255;
 	}
@@ -65,16 +65,16 @@ BOOL CPasteAsDlg::OnInitDialog()
 	CDialogEx::OnInitDialog();
 	if(m_sEditImageType.Compare(_T("Value"))==0)
 	{
-		((CButton*)GetDlgItem(IDC_RADIO_PASTE_AS_CLIP_0TO255))->EnableWindow(TRUE);
-		((CButton*)GetDlgItem(IDC_RADIO_PASTE_AS_RESCALE_0TO255))->EnableWindow(TRUE);
-		((CButton*)GetDlgItem(IDC_RADIO_PASTE_AS_RAINBOW))->EnableWindow(TRUE);
-		((CButton*)GetDlgItem(IDC_RADIO_PASTE_AS_CLIP_0TO255))->SetCheck(true);
+		((CButton*)GetDlgItem(IDC_PASTE_AS_RADIO_CLIP_0TO255))->EnableWindow(TRUE);
+		((CButton*)GetDlgItem(IDC_PASTE_AS_RADIO_RESCALE_0TO255))->EnableWindow(TRUE);
+		((CButton*)GetDlgItem(IDC_PASTE_AS_RADIO_RAINBOW))->EnableWindow(TRUE);
+		((CButton*)GetDlgItem(IDC_PASTE_AS_RADIO_CLIP_0TO255))->SetCheck(true);
 	}
 	else
 	{
-		((CButton*)GetDlgItem(IDC_RADIO_PASTE_AS_CLIP_0TO255))->EnableWindow(FALSE);
-		((CButton*)GetDlgItem(IDC_RADIO_PASTE_AS_RESCALE_0TO255))->EnableWindow(FALSE);
-		((CButton*)GetDlgItem(IDC_RADIO_PASTE_AS_RAINBOW))->EnableWindow(FALSE);
+		((CButton*)GetDlgItem(IDC_PASTE_AS_RADIO_CLIP_0TO255))->EnableWindow(FALSE);
+		((CButton*)GetDlgItem(IDC_PASTE_AS_RADIO_RESCALE_0TO255))->EnableWindow(FALSE);
+		((CButton*)GetDlgItem(IDC_PASTE_AS_RADIO_RAINBOW))->EnableWindow(FALSE);
 	}
 
 	return TRUE;  // return TRUE unless you set the focus to a control

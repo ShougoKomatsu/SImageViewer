@@ -3406,9 +3406,9 @@ BYTE g_byFont_8_16[1992]={
 		pbmiColor->bmiHeader.biBitCount    = (WORD)iBPP;
 		pbmiColor->bmiHeader.biCompression = BI_RGB;
 
-		const int iPitchColor_Src = ((iWidth * iBPP + 31) / 32) * 4;
+		const int iDataPitch_Src = ((iWidth * iBPP + 31) / 32) * 4;
 		BYTE* byColor;
-		byColor = new BYTE[iPitchColor_Src * iHeight];
+		byColor = new BYTE[iDataPitch_Src * iHeight];
 
 		int iRet = ::GetDIBits(hScreenDC, ii.hbmColor, 0, iHeight, byColor, pbmiColor, DIB_RGB_COLORS);
 		if (iRet==0)
@@ -3456,20 +3456,19 @@ BYTE g_byFont_8_16[1992]={
 		BYTE* pbyDataDst = (BYTE*)img->GetBits();
 		int iPitch_Dst = img->GetPitch();
 
-		if (iBPP == 32)
+		if ((iBPP == 24) || (iBPP == 32))
 		{
+			int iColorPitch_Src = ((iBPP==24) ? 3 : 4);
 			for (int iR = 0; iR < iHeight; iR++)
 			{
-
 				for (int iC = 0; iC < iWidth; iC++)
 				{
-
-					pbyDataDst[iR * iPitch_Dst +iC * 4 + 0] = byColor[iR * iPitchColor_Src + iC * 4 + 0];
-					pbyDataDst[iR * iPitch_Dst +iC * 4 + 1] = byColor[iR * iPitchColor_Src + iC * 4 + 1];
-					pbyDataDst[iR * iPitch_Dst +iC * 4 + 2] = byColor[iR * iPitchColor_Src + iC * 4 + 2];
-					if(byColor[iR * iPitchColor_Src + iC * 4 + 3]!=0)
+					pbyDataDst[iR * iPitch_Dst +iC * 4 + 0] = byColor[iR * iDataPitch_Src + iC * iColorPitch_Src + 0];
+					pbyDataDst[iR * iPitch_Dst +iC * 4 + 1] = byColor[iR * iDataPitch_Src + iC * iColorPitch_Src + 1];
+					pbyDataDst[iR * iPitch_Dst +iC * 4 + 2] = byColor[iR * iDataPitch_Src + iC * iColorPitch_Src + 2];
+					if((iBPP==32) && (byColor[iR * iDataPitch_Src + iC * iColorPitch_Src + 3]!=0))
 					{
-						pbyDataDst[iR * iPitch_Dst +iC * 4 + 3] = byColor[iR * iPitchColor_Src + iC * 4 + 3];
+						pbyDataDst[iR * iPitch_Dst +iC * 4 + 3] = byColor[iR * iDataPitch_Src + iC * 4 + 3];
 					}
 					else
 					{
@@ -3477,24 +3476,6 @@ BYTE g_byFont_8_16[1992]={
 						int iBitPos    = 7 - (iC % 8);
 						pbyDataDst[iR * iPitch_Dst +iC * 4 + 3] = ((((byMaskByte >> iBitPos) & 0x01) == 0x01)) ? 0 : 255;
 					}
-				}
-			}
-		}
-		else if (iBPP == 24)
-		{
-			for (int iR = 0; iR < iHeight; iR++)
-			{
-
-				for (int iC = 0; iC < iWidth; iC++)
-				{
-
-					pbyDataDst[iR * iPitch_Dst +iC * 4 + 0] = byColor[iR * iPitchColor_Src + iC * 3 + 0];
-					pbyDataDst[iR * iPitch_Dst +iC * 4 + 1] = byColor[iR * iPitchColor_Src + iC * 3 + 1];
-					pbyDataDst[iR * iPitch_Dst +iC * 4 + 2] = byColor[iR * iPitchColor_Src + iC * 3 + 2];
-
-					BYTE byMaskByte = byMask[iR * iPitchMask_Src + (iC / 8)];
-					int iBitPos    = 7 - (iC % 8);
-					pbyDataDst[iR * iPitch_Dst +iC * 4 + 3] = ((((byMaskByte >> iBitPos) & 0x01) == 0x01)) ? 0 : 255;
 				}
 			}
 		}
