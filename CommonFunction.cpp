@@ -251,7 +251,7 @@ bool CopyToClipBoardStr(const CString sValue)
 	{
 		
 		CFileDialog cf(TRUE, NULL, NULL, OFN_ALLOWMULTISELECT , _T(""));
-		TCHAR* tchBuf;
+		TCHAR* tchBuf=NULL;
 		tchBuf = new TCHAR[100*MAX_PATH];
 		for(int i=0; i<100*MAX_PATH; i++)
 		{

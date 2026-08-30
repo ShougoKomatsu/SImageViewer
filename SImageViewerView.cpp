@@ -543,7 +543,7 @@ IMPLEMENT_DYNCREATE(CSImageViewerView, CView)
 		int iImageNum = CountImages(sFilePath);
 
 		int iOldNum = m_iImageMax;
-		PanImage* imgTemp;
+		PanImage* imgTemp=NULL;
 		imgTemp=new PanImage[iOldNum];
 		for(int i=0; i<iOldNum; i++)
 		{
