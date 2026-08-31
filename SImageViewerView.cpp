@@ -429,7 +429,7 @@ IMPLEMENT_DYNCREATE(CSImageViewerView, CView)
 
 		if(bProcessReset == true)
 		{
-			m_image[m_iImageIndex].m_iImgProcessIndex = 0;
+			m_image[m_iImageIndex].ResetProcessImage();
 		}
 		if(m_bRefresh == true){KillTimer(TIMER_REFRESH);}
 
@@ -458,10 +458,6 @@ IMPLEMENT_DYNCREATE(CSImageViewerView, CView)
 				break;
 			}
 		default:{return;}
-		}
-		if(bProcessReset == true)
-		{
-			m_image[m_iImageIndex].ResetProcessImage();
 		}
 		SetGridEnableDesable();
 
@@ -547,7 +543,7 @@ IMPLEMENT_DYNCREATE(CSImageViewerView, CView)
 		imgTemp = new PanImage[iOldNum];
 		for(int i = 0; i<iOldNum; i++)
 		{
-			CopyImage(&m_image[i],&imgTemp[i]);
+			imgTemp[i].CopyImage(&m_image[i]);
 		}
 
 		for(int i = 0; i<m_iImageMax; i++)
@@ -559,7 +555,7 @@ IMPLEMENT_DYNCREATE(CSImageViewerView, CView)
 		m_image = new PanImage[iOldNum + iImageNum];
 		for(int i = 0; i<iOldNum; i++)
 		{
-			CopyImage(&imgTemp[i], &m_image[i]);
+			m_image[i].CopyImage(&imgTemp[i]);
 		}
 		SAFE_DELETE(imgTemp);
 
@@ -803,7 +799,7 @@ IMPLEMENT_DYNCREATE(CSImageViewerView, CView)
 		if(iRet != IDOK){return;}
 
 		CImage imgSrc;
-		CopyImage(m_image[m_iImageIndex].GetCurrentProcess(), &imgSrc);
+		CopyImage_CImage(m_image[m_iImageIndex].GetCurrentProcess(), &imgSrc);
 		if((dlg.m_resample == RESIZE_NEAREST) || (dlg.m_resample == RESIZE_BILINEAR))
 		{
 			Resize(&imgSrc, m_image[m_iImageIndex].GetCurrentProcess(), dlg.m_iWidth,dlg.m_iHeight,dlg.m_resample);
@@ -834,7 +830,7 @@ IMPLEMENT_DYNCREATE(CSImageViewerView, CView)
 		if(iRet != IDOK){return;}
 
 		CImage imgSrc;
-		CopyImage(m_image[m_iImageIndex].GetCurrentProcess(), &imgSrc);
+		CopyImage_CImage(m_image[m_iImageIndex].GetCurrentProcess(), &imgSrc);
 
 		switch(colorDepthDlg.m_iMode)
 		{
@@ -858,7 +854,7 @@ IMPLEMENT_DYNCREATE(CSImageViewerView, CView)
 		color = extractDlg.m_enumColor;
 
 		CImage imgSrc;
-		CopyImage(m_image[m_iImageIndex].GetCurrentProcess(), &imgSrc);
+		CopyImage_CImage(m_image[m_iImageIndex].GetCurrentProcess(), &imgSrc);
 
 		ExtractChannel(&imgSrc,m_image[m_iImageIndex].ProgressImageProcess(), color);
 		Invalidate();
@@ -888,7 +884,7 @@ IMPLEMENT_DYNCREATE(CSImageViewerView, CView)
 
 		CImage imgClipped;
 		ClipImage(m_image[m_iImageIndex].GetCurrentProcess(), &imgClipped, m_Rect_i.top,m_Rect_i.left, m_Rect_i.bottom, m_Rect_i.right); 
-		CopyImage(&imgClipped, &dlgModify.m_image);
+		CopyImage_CImage(&imgClipped, &dlgModify.m_image);
 		INT_PTR iRet;
 		dlgModify.DoModal();
 		iRet = dlgModify.m_iRet;
@@ -1366,7 +1362,7 @@ IMPLEMENT_DYNCREATE(CSImageViewerView, CView)
 		bool bRet_Processed = false;
 		pFrame->m_sStatusRGBProcessed.Format(_T("not processed"));
 
-		if(m_image[m_iImageIndex].m_iImgProcessIndex != 0)
+		if(m_image[m_iImageIndex].GetProcessIndex() != 0)
 		{
 			bRet_Processed = GetColorAtCursor(m_image[m_iImageIndex].GetCurrentProcess(), point_v, &iR_img, &iC_img, &colorValue);
 			if(bRet_Processed == false)

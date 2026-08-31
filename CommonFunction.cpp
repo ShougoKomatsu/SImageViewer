@@ -175,7 +175,7 @@ bool CopyToClipBoardStr(const CString sValue)
 		{
 			if(m_imageProcessed[i].IsNull() != true){m_imageProcessed[i].Destroy();}
 		}
-		CopyImage(&cImage, &(m_imageProcessed[0]));
+		CopyImage_CImage(&cImage, &(m_imageProcessed[0]));
 		m_iImgProcessIndex=0;
 		m_iReDoAvailableCount=0;
 		m_iUnDoAvailableCount=0;

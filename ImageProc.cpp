@@ -166,30 +166,29 @@ CImage* PanImage::GetCurrentProcess()
 }
 
 
-bool CopyImage(const PanImage* imgSrc, PanImage* imgDst)
+bool PanImage::CopyImage(const PanImage* imgSrc)
 {
-	bool bRet = imgDst->Set(imgSrc->enumImageType, imgSrc->iImage, imgSrc->dImage, imgSrc->iWidth, imgSrc->iHeight, &imgSrc->cImage, imgSrc->enumValueImage, imgSrc->sDataSource);
+	bool bRet = this->Set(imgSrc->enumImageType, imgSrc->iImage, imgSrc->dImage, imgSrc->iWidth, imgSrc->iHeight, &imgSrc->cImage, imgSrc->enumValueImage, imgSrc->sDataSource);
 	if(bRet != true){return false;}
 	if(imgSrc->enumImageType != IMAGE_TYPE_CIMAGE)
 	{
-		bRet = CopyImage(&(imgSrc->cImage), &(imgDst->cImage));
+		bRet = CopyImage_CImage(&(imgSrc->cImage), &(this->cImage));
 		if(bRet != true){return false;}
 	}
 	for(int i=0; i<MAX_IMG_PROCESS; i++)
 	{
 		if(imgSrc->m_imageProcessed[i].IsNull() != true)
 		{
-			CopyImage(&(imgSrc->m_imageProcessed[i]), &(imgDst->m_imageProcessed[i]));
+			CopyImage_CImage(&(imgSrc->m_imageProcessed[i]), &(this->m_imageProcessed[i]));
 		}
 
-		imgDst->m_iImgProcessIndex = imgSrc->m_iImgProcessIndex;
-		imgDst->m_iUnDoAvailableCount = imgSrc->m_iUnDoAvailableCount;
-		imgDst->m_iReDoAvailableCount = imgSrc->m_iReDoAvailableCount;
-
+		this->m_iImgProcessIndex = imgSrc->m_iImgProcessIndex;
+		this->m_iUnDoAvailableCount = imgSrc->m_iUnDoAvailableCount;
+		this->m_iReDoAvailableCount = imgSrc->m_iReDoAvailableCount;
 	}
 	return true;
 }
-bool CopyImage(const CImage* imgSrc, CImage* imgDst)
+bool CopyImage_CImage(const CImage* imgSrc, CImage* imgDst)
 {
 	if (imgSrc->IsNull() == true) {return false;}
 
@@ -1120,7 +1119,7 @@ bool Resample(const CImage* imgSrc, CImage* imgDst, const RESAMPLE resample)
 	int iBPP=imgSrc->GetBPP();
 	switch(resample)
 	{
-	case RESAMPLE_NONE:{return CopyImage(imgSrc, imgDst);}
+	case RESAMPLE_NONE:{return CopyImage_CImage(imgSrc, imgDst);}
 	case RESAMPLE_2:
 	case RESAMPLE_3:
 	case RESAMPLE_4:
@@ -1349,7 +1348,7 @@ inline void CopyRGBQ(const RGBQUAD* rgbq_src, RGBQUAD* rgbq_dst)
 
 bool ConvertImage_LossLess(const CImage* imgSrc, const int iBPPDst, CImage* imgDst)
 {
-	if(imgSrc->GetBPP() == iBPPDst){return CopyImage(imgSrc,imgDst);}
+	if(imgSrc->GetBPP() == iBPPDst){return CopyImage_CImage(imgSrc,imgDst);}
 
 	int iUsedColors;
 	bool bGrayScale;
@@ -1469,7 +1468,7 @@ bool ExtractChannel_Gray(const CImage* imgSrc, CImage* imgDst, const ENUM_COLOR 
 	int iHeight = imgSrc->GetHeight();
 	if(imgSrc->GetBPP()==8)
 	{
-		CopyImage(imgSrc,imgDst);
+		CopyImage_CImage(imgSrc,imgDst);
 		return true;
 	}
 
@@ -1592,7 +1591,7 @@ bool ImposeRect(const CImage* imgSrc, CImage* imgDst, const CRect* rect)
 {
 	if(imgSrc != imgDst)
 	{
-		CopyImage(imgSrc,imgDst);
+		CopyImage_CImage(imgSrc,imgDst);
 	}
 
 	int iBPP = imgDst->GetBPP();
@@ -1988,7 +1987,7 @@ const BYTE g_byFont_4_8[96]={
 	{
 		if(imgZoomed != imgDst)
 		{
-			CopyImage(imgZoomed,imgDst);
+			CopyImage_CImage(imgZoomed,imgDst);
 		}
 		if(dScale<dScaleThresh){return true;}
 
@@ -2098,7 +2097,7 @@ const BYTE g_byFont_4_8[96]={
 	{
 		if(imgSrc != imgDst)
 		{
-			CopyImage(imgSrc,imgDst);
+			CopyImage_CImage(imgSrc,imgDst);
 		}
 		if(dScale<dScaleThresh){return true;}
 		if(iType==0){return true;}
@@ -2221,7 +2220,7 @@ const BYTE g_byFont_4_8[96]={
 		if(iType==3)
 		{
 			CImage imgTemp;
-			CopyImage(imgValueSrc,&imgTemp);
+			CopyImage_CImage(imgValueSrc,&imgTemp);
 			BYTE* pbyDataTemp = (BYTE*)imgTemp.GetBits();
 
 			for(int r=0; r<iHeight-1;r++)
@@ -2249,7 +2248,7 @@ const BYTE g_byFont_4_8[96]={
 	}
 	bool MakeReservedChannelZero(const CImage* imgSrc, CImage* imgDst)
 	{
-		CopyImage(imgSrc, imgDst);
+		CopyImage_CImage(imgSrc, imgDst);
 
 		if(imgSrc->GetBPP()==32){return true;}
 		if(imgSrc->GetBPP()==24){return true;}
@@ -2723,7 +2722,7 @@ const BYTE g_byFont_4_8[96]={
 		RGBQUAD* rgbqTable_src= new RGBQUAD[256];
 		imgSrc->GetColorTable(0, 256, rgbqTable_src);
 
-		CopyImage(imgSrc, imgDst);
+		CopyImage_CImage(imgSrc, imgDst);
 
 		bool bAsc8bit=true;
 		for(int iColorIndex=0; iColorIndex<256; iColorIndex++)
@@ -2776,7 +2775,7 @@ const BYTE g_byFont_4_8[96]={
 		}
 
 		int iBPP_src = imgSrc->GetBPP();
-		if(iBPP_src==8){return CopyImage(imgSrc, imgDst);}
+		if(iBPP_src==8){return CopyImage_CImage(imgSrc, imgDst);}
 
 
 		int iWidth = imgSrc->GetWidth();
@@ -3273,7 +3272,7 @@ const BYTE g_byFont_4_8[96]={
 			return ConvertImage_LossLess(imgSrc, iBPP, imgDst);
 		}
 		int iBPP_src = imgSrc->GetBPP();
-		if(iBPP_src==iBPP){return CopyImage(imgSrc,imgDst);}
+		if(iBPP_src==iBPP){return CopyImage_CImage(imgSrc,imgDst);}
 
 		int iWidth = imgSrc->GetWidth();
 		int iHeight = imgSrc->GetHeight();
@@ -3654,7 +3653,7 @@ const BYTE g_byFont_4_8[96]={
 
 	bool PanImage::Convert(const VALUE_IMAGE enumMode, CImage* imgDst)
 	{
-		if(enumImageType==IMAGE_TYPE_CIMAGE){return CopyImage(&(this->cImage), imgDst);}
+		if(enumImageType==IMAGE_TYPE_CIMAGE){return CopyImage_CImage(&(this->cImage), imgDst);}
 
 		if(enumMode == VALUE_IMAGE_RESCALE_0_TO_255)
 		{
@@ -3865,7 +3864,7 @@ const BYTE g_byFont_4_8[96]={
 		case IMAGE_TYPE_CIMAGE:
 			{
 				if(pcImage_in == NULL){return false;}
-				bool bRet = CopyImage(pcImage_in, &(this->cImage));
+				bool bRet = CopyImage_CImage(pcImage_in, &(this->cImage));
 				if(bRet != true){return false;}
 				this->enumImageType = IMAGE_TYPE_CIMAGE;
 				this->iWidth=this->cImage.GetWidth();

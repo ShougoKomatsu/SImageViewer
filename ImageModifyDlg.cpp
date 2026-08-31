@@ -83,10 +83,10 @@ BOOL CImageModifyDlg::OnInitDialog()
 	m_sEditGamma=_T("1.0");
 
 	
-    CopyImage(&m_image,&m_pictureBefore.m_image);
+    CopyImage_CImage(&m_image,&m_pictureBefore.m_image);
     m_pictureBefore.Invalidate(FALSE);
 	
-    CopyImage(&m_image,&m_pictureAfter.m_image);
+    CopyImage_CImage(&m_image,&m_pictureAfter.m_image);
     m_pictureAfter.Invalidate(FALSE);
 
 	UpdateData(FALSE);

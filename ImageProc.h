@@ -78,10 +78,6 @@ public:
 	CString sDataSource;
 	CImage cImage;
 
-	CImage m_imageProcessed[MAX_IMG_PROCESS];
-	int m_iImgProcessIndex;
-	int m_iUnDoAvailableCount;
-	int m_iReDoAvailableCount;
 	CImage* ProgressImageProcess();
 	CImage* GetCurrentProcess();
 	bool UnDo();
@@ -90,6 +86,7 @@ public:
 	int iHeight;
 	int* iImage;
 	double* dImage;
+	bool CopyImage(const PanImage* imgSrc);
 	void ResetProcessImage();
 	bool Set(const IMAGE_TYPE enumImageType, const int* iImage_in, const double* dImage_in, const int iWidth, const int iHeight, const CImage* cImage_in, const VALUE_IMAGE enumValueImage_in, const CString sDataSource_in);
 	int GetWidth(){if(enumImageType==IMAGE_TYPE_CIMAGE){return cImage.GetWidth();} return iWidth;}
@@ -121,6 +118,12 @@ public:
 	bool GetValue(const int r, const int c, double* dValue) const;
 	bool GetValue(const int r, const int c, int* iValue) const;
 	bool GetValue(const int r, const int c, RGBQUAD* rgbValue, BYTE* byAlpha, int* iBPP) const;
+	int GetProcessIndex(){return m_iImgProcessIndex;}
+private:
+	CImage m_imageProcessed[MAX_IMG_PROCESS];
+	int m_iImgProcessIndex;
+	int m_iUnDoAvailableCount;
+	int m_iReDoAvailableCount;
 };
 
 
@@ -131,8 +134,7 @@ public:
 bool CopyToClipBoardImg(const CImage* img);
 bool CopyFromClipBoardImg(PanImage* img);
 
-bool CopyImage(const PanImage* imgSrc, PanImage* imgDst);
-bool CopyImage(const CImage* imgSrc, CImage* imgDst);
+bool CopyImage_CImage(const CImage* imgSrc, CImage* imgDst);
 bool ClipImage(const CImage* imgOriginal, CImage* imgClipped, const int iR0, const int iC0, const int iR1, const int iC1);
 
 bool ZoomImage(const CImage* imgSrc, CImage* imgDst, const double dR0_Src, const double dC0_Src, const double dScale, const int iWidth_Dst, const int iHeight_Dst, const bool bRGBSeparated);
