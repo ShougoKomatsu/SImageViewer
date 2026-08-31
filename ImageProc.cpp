@@ -959,12 +959,12 @@ bool CopyFromClipBoardImg(PanImage* imgDst)
 	bRet = CloseClipboard();
 	if(bRet == FALSE){SAFE_DELETE(byData); return false;}
 	
-	bRet = ReadCImageFromData(byData, dataSize, &imgDst->cImage);
+	bRet = ReadCImageFromData(byData, dataSize, imgDst->SetCImage());
 	if(bRet == FALSE){SAFE_DELETE(byData); return false;}
 
 	SAFE_DELETE(byData); 
-	imgDst->enumImageType=IMAGE_TYPE_CIMAGE;
-	imgDst->sDataSource.Format(_T("Clipboard"));
+	imgDst->SetImageType(IMAGE_TYPE_CIMAGE);
+	imgDst->SetDataSource(_T("Clipboard"));
 	return true;
 }
 int GetColorTableIndex(const RGBQUAD* rgbqTable, const int iLength, const BYTE byR, const BYTE byG, const BYTE byB, const BYTE byA)
@@ -2001,7 +2001,7 @@ const BYTE g_byFont_4_8[96]={
 		int iRMaxDst = int(iHeightDst/dScale+2);
 		int iCMaxDst = int(iWidthDst/dScale+2);
 
-		switch(imgSrc->enumImageType)
+		switch(imgSrc->GetImageType())
 		{
 		case IMAGE_TYPE_IIMAGE:
 			{
@@ -2053,7 +2053,7 @@ const BYTE g_byFont_4_8[96]={
 						if(ic0_v<0){continue;}
 						if(ic0_v>=iWidthDst){continue;}
 
-						COLORREF col = imgSrc->cImage.GetPixel(ic_i, ir_i);
+						COLORREF col = imgSrc->GetCImage()->GetPixel(ic_i, ir_i);
 						int iValueR =  GetRValue(col);
 						int iValueG =  GetGValue(col);
 						int iValueB =  GetBValue(col);
@@ -3647,7 +3647,7 @@ const BYTE g_byFont_4_8[96]={
 			SM_CXICON, SM_CYICON, LR_DEFAULTCOLOR); 
 
 		HDC hScreenDC = ::GetDC(NULL);
-		bool bRet = ConvertIconToImg(hScreenDC, hIcon1, &(imgs[0].cImage));
+		bool bRet = ConvertIconToImg(hScreenDC, hIcon1, imgs[0].SetCImage());
 		return true;
 	}
 

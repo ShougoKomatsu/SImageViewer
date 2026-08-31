@@ -435,13 +435,13 @@ IMPLEMENT_DYNCREATE(CSImageViewerView, CView)
 
 		CMainFrame* pFrame = (CMainFrame*)AfxGetMainWnd();
 		if (pFrame == nullptr){return;}
-		switch(m_image[m_iImageIndex].enumImageType)
+		switch(m_image[m_iImageIndex].GetImageType())
 		{
 		case IMAGE_TYPE_CIMAGE:
 			{
-				if(m_image[m_iImageIndex].cImage.GetBPP() == 32){SetTimer(TIMER_REFRESH,50,0);}
+				if(m_image[m_iImageIndex].GetCImage()->GetBPP() == 32){SetTimer(TIMER_REFRESH,50,0);}
 
-				if(m_image[m_iImageIndex].cImage.GetBPP() == 24)
+				if(m_image[m_iImageIndex].GetCImage()->GetBPP() == 24)
 				{
 					pFrame->SendMessage(ID_DISP_STATUS_CHANGE_CHANNEL, 24);
 				}
@@ -522,9 +522,9 @@ IMPLEMENT_DYNCREATE(CSImageViewerView, CView)
 		pFrame->m_sStatusSize.Format(_T("%s"),sImageSize);
 		pFrame->SendMessage(WM_COMMAND, ID_DISP_STATUS_SIZE);
 
-		switch(m_image[m_iImageIndex].enumImageType)
+		switch(m_image[m_iImageIndex].GetImageType())
 		{
-		case IMAGE_TYPE_CIMAGE:{pFrame->m_sStatusBPP.Format(_T("%d BPP"),m_image[m_iImageIndex].cImage.GetBPP());break;}
+		case IMAGE_TYPE_CIMAGE:{pFrame->m_sStatusBPP.Format(_T("%d BPP"),m_image[m_iImageIndex].GetCImage()->GetBPP());break;}
 		case IMAGE_TYPE_IIMAGE:{pFrame->m_sStatusBPP.Format(_T("int"));break;}
 		case IMAGE_TYPE_DIMAGE:{pFrame->m_sStatusBPP.Format(_T("double"));break;}
 		default:{return;}
@@ -703,7 +703,7 @@ IMPLEMENT_DYNCREATE(CSImageViewerView, CView)
 
 		CPasteAsDlg pasteAsdlg;
 
-		switch(imgTemp.enumImageType)
+		switch(imgTemp.GetImageType())
 		{
 		case IMAGE_TYPE_IIMAGE:{pasteAsdlg.m_sEditImageType.Format(_T("Value"));break;}
 		case IMAGE_TYPE_DIMAGE:{pasteAsdlg.m_sEditImageType.Format(_T("Value"));break;}
@@ -714,7 +714,7 @@ IMPLEMENT_DYNCREATE(CSImageViewerView, CView)
 		INT_PTR iRet = pasteAsdlg.DoModal();
 		if(iRet != IDOK){return;}
 
-		m_image[m_iImageIndex].Set(imgTemp.enumImageType, imgTemp.iImage, imgTemp.dImage, imgTemp.iWidth, imgTemp.iHeight, &(imgTemp.cImage),pasteAsdlg.m_enumPasteAs, _T("Clipboard"));
+		m_image[m_iImageIndex].Set(imgTemp.GetImageType(), imgTemp.GetIImage(), imgTemp.GetDImage(), imgTemp.GetWidth(), imgTemp.GetHeight(), imgTemp.GetCImage(), pasteAsdlg.m_enumPasteAs, _T("Clipboard"));
 		if(bRet != TRUE){return;}
 		m_sFilePath.Format(_T("Clipboard"));
 
@@ -731,7 +731,7 @@ IMPLEMENT_DYNCREATE(CSImageViewerView, CView)
 		CString sCaption;
 		if(m_iImageMax>0)
 		{
-			sCaption.Format(_T("%s - SImageViewer"), m_image[m_iImageIndex].sDataSource);
+			sCaption.Format(_T("%s - SImageViewer"), m_image[m_iImageIndex].GetDataSource());
 		}
 		else
 		{
@@ -1270,7 +1270,7 @@ IMPLEMENT_DYNCREATE(CSImageViewerView, CView)
 		*iR_img = iR_img_Local;
 		*iC_img = iC_img_Local;
 
-		switch(img->enumImageType)
+		switch(img->GetImageType())
 		{
 		case IMAGE_TYPE_IIMAGE:
 			{
@@ -1290,7 +1290,7 @@ IMPLEMENT_DYNCREATE(CSImageViewerView, CView)
 			}
 		case IMAGE_TYPE_CIMAGE:
 			{
-				return GetColorAtCursor(&(img->cImage), point_v, iR_img, iC_img, colorValue);
+				return GetColorAtCursor(img->SetCImage(), point_v, iR_img, iC_img, colorValue);
 			}
 		default:{return false;}
 		}

@@ -73,19 +73,10 @@ struct ColorValue
 class PanImage
 {
 public:
-	IMAGE_TYPE enumImageType;
-	VALUE_IMAGE enumValueImage;
-	CString sDataSource;
-	CImage cImage;
-
 	CImage* ProgressImageProcess();
 	CImage* GetCurrentProcess();
 	bool UnDo();
 	bool ReDo();
-	int iWidth;
-	int iHeight;
-	int* iImage;
-	double* dImage;
 	bool CopyImage(const PanImage* imgSrc);
 	void ResetProcessImage();
 	bool Set(const IMAGE_TYPE enumImageType, const int* iImage_in, const double* dImage_in, const int iWidth, const int iHeight, const CImage* cImage_in, const VALUE_IMAGE enumValueImage_in, const CString sDataSource_in);
@@ -119,7 +110,25 @@ public:
 	bool GetValue(const int r, const int c, int* iValue) const;
 	bool GetValue(const int r, const int c, RGBQUAD* rgbValue, BYTE* byAlpha, int* iBPP) const;
 	int GetProcessIndex(){return m_iImgProcessIndex;}
+	const int* GetIImage() const {return iImage;}
+	const double* GetDImage() const {return dImage;}
+	const CImage* GetCImage() const {return &cImage;}
+	int* SetIImage(){return iImage;}
+	double* SetDImage(){return dImage;}
+	CImage* SetCImage(){return &cImage;}
+	const IMAGE_TYPE GetImageType() const{return enumImageType;}
+	void SetImageType(const IMAGE_TYPE enumImageType_in){enumImageType = enumImageType_in;}
+	void SetDataSource(const CString sDataSource_in){sDataSource.Format(_T("%s"), sDataSource_in);}
+	const CString GetDataSource() const{return sDataSource;}
 private:
+	CString sDataSource;
+	VALUE_IMAGE enumValueImage;
+	IMAGE_TYPE enumImageType;
+	int* iImage;
+	double* dImage;
+	CImage cImage;
+	int iWidth;
+	int iHeight;
 	CImage m_imageProcessed[MAX_IMG_PROCESS];
 	int m_iImgProcessIndex;
 	int m_iUnDoAvailableCount;

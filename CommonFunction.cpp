@@ -193,10 +193,10 @@ bool CopyToClipBoardStr(const CString sValue)
 			*iImageIndexNew = iImageIndex+uiIconNum;
 			return true;
 		}
-		HRESULT hResult = panImage->cImage.Load(sFilePath);
+		HRESULT hResult = panImage->SetCImage()->Load(sFilePath);
 		if(hResult != S_OK){return false;}
-		panImage->enumImageType=IMAGE_TYPE_CIMAGE;
-		panImage->sDataSource.Format(_T("%s"), sFilePath);
+		panImage->SetImageType(IMAGE_TYPE_CIMAGE);
+		panImage->SetDataSource(sFilePath);
 		panImage->ResetProcessImage();
 
 		*iImageIndexNew = iImageIndex+1;
