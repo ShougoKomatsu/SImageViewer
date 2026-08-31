@@ -142,7 +142,24 @@ CImage* PanImage::ProgressImageProcess()
 	if(m_iUnDoAvailableCount>=MAX_IMG_PROCESS-1){m_iUnDoAvailableCount=MAX_IMG_PROCESS-1;}
 	return &(m_imageProcessed[(m_iImgProcessIndex % MAX_IMG_PROCESS)]);
 }
+bool PanImage::UnDo()
+{
+	if(m_iUnDoAvailableCount<=0){return false;}
+	m_iImgProcessIndex--;
+	m_iUnDoAvailableCount--;
+	m_iReDoAvailableCount++;
+	return true;
+}
 
+bool PanImage::ReDo()
+{
+	if(m_iReDoAvailableCount<=0){return false;}
+	m_iImgProcessIndex++;
+	m_iReDoAvailableCount--;
+	m_iUnDoAvailableCount++;
+	return true;
+
+}
 CImage* PanImage::GetCurrentProcess()
 {
 	return &(m_imageProcessed[(m_iImgProcessIndex % MAX_IMG_PROCESS)]);

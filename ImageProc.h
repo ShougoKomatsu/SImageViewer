@@ -84,6 +84,8 @@ public:
 	int m_iReDoAvailableCount;
 	CImage* ProgressImageProcess();
 	CImage* GetCurrentProcess();
+	bool UnDo();
+	bool ReDo();
 	int iWidth;
 	int iHeight;
 	int* iImage;
