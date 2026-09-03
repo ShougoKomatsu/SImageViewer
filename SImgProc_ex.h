@@ -186,6 +186,9 @@ BOOL DLL_IE EquHistImage(const ImgRGB* imgIn, ImgRGB* imgResult, const int r0, c
 BOOL DLL_IE BrightnessContrast(const ImgRGB* imgIn, ImgRGB* imgResult, const int r0, const int c0, const int r1, const int c1, const double dBrightness, const double dContrastAngleDegree);
 BOOL DLL_IE Gamma(const ImgRGB* imgIn, ImgRGB* imgResult, const int r0, const int c0, const int r1, const int c1, const double dGamma);
 
+BOOL DLL_IE GetHistgram(const ImgRGB* imgRGB, int r0, int c0, int r1, int c1,  int* iHistR, int* iHistG, int* iHistB);
+BOOL DLL_IE GetHistgram(const ImgRGB* imgRGB, int r0, int c0, int r1, int c1,  int* iHist);
+
 enum enumRotate
 {
 	ROTATE_NONE = 0,

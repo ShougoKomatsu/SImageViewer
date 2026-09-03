@@ -63,6 +63,7 @@ public:
 	void EnterFullScreen();
 	void ExitFullScreen();
 	
+	void OperateCopyHistGramToClipboard();
 	void OperateResample();
 	void OperateBrightnessContrastGamma();
 	void OperateRotaateImage(enumRotate rotate);

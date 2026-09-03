@@ -213,7 +213,7 @@ void CImageModifyDlg::UpdateResultImage()
 	ImgRGB imgRGB;
 	ImgRGB imgResult1;
 	ImgRGB imgResult2;
-	ConvertImage(&m_image, &imgRGB);
+	_ConvertImage(&m_image, &imgRGB);
 	BrightnessContrast(&imgRGB,&imgResult1,0,0,m_image.GetHeight()-1,m_image.GetWidth()-1,(double)m_iBrightness,(double)m_iContrast);
 	Gamma(&imgResult1,&imgResult2,0,0,m_image.GetHeight()-1,m_image.GetWidth()-1,m_dGamma);
 	

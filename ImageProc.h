@@ -45,6 +45,11 @@ enum RESAMPLE
 	RESAMPLE_4=4,
 };
 
+bool _IsImageMonochrome(const CImage* imgSrc);
+
+bool _ConvertImage(const CImage* cimage, ImgRGB* imgRGB);
+
+
 struct ColorValue
 {
 	VALUE_TYPE valueType;
@@ -120,6 +125,8 @@ public:
 	void SetImageType(const IMAGE_TYPE enumImageType_in){enumImageType = enumImageType_in;}
 	void SetDataSource(const CString sDataSource_in){sDataSource.Format(_T("%s"), sDataSource_in);}
 	const CString GetDataSource() const{return sDataSource;}
+	bool IsImageMonochrome(){return _IsImageMonochrome(&cImage);}
+	bool ConvertImage(ImgRGB* imgRGB){return _ConvertImage(&cImage, imgRGB);}
 private:
 	CString sDataSource;
 	VALUE_IMAGE enumValueImage;
@@ -138,6 +145,13 @@ private:
 
 
 
+bool ConvertImage(const ImgRGB* imgRGB, CImage* imgDst, const int iBPPDst, const RGBQUAD* rgbqTable, const int iColors);
+bool ConvertStrToPanImage(const CString sImage, const VALUE_IMAGE enumImageMode, const CString sDataSource, PanImage* imgDst);
+bool ConvertImage_AreaCoverage(const CImage* imgSrc,const int iBPP, CImage* imgDst);
+bool ConvertImage_ByDeviation(const CImage* imgSrc,const int iBPP,  CImage* imgDst);
+bool ConvertImage_LossLess(const CImage* imgSrc, const int iBPP, CImage* imgDst);
+bool ConvertImageToStr(const CImage* cimage, const CString sSeparator, CString* sImage);
+bool ConvertImage(const ImgRGB* imgRGB, CImage* cimage);	
 
 
 bool CopyToClipBoardImg(const CImage* img);
@@ -150,7 +164,6 @@ bool ZoomImage(const CImage* imgSrc, CImage* imgDst, const double dR0_Src, const
 
 bool ExtractChannel(const CImage* imgSrc, CImage* imgDst, const ENUM_COLOR enumColor);
 
-bool IsImageMonochrome(const CImage* imgSrc);
 bool CountColorNum(const CImage* imgSrc, int* iColorNum_out, UINT* uiMap_out);
 bool MakeColorTable(const CImage* cImage, RGBQUAD* rgbqTable_out, ULONGLONG* ullFrequency_out, int iLength, int* iUsedColors_out, bool* bGrayScale_out);
 
@@ -158,15 +171,6 @@ bool Resize(const CImage* imgSrc, CImage* imgDst, const int iWidth_dst, const in
 bool Resample(const CImage* imgSrc, CImage* imgDst, const RESAMPLE resample);
 bool MakeReservedChannelZero(const CImage* imgSrc, CImage* imgDst);
 bool SetColorTable(CImage* img, const RGBQUAD* rgbTable, int iLength);
-
-bool ConvertImage(const ImgRGB* imgRGB, CImage* imgDst, const int iBPPDst, const RGBQUAD* rgbqTable, const int iColors);
-bool ConvertStrToPanImage(const CString sImage, const VALUE_IMAGE enumImageMode, const CString sDataSource, PanImage* imgDst);
-bool ConvertImage_AreaCoverage(const CImage* imgSrc,const int iBPP, CImage* imgDst);
-bool ConvertImage_ByDeviation(const CImage* imgSrc,const int iBPP,  CImage* imgDst);
-bool ConvertImage_LossLess(const CImage* imgSrc, const int iBPP, CImage* imgDst);
-bool ConvertImageToStr(const CImage* cimage, const CString sSeparator, CString* sImage);
-bool ConvertImage(const ImgRGB* imgRGB, CImage* cimage);	
-bool ConvertImage(const CImage* cimage, ImgRGB* imgRGB);
 
 
 UINT CountIconNum(const CString sFilePath);

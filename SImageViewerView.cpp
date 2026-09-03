@@ -617,7 +617,7 @@ IMPLEMENT_DYNCREATE(CSImageViewerView, CView)
 
 		CFormatSelectionDlg formatDlg;
 		formatDlg.m_iBPP = image->GetBPP();
-		formatDlg.m_bImageIsMonochrome = IsImageMonochrome(image);
+		formatDlg.m_bImageIsMonochrome = _IsImageMonochrome(image);
 		INT_PTR iRet = formatDlg.DoModal();
 		if(iRet != IDOK){return false;}
 		CString sFileExt;
@@ -766,6 +766,47 @@ IMPLEMENT_DYNCREATE(CSImageViewerView, CView)
 		pFrame->m_bRegionSelected = true;
 	}
 
+	void CSImageViewerView::OperateCopyHistGramToClipboard()
+	{
+		if(m_iImageMax <= 0){return;}
+		CString sHist;
+		for(int i=0; i<m_iImageMax; i++)
+		{
+			ImgRGB imgRGB;
+			m_image[i].ConvertImage(&imgRGB);
+	
+				int iHistR[256];
+				int iHistG[256];
+				int iHistB[256];
+				for(int i=0; i<256; i++)
+				{
+					iHistR[i]=0;
+					iHistG[i]=0;
+					iHistB[i]=0;
+				}
+				GetHistgram(&imgRGB, 0, 0, imgRGB.iHeight-1, imgRGB.iWidth-1,  iHistR,  iHistG,  iHistB);
+				for(int iValue=0; iValue<256; iValue++)
+				{
+					CString sTemp;
+					sTemp.Format(_T("%d%s"), iHistR[iValue],(iValue!=255? _T("\t"): _T("\n")));
+					sHist+=sTemp;
+				}
+				for(int iValue=0; iValue<256; iValue++)
+				{
+					CString sTemp;
+					sTemp.Format(_T("%d%s"), iHistG[iValue],(iValue!=255? _T("\t"): _T("\n")));
+					sHist+=sTemp;
+				}
+				for(int iValue=0; iValue<256; iValue++)
+				{
+					CString sTemp;
+					sTemp.Format(_T("%d%s"), iHistB[iValue],(iValue!=255? _T("\t"): _T("\n")));
+					sHist+=sTemp;
+				}
+		}
+		CopyToClipBoardStr(sHist);
+	}
+
 	void CSImageViewerView::OperateEquHistImage()
 	{
 		if(m_iImageMax <= 0){return;}
@@ -774,7 +815,7 @@ IMPLEMENT_DYNCREATE(CSImageViewerView, CView)
 
 		ImgRGB imgRGB;
 		ImgRGB imgMeaned;
-		ConvertImage(m_image[m_iImageIndex].GetCurrentProcess(), &imgRGB);
+		_ConvertImage(m_image[m_iImageIndex].GetCurrentProcess(), &imgRGB);
 		EquHistImage(&imgRGB,&imgMeaned,m_Rect_i.top,m_Rect_i.left,m_Rect_i.bottom,m_Rect_i.right);
 		if(bAutoFull == true)
 		{
@@ -867,7 +908,7 @@ IMPLEMENT_DYNCREATE(CSImageViewerView, CView)
 
 		ImgRGB imgRGB;
 		ImgRGB imgResult;
-		ConvertImage(m_image[m_iImageIndex].GetCurrentProcess(), &imgRGB);
+		_ConvertImage(m_image[m_iImageIndex].GetCurrentProcess(), &imgRGB);
 
 		ConvertImage(&imgResult, m_image[m_iImageIndex].ProgressImageProcess());
 		SetScroll();
@@ -906,7 +947,7 @@ IMPLEMENT_DYNCREATE(CSImageViewerView, CView)
 		ImgRGB imgRGB;
 		ImgRGB imgResult1;
 		ImgRGB imgResult2;
-		ConvertImage(m_image[m_iImageIndex].GetCurrentProcess(), &imgRGB);
+		_ConvertImage(m_image[m_iImageIndex].GetCurrentProcess(), &imgRGB);
 		BrightnessContrast(&imgRGB,&imgResult1,m_Rect_i.top,m_Rect_i.left,m_Rect_i.bottom,m_Rect_i.right,(double)iBrightness,(double)iContrast);
 		Gamma(&imgResult1,&imgResult2,m_Rect_i.top,m_Rect_i.left,m_Rect_i.bottom,m_Rect_i.right,dGamma);
 		if(bAutoFull == true)
@@ -1694,6 +1735,11 @@ IMPLEMENT_DYNCREATE(CSImageViewerView, CView)
 		{	
 			if(GetKeyState(VK_CONTROL)<0)
 			{	
+				if(pMsg->wParam == 'H')
+				{
+					OperateCopyHistGramToClipboard();
+					return TRUE; 
+				}
 				if(pMsg->wParam == 'A')
 				{
 					FullDomain();

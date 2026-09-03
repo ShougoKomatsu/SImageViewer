@@ -56,7 +56,7 @@ bool IsThereAlphaValue(const RGBQUAD* rgbTable, const int iLength)
 	return false;
 }
 
-bool IsImageMonochrome(const CImage* imgSrc)
+bool _IsImageMonochrome(const CImage* imgSrc)
 {
 	int iBPP = imgSrc->GetBPP();
 
@@ -542,8 +542,8 @@ bool ConvertImageToStr(const CImage* imgSrc, const CString sSeparator, CString* 
 	if(iHeight_src == 0){return FALSE;}
 
 	ImgRGB imgRGB;
-	ConvertImage(imgSrc,&imgRGB);
-	bool bMono = IsImageMonochrome(imgSrc);
+	_ConvertImage(imgSrc,&imgRGB);
+	bool bMono = _IsImageMonochrome(imgSrc);
 	bool bAlpha = IsAlphaChanneled(imgSrc);
 	CString sImageLocal=_T("");
 	if(bMono==false)
@@ -980,7 +980,7 @@ int GetColorTableIndex(const RGBQUAD* rgbqTable, const int iLength, const BYTE b
 }
 
 
-bool ConvertImage(const CImage* imgSrc, ImgRGB* imgRGB)
+bool _ConvertImage(const CImage* imgSrc, ImgRGB* imgRGB)
 {
 	int iWidth_src = imgSrc->GetWidth();
 	int iHeight_src = imgSrc->GetHeight();
@@ -1045,7 +1045,7 @@ bool Resize(const CImage* imgSrc, CImage* imgDst, const int iWidth_dst, const in
 	ImgRGB imgRGBSrc;
 	ImgRGB imgRGBDst;
 	int iBPP=imgSrc->GetBPP();
-	ConvertImage(imgSrc, &imgRGBSrc);
+	_ConvertImage(imgSrc, &imgRGBSrc);
 	imgRGBDst.Set(iWidth_dst, iHeight_dst, CHANNEL_3_8RGB);
 	int iWidth_src = imgSrc->GetWidth();
 	int iHeight_src = imgSrc->GetHeight();
@@ -1132,7 +1132,7 @@ bool Resample(const CImage* imgSrc, CImage* imgDst, const RESAMPLE resample)
 			case RESAMPLE_4:{iStep=4;break;}
 			default:{return false;}
 			}
-			ConvertImage(imgSrc, &imgRGBSrc);
+			_ConvertImage(imgSrc, &imgRGBSrc);
 			if((iBPP==24) || (iBPP==32))
 			{
 				if(iBPP==24){imgRGBDst.Set((imgRGBSrc.iWidth + (iStep-1))/iStep, (imgRGBSrc.iHeight+(iStep-1))/iStep,CHANNEL_3_8RGB);}
@@ -1178,7 +1178,7 @@ bool Resample(const CImage* imgSrc, CImage* imgDst, const RESAMPLE resample)
 			case RESAMPLE_3RD:{iStep=3;break;}
 			case RESAMPLE_4TH:{iStep=4;break;}
 			}
-			ConvertImage(imgSrc, &imgRGBSrc);
+			_ConvertImage(imgSrc, &imgRGBSrc);
 
 			if((iBPP==24) || (iBPP==32))
 			{
@@ -1357,7 +1357,7 @@ bool ConvertImage_LossLess(const CImage* imgSrc, const int iBPPDst, CImage* imgD
 	if(iUsedColors > (1<<min(24, iBPPDst))){return false;}
 
 	ImgRGB imgRGB;
-	ConvertImage(imgSrc,&imgRGB);
+	_ConvertImage(imgSrc,&imgRGB);
 
 	if(imgDst->IsNull() != true){imgDst->Destroy();}
 	imgDst->Create(imgRGB.iWidth, imgRGB.iHeight, iBPPDst);
@@ -1486,7 +1486,7 @@ bool ExtractChannel_Gray(const CImage* imgSrc, CImage* imgDst, const ENUM_COLOR 
 	SetColorTable(imgDst, colorTable, 256);
 
 	ImgRGB imgRGB;
-	ConvertImage(imgSrc, &imgRGB);
+	_ConvertImage(imgSrc, &imgRGB);
 	int iPitch_dst=imgDst->GetPitch();
 	BYTE* pbyDataDst = (BYTE*)imgDst->GetBits();
 
@@ -1516,7 +1516,7 @@ bool ExtractChannel_Color(const CImage* imgSrc, CImage* imgDst, const ENUM_COLOR
 	int iHeight = imgSrc->GetHeight();
 
 	ImgRGB imgRGB;
-	ConvertImage(imgSrc, &imgRGB);
+	_ConvertImage(imgSrc, &imgRGB);
 
 	if(imgDst->IsNull() != true){imgDst->Destroy();}
 	imgDst->Create(iWidth, iHeight, 24);
@@ -1582,7 +1582,7 @@ bool ExtractChannel(const CImage* imgSrc, CImage* imgDst, const ENUM_COLOR color
 
 	ImgRGB imgSrcRGB;
 	ImgRGB imgDstRGB;
-	ConvertImage(imgSrc,&imgSrcRGB);
+	_ConvertImage(imgSrc,&imgSrcRGB);
 	ConvertColorSpace(&imgSrcRGB,&imgDstRGB,color);
 	return ConvertImage(&imgDstRGB,imgDst);
 }
@@ -2470,7 +2470,7 @@ const BYTE g_byFont_4_8[96]={
 	bool CountColorNum(const CImage* imgSrc, int* iColorNum_out, UINT* uiMap_out)
 	{
 		ImgRGB imgRGB;
-		ConvertImage(imgSrc, &imgRGB);
+		_ConvertImage(imgSrc, &imgRGB);
 		return CountColorNum(&imgRGB, iColorNum_out, uiMap_out);
 	}
 	bool MakeColorTable(const ImgRGB* imgRGB, RGBQUAD* rgbqTable_out, ULONGLONG* ullFrequency_out, const int iLength, int* iUsedColors_out, bool* bGrayScale_out)
@@ -2554,7 +2554,7 @@ const BYTE g_byFont_4_8[96]={
 		if((iBPP==24) || (iBPP==32))
 		{
 			ImgRGB imgRGB;
-			ConvertImage(imgSrc,&imgRGB);
+			_ConvertImage(imgSrc,&imgRGB);
 			return MakeColorTable(&imgRGB, rgbqTable_out, ullFrequency_out, iLength, iUsedColors_out, bGrayScale_out);
 		}
 		RGBQUAD* rgbqTable;
@@ -2717,7 +2717,7 @@ const BYTE g_byFont_4_8[96]={
 	*/
 	bool SetAsc8bitsMonoColorTableImage(const CImage* imgSrc, CImage* imgDst)
 	{
-		if(IsImageMonochrome(imgSrc)==false){return false;}
+		if(_IsImageMonochrome(imgSrc)==false){return false;}
 
 		RGBQUAD* rgbqTable_src= new RGBQUAD[256];
 		imgSrc->GetColorTable(0, 256, rgbqTable_src);
@@ -2732,7 +2732,7 @@ const BYTE g_byFont_4_8[96]={
 		if(bAsc8bit==true){return true;}
 
 		ImgRGB imgRGB;
-		ConvertImage(imgSrc,&imgRGB);
+		_ConvertImage(imgSrc,&imgRGB);
 
 		RGBQUAD rgbqMono[256];
 		for(int iColorIndex=0; iColorIndex<256; iColorIndex++)
@@ -2782,7 +2782,7 @@ const BYTE g_byFont_4_8[96]={
 		int iHeight = imgSrc->GetHeight();
 
 		ImgRGB imgRGB;
-		ConvertImage(imgSrc,&imgRGB);
+		_ConvertImage(imgSrc,&imgRGB);
 		RGBQUAD* rgbqTable;
 		rgbqTable = new RGBQUAD[iWidth*iHeight];
 		ULONGLONG* ullFrequency;
@@ -3277,7 +3277,7 @@ const BYTE g_byFont_4_8[96]={
 		int iWidth = imgSrc->GetWidth();
 		int iHeight = imgSrc->GetHeight();
 		ImgRGB imgRGB;
-		ConvertImage(imgSrc,&imgRGB);
+		_ConvertImage(imgSrc,&imgRGB);
 
 		RGBQUAD* rgbqTable;
 		rgbqTable = new RGBQUAD[iWidth*iHeight];
