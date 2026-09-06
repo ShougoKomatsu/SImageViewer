@@ -181,3 +181,57 @@ bool ImposeGrid(const CImage* imgValueSrc, const CImage* imgSrc, CImage* imgDst,
 bool ImposeRGBValue(const PanImage* imgSrc, const CImage* imgZoomed, CImage* imgDst, const int iType,const double dROffset, const double dCOffset, const double dScale, const double dScaleThresh,const int iRs_i, const int iCs_i, const int iRe_i, const int iCe_i);
 bool ImposeRect(const CImage* imgSrc, CImage* imgDst, const CRect* rect);
 bool ImposeAlphaChannel(const CImage* imgSrc, CImage* imgDst);
+
+	struct FileFormat
+	{
+		CString sType;
+		UINT uiWidth;
+		UINT uiHeight;
+		UINT uiDataOffset;
+
+		UINT uiWidthInfoOffset;
+		UINT uiHeightInfoOffset;
+		UINT uiDataInfoOffset;
+		UINT uiDataOffsetOffset;
+		void Copy(FileFormat* fileFormat_in)
+		{
+			sType.Format(_T("%s"), fileFormat_in->sType);
+			uiWidth=fileFormat_in->uiWidth;
+			uiHeight=fileFormat_in->uiHeight;
+			uiDataOffset=fileFormat_in->uiDataOffset;
+
+			uiWidthInfoOffset=fileFormat_in->uiWidthInfoOffset;
+			uiHeightInfoOffset=fileFormat_in->uiHeightInfoOffset;
+			uiDataInfoOffset=fileFormat_in->uiDataInfoOffset;
+			uiDataOffsetOffset=fileFormat_in->uiDataOffsetOffset;
+		}
+	};
+	struct FileFormatList
+	{
+		FileFormat* fileFormat;
+		UINT uiNum;
+		FileFormatList()
+		{
+			fileFormat=NULL;
+		}
+		void Init()
+		{
+			uiNum=0;
+			SAFE_DELETE(fileFormat);
+		}
+		~FileFormatList()
+		{
+			Init();
+		}
+		void Set(UINT uiNum_in)
+		{
+			Init();
+			fileFormat = new FileFormat[uiNum_in];
+			uiNum=uiNum_in;
+		}
+
+	};
+	bool GetImageTypeNum(const CString sIniFilePath, UINT* uiTypeNum);
+	bool GetImageType(const CString sIniFilePath, const int iIndexB0, CString* sType);
+	bool GetFileFormat(const CString sIniFilePath, const CString sType, FileFormat* fileFormat);
+bool ReadBinaryFile(const CString sFilePath, FileFormatList* fileFormatList, PanImage* imgDst);

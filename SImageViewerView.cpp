@@ -534,9 +534,9 @@ IMPLEMENT_DYNCREATE(CSImageViewerView, CView)
 	bool CSImageViewerView::AddImage(CString sFilePath)
 	{
 		CStringArray saFilePath;
-		bool bRet = RecursivelyGetImageFilePaths(sFilePath, &saFilePath);
+		bool bRet = RecursivelyGetImageFilePaths(sFilePath, &saFilePath, &m_fileFomatList);
 		if(bRet != true){return false;}
-		int iImageNum = CountImages(sFilePath);
+		int iImageNum = CountImages(sFilePath, &m_fileFomatList);
 
 		int iOldNum = m_iImageMax;
 		PanImage* imgTemp = NULL;
@@ -562,7 +562,7 @@ IMPLEMENT_DYNCREATE(CSImageViewerView, CView)
 		int iImageIndex = iOldNum;
 		for(int i = 0; i<iImageNum; i++)
 		{
-			bRet = ReadAndAppendImage(saFilePath.GetAt(i), &m_image[iImageIndex], iImageIndex, &iImageIndex);
+			bRet = ReadAndAppendImage(saFilePath.GetAt(i), &m_fileFomatList, &m_image[iImageIndex], iImageIndex, &iImageIndex);
 			if(bRet != true){return false;}
 		}
 
@@ -587,16 +587,16 @@ IMPLEMENT_DYNCREATE(CSImageViewerView, CView)
 		SAFE_DELETE(m_image);
 
 		CStringArray saFilePath;
-		bool bRet = RecursivelyGetImageFilePaths(sFilePath, &saFilePath);
+		bool bRet = RecursivelyGetImageFilePaths(sFilePath, &saFilePath, &m_fileFomatList);
 		if(bRet != true){return false;}
-		int iImageNum = CountImages(sFilePath);
+		int iImageNum = CountImages(sFilePath, &m_fileFomatList);
 
 		m_image = new PanImage[iImageNum];
 
 		int iImageIndex = 0;
 		for(int i = 0; i<saFilePath.GetCount(); i++)
 		{
-			bRet = ReadAndAppendImage(saFilePath.GetAt(i), &m_image[iImageIndex], iImageIndex, &iImageIndex);
+			bRet = ReadAndAppendImage(saFilePath.GetAt(i), &m_fileFomatList, &m_image[iImageIndex], iImageIndex, &iImageIndex);
 			if(bRet != true){return false;}
 		}
 
@@ -1041,6 +1041,26 @@ IMPLEMENT_DYNCREATE(CSImageViewerView, CView)
 		}*/
 
 		m_bBeingFullScreen = false;
+
+		TCHAR tszExePath[MAX_PATH];
+		::GetModuleFileName(NULL, tszExePath, MAX_PATH);
+		CString sExePath;
+		sExePath.Format(_T("%s"), tszExePath);
+		int iPlace = sExePath.ReverseFind('\\');
+		CString sIniFilePath;
+		sIniFilePath.Format(_T("%s\\setting.ini"),sExePath.Left(iPlace)); 
+		UINT uiTypeNum;
+		bool bRet = GetImageTypeNum(sIniFilePath, &uiTypeNum);
+		m_fileFomatList.Set(uiTypeNum);
+		for(int i=0; i<uiTypeNum; i++)
+		{
+			CString sType;
+			bRet = GetImageType(sIniFilePath, i, &sType);
+			bRet = GetFileFormat(sIniFilePath, sType, &(m_fileFomatList.fileFormat[i]));
+		}
+
+
+
 		SetTimer(TIMER_INIT, 100, 0);
 	}
 

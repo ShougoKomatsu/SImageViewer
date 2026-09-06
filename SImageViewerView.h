@@ -8,6 +8,7 @@
 #include "SImgProc_ex.h"
 #include "ImageProc.h"
 #include "ResampleDlg.h"
+#include "CommonFunction.h"
 class CSImageViewerView : public CView
 {
 protected: // シリアル化からのみ作成します。
@@ -16,6 +17,8 @@ protected: // シリアル化からのみ作成します。
 
 // 属性
 public:
+
+	FileFormatList m_fileFomatList;
 	void FullDomain();
 	CString m_sFilePath;
 

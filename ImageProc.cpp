@@ -4,7 +4,6 @@
 #include "CommonFunction.h"
 #include "math.h"
 
-
 inline void SetRGBAValue(BYTE* pbyData, const int r, const int c, const int iPitch, const BYTE byR, const BYTE byG, const BYTE byB, const BYTE byA)
 {
 	pbyData[r*iPitch+4*c+2]=byR;
@@ -3919,3 +3918,83 @@ const BYTE g_byFont_4_8[96]={
 		}
 		return false;
 	}
+
+
+	bool GetImgFormat(const CString sExt, FileFormatList* fileFormatList, FileFormat* fileFormat)
+	{
+		for(int i=0; i<fileFormatList->uiNum; i++)
+		{
+			if(fileFormatList->fileFormat[i].sType.CompareNoCase(sExt)==0)
+			{
+				fileFormat->Copy(&(fileFormatList->fileFormat[i]));
+				return true;
+			}
+		}
+
+		return false;
+	}
+
+bool ReadBinaryFile(const CString sFilePath, FileFormatList* fileFormatList, PanImage* imgDst)
+{
+	CString sExt;
+	int iPlace = sFilePath.ReverseFind('.');
+	if(iPlace<0){return false;}
+	sExt.Format(_T("%s"), sFilePath.Mid(iPlace+1));
+
+	FileFormat fileFormat;
+	bool bRet = GetImgFormat(sExt, fileFormatList, &fileFormat);
+	if(bRet != true){return false;}
+
+	CFile f;
+	f.Open(sFilePath, CFile::modeRead);
+	ULONGLONG ullFileSize = f.SeekToEnd();
+
+	BYTE* byData;
+	byData = new BYTE[ullFileSize];
+	memset(byData,0x00,ullFileSize);
+	f.Read(byData, ullFileSize);
+	f.Close();
+
+	UINT uiWidth;
+	UINT uiHeight;
+
+	if(fileFormat.uiWidth>0){uiWidth=fileFormat.uiWidth;}
+	else{uiWidth =  *(UINT*)(&(byData[fileFormat.uiWidthInfoOffset]));}
+	
+	if(fileFormat.uiHeight>0){uiHeight = fileFormat.uiHeight;}
+	else{uiHeight = *(UINT*)(&(byData[fileFormat.uiHeightInfoOffset]));}
+
+	UINT uiDataOffset;
+	
+	if(fileFormat.uiDataOffset>0){uiDataOffset = fileFormat.uiDataOffset;}
+	else{uiDataOffset = fileFormat.uiDataOffsetOffset + (*(UINT*)(&(byData[fileFormat.uiDataOffset])));}
+
+	CImage imgTemp;
+	imgTemp.Create(uiWidth, uiHeight, 8);
+	RGBQUAD colorTable[256];
+	for(int i=0; i<256; i++)
+	{
+		colorTable[i].rgbBlue=i;
+		colorTable[i].rgbGreen=i;
+		colorTable[i].rgbRed=i;
+		colorTable[i].rgbReserved=0;
+	}
+	SetColorTable(&imgTemp, colorTable, 256);
+
+	int iPitch = imgTemp.GetPitch();
+	BYTE* pbyData = (BYTE*)imgTemp.GetBits();
+
+	for(int r=0; r< uiHeight; r++)
+	{
+		for(int c=0; c<uiWidth; c++)
+		{
+			if(uiDataOffset + r*uiWidth+c>=ullFileSize){break;}
+			pbyData[r*iPitch+c]=byData[uiDataOffset + r*uiWidth+c];
+		}
+	}
+
+	SAFE_DELETE(byData);
+
+	imgDst->Set(IMAGE_TYPE_CIMAGE, NULL, NULL, uiWidth, uiHeight, &imgTemp, VALUE_IMAGE_UNDEFINED, sFilePath);
+	return true;
+}

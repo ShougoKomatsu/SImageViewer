@@ -60,7 +60,7 @@ bool CopyToClipBoardStr(const CString sValue)
 
 
 
-	bool IsImageFIle(CString sFilePath)
+	bool IsImageFIle(CString sFilePath, FileFormatList* fileFormatList)
 	{
 		if(sFilePath.Right(4).CompareNoCase(_T(".bmp"))==0){return true;}
 		if(sFilePath.Right(4).CompareNoCase(_T(".png"))==0){return true;}
@@ -68,10 +68,15 @@ bool CopyToClipBoardStr(const CString sValue)
 		if(sFilePath.Right(4).CompareNoCase(_T(".ico"))==0){return true;}
 		if(sFilePath.Right(4).CompareNoCase(_T(".exe"))==0){return true;}
 		if(sFilePath.Right(4).CompareNoCase(_T(".dll"))==0){return true;}
+		for(int i=0; i<fileFormatList->uiNum; i++)
+		{
+			if(sFilePath.Right(fileFormatList->fileFormat[i].sType.GetLength()).CompareNoCase(fileFormatList->fileFormat[i].sType)==0){return true;}
+		}
+
 		return false;
 	}
 	
-	UINT CountImageInOneFile(CString sFilePath)
+	UINT CountImageInOneFile(CString sFilePath, FileFormatList* fileFormatList)
 	{
 		if(sFilePath.Right(4).CompareNoCase(_T(".bmp"))==0){return 1;}
 		if(sFilePath.Right(4).CompareNoCase(_T(".png"))==0){return 1;}
@@ -79,9 +84,13 @@ bool CopyToClipBoardStr(const CString sValue)
 		if(sFilePath.Right(4).CompareNoCase(_T(".ico"))==0){return 2*CountIconNum(sFilePath); }
 		if(sFilePath.Right(4).CompareNoCase(_T(".exe"))==0){return 2*CountIconNum(sFilePath); }
 		if(sFilePath.Right(4).CompareNoCase(_T(".dll"))==0){return 2*CountIconNum(sFilePath); }
+		for(int i=0; i<fileFormatList->uiNum; i++)
+		{
+			if(sFilePath.Right(fileFormatList->fileFormat[i].sType.GetLength()).CompareNoCase(fileFormatList->fileFormat[i].sType)==0){return 1;}
+		}
 		return 0;
 	}
-	bool RecursivelyGetImageFilePaths(CString sFileOrFolderPath, CStringArray* saFilePath)
+	bool RecursivelyGetImageFilePaths(CString sFileOrFolderPath, CStringArray* saFilePath, FileFormatList* fileFormatList)
 	{
 		if(sFileOrFolderPath.Find(_T("|"))>=0)
 		{
@@ -101,7 +110,7 @@ bool CopyToClipBoardStr(const CString sValue)
 			}
 			for(int i=0; i<saFilePathTemp.GetCount(); i++)
 			{
-				bool bRet = RecursivelyGetImageFilePaths(saFilePathTemp.GetAt(i), saFilePath);
+				bool bRet = RecursivelyGetImageFilePaths(saFilePathTemp.GetAt(i), saFilePath, fileFormatList);
 				if(bRet != true){return false;}
 			}
 			return true;
@@ -112,7 +121,7 @@ bool CopyToClipBoardStr(const CString sValue)
 
 		if ((dwAttribute & FILE_ATTRIBUTE_DIRECTORY) == 0) 
 		{
-			if(IsImageFIle(sFileOrFolderPath)==true)
+			if(IsImageFIle(sFileOrFolderPath, fileFormatList)==true)
 			{
 				saFilePath->Add(sFileOrFolderPath);
 			}
@@ -139,12 +148,12 @@ bool CopyToClipBoardStr(const CString sValue)
 
 			if (cf.IsDirectory()) 
 			{
-				bool bRet = RecursivelyGetImageFilePaths(sFilePath, saFilePath);
+				bool bRet = RecursivelyGetImageFilePaths(sFilePath, saFilePath, fileFormatList);
 				if(bRet != true){return false;}
 			}
 			else 
 			{
-				if(IsImageFIle(sFilePath) != true){continue;}
+				if(IsImageFIle(sFilePath, fileFormatList) != true){continue;}
 				saFilePath->Add(sFilePath);
 			}
 		}
@@ -153,18 +162,18 @@ bool CopyToClipBoardStr(const CString sValue)
 		return true;
 	}
 
-	int CountImages(CString sFileOrFolderPath)
+	int CountImages(CString sFileOrFolderPath, FileFormatList* fileFormatList)
 	{
 		CStringArray saFilePath;
 		saFilePath.RemoveAll();
-		bool bRet = RecursivelyGetImageFilePaths(sFileOrFolderPath, &saFilePath);
+		bool bRet = RecursivelyGetImageFilePaths(sFileOrFolderPath, &saFilePath, fileFormatList);
 		if(bRet != true){return 0;}
 
 		int iFileNum = (int)saFilePath.GetCount();
 		int iImageCount=0;
 		for(int i=0; i<iFileNum; i++)
 		{
-			iImageCount += CountImageInOneFile(saFilePath.GetAt(i));
+			iImageCount += CountImageInOneFile(saFilePath.GetAt(i), fileFormatList);
 		}
 		return iImageCount;
 	}
@@ -180,8 +189,15 @@ bool CopyToClipBoardStr(const CString sValue)
 		m_iReDoAvailableCount=0;
 		m_iUnDoAvailableCount=0;
 	}
-	bool ReadAndAppendImage(CString sFilePath, PanImage* panImage, int iImageIndex, int* iImageIndexNew)
+	bool ReadAndAppendImage(CString sFilePath, FileFormatList* fileFormatList, PanImage* panImage, int iImageIndex, int* iImageIndexNew)
 	{
+		for(int i=0; i<fileFormatList->uiNum; i++)
+		{
+			if(sFilePath.Right(fileFormatList->fileFormat[i].sType.GetLength()).CompareNoCase(fileFormatList->fileFormat[i].sType)==0)
+			{
+				return ReadBinaryFile(sFilePath, fileFormatList, panImage);
+			}
+		}
 		if(((sFilePath.Right(4)).CompareNoCase(_T(".ico"))==0)
 			||((sFilePath.Right(4)).CompareNoCase(_T(".exe"))==0)
 			||((sFilePath.Right(4)).CompareNoCase(_T(".dll"))==0))
@@ -283,3 +299,67 @@ bool CopyToClipBoardStr(const CString sValue)
 		SAFE_DELETE(tchBuf); 
 		return true;
 	}
+
+	bool GetImageTypeNum(const CString sIniFilePath, UINT* uiTypeNum)
+	{
+		const UINT uiBufSize=128;
+		TCHAR tchData[uiBufSize];
+
+		int i=0;
+		while(1)
+		{
+			CString sKey;
+			sKey.Format(_T("Type%d"), i+1);
+			GetPrivateProfileString(_T("Types"), sKey, _T(""), tchData, uiBufSize, sIniFilePath);
+			if(_tcslen(tchData)<=0){break;}
+			i++;
+		}
+		*uiTypeNum = i;
+		return true;
+	}
+
+	bool GetImageType(const CString sIniFilePath, const int iIndexB0, CString* sType)
+	{
+		const UINT uiBufSize=128;
+		TCHAR tchData[uiBufSize];
+
+		CString sKey;
+		sKey.Format(_T("Type%d"), iIndexB0+1);
+		GetPrivateProfileString(_T("Types"), sKey, _T(""), tchData, uiBufSize, sIniFilePath);
+		if(_tcslen(tchData)<=0){return false;}
+
+
+		sType->Format(_T("%s"), tchData);
+		return true;
+	}
+
+
+	bool GetFileFormat(const CString sIniFilePath, const CString sType, FileFormat* fileFormat)
+	{
+		const UINT uiBufSize=128;
+		TCHAR tchData[uiBufSize];
+		fileFormat->sType.Format(_T("%s"), sType);
+		GetPrivateProfileString(sType, _T("uiWidth"), _T(""), tchData, uiBufSize, sIniFilePath);
+		fileFormat->uiWidth = _ttoi(tchData);
+
+		GetPrivateProfileString(sType, _T("uiHeight"), _T(""), tchData, uiBufSize, sIniFilePath);
+		fileFormat->uiHeight = _ttoi(tchData);
+
+		GetPrivateProfileString(sType, _T("uiDataOffset"), _T(""), tchData, uiBufSize, sIniFilePath);
+		fileFormat->uiDataOffset = _ttoi(tchData);
+
+		GetPrivateProfileString(sType, _T("uiWidthInfoOffset"), _T(""), tchData, uiBufSize, sIniFilePath);
+		fileFormat->uiWidthInfoOffset = _ttoi(tchData);
+
+		GetPrivateProfileString(sType, _T("uiHeightInfoOffset"), _T(""), tchData, uiBufSize, sIniFilePath);
+		fileFormat->uiHeightInfoOffset = _ttoi(tchData);
+
+		GetPrivateProfileString(sType, _T("uiDataInfoOffset"), _T(""), tchData, uiBufSize, sIniFilePath);
+		fileFormat->uiDataInfoOffset = _ttoi(tchData);
+
+		GetPrivateProfileString(sType, _T("uiDataOffsetOffset"), _T(""), tchData, uiBufSize, sIniFilePath);
+		fileFormat->uiDataOffsetOffset = _ttoi(tchData);
+
+		return true;
+	}
+	

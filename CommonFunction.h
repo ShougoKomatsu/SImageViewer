@@ -12,12 +12,13 @@ protected:
 };
 
 
+
 bool isNearTheBoarder(double d, double dBoarder, double dMargin);
 bool isInTheRange(double d, double dMin, double dMax);
 bool CopyToClipBoardStr(const CString sValue);
-int CountImages(CString sFileOrFolderPath);
-bool RecursivelyGetImageFilePaths(CString sFileOrFolderPath, CStringArray* saFilePath);
-bool ReadAndAppendImage(CString sFilePath, PanImage* panImage, int iImageIndex, int* iImageIndexNew);
+int CountImages(CString sFileOrFolderPath, FileFormatList* fileFormatList);
+bool RecursivelyGetImageFilePaths(CString sFileOrFolderPath, CStringArray* saFilePath, FileFormatList* fileFormatList);
+bool ReadAndAppendImage(CString sFilePath, FileFormatList* fileFormatList, PanImage* panImage, int iImageIndex, int* iImageIndexNew);
 bool GetOpenFileList(CString* sFilePaths);
 
 
@@ -30,3 +31,4 @@ bool index_i(const ULONGLONG* iValues, const int iLength, int* iIndex);
 		*a = *b;
 		*b = iTemp;
 	}
+
