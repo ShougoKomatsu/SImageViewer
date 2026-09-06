@@ -185,25 +185,25 @@ bool ImposeAlphaChannel(const CImage* imgSrc, CImage* imgDst);
 	struct FileFormat
 	{
 		CString sType;
-		UINT uiWidth;
-		UINT uiHeight;
-		UINT uiDataOffset;
+		int iWidth;
+		int iHeight;
+		int iDataOffset;
 
-		UINT uiWidthInfoOffset;
-		UINT uiHeightInfoOffset;
-		UINT uiDataInfoOffset;
-		UINT uiDataOffsetOffset;
+		int iWidthInfoOffset;
+		int iHeightInfoOffset;
+		int iDataInfoOffset;
+		int iDataOffsetOffset;
 		void Copy(FileFormat* fileFormat_in)
 		{
 			sType.Format(_T("%s"), fileFormat_in->sType);
-			uiWidth=fileFormat_in->uiWidth;
-			uiHeight=fileFormat_in->uiHeight;
-			uiDataOffset=fileFormat_in->uiDataOffset;
+			iWidth=fileFormat_in->iWidth;
+			iHeight=fileFormat_in->iHeight;
+			iDataOffset=fileFormat_in->iDataOffset;
 
-			uiWidthInfoOffset=fileFormat_in->uiWidthInfoOffset;
-			uiHeightInfoOffset=fileFormat_in->uiHeightInfoOffset;
-			uiDataInfoOffset=fileFormat_in->uiDataInfoOffset;
-			uiDataOffsetOffset=fileFormat_in->uiDataOffsetOffset;
+			iWidthInfoOffset=fileFormat_in->iWidthInfoOffset;
+			iHeightInfoOffset=fileFormat_in->iHeightInfoOffset;
+			iDataInfoOffset=fileFormat_in->iDataInfoOffset;
+			iDataOffsetOffset=fileFormat_in->iDataOffsetOffset;
 		}
 	};
 	struct FileFormatList

@@ -339,26 +339,33 @@ bool CopyToClipBoardStr(const CString sValue)
 		const UINT uiBufSize=128;
 		TCHAR tchData[uiBufSize];
 		fileFormat->sType.Format(_T("%s"), sType);
-		GetPrivateProfileString(sType, _T("uiWidth"), _T(""), tchData, uiBufSize, sIniFilePath);
-		fileFormat->uiWidth = _ttoi(tchData);
+		GetPrivateProfileString(sType, _T("iWidth"), _T(""), tchData, uiBufSize, sIniFilePath);
+		if(_tcslen(tchData)>=0){fileFormat->iWidth = _ttoi(tchData);}
+		else{fileFormat->iWidth = 0;}
 
-		GetPrivateProfileString(sType, _T("uiHeight"), _T(""), tchData, uiBufSize, sIniFilePath);
-		fileFormat->uiHeight = _ttoi(tchData);
+		GetPrivateProfileString(sType, _T("iHeight"), _T(""), tchData, uiBufSize, sIniFilePath);
+		if(_tcslen(tchData)>=0){fileFormat->iHeight = _ttoi(tchData);}
+		else{fileFormat->iHeight = 0;}
 
-		GetPrivateProfileString(sType, _T("uiDataOffset"), _T(""), tchData, uiBufSize, sIniFilePath);
-		fileFormat->uiDataOffset = _ttoi(tchData);
+		GetPrivateProfileString(sType, _T("iDataOffset"), _T(""), tchData, uiBufSize, sIniFilePath);
+		if(_tcslen(tchData)>=0){fileFormat->iDataOffset = _ttoi(tchData);}
+		else{fileFormat->iDataOffset = -1;}
 
-		GetPrivateProfileString(sType, _T("uiWidthInfoOffset"), _T(""), tchData, uiBufSize, sIniFilePath);
-		fileFormat->uiWidthInfoOffset = _ttoi(tchData);
+		GetPrivateProfileString(sType, _T("iWidthInfoOffset"), _T(""), tchData, uiBufSize, sIniFilePath);
+		if(_tcslen(tchData)>=0){fileFormat->iWidthInfoOffset = _ttoi(tchData);}
+		else{fileFormat->iWidthInfoOffset = 0;}
 
-		GetPrivateProfileString(sType, _T("uiHeightInfoOffset"), _T(""), tchData, uiBufSize, sIniFilePath);
-		fileFormat->uiHeightInfoOffset = _ttoi(tchData);
+		GetPrivateProfileString(sType, _T("iHeightInfoOffset"), _T(""), tchData, uiBufSize, sIniFilePath);
+		if(_tcslen(tchData)>=0){fileFormat->iHeightInfoOffset = _ttoi(tchData);}
+		else{fileFormat->iHeightInfoOffset = 0;}
 
-		GetPrivateProfileString(sType, _T("uiDataInfoOffset"), _T(""), tchData, uiBufSize, sIniFilePath);
-		fileFormat->uiDataInfoOffset = _ttoi(tchData);
+		GetPrivateProfileString(sType, _T("iDataInfoOffset"), _T(""), tchData, uiBufSize, sIniFilePath);
+		if(_tcslen(tchData)>=0){fileFormat->iDataInfoOffset = _ttoi(tchData);}
+		else{fileFormat->iDataInfoOffset = 0;}
 
-		GetPrivateProfileString(sType, _T("uiDataOffsetOffset"), _T(""), tchData, uiBufSize, sIniFilePath);
-		fileFormat->uiDataOffsetOffset = _ttoi(tchData);
+		GetPrivateProfileString(sType, _T("iDataOffsetOffset"), _T(""), tchData, uiBufSize, sIniFilePath);
+		if(_tcslen(tchData)>=0){fileFormat->iDataOffsetOffset = _ttoi(tchData);}
+		else{fileFormat->iDataOffsetOffset =0;}
 
 		return true;
 	}

@@ -3948,26 +3948,27 @@ bool ReadBinaryFile(const CString sFilePath, FileFormatList* fileFormatList, Pan
 	CFile f;
 	f.Open(sFilePath, CFile::modeRead);
 	ULONGLONG ullFileSize = f.SeekToEnd();
+	f.SeekToBegin();
 
 	BYTE* byData;
 	byData = new BYTE[ullFileSize];
 	memset(byData,0x00,ullFileSize);
-	f.Read(byData, ullFileSize);
+	UINT uiRead = f.Read(byData, ullFileSize);
 	f.Close();
 
 	UINT uiWidth;
 	UINT uiHeight;
 
-	if(fileFormat.uiWidth>0){uiWidth=fileFormat.uiWidth;}
-	else{uiWidth =  *(UINT*)(&(byData[fileFormat.uiWidthInfoOffset]));}
+	if(fileFormat.iWidth>0){uiWidth=fileFormat.iWidth;}
+	else{uiWidth =  *(UINT*)(&(byData[fileFormat.iWidthInfoOffset]));}
 	
-	if(fileFormat.uiHeight>0){uiHeight = fileFormat.uiHeight;}
-	else{uiHeight = *(UINT*)(&(byData[fileFormat.uiHeightInfoOffset]));}
+	if(fileFormat.iHeight>0){uiHeight = fileFormat.iHeight;}
+	else{uiHeight = *(UINT*)(&(byData[fileFormat.iHeightInfoOffset]));}
 
 	UINT uiDataOffset;
 	
-	if(fileFormat.uiDataOffset>0){uiDataOffset = fileFormat.uiDataOffset;}
-	else{uiDataOffset = fileFormat.uiDataOffsetOffset + (*(UINT*)(&(byData[fileFormat.uiDataOffset])));}
+	if(fileFormat.iDataOffset>=0){uiDataOffset = fileFormat.iDataOffset;}
+	else{uiDataOffset = fileFormat.iDataOffsetOffset + (*(UINT*)(&(byData[fileFormat.iDataOffset])));}
 
 	CImage imgTemp;
 	imgTemp.Create(uiWidth, uiHeight, 8);

@@ -1112,7 +1112,6 @@ IMPLEMENT_DYNCREATE(CSImageViewerView, CView)
 
 		int iOldZoom = m_iScaleIndex;
 		double dOldWidth_tv = iWidth_i*g_dScale[iOldZoom];
-		double dOldHeight_tv = iHeight_i*g_dScale[iOldZoom];
 		double dNewDispOriginC_tv;
 		double dNewDispOriginR_tv;
 		int iNewZoom = m_iScaleIndex+= iChange;
