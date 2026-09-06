@@ -229,6 +229,15 @@ bool ImposeAlphaChannel(const CImage* imgSrc, CImage* imgDst);
 			fileFormat = new FileFormat[uiNum_in];
 			uiNum=uiNum_in;
 		}
+		void Copy(FileFormatList* fileFormatList_in)
+		{
+			Init();
+			this->Set(fileFormatList_in->uiNum);
+			for(int i=-0; i<uiNum; i++)
+			{
+				fileFormat[i].Copy(&(fileFormatList_in->fileFormat[i]));
+			}
+		}
 
 	};
 	bool GetImageTypeNum(const CString sIniFilePath, UINT* uiTypeNum);

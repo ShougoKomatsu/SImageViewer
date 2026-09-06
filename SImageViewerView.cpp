@@ -22,6 +22,7 @@
 #include "FormatSelectionDlg.h"
 #include "ChangeColorDepthDlg.h"
 #include "SImgProc_ex.h"
+#include "FileFormatDlg.h"
 #ifdef _DEBUG
 #define new DEBUG_NEW
 #endif
@@ -91,6 +92,7 @@ IMPLEMENT_DYNCREATE(CSImageViewerView, CView)
 		ON_COMMAND(ID_MENU_EDIT_COLOR_CORRECTON, &CSImageViewerView::OperateBrightnessContrastGamma)
 		ON_COMMAND(ID_MENU_EDIT_EQU_HIST, &CSImageViewerView::OperateEquHistImage)
 		ON_COMMAND(ID_MENU_EDIT_RESAMPLE, &CSImageViewerView::OperateResample)
+		ON_COMMAND(ID_MENU_TOOL_FILEFORMAT, &CSImageViewerView::SetToolFormat)
 		ON_WM_SIZE()
 		ON_WM_MOUSEMOVE()
 		ON_WM_LBUTTONDOWN()
@@ -827,6 +829,14 @@ IMPLEMENT_DYNCREATE(CSImageViewerView, CView)
 		ConvertImage(&imgMeaned,m_image[m_iImageIndex].ProgressImageProcess());
 		Invalidate();
 	}
+
+	void CSImageViewerView::SetToolFormat()
+	{
+		CFileFormatDlg dlg;
+		dlg.m_fileFormatList.Copy(&m_fileFomatList);
+		dlg.DoModal();
+	}
+
 	void CSImageViewerView::OperateResample()
 	{
 		if(m_iImageMax <= 0){return;}

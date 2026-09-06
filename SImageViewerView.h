@@ -65,7 +65,7 @@ public:
 
 	void EnterFullScreen();
 	void ExitFullScreen();
-	
+	void SetToolFormat();
 	void OperateCopyHistGramToClipboard();
 	void OperateResample();
 	void OperateBrightnessContrastGamma();
