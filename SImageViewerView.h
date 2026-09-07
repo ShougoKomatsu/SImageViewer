@@ -17,6 +17,8 @@ protected: // ƒVƒŠƒAƒ‹‰»‚©‚ç‚Ì‚İì¬‚µ‚Ü‚·B
 
 // ‘®«
 public:
+	
+		CString m_sIniFilePath;
 
 	FileFormatList m_fileFomatList;
 	void FullDomain();

@@ -44,6 +44,7 @@ void CFileFormatDlg::DoDataExchange(CDataExchange* pDX)
 BEGIN_MESSAGE_MAP(CFileFormatDlg, CDialogEx)
 	ON_BN_CLICKED(IDOK, &CFileFormatDlg::OnBnClickedOk)
 	ON_LBN_SELCHANGE(IDC_FILE_FORMAT_LIST_TYPE, &CFileFormatDlg::OnSelchangeFileFormatListType)
+	ON_BN_CLICKED(IDC_FILE_FORMAT_BUTTON_SAVE, &CFileFormatDlg::OnBnClickedFileFormatButtonSave)
 END_MESSAGE_MAP()
 
 
@@ -96,4 +97,10 @@ void CFileFormatDlg::OnSelchangeFileFormatListType()
 		}
 	}
 	return;
+}
+
+
+void CFileFormatDlg::OnBnClickedFileFormatButtonSave()
+{
+
 }

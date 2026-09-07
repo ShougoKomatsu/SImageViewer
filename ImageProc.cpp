@@ -3999,3 +3999,73 @@ bool ReadBinaryFile(const CString sFilePath, FileFormatList* fileFormatList, Pan
 	imgDst->Set(IMAGE_TYPE_CIMAGE, NULL, NULL, uiWidth, uiHeight, &imgTemp, VALUE_IMAGE_UNDEFINED, sFilePath);
 	return true;
 }
+	bool GetFileFormat(const CString sIniFilePath, const CString sType, FileFormat* fileFormat)
+	{
+		const UINT uiBufSize=128;
+		TCHAR tchData[uiBufSize];
+		fileFormat->sType.Format(_T("%s"), sType);
+		GetPrivateProfileString(sType, _T("iWidth"), _T(""), tchData, uiBufSize, sIniFilePath);
+		if(_tcslen(tchData)>=0){fileFormat->iWidth = _ttoi(tchData);}
+		else{fileFormat->iWidth = 0;}
+
+		GetPrivateProfileString(sType, _T("iHeight"), _T(""), tchData, uiBufSize, sIniFilePath);
+		if(_tcslen(tchData)>=0){fileFormat->iHeight = _ttoi(tchData);}
+		else{fileFormat->iHeight = 0;}
+
+		GetPrivateProfileString(sType, _T("iDataOffset"), _T(""), tchData, uiBufSize, sIniFilePath);
+		if(_tcslen(tchData)>=0){fileFormat->iDataOffset = _ttoi(tchData);}
+		else{fileFormat->iDataOffset = -1;}
+
+		GetPrivateProfileString(sType, _T("iWidthInfoOffset"), _T(""), tchData, uiBufSize, sIniFilePath);
+		if(_tcslen(tchData)>=0){fileFormat->iWidthInfoOffset = _ttoi(tchData);}
+		else{fileFormat->iWidthInfoOffset = 0;}
+
+		GetPrivateProfileString(sType, _T("iHeightInfoOffset"), _T(""), tchData, uiBufSize, sIniFilePath);
+		if(_tcslen(tchData)>=0){fileFormat->iHeightInfoOffset = _ttoi(tchData);}
+		else{fileFormat->iHeightInfoOffset = 0;}
+
+		GetPrivateProfileString(sType, _T("iDataInfoOffset"), _T(""), tchData, uiBufSize, sIniFilePath);
+		if(_tcslen(tchData)>=0){fileFormat->iDataInfoOffset = _ttoi(tchData);}
+		else{fileFormat->iDataInfoOffset = 0;}
+
+		GetPrivateProfileString(sType, _T("iDataOffsetOffset"), _T(""), tchData, uiBufSize, sIniFilePath);
+		if(_tcslen(tchData)>=0){fileFormat->iDataOffsetOffset = _ttoi(tchData);}
+		else{fileFormat->iDataOffsetOffset =0;}
+
+		return true;
+	}
+	
+	bool WriteFileFormat(const CString sIniFilePath, FileFormatList* fileFormatList)
+	{
+		CString sWrite;
+		for(int i=0; i<fileFormatList->uiNum; i++)
+		{
+			CString sKey;
+			sKey.Format(_T("Type%d"), i+1);
+			WritePrivateProfileString(_T("Types"), sKey, fileFormatList->fileFormat[i].sType, sIniFilePath);
+
+			sWrite.Format(_T("%d"), fileFormatList->fileFormat[i].iWidth);
+			WritePrivateProfileString(fileFormatList->fileFormat[i].sType, _T("iWidth"), sWrite, sIniFilePath);
+			
+			sWrite.Format(_T("%d"), fileFormatList->fileFormat[i].iHeight);
+			WritePrivateProfileString(fileFormatList->fileFormat[i].sType, _T("iHeight"), sWrite, sIniFilePath);
+			
+			sWrite.Format(_T("%d"), fileFormatList->fileFormat[i].iDataOffset);
+			WritePrivateProfileString(fileFormatList->fileFormat[i].sType, _T("iDataOffset"), sWrite,sIniFilePath);
+			
+			sWrite.Format(_T("%d"), fileFormatList->fileFormat[i].iWidthInfoOffset);
+			WritePrivateProfileString(fileFormatList->fileFormat[i].sType, _T("iWidthInfoOffset"), sWrite, sIniFilePath);
+			
+			sWrite.Format(_T("%d"), fileFormatList->fileFormat[i].iHeightInfoOffset);
+			WritePrivateProfileString(fileFormatList->fileFormat[i].sType, _T("iHeightInfoOffset"), sWrite, sIniFilePath);
+			
+			sWrite.Format(_T("%d"), fileFormatList->fileFormat[i].iDataInfoOffset);
+			WritePrivateProfileString(fileFormatList->fileFormat[i].sType, _T("iDataInfoOffset"), sWrite, sIniFilePath);
+			
+			sWrite.Format(_T("%d"), fileFormatList->fileFormat[i].iDataOffsetOffset);
+			WritePrivateProfileString(fileFormatList->fileFormat[i].sType, _T("iDataOffsetOffset"), sWrite, sIniFilePath);
+		}
+
+		return true;
+	}
+	

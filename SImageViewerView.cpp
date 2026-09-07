@@ -834,6 +834,8 @@ IMPLEMENT_DYNCREATE(CSImageViewerView, CView)
 	{
 		CFileFormatDlg dlg;
 		dlg.m_fileFormatList.Copy(&m_fileFomatList);
+		dlg.m_sIniFilePath.Format(_T("%s"), m_sIniFilePath);;
+
 		dlg.DoModal();
 	}
 
@@ -1057,16 +1059,15 @@ IMPLEMENT_DYNCREATE(CSImageViewerView, CView)
 		CString sExePath;
 		sExePath.Format(_T("%s"), tszExePath);
 		int iPlace = sExePath.ReverseFind('\\');
-		CString sIniFilePath;
-		sIniFilePath.Format(_T("%s\\setting.ini"),sExePath.Left(iPlace)); 
+		m_sIniFilePath.Format(_T("%s\\setting.ini"),sExePath.Left(iPlace)); 
 		UINT uiTypeNum;
-		bool bRet = GetImageTypeNum(sIniFilePath, &uiTypeNum);
+		bool bRet = GetImageTypeNum(m_sIniFilePath, &uiTypeNum);
 		m_fileFomatList.Set(uiTypeNum);
 		for(int i=0; i<uiTypeNum; i++)
 		{
 			CString sType;
-			bRet = GetImageType(sIniFilePath, i, &sType);
-			bRet = GetFileFormat(sIniFilePath, sType, &(m_fileFomatList.fileFormat[i]));
+			bRet = GetImageType(m_sIniFilePath, i, &sType);
+			bRet = GetFileFormat(m_sIniFilePath, sType, &(m_fileFomatList.fileFormat[i]));
 		}
 
 

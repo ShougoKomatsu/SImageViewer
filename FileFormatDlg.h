@@ -26,6 +26,7 @@ public:
 	afx_msg void OnBnClickedOk();
 	virtual BOOL OnInitDialog();
 	afx_msg void OnSelchangeFileFormatListType();
+	CString m_sIniFilePath;
 	CString m_sEditWidth;
 	CString m_sEditHeight;
 	CString m_sEditDataOffset;
@@ -33,4 +34,5 @@ public:
 	CString m_sEditHeightInfoOffset;
 	CString m_sEditDataInfoOffset;
 	CString m_sEditDataOffsetOffset;
+	afx_msg void OnBnClickedFileFormatButtonSave();
 };
