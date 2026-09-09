@@ -836,7 +836,9 @@ IMPLEMENT_DYNCREATE(CSImageViewerView, CView)
 		dlg.m_fileFormatList.Copy(&m_fileFomatList);
 		dlg.m_sIniFilePath.Format(_T("%s"), m_sIniFilePath);;
 
-		dlg.DoModal();
+		INT_PTR iRet = dlg.DoModal();
+		if(iRet != IDOK){return;}
+		m_fileFomatList.Copy(&dlg.m_fileFormatList);
 	}
 
 	void CSImageViewerView::OperateResample()

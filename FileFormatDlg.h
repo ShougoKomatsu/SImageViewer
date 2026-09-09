@@ -11,7 +11,7 @@ class CFileFormatDlg : public CDialogEx
 public:
 	CFileFormatDlg(CWnd* pParent = NULL);   // 標準コンストラクター
 	virtual ~CFileFormatDlg();
-
+	void DispSetting(const CString sType);
 	FileFormatList m_fileFormatList;
 
 // ダイアログ データ
@@ -34,5 +34,13 @@ public:
 	CString m_sEditHeightInfoOffset;
 	CString m_sEditDataInfoOffset;
 	CString m_sEditDataOffsetOffset;
-	afx_msg void OnBnClickedFileFormatButtonSave();
+	afx_msg void OnBnClickedFileFormatButtonAdd();
+	afx_msg void OnTimer(UINT_PTR nIDEvent);
+	afx_msg void OnChangeFileFormatEditWidth();
+	afx_msg void OnChangeFileFormatEditHeight();
+	afx_msg void OnChangeFileFormatEditHeightInfoOffset();
+	afx_msg void OnChangeFileFormatEditDataOffset();
+	afx_msg void OnChangeFileFormatEditDataOffsetOffset();
+	afx_msg void OnChangeFileFormatEditDataInfoOffset();
+	afx_msg void OnChangeFileFormatEditWidthInfoOffset();
 };

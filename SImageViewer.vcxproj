@@ -198,6 +198,7 @@
     <ClInclude Include="FormatSelectionDlg.h" />
     <ClInclude Include="ImageModifyDlg.h" />
     <ClInclude Include="ImageProc.h" />
+    <ClInclude Include="InputDlg.h" />
     <ClInclude Include="MainFrm.h" />
     <ClInclude Include="PasteAsDlg.h" />
     <ClInclude Include="ResampleDlg.h" />
@@ -218,6 +219,7 @@
     <ClCompile Include="FormatSelectionDlg.cpp" />
     <ClCompile Include="ImageModifyDlg.cpp" />
     <ClCompile Include="ImageProc.cpp" />
+    <ClCompile Include="InputDlg.cpp" />
     <ClCompile Include="MainFrm.cpp" />
     <ClCompile Include="PasteAsDlg.cpp" />
     <ClCompile Include="ResampleDlg.cpp" />
