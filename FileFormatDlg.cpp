@@ -54,6 +54,7 @@ BEGIN_MESSAGE_MAP(CFileFormatDlg, CDialogEx)
 	ON_EN_CHANGE(IDC_FILE_FORMAT_EDIT_DATA_OFFSET_OFFSET, &CFileFormatDlg::OnChangeFileFormatEditDataOffsetOffset)
 	ON_EN_CHANGE(IDC_FILE_FORMAT_EDIT_DATA_INFO_OFFSET, &CFileFormatDlg::OnChangeFileFormatEditDataInfoOffset)
 	ON_EN_CHANGE(IDC_FILE_FORMAT_EDIT_WIDTH_INFO_OFFSET, &CFileFormatDlg::OnChangeFileFormatEditWidthInfoOffset)
+	ON_BN_CLICKED(IDC_FILE_FORMAT_BUTTON_DELETE, &CFileFormatDlg::OnBnClickedFileFormatButtonDelete)
 END_MESSAGE_MAP()
 
 
@@ -123,6 +124,7 @@ void CFileFormatDlg::OnBnClickedOk()
 {
 	CDialogEx::OnOK();
 
+	WritePrivateProfileString(_T("Types"), NULL, NULL, m_sIniFilePath);
 
 	for(int i=0; i<m_fileFormatList.uiNum; i++)
 	{
@@ -131,14 +133,21 @@ void CFileFormatDlg::OnBnClickedOk()
 		CString sType;
 		sType.Format(_T("%s"),m_fileFormatList.fileFormat[i].sType);
 		WritePrivateProfileString(_T("Types"), sKey, sType, m_sIniFilePath);
-
-		WritePrivateProfileString(sType, _T("iWidth"), m_sEditWidth,m_sIniFilePath);
-		WritePrivateProfileString(sType, _T("iHeight"), m_sEditHeight,m_sIniFilePath);
-		WritePrivateProfileString(sType, _T("iDataOffset"), m_sEditDataOffset,m_sIniFilePath);
-		WritePrivateProfileString(sType, _T("iWidthInfoOffset"), m_sEditWidthInfoOffset,m_sIniFilePath);
-		WritePrivateProfileString(sType, _T("iHeightInfoOffset"), m_sEditHeightInfoOffset,m_sIniFilePath);
-		WritePrivateProfileString(sType, _T("iDataInfoOffset"), m_sEditDataInfoOffset,m_sIniFilePath);
-		WritePrivateProfileString(sType, _T("iDataOffsetOffset"), m_sEditDataOffsetOffset,m_sIniFilePath);
+		CString sData;
+		sData.Format(_T("%d"),m_fileFormatList.fileFormat[i].iWidth);
+		WritePrivateProfileString(sType, _T("iWidth"), sData,m_sIniFilePath);
+		sData.Format(_T("%d"),m_fileFormatList.fileFormat[i].iHeight);
+		WritePrivateProfileString(sType, _T("iHeight"), sData,m_sIniFilePath);
+		sData.Format(_T("%d"),m_fileFormatList.fileFormat[i].iDataOffset);
+		WritePrivateProfileString(sType, _T("iDataOffset"), sData,m_sIniFilePath);
+		sData.Format(_T("%d"),m_fileFormatList.fileFormat[i].iWidthInfoOffset);
+		WritePrivateProfileString(sType, _T("iWidthInfoOffset"), sData,m_sIniFilePath);
+		sData.Format(_T("%d"),m_fileFormatList.fileFormat[i].iHeightInfoOffset);
+		WritePrivateProfileString(sType, _T("iHeightInfoOffset"), sData,m_sIniFilePath);
+		sData.Format(_T("%d"),m_fileFormatList.fileFormat[i].iDataInfoOffset);
+		WritePrivateProfileString(sType, _T("iDataInfoOffset"), sData,m_sIniFilePath);
+		sData.Format(_T("%d"),m_fileFormatList.fileFormat[i].iDataOffsetOffset);
+		WritePrivateProfileString(sType, _T("iDataOffsetOffset"), sData,m_sIniFilePath);
 
 	}
 
@@ -168,8 +177,49 @@ void CFileFormatDlg::OnBnClickedFileFormatButtonAdd()
 
 	m_ListFileType.AddString(dlg.m_sEditInput);
 	m_ListFileType.SetSel(m_fileFormatList.uiNum-1);
-	UpdateData(FALSE);
 	DispSetting(dlg.m_sEditInput);
+}
+
+
+void CFileFormatDlg::OnBnClickedFileFormatButtonDelete()
+{
+	INT_PTR iRet = AfxMessageBox(_T("íœ‚µ‚Ü‚·‚©H"), MB_OKCANCEL);
+	if(iRet != IDOK){return;}
+
+	UpdateData(TRUE);
+	int iSel = m_ListFileType.GetCurSel();
+	CString sType;
+	m_ListFileType.GetText(iSel, sType);
+
+	bool bFound=false;
+	for(int i=0; i<m_fileFormatList.uiNum; i++)
+	{
+		if(m_fileFormatList.fileFormat[i].sType.CompareNoCase(sType)==0){bFound =true; break;}
+	}
+	if(bFound != true){return;}
+
+	FileFormatList fileFormatListTemp;
+	fileFormatListTemp.Copy(&m_fileFormatList);
+	m_fileFormatList.Set(fileFormatListTemp.uiNum-1);
+
+	UpdateData(FALSE);
+
+	int iAddIndex=0;
+	for(int i=0; i<fileFormatListTemp.uiNum; i++)
+	{
+		if(fileFormatListTemp.fileFormat[i].sType.CompareNoCase(sType)==0){continue;}
+		m_fileFormatList.fileFormat[iAddIndex].Copy(&(fileFormatListTemp.fileFormat[i]));
+		iAddIndex++;
+	}
+	if(m_fileFormatList.uiNum<=0){return;}
+	
+	m_ListFileType.ResetContent();
+	for(int i=0; i<m_fileFormatList.uiNum; i++)
+	{
+		m_ListFileType.AddString(m_fileFormatList.fileFormat[i].sType);
+	}
+
+	DispSetting(m_fileFormatList.fileFormat[0].sType);
 }
 
 
@@ -320,4 +370,5 @@ void CFileFormatDlg::OnChangeFileFormatEditDataInfoOffset()
 	}
 	DispSetting(sType);
 }
+
 

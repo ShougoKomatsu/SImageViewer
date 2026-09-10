@@ -43,4 +43,5 @@ public:
 	afx_msg void OnChangeFileFormatEditDataOffsetOffset();
 	afx_msg void OnChangeFileFormatEditDataInfoOffset();
 	afx_msg void OnChangeFileFormatEditWidthInfoOffset();
+	afx_msg void OnBnClickedFileFormatButtonDelete();
 };
