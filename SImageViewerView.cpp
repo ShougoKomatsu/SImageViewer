@@ -731,9 +731,13 @@ IMPLEMENT_DYNCREATE(CSImageViewerView, CView)
 	void CSImageViewerView::SetCaption()
 	{
 		CString sCaption;
-		if(m_iImageMax>0)
+		if(m_iImageMax==1)
 		{
 			sCaption.Format(_T("%s - SImageViewer"), m_image[m_iImageIndex].GetDataSource());
+		}
+		else if(m_iImageMax>1)
+		{
+			sCaption.Format(_T("( %d / %d ) %s - SImageViewer"), m_iImageIndex+1, m_iImageMax, m_image[m_iImageIndex].GetDataSource());
 		}
 		else
 		{
