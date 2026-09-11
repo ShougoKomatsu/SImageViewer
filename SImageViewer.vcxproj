@@ -191,6 +191,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="ChangeColorDepthDlg.h" />
+    <ClInclude Include="ColorizeDlg.h" />
     <ClInclude Include="CommonFunction.h" />
     <ClInclude Include="CopyAsDlg.h" />
     <ClInclude Include="ExtractChannelDlg.h" />
@@ -212,6 +213,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="ChangeColorDepthDlg.cpp" />
+    <ClCompile Include="ColorizeDlg.cpp" />
     <ClCompile Include="CommonFunction.cpp" />
     <ClCompile Include="CopyAsDlg.cpp" />
     <ClCompile Include="ExtractChannelDlg.cpp" />
