@@ -20,4 +20,6 @@ protected:
 	DECLARE_MESSAGE_MAP()
 public:
 	CString m_sEditInput;
+	virtual BOOL OnInitDialog();
+	virtual BOOL PreTranslateMessage(MSG* pMsg);
 };

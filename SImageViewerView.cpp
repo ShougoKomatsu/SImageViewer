@@ -23,6 +23,7 @@
 #include "ChangeColorDepthDlg.h"
 #include "SImgProc_ex.h"
 #include "FileFormatDlg.h"
+#include "InputDlg.h"
 #ifdef _DEBUG
 #define new DEBUG_NEW
 #endif
@@ -1769,6 +1770,26 @@ IMPLEMENT_DYNCREATE(CSImageViewerView, CView)
 
 		if (pMsg->message == WM_KEYDOWN)
 		{	
+			if(pMsg->wParam == VK_F2)
+			{
+				if(m_iImageMax<=0){return TRUE;}
+
+				CInputDlg dlg;
+				dlg.m_sEditInput.Format(_T("%s"), m_image[m_iImageIndex].GetDataSource());
+				INT_PTR iRet = dlg.DoModal();
+				if(iRet == IDOK)
+				{
+					CString sNewFilePath;
+					sNewFilePath.Format(_T("%s"),dlg.m_sEditInput);
+					if(sNewFilePath.CompareNoCase(m_image[m_iImageIndex].GetDataSource())==0){return TRUE;}
+					BOOL bRet = MoveFile(m_image[m_iImageIndex].GetDataSource(), sNewFilePath);
+					if(bRet != TRUE){return TRUE;}
+					m_image[m_iImageIndex].SetDataSource(sNewFilePath);
+					SetCaption();
+					
+				}
+				return TRUE; 
+			}
 			if(GetKeyState(VK_CONTROL)<0)
 			{	
 				if(pMsg->wParam == 'H')
