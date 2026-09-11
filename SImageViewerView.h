@@ -71,6 +71,7 @@ public:
 	void OperateFileNameChange();
 	void OperateCopyHistGramToClipboard();
 	void OperateResample();
+	void OperateColorize();
 	void OperateBrightnessContrastGamma();
 	void OperateRotaateImage(enumRotate rotate);
 	void OperateEquHistImage();

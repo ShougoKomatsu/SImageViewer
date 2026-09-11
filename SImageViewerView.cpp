@@ -24,6 +24,7 @@
 #include "SImgProc_ex.h"
 #include "FileFormatDlg.h"
 #include "InputDlg.h"
+#include "ColorizeDlg.h"
 #ifdef _DEBUG
 #define new DEBUG_NEW
 #endif
@@ -91,6 +92,7 @@ IMPLEMENT_DYNCREATE(CSImageViewerView, CView)
 		ON_COMMAND(ID_MENU_EDIT_CONVERT_COLOR_SPACE, &CSImageViewerView::OperateConvertColorSpace)
 		ON_COMMAND(ID_MENU_EDIT_CHANGE_COLOR_DEPTH, &CSImageViewerView::OperateChangeColorDepth)
 		ON_COMMAND(ID_MENU_EDIT_COLOR_CORRECTON, &CSImageViewerView::OperateBrightnessContrastGamma)
+		ON_COMMAND(ID_MENU_EDIT_COLORIZE, &CSImageViewerView::OperateColorize)
 		ON_COMMAND(ID_MENU_EDIT_EQU_HIST, &CSImageViewerView::OperateEquHistImage)
 		ON_COMMAND(ID_MENU_EDIT_RESAMPLE, &CSImageViewerView::OperateResample)
 		ON_COMMAND(ID_MENU_TOOL_FILEFORMAT, &CSImageViewerView::SetToolFormat)
@@ -934,6 +936,27 @@ IMPLEMENT_DYNCREATE(CSImageViewerView, CView)
 		Invalidate();
 	}
 
+	void CSImageViewerView::OperateColorize()
+	{
+		if(m_iImageMax <= 0){return;}
+		bool bAutoFull = false;
+		if(m_Rect_i.IsRectNull() == TRUE){bAutoFull = true;FullDomain();}
+
+		CColorizeDlg dlgModify;
+
+		CImage imgClipped;
+		ClipImage(m_image[m_iImageIndex].GetCurrentProcess(), &imgClipped, m_Rect_i.top,m_Rect_i.left, m_Rect_i.bottom, m_Rect_i.right); 
+		CopyImage_CImage(&imgClipped, &dlgModify.m_image);
+		INT_PTR iRet = dlgModify.DoModal();
+		if(iRet != IDOK){return;}
+		
+		ImgRGB imgRGB;
+		_ConvertImage(&(dlgModify.m_imageColorized), &imgRGB);
+		
+		ConvertImage(&imgRGB, m_image[m_iImageIndex].ProgressImageProcess());
+		Invalidate();
+	
+	}
 	void CSImageViewerView::OperateBrightnessContrastGamma()
 	{
 		if(m_iImageMax <= 0){return;}
@@ -1996,6 +2019,7 @@ IMPLEMENT_DYNCREATE(CSImageViewerView, CView)
 		pPopup->EnableMenuItem(ID_MENU_EDIT_CONVERT_COLOR_SPACE, MF_BYCOMMAND | (( bFileOpened == true) ? MF_ENABLED : MF_DISABLED));
 		pPopup->EnableMenuItem(ID_MENU_EDIT_CHANGE_COLOR_DEPTH, MF_BYCOMMAND | (( bFileOpened == true) ? MF_ENABLED : MF_DISABLED));
 		pPopup->EnableMenuItem(ID_MENU_EDIT_COLOR_CORRECTON, MF_BYCOMMAND | (( bFileOpened == true) ? MF_ENABLED : MF_DISABLED));
+		pPopup->EnableMenuItem(ID_MENU_EDIT_COLORIZE, MF_BYCOMMAND | (( bFileOpened == true) ? MF_ENABLED : MF_DISABLED));
 		pPopup->EnableMenuItem(ID_MENU_EDIT_SET_SELECTION, MF_BYCOMMAND | (( bFileOpened == true) ? MF_ENABLED : MF_DISABLED));
 
 		pPopup->TrackPopupMenu(TPM_LEFTALIGN | TPM_RIGHTBUTTON, point.x, point.y, this);

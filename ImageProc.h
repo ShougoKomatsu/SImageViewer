@@ -245,3 +245,4 @@ bool ImposeAlphaChannel(const CImage* imgSrc, CImage* imgDst);
 	bool GetFileFormat(const CString sIniFilePath, const CString sType, FileFormat* fileFormat);
 bool ReadBinaryFile(const CString sFilePath, FileFormatList* fileFormatList, PanImage* imgDst);
 	bool WriteFileFormat(const CString sIniFilePath, FileFormatList* fileFormatList);
+		bool Threshold(const CImage* imgSrc, CImage* imgDst, const BYTE byMin, const BYTE byMax, const BYTE byR, const BYTE byG, const BYTE byB);

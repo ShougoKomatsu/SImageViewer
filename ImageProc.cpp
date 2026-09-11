@@ -4068,4 +4068,52 @@ bool ReadBinaryFile(const CString sFilePath, FileFormatList* fileFormatList, Pan
 
 		return true;
 	}
-	
+
+	bool Threshold(const CImage* imgSrc, CImage* imgDst, const BYTE byMin, const BYTE byMax, const BYTE byR, const BYTE byG, const BYTE byB)
+	{
+		if(imgDst->IsNull() !=  true){imgDst->Destroy();}
+		int iWidth = imgSrc->GetWidth();
+		int iHeight = imgSrc->GetHeight();
+		imgDst->Create(iWidth, iHeight, max(24, imgSrc->GetBPP()));
+		BYTE* pbyData_src = (BYTE*)imgSrc->GetBits();
+		BYTE* pbyData_dst = (BYTE*)imgDst->GetBits();
+		int iPitch_src = imgSrc->GetPitch();
+		int iPitch_dst = imgDst->GetPitch();
+		ImgRGB imgRGB;
+		_ConvertImage(imgSrc, &imgRGB);
+
+		int iBPP = imgDst->GetBPP();
+		int iColorPitch = (iBPP==24 ? 3 : 4);
+		if(iBPP==32)
+		{
+
+			for(int r=0; r<iHeight; r++)
+			{
+				for(int c=0; c<iWidth; c++)
+				{
+					pbyData_dst[r*iPitch_dst+iColorPitch*c+3] = pbyData_src[r*iPitch_dst+iColorPitch*c+3];
+				}
+			}
+		}
+
+		for(int r=0; r<iHeight; r++)
+		{
+			for(int c=0; c<iWidth; c++)
+			{
+				if( (byMin<=imgRGB.byImgR[r*iWidth+c]) && (imgRGB.byImgR[r*iWidth+c]<=byMax)
+					&&(byMin<=imgRGB.byImgG[r*iWidth+c]) && (imgRGB.byImgG[r*iWidth+c]<=byMax)
+					&&(byMin<=imgRGB.byImgB[r*iWidth+c]) && (imgRGB.byImgB[r*iWidth+c]<=byMax)
+					)
+				{
+					pbyData_dst[r*iPitch_dst+iColorPitch*c+2] = byR;
+					pbyData_dst[r*iPitch_dst+iColorPitch*c+1] = byG;
+					pbyData_dst[r*iPitch_dst+iColorPitch*c+0] = byB;
+					continue;
+				}
+				pbyData_dst[r*iPitch_dst+iColorPitch*c+2] = imgRGB.byImgR[r*iWidth+c];
+				pbyData_dst[r*iPitch_dst+iColorPitch*c+1] = imgRGB.byImgG[r*iWidth+c];
+				pbyData_dst[r*iPitch_dst+iColorPitch*c+0] = imgRGB.byImgB[r*iWidth+c];
+			}
+		}
+		return true;
+	}
