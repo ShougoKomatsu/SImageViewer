@@ -926,9 +926,9 @@ IMPLEMENT_DYNCREATE(CSImageViewerView, CView)
 		bool bAutoFull = false;
 
 		ImgRGB imgRGB;
-		ImgRGB imgResult;
 		_ConvertImage(m_image[m_iImageIndex].GetCurrentProcess(), &imgRGB);
-
+		ImgRGB imgResult;
+		RotateImage(&imgRGB, &imgResult, rotate);
 		ConvertImage(&imgResult, m_image[m_iImageIndex].ProgressImageProcess());
 		SetScroll();
 		Invalidate();
