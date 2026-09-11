@@ -25,7 +25,7 @@ CInputDlg::~CInputDlg()
 void CInputDlg::DoDataExchange(CDataExchange* pDX)
 {
 	CDialogEx::DoDataExchange(pDX);
-	DDX_Text(pDX, IDC_EDIT1, m_sEditInput);
+	DDX_Text(pDX, IDC_INPUT_EDIT_INPUT, m_sEditInput);
 }
 
 

@@ -245,7 +245,8 @@ int CMainFrame::OnCreate(LPCREATESTRUCT lpCreateStruct)
 
 	lstBasicCommands.AddTail(ID_FILE_SAVE_AS);
 	lstBasicCommands.AddTail(ID_EDIT_COPY);
-
+	
+	lstBasicCommands.AddTail(ID_EDIT_CUT);
 	lstBasicCommands.AddTail(ID_MENU_EDIT_EQU_HIST);
 	lstBasicCommands.AddTail(ID_MENU_EDIT_SET_SELECTION);
 	lstBasicCommands.AddTail(ID_MENU_EDIT_COPY_AS);
@@ -254,6 +255,9 @@ int CMainFrame::OnCreate(LPCREATESTRUCT lpCreateStruct)
 	lstBasicCommands.AddTail(ID_MENU_EDIT_CHANGE_COLOR_DEPTH);
 	lstBasicCommands.AddTail(ID_MENU_EDIT_COLOR_CORRECTON);
 	lstBasicCommands.AddTail(ID_MENU_EDIT_RESAMPLE);
+
+	lstBasicCommands.AddTail(ID_MENU_TOOL_FILEFORMAT);
+
 	/*
 	lstBasicCommands.AddTail(ID_VIEW_APPLOOK_OFF_2003);
 	lstBasicCommands.AddTail(ID_VIEW_APPLOOK_VS_2005);
