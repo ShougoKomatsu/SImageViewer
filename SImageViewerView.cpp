@@ -1772,22 +1772,7 @@ IMPLEMENT_DYNCREATE(CSImageViewerView, CView)
 		{	
 			if(pMsg->wParam == VK_F2)
 			{
-				if(m_iImageMax<=0){return TRUE;}
-
-				CInputDlg dlg;
-				dlg.m_sEditInput.Format(_T("%s"), m_image[m_iImageIndex].GetDataSource());
-				INT_PTR iRet = dlg.DoModal();
-				if(iRet == IDOK)
-				{
-					CString sNewFilePath;
-					sNewFilePath.Format(_T("%s"),dlg.m_sEditInput);
-					if(sNewFilePath.CompareNoCase(m_image[m_iImageIndex].GetDataSource())==0){return TRUE;}
-					BOOL bRet = MoveFile(m_image[m_iImageIndex].GetDataSource(), sNewFilePath);
-					if(bRet != TRUE){return TRUE;}
-					m_image[m_iImageIndex].SetDataSource(sNewFilePath);
-					SetCaption();
-					
-				}
+				OperateFileNameChange();
 				return TRUE; 
 			}
 			if(GetKeyState(VK_CONTROL)<0)
@@ -1868,6 +1853,32 @@ IMPLEMENT_DYNCREATE(CSImageViewerView, CView)
 		return CView::PreTranslateMessage(pMsg);
 	}
 
+	void CSImageViewerView::OperateFileNameChange()
+	{
+		if(m_iImageMax<=0){return;}
+
+		CInputDlg dlg;
+
+		CString sFileName;
+		CString sFilePath;
+		sFilePath.Format(_T("%s"),m_image[m_iImageIndex].GetDataSource());
+		int iPlace = sFilePath.ReverseFind('\\');
+		if(iPlace<=0){return;}
+
+		sFileName.Format(_T("%s"), sFilePath.Mid(iPlace+1));
+
+		dlg.m_sEditInput.Format(_T("%s"), sFileName);
+		INT_PTR iRet = dlg.DoModal();
+		if(iRet != IDOK){return;}
+
+		CString sNewFilePath;
+		sNewFilePath.Format(_T("%s%s"),sFilePath.Left(iPlace+1),dlg.m_sEditInput);
+		if(sNewFilePath.CompareNoCase(m_image[m_iImageIndex].GetDataSource())==0){return;}
+		BOOL bRet = MoveFile(m_image[m_iImageIndex].GetDataSource(), sNewFilePath);
+		if(bRet != TRUE){return;}
+		m_image[m_iImageIndex].SetDataSource(sNewFilePath);
+		SetCaption();
+	}
 
 	void CSImageViewerView::OnScroll(int iSB, int nSBCode, int nPos)
 	{
