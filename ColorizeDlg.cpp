@@ -54,15 +54,15 @@ void CColorizeDlg::OnBnClickedOk()
 void CColorizeDlg::UpdateResultImage(CImage* imgResult)
 {	
 }
-	void CColorizeDlg::OperateThreshold()
-	{
+void CColorizeDlg::OperateThreshold()
+{
 	UpdateData(TRUE);
 	BYTE byMin = max(0, min(255, _ttoi(m_sEditValue1)));
 	BYTE byMax = max(0, min(255, _ttoi(m_sEditValue2)));
 	Threshold(&m_image,&m_imageColorized, byMin, byMax, 255, 0, 0);
-    CopyImage_CImage(&m_imageColorized, &m_pictureAfter.m_image);
-    m_pictureAfter.Invalidate(FALSE);
-	}
+	CopyImage_CImage(&m_imageColorized, &m_pictureAfter.m_image);
+	m_pictureAfter.Invalidate(FALSE);
+}
 
 
 void CColorizeDlg::OnChangeColorizeEditValue1()
@@ -80,6 +80,9 @@ void CColorizeDlg::OnChangeColorizeEditValue2()
 BOOL CColorizeDlg::OnInitDialog()
 {
 	CDialogEx::OnInitDialog();
+	((CButton*)(GetDlgItem(IDC_COLORIZE_RADIO_THRESHOLD)))->SetCheck(TRUE);
+	m_sEditValue1.Format(_T("0"));
+	m_sEditValue2.Format(_T("0"));
 	
 	CopyImage_CImage(&m_image,&m_imageColorized);
 
