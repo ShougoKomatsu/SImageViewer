@@ -939,6 +939,7 @@ IMPLEMENT_DYNCREATE(CSImageViewerView, CView)
 	void CSImageViewerView::OperateColorize()
 	{
 		if(m_iImageMax <= 0){return;}
+		if(_IsImageMonochrome(m_image[m_iImageIndex].GetCurrentProcess())==false){AfxMessageBox(_T("This image is not monochrome.")); return;}
 		bool bAutoFull = false;
 		if(m_Rect_i.IsRectNull() == TRUE){bAutoFull = true;FullDomain();}
 

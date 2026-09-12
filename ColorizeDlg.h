@@ -31,6 +31,9 @@ public:
 	afx_msg void OnChangeColorizeEditValue1();
 	afx_msg void OnChangeColorizeEditValue2();
 	virtual BOOL OnInitDialog();
-	CString m_sEditValue1;
-	CString m_sEditValue2;
+	CString m_sEditThreshMin;
+	CString m_sEditThreshMax;
+	afx_msg void OnBnClickedColorizeCheckConnection();
+	afx_msg void OnBnClickedColorizeRadioConnection4();
+	afx_msg void OnBnClickedColorizeRadioConnection8();
 };
