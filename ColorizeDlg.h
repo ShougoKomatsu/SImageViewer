@@ -16,8 +16,11 @@ public:
 	CPictureCtrlEx m_pictureAfter;
 	CColorizeDlg(CWnd* pParent = NULL);   // 標準コンストラクター
 	void OperateThreshold();
+	void OperateDemosaic();
 	virtual ~CColorizeDlg();
 	void UpdateResultImage(CImage* imgResult);
+	void EnableThreshold(bool bTF);
+	void EnableDemosaic(bool bTF);
 
 // ダイアログ データ
 	enum { IDD = IDD_DLG_COLORIZE };
@@ -36,4 +39,7 @@ public:
 	afx_msg void OnBnClickedColorizeCheckConnection();
 	afx_msg void OnBnClickedColorizeRadioConnection4();
 	afx_msg void OnBnClickedColorizeRadioConnection8();
+	afx_msg void OnBnClickedColorizeRadioDemosaic();
+	afx_msg void OnBnClickedColorizeRadioThreshold();
+	afx_msg void OnSelchangeColorizeCombo();
 };

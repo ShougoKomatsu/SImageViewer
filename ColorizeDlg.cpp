@@ -40,6 +40,12 @@ BEGIN_MESSAGE_MAP(CColorizeDlg, CDialogEx)
 	ON_BN_CLICKED(IDC_COLORIZE_CHECK_CONNECTION, &CColorizeDlg::OnBnClickedColorizeCheckConnection)
 	ON_BN_CLICKED(IDC_COLORIZE_RADIO_CONNECTION4, &CColorizeDlg::OnBnClickedColorizeRadioConnection4)
 	ON_BN_CLICKED(IDC_COLORIZE_RADIO_CONNECTION8, &CColorizeDlg::OnBnClickedColorizeRadioConnection8)
+	ON_BN_CLICKED(IDC_COLORIZE_RADIO_DEMOSAIC, &CColorizeDlg::OnBnClickedColorizeRadioDemosaic)
+	ON_BN_CLICKED(IDC_COLORIZE_RADIO_THRESHOLD, &CColorizeDlg::OnBnClickedColorizeRadioThreshold)
+	ON_CBN_SELCHANGE(IDC_COLORIZE_COMBO_00, &CColorizeDlg::OnSelchangeColorizeCombo)
+	ON_CBN_SELCHANGE(IDC_COLORIZE_COMBO_01, &CColorizeDlg::OnSelchangeColorizeCombo)
+	ON_CBN_SELCHANGE(IDC_COLORIZE_COMBO_10, &CColorizeDlg::OnSelchangeColorizeCombo)
+	ON_CBN_SELCHANGE(IDC_COLORIZE_COMBO_11, &CColorizeDlg::OnSelchangeColorizeCombo)
 END_MESSAGE_MAP()
 
 
@@ -88,6 +94,31 @@ void CColorizeDlg::OperateThreshold()
 	m_pictureAfter.Invalidate(FALSE);
 }
 
+void CColorizeDlg::OperateDemosaic()
+{
+	CString sText;
+	COLOR_ELEMENT i00, i01, i10, i11;
+	int iSel;
+	iSel = ((CComboBox*)(GetDlgItem(IDC_COLORIZE_COMBO_00)))->GetCurSel();
+	((CComboBox*)(GetDlgItem(IDC_COLORIZE_COMBO_00)))->GetLBText(iSel,sText);
+	i00 = (sText.Compare(_T("R"))==0) ? COLOR_R : ((sText.Compare(_T("G"))==0) ? COLOR_G: COLOR_B);
+
+	iSel = ((CComboBox*)(GetDlgItem(IDC_COLORIZE_COMBO_01)))->GetCurSel();
+	((CComboBox*)(GetDlgItem(IDC_COLORIZE_COMBO_01)))->GetLBText(iSel,sText);
+	i01 = (sText.Compare(_T("R"))==0) ? COLOR_R : ((sText.Compare(_T("G"))==0) ? COLOR_G: COLOR_B);
+
+	iSel = ((CComboBox*)(GetDlgItem(IDC_COLORIZE_COMBO_10)))->GetCurSel();
+	((CComboBox*)(GetDlgItem(IDC_COLORIZE_COMBO_10)))->GetLBText(iSel,sText);
+	i10 = (sText.Compare(_T("R"))==0) ? COLOR_R : ((sText.Compare(_T("G"))==0) ? COLOR_G: COLOR_B);
+
+	iSel = ((CComboBox*)(GetDlgItem(IDC_COLORIZE_COMBO_11)))->GetCurSel();
+	((CComboBox*)(GetDlgItem(IDC_COLORIZE_COMBO_11)))->GetLBText(iSel,sText);
+	i11 = (sText.Compare(_T("R"))==0) ? COLOR_R : ((sText.Compare(_T("G"))==0) ? COLOR_G: COLOR_B);
+
+	Demosaic(&m_image, i00, i01, i10, i11, &m_imageColorized);
+	CopyImage_CImage(&m_imageColorized, &m_pictureAfter.m_image);
+	m_pictureAfter.Invalidate(FALSE);
+}
 void CColorizeDlg::OnChangeColorizeEditValue1()
 {
 	if( ((CButton*)(GetDlgItem(IDC_COLORIZE_RADIO_THRESHOLD)))->GetCheck() == TRUE){OperateThreshold(); return;}
@@ -103,12 +134,34 @@ void CColorizeDlg::OnChangeColorizeEditValue2()
 BOOL CColorizeDlg::OnInitDialog()
 {
 	CDialogEx::OnInitDialog();
+	
+	EnableDemosaic(false);
+	EnableThreshold(true);
+
 	((CButton*)(GetDlgItem(IDC_COLORIZE_RADIO_THRESHOLD)))->SetCheck(TRUE);
 	((CButton*)(GetDlgItem(IDC_COLORIZE_CHECK_CONNECTION)))->SetCheck(FALSE);
 	((CButton*)(GetDlgItem(IDC_COLORIZE_RADIO_CONNECTION4)))->SetCheck(TRUE);
 	((CButton*)(GetDlgItem(IDC_COLORIZE_RADIO_CONNECTION8)))->SetCheck(FALSE);
-	GetDlgItem(IDC_COLORIZE_RADIO_CONNECTION4)->EnableWindow(FALSE);
-	GetDlgItem(IDC_COLORIZE_RADIO_CONNECTION8)->EnableWindow(FALSE);
+	((CComboBox*)(GetDlgItem(IDC_COLORIZE_COMBO_00)))->AddString(_T("R"));
+	((CComboBox*)(GetDlgItem(IDC_COLORIZE_COMBO_01)))->AddString(_T("R"));
+	((CComboBox*)(GetDlgItem(IDC_COLORIZE_COMBO_10)))->AddString(_T("R"));
+	((CComboBox*)(GetDlgItem(IDC_COLORIZE_COMBO_11)))->AddString(_T("R"));
+
+	((CComboBox*)(GetDlgItem(IDC_COLORIZE_COMBO_00)))->AddString(_T("G"));
+	((CComboBox*)(GetDlgItem(IDC_COLORIZE_COMBO_01)))->AddString(_T("G"));
+	((CComboBox*)(GetDlgItem(IDC_COLORIZE_COMBO_10)))->AddString(_T("G"));
+	((CComboBox*)(GetDlgItem(IDC_COLORIZE_COMBO_11)))->AddString(_T("G"));
+
+	((CComboBox*)(GetDlgItem(IDC_COLORIZE_COMBO_00)))->AddString(_T("B"));
+	((CComboBox*)(GetDlgItem(IDC_COLORIZE_COMBO_01)))->AddString(_T("B"));
+	((CComboBox*)(GetDlgItem(IDC_COLORIZE_COMBO_10)))->AddString(_T("B"));
+	((CComboBox*)(GetDlgItem(IDC_COLORIZE_COMBO_11)))->AddString(_T("B"));
+	
+	((CComboBox*)(GetDlgItem(IDC_COLORIZE_COMBO_00)))->SetCurSel(2);
+	((CComboBox*)(GetDlgItem(IDC_COLORIZE_COMBO_01)))->SetCurSel(1);
+	((CComboBox*)(GetDlgItem(IDC_COLORIZE_COMBO_10)))->SetCurSel(1);
+	((CComboBox*)(GetDlgItem(IDC_COLORIZE_COMBO_11)))->SetCurSel(0);
+
 	m_sEditThreshMin.Format(_T("0"));
 	m_sEditThreshMax.Format(_T("0"));
 	
@@ -145,4 +198,51 @@ void CColorizeDlg::OnBnClickedColorizeRadioConnection4()
 void CColorizeDlg::OnBnClickedColorizeRadioConnection8()
 {
 	if( ((CButton*)(GetDlgItem(IDC_COLORIZE_RADIO_THRESHOLD)))->GetCheck() == TRUE){OperateThreshold(); return;}
+}
+
+
+void CColorizeDlg::EnableThreshold(bool bTF)
+{	
+	GetDlgItem(IDC_COLORIZE_EDIT_THRESH_MIN)->EnableWindow(bTF);
+	GetDlgItem(IDC_COLORIZE_EDIT_THRESH_MAX)->EnableWindow(bTF);
+	GetDlgItem(IDC_COLORIZE_CHECK_CONNECTION)->EnableWindow(bTF);
+
+	GetDlgItem(IDC_COLORIZE_RADIO_CONNECTION4)->EnableWindow(FALSE);
+	GetDlgItem(IDC_COLORIZE_RADIO_CONNECTION8)->EnableWindow(FALSE);
+	if( ((CButton*)(GetDlgItem(IDC_COLORIZE_CHECK_CONNECTION)))->GetCheck() == TRUE)
+	{
+		GetDlgItem(IDC_COLORIZE_RADIO_CONNECTION4)->EnableWindow(bTF);
+		GetDlgItem(IDC_COLORIZE_RADIO_CONNECTION8)->EnableWindow(bTF);
+	}
+	((CButton*)(GetDlgItem(IDC_COLORIZE_RADIO_THRESHOLD)))->SetCheck(bTF); 
+}
+void CColorizeDlg::EnableDemosaic(bool bTF)
+{
+	GetDlgItem(IDC_COLORIZE_COMBO_00)->EnableWindow(bTF);
+	GetDlgItem(IDC_COLORIZE_COMBO_01)->EnableWindow(bTF);
+	GetDlgItem(IDC_COLORIZE_COMBO_10)->EnableWindow(bTF);
+	GetDlgItem(IDC_COLORIZE_COMBO_11)->EnableWindow(bTF);
+	((CButton*)(GetDlgItem(IDC_COLORIZE_RADIO_DEMOSAIC)))->SetCheck(bTF); 
+}
+
+
+void CColorizeDlg::OnBnClickedColorizeRadioDemosaic()
+{
+	EnableDemosaic(true);
+	EnableThreshold(false);
+	OperateDemosaic();
+}
+
+
+void CColorizeDlg::OnBnClickedColorizeRadioThreshold()
+{
+	EnableDemosaic(false);
+	EnableThreshold(true);
+	OperateThreshold();
+}
+
+
+void CColorizeDlg::OnSelchangeColorizeCombo()
+{
+	OperateDemosaic();
 }

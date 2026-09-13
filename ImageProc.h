@@ -246,3 +246,11 @@ bool ImposeAlphaChannel(const CImage* imgSrc, CImage* imgDst);
 bool ReadBinaryFile(const CString sFilePath, FileFormatList* fileFormatList, PanImage* imgDst);
 	bool WriteFileFormat(const CString sIniFilePath, FileFormatList* fileFormatList);
 		bool Threshold(const CImage* imgSrc, CImage* imgDst, const BYTE byMin, const BYTE byMax, const BYTE byR, const BYTE byG, const BYTE byB);
+
+		enum COLOR_ELEMENT
+		{
+			COLOR_R=0,
+			COLOR_G=1,
+			COLOR_B=2,
+		};
+	bool Demosaic(const CImage* imgSrc,const COLOR_ELEMENT i00,const COLOR_ELEMENT i01,const COLOR_ELEMENT i10,const COLOR_ELEMENT i11, CImage* imgDst);

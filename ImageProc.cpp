@@ -4117,3 +4117,134 @@ bool ReadBinaryFile(const CString sFilePath, FileFormatList* fileFormatList, Pan
 		}
 		return true;
 	}
+
+
+	inline int GetColorType(    const int r,    const int c,    const COLOR_ELEMENT i00,    const COLOR_ELEMENT i01,    const COLOR_ELEMENT i10,    const COLOR_ELEMENT i11)
+	{
+		if ((r & 1) == 0)
+		{
+			return (((c & 1) == 0) ? i00 : i01);
+		}
+
+		return (((c & 1) == 0) ? i10 : i11);
+	}
+
+	inline void SumUpAround(BYTE* byData,const int iWidth,const int iHeight,const COLOR_ELEMENT i00,const COLOR_ELEMENT i01,const COLOR_ELEMENT i10,const COLOR_ELEMENT i11,const int iTargetColor,  const int r, const int c, int* iSum_out, int* iDataCount_out)
+	{
+		int iDataCount = 0;
+		int iSum = 0;
+		for (int dr = -1; dr <= 1; dr++)
+		{
+			for (int dc = -1; dc <= 1; dc++)
+			{
+				if ((dr == 0) && (dc == 0))	{continue;}
+
+				if(r + dr < 0){continue;}
+				if(r + dr >= iHeight){continue;}
+				if(c + dc < 0){continue;}
+				if(c + dc >= iWidth){continue;}
+
+				if (GetColorType(r + dr, c + dc, i00, i01, i10, i11) == iTargetColor)
+				{
+					iSum += byData[(r + dr) * iWidth+c + dc];
+					iDataCount++;
+				}
+			}
+		}
+		*iSum_out=iSum;
+		*iDataCount_out=iDataCount;
+	}
+
+	void DemosaicColor(BYTE* byData,const int iWidth,const int iHeight,const COLOR_ELEMENT i00,const COLOR_ELEMENT i01,const COLOR_ELEMENT i10,const COLOR_ELEMENT i11,const COLOR_ELEMENT iTargetColor,BYTE* byResultData)
+	{
+
+		for (int r = 0; r < iHeight; r++)
+		{
+			for (int c = 0; c < iWidth; c++)
+			{
+				int iDataCount = 0;
+				int iSum = 0;
+				SumUpAround(byData,iWidth,iHeight,i00,i01,i10,i11,iTargetColor,r, c, &iSum, &iDataCount);
+
+
+				if (GetColorType(r, c, i00, i01, i10, i11) == iTargetColor)
+				{
+					BYTE byCenter=byData[r*iWidth+c];
+
+					if (iDataCount == 0)
+					{
+						byResultData[r * iWidth + c] = byCenter;
+					}
+					else
+					{
+						byResultData[r * iWidth + c] = ((byCenter * iDataCount + iSum) / (2 * iDataCount));
+					}
+				}
+				else
+				{
+					if (iDataCount == 0)
+					{
+						byResultData[r * iWidth + c] = 0;
+					}
+					else
+					{
+						byResultData[r * iWidth + c] = iSum / iDataCount;
+					}
+				}
+
+			}
+		}
+	}
+
+	bool Demosaic(const CImage* imgSrc,const COLOR_ELEMENT i00,const COLOR_ELEMENT i01,const COLOR_ELEMENT i10,const COLOR_ELEMENT i11, CImage* imgDst)
+	{
+		
+		if(imgDst->IsNull() !=  true){imgDst->Destroy();}
+		ImgRGB imgRGB;
+
+		int iWidth=imgSrc->GetWidth();
+
+		int iHeight=imgSrc->GetHeight();
+		
+		ImgRGB imgRGBResult;
+		imgRGBResult.Set(iWidth, iHeight, CHANNEL_3_8RGB);
+
+		
+		_ConvertImage(imgSrc,&imgRGB);
+		DemosaicColor(imgRGB.byImgR,iWidth,iHeight,i00,i01,i10,i11,COLOR_R,imgRGBResult.byImgR);
+
+		DemosaicColor(imgRGB.byImgR,iWidth,iHeight,i00,i01,i10,i11,COLOR_G,imgRGBResult.byImgG);
+
+		DemosaicColor(imgRGB.byImgR,iWidth,iHeight,i00,i01,i10,i11,COLOR_B,imgRGBResult.byImgB);
+
+		imgDst->Create(iWidth, iHeight, min(24, imgSrc->GetBPP()));
+		
+		int iBPP = imgDst->GetBPP();
+		int iColorPitch = (iBPP==24 ? 3 : 4);
+		BYTE* pbyData_src = (BYTE*)imgSrc->GetBits();
+		BYTE* pbyData_dst = (BYTE*)imgDst->GetBits();
+		int iPitch_src = imgSrc->GetPitch();
+		int iPitch_dst = imgDst->GetPitch();
+		if(iBPP==32)
+		{
+
+			for(int r=0; r<iHeight; r++)
+			{
+				for(int c=0; c<iWidth; c++)
+				{
+					pbyData_dst[r*iPitch_dst+iColorPitch*c+3] = pbyData_src[r*iPitch_dst+iColorPitch*c+3];
+				}
+			}
+		}
+
+		for(int r=0; r<iHeight; r++)
+		{
+			for(int c=0; c<iWidth; c++)
+			{
+				pbyData_dst[r*iPitch_dst+iColorPitch*c+2] = imgRGBResult.byImgR[r*iWidth+c];
+				pbyData_dst[r*iPitch_dst+iColorPitch*c+1] = imgRGBResult.byImgG[r*iWidth+c];
+				pbyData_dst[r*iPitch_dst+iColorPitch*c+0] = imgRGBResult.byImgB[r*iWidth+c];
+			}
+		}
+		return true;
+	}
