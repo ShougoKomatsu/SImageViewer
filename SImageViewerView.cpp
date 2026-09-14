@@ -783,35 +783,38 @@ IMPLEMENT_DYNCREATE(CSImageViewerView, CView)
 		{
 			ImgRGB imgRGB;
 			m_image[i].ConvertImage(&imgRGB);
-	
-				int iHistR[256];
-				int iHistG[256];
-				int iHistB[256];
-				for(int i=0; i<256; i++)
-				{
-					iHistR[i]=0;
-					iHistG[i]=0;
-					iHistB[i]=0;
-				}
-				GetHistgram(&imgRGB, 0, 0, imgRGB.iHeight-1, imgRGB.iWidth-1,  iHistR,  iHistG,  iHistB);
-				for(int iValue=0; iValue<256; iValue++)
-				{
-					CString sTemp;
-					sTemp.Format(_T("%d%s"), iHistR[iValue],(iValue!=255? _T("\t"): _T("\n")));
-					sHist+=sTemp;
-				}
-				for(int iValue=0; iValue<256; iValue++)
-				{
-					CString sTemp;
-					sTemp.Format(_T("%d%s"), iHistG[iValue],(iValue!=255? _T("\t"): _T("\n")));
-					sHist+=sTemp;
-				}
-				for(int iValue=0; iValue<256; iValue++)
-				{
-					CString sTemp;
-					sTemp.Format(_T("%d%s"), iHistB[iValue],(iValue!=255? _T("\t"): _T("\n")));
-					sHist+=sTemp;
-				}
+			bool bMono = _IsImageMonochrome(m_image[i].GetCImage());
+
+			int iHistR[256];
+			int iHistG[256];
+			int iHistB[256];
+			for(int i=0; i<256; i++)
+			{
+				iHistR[i]=0;
+				iHistG[i]=0;
+				iHistB[i]=0;
+			}
+			GetHistgram(&imgRGB, 0, 0, imgRGB.iHeight-1, imgRGB.iWidth-1,  iHistR,  iHistG,  iHistB);
+			for(int iValue=0; iValue<256; iValue++)
+			{
+				CString sTemp;
+				sTemp.Format(_T("%d%s"), iHistR[iValue],(iValue!=255? _T("\t"): _T("\n")));
+				sHist+=sTemp;
+			}
+			if(bMono==true){continue;}
+
+			for(int iValue=0; iValue<256; iValue++)
+			{
+				CString sTemp;
+				sTemp.Format(_T("%d%s"), iHistG[iValue],(iValue!=255? _T("\t"): _T("\n")));
+				sHist+=sTemp;
+			}
+			for(int iValue=0; iValue<256; iValue++)
+			{
+				CString sTemp;
+				sTemp.Format(_T("%d%s"), iHistB[iValue],(iValue!=255? _T("\t"): _T("\n")));
+				sHist+=sTemp;
+			}
 		}
 		CopyToClipBoardStr(sHist);
 	}
