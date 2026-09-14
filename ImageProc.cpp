@@ -4217,7 +4217,7 @@ bool ReadBinaryFile(const CString sFilePath, FileFormatList* fileFormatList, Pan
 
 		DemosaicColor(imgRGB.byImgR,iWidth,iHeight,i00,i01,i10,i11,COLOR_B,imgRGBResult.byImgB);
 
-		imgDst->Create(iWidth, iHeight, min(24, imgSrc->GetBPP()));
+		imgDst->Create(iWidth, iHeight, max(24, imgSrc->GetBPP()));
 		
 		int iBPP = imgDst->GetBPP();
 		int iColorPitch = (iBPP==24 ? 3 : 4);
