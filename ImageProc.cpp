@@ -4068,7 +4068,7 @@ bool ReadBinaryFile(const CString sFilePath, FileFormatList* fileFormatList, Pan
 
 		return true;
 	}
-
+	/*
 	bool Threshold(const CImage* imgSrc, CImage* imgDst, const BYTE byMin, const BYTE byMax, const BYTE byR, const BYTE byG, const BYTE byB)
 	{
 		if(imgDst->IsNull() !=  true){imgDst->Destroy();}
@@ -4117,7 +4117,7 @@ bool ReadBinaryFile(const CString sFilePath, FileFormatList* fileFormatList, Pan
 		}
 		return true;
 	}
-
+	*/
 
 	inline int GetColorType(    const int r,    const int c,    const COLOR_ELEMENT i00,    const COLOR_ELEMENT i01,    const COLOR_ELEMENT i10,    const COLOR_ELEMENT i11)
 	{

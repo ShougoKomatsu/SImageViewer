@@ -69,27 +69,28 @@ void CColorizeDlg::OperateThreshold()
 	BYTE byMin = max(0, min(255, _ttoi(m_sEditThreshMin)));
 	BYTE byMax = max(0, min(255, _ttoi(m_sEditThreshMax)));
 
+	int iNeighbor =((((CButton*)(GetDlgItem(IDC_COLORIZE_RADIO_CONNECTION4)))->GetCheck() == TRUE) ? 4 : 8);
+
+	ImgRGB imgRGB;
+	_ConvertImage(&m_image,&imgRGB);
+	ImgRGB imgGray;
+	ImgRGB imgDummy; 
+	Decompose3(&imgRGB, &imgGray, &imgDummy, &imgDummy, &imgDummy); 
+	Object obj;
+	Threshold( &imgGray, byMin, byMax, &obj);
+	ImgRGB imgResult;
+
 	if( ((CButton*)(GetDlgItem(IDC_COLORIZE_CHECK_CONNECTION)))->GetCheck() == FALSE)
 	{
-		Threshold(&m_image,&m_imageColorized, byMin, byMax, 255, 0, 0);
+		PaintRegion(&imgRGB, &obj, &imgResult); 
 	}
 	else
 	{
-		int iNeighbor =((((CButton*)(GetDlgItem(IDC_COLORIZE_RADIO_CONNECTION4)))->GetCheck() == TRUE) ? 4 : 8);
-
-		ImgRGB imgRGB;
-		_ConvertImage(&m_image,&imgRGB);
-		ImgRGB imgGray;
-		ImgRGB imgDummy; 
-		Decompose3(&imgRGB, &imgGray, &imgDummy, &imgDummy, &imgDummy); 
-		Object obj;
-		Threshold( &imgGray, byMin, byMax, &obj);
 		Object objConnected;
 		Connection(&obj, &objConnected, iNeighbor);
-		ImgRGB imgResult;
 		PaintRegion(&imgRGB, &objConnected, &imgResult); 
-		ConvertImage(&imgResult, &m_imageColorized);
 	}
+	ConvertImage(&imgResult, &m_imageColorized);
 	CopyImage_CImage(&m_imageColorized, &m_pictureAfter.m_image);
 	m_pictureAfter.Invalidate(FALSE);
 }
