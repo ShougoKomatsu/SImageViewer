@@ -732,7 +732,7 @@ void CMainFrame::OnImageFW()
 	CView* pView = GetActiveView();
 	if (pView != nullptr)
 	{
-		((CSImageViewerView*)pView)->OnImageFW();
+		((CSImageViewerView*)pView)->OnImagePPFW(+1);
 	}
 	Invalidate();
 }
@@ -742,7 +742,7 @@ void CMainFrame::OnImagePP()
 	CView* pView = GetActiveView();
 	if (pView != nullptr)
 	{
-		((CSImageViewerView*)pView)->OnImagePP();
+		((CSImageViewerView*)pView)->OnImagePPFW(+1);
 	}
 	Invalidate();
 }

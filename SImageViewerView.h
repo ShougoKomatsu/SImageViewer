@@ -57,8 +57,7 @@ public:
 	bool ReadImage(CString sFilePath);
 	bool AddImage(CString sFilePath);
 	bool ZoomChange(int iChange);
-	bool OnImagePP();
-	bool OnImageFW();
+	bool OnImagePPFW(const int iStep);
 	bool ZoomChange(int iMousePosR_v, int iMousePosC_v,int iChange);
 	bool ZoomChange(int iR0_i, int iC0_i, int iR1_i, int iC1_i);
 	void SetScrollPos(int iR, int iC);
