@@ -831,6 +831,7 @@ IMPLEMENT_DYNCREATE(CSImageViewerView, CView)
 		EquHistImage(&imgRGB,&imgMeaned,m_Rect_i.top,m_Rect_i.left,m_Rect_i.bottom,m_Rect_i.right);
 		if(bAutoFull == true)
 		{
+			m_Rect_v.SetRectEmpty();
 			m_Rect_i.SetRectEmpty();
 			CMainFrame* pFrame = (CMainFrame*)AfxGetMainWnd();
 			pFrame->m_bRegionSelected = false;
@@ -861,7 +862,17 @@ IMPLEMENT_DYNCREATE(CSImageViewerView, CView)
 		dlg.m_iHeightOrg = m_image[m_iImageIndex].GetCurrentProcess()->GetHeight();
 		dlg.m_iWidthOrg = m_image[m_iImageIndex].GetCurrentProcess()->GetWidth();
 		INT_PTR iRet = dlg.DoModal();
-		if(iRet != IDOK){return;}
+		if(iRet != IDOK)
+		{
+			if(bAutoFull == true)
+			{
+				m_Rect_v.SetRectEmpty();
+				m_Rect_i.SetRectEmpty();
+				CMainFrame* pFrame = (CMainFrame*)AfxGetMainWnd();
+				pFrame->m_bRegionSelected = false;
+			}
+			return;
+		}
 
 		CImage imgSrc;
 		CopyImage_CImage(m_image[m_iImageIndex].GetCurrentProcess(), &imgSrc);
@@ -872,6 +883,13 @@ IMPLEMENT_DYNCREATE(CSImageViewerView, CView)
 		else
 		{
 			Resample(&imgSrc, m_image[m_iImageIndex].GetCurrentProcess(), dlg.m_resample);
+		}
+		if(bAutoFull == true)
+		{
+			m_Rect_v.SetRectEmpty();
+			m_Rect_i.SetRectEmpty();
+			CMainFrame* pFrame = (CMainFrame*)AfxGetMainWnd();
+			pFrame->m_bRegionSelected = false;
 		}
 		Invalidate();
 	}
@@ -952,12 +970,29 @@ IMPLEMENT_DYNCREATE(CSImageViewerView, CView)
 		ClipImage(m_image[m_iImageIndex].GetCurrentProcess(), &imgClipped, m_Rect_i.top,m_Rect_i.left, m_Rect_i.bottom, m_Rect_i.right); 
 		CopyImage_CImage(&imgClipped, &dlgModify.m_image);
 		INT_PTR iRet = dlgModify.DoModal();
-		if(iRet != IDOK){return;}
+		if(iRet != IDOK)
+		{
+			if(bAutoFull == true)
+			{
+				m_Rect_v.SetRectEmpty();
+				m_Rect_i.SetRectEmpty();
+				CMainFrame* pFrame = (CMainFrame*)AfxGetMainWnd();
+				pFrame->m_bRegionSelected = false;
+			}
+			return;
+		}
 		
 		ImgRGB imgRGB;
 		_ConvertImage(&(dlgModify.m_imageColorized), &imgRGB);
 		
 		ConvertImage(&imgRGB, m_image[m_iImageIndex].ProgressImageProcess());
+		if(bAutoFull == true)
+		{
+			m_Rect_v.SetRectEmpty();
+			m_Rect_i.SetRectEmpty();
+			CMainFrame* pFrame = (CMainFrame*)AfxGetMainWnd();
+			pFrame->m_bRegionSelected = false;
+		}
 		Invalidate();
 	
 	}
@@ -979,6 +1014,7 @@ IMPLEMENT_DYNCREATE(CSImageViewerView, CView)
 		{
 			if(bAutoFull == true)
 			{
+				m_Rect_v.SetRectEmpty();
 				m_Rect_i.SetRectEmpty();
 				CMainFrame* pFrame = (CMainFrame*)AfxGetMainWnd();
 				pFrame->m_bRegionSelected = false;
@@ -998,6 +1034,7 @@ IMPLEMENT_DYNCREATE(CSImageViewerView, CView)
 		Gamma(&imgResult1,&imgResult2,m_Rect_i.top,m_Rect_i.left,m_Rect_i.bottom,m_Rect_i.right,dGamma);
 		if(bAutoFull == true)
 		{
+			m_Rect_v.SetRectEmpty();
 			m_Rect_i.SetRectEmpty();
 			CMainFrame* pFrame = (CMainFrame*)AfxGetMainWnd();
 			pFrame->m_bRegionSelected = false;
