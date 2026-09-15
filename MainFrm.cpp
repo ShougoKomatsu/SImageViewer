@@ -256,6 +256,7 @@ int CMainFrame::OnCreate(LPCREATESTRUCT lpCreateStruct)
 	lstBasicCommands.AddTail(ID_MENU_EDIT_CHANGE_COLOR_DEPTH);
 	lstBasicCommands.AddTail(ID_MENU_EDIT_COLOR_CORRECTON);
 	lstBasicCommands.AddTail(ID_MENU_EDIT_COLORIZE);
+	lstBasicCommands.AddTail(ID_MENU_EDIT_INVERT);
 	lstBasicCommands.AddTail(ID_MENU_EDIT_RESAMPLE);
 
 	lstBasicCommands.AddTail(ID_MENU_TOOL_FILEFORMAT);
@@ -789,6 +790,7 @@ void CMainFrame::OnUpdateMenu(CCmdUI* pCmdUI)
 	case ID_MENU_EDIT_CHANGE_COLOR_DEPTH:
 	case ID_MENU_EDIT_COLOR_CORRECTON:
 	case ID_MENU_EDIT_COLORIZE:
+	case ID_MENU_EDIT_INVERT:
 	case ID_MENU_EDIT_SET_SELECTION:
 	case ID_MENU_EDIT_RESAMPLE:
 		{

@@ -77,6 +77,7 @@ public:
 	void OperateEquHistImage();
 	void OperateConvertColorSpace();
 	void OperateChangeColorDepth();
+	void OperateInvert();
 	void SetGridEnableDesable();
 	bool GetColorAtCursor(CImage* img, CPoint point_v, int* iR_img, int* iC_img, ColorValue* colorValue);
 	bool GetColorAtCursor(PanImage* img, CPoint point_v, int* iR_img, int* iC_img, ColorValue* colorValue);

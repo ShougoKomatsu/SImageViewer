@@ -93,6 +93,7 @@ IMPLEMENT_DYNCREATE(CSImageViewerView, CView)
 		ON_COMMAND(ID_MENU_EDIT_CHANGE_COLOR_DEPTH, &CSImageViewerView::OperateChangeColorDepth)
 		ON_COMMAND(ID_MENU_EDIT_COLOR_CORRECTON, &CSImageViewerView::OperateBrightnessContrastGamma)
 		ON_COMMAND(ID_MENU_EDIT_COLORIZE, &CSImageViewerView::OperateColorize)
+		ON_COMMAND(ID_MENU_EDIT_INVERT, &CSImageViewerView::OperateInvert)
 		ON_COMMAND(ID_MENU_EDIT_EQU_HIST, &CSImageViewerView::OperateEquHistImage)
 		ON_COMMAND(ID_MENU_EDIT_RESAMPLE, &CSImageViewerView::OperateResample)
 		ON_COMMAND(ID_MENU_TOOL_FILEFORMAT, &CSImageViewerView::SetToolFormat)
@@ -817,6 +818,30 @@ IMPLEMENT_DYNCREATE(CSImageViewerView, CView)
 			}
 		}
 		CopyToClipBoardStr(sHist);
+	}
+
+	
+	void CSImageViewerView::OperateInvert()
+	{
+		if(m_iImageMax <= 0){return;}
+		bool bAutoFull = false;
+		if(m_Rect_i.IsRectNull() == TRUE){bAutoFull = true; FullDomain();}
+
+		ImgRGB imgRGB;
+		ImgRGB imgMeaned;
+		_ConvertImage(m_image[m_iImageIndex].GetCurrentProcess(), &imgRGB);
+
+
+		if(bAutoFull == true)
+		{
+			m_Rect_v.SetRectEmpty();
+			m_Rect_i.SetRectEmpty();
+			CMainFrame* pFrame = (CMainFrame*)AfxGetMainWnd();
+			pFrame->m_bRegionSelected = false;
+		}
+
+		ConvertImage(&imgMeaned,m_image[m_iImageIndex].ProgressImageProcess());
+		Invalidate();
 	}
 
 	void CSImageViewerView::OperateEquHistImage()
@@ -2061,6 +2086,7 @@ IMPLEMENT_DYNCREATE(CSImageViewerView, CView)
 		pPopup->EnableMenuItem(ID_MENU_EDIT_CHANGE_COLOR_DEPTH, MF_BYCOMMAND | (( bFileOpened == true) ? MF_ENABLED : MF_DISABLED));
 		pPopup->EnableMenuItem(ID_MENU_EDIT_COLOR_CORRECTON, MF_BYCOMMAND | (( bFileOpened == true) ? MF_ENABLED : MF_DISABLED));
 		pPopup->EnableMenuItem(ID_MENU_EDIT_COLORIZE, MF_BYCOMMAND | (( bFileOpened == true) ? MF_ENABLED : MF_DISABLED));
+		pPopup->EnableMenuItem(ID_MENU_EDIT_INVERT, MF_BYCOMMAND | (( bFileOpened == true) ? MF_ENABLED : MF_DISABLED));
 		pPopup->EnableMenuItem(ID_MENU_EDIT_SET_SELECTION, MF_BYCOMMAND | (( bFileOpened == true) ? MF_ENABLED : MF_DISABLED));
 
 		pPopup->TrackPopupMenu(TPM_LEFTALIGN | TPM_RIGHTBUTTON, point.x, point.y, this);
