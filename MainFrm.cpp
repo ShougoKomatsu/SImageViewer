@@ -52,6 +52,7 @@ BEGIN_MESSAGE_MAP(CMainFrame, CFrameWndEx)
 	ON_UPDATE_COMMAND_UI(ID_TOOLBAR_IMAGE_FW, &CMainFrame::OnUpdateMenu)
 	ON_UPDATE_COMMAND_UI(ID_TOOLBAR_VALUE, &CMainFrame::OnUpdateMenu)
 	ON_UPDATE_COMMAND_UI(ID_TOOLBAR_RGBSEPARATE, &CMainFrame::OnUpdateMenu)
+	ON_UPDATE_COMMAND_UI(ID_MENU_EDIT_INVERT, &CMainFrame::OnUpdateMenu)
 
 	ON_COMMAND(ID_TOOLBAR_GRID_DOT, &CMainFrame::OnButtonGridDot)
 	ON_COMMAND(ID_TOOLBAR_GRID_LINE, &CMainFrame::OnButtonGridLine)
@@ -141,9 +142,7 @@ int CMainFrame::OnCreate(LPCREATESTRUCT lpCreateStruct)
 		TRACE0("メニュー バーを作成できませんでした\n");
 		return -1;
 	}
-	m_wndMenuBar.SetPaneStyle(CBRS_FLOATING);
-
-	m_wndMenuBar.SetPaneStyle(m_wndMenuBar.GetPaneStyle() | CBRS_SIZE_DYNAMIC | CBRS_TOOLTIPS | CBRS_FLYBY);
+	m_wndMenuBar.SetPaneStyle(m_wndMenuBar.GetPaneStyle() | ~CBRS_SIZE_DYNAMIC | CBRS_TOOLTIPS | ~CBRS_FLYBY);
 
 	// アクティブになったときメニュー バーにフォーカスを移動しない
 	CMFCPopupMenu::SetForceMenuFocus(FALSE);
@@ -154,6 +153,9 @@ int CMainFrame::OnCreate(LPCREATESTRUCT lpCreateStruct)
 		TRACE0("ツール バーの作成に失敗しました。\n");
 		return -1;
 	}
+	m_wndToolBar.SetPaneStyle(m_wndToolBar.GetPaneStyle() | ~CBRS_SIZE_DYNAMIC | CBRS_TOOLTIPS | ~CBRS_FLYBY);
+
+
 	m_iGrid = ID_TOOLBAR_GRID_NONE;
 	m_bValue = false;
 	m_bRGB_Separate = false;
@@ -201,9 +203,6 @@ int CMainFrame::OnCreate(LPCREATESTRUCT lpCreateStruct)
 	}
 
 
-	// TODO: ツール バーおよびメニュー バーをドッキング可能にしない場合は、この 5 つの行を削除します
-	m_wndMenuBar.EnableDocking(CBRS_ALIGN_ANY);
-	m_wndToolBar.EnableDocking(CBRS_ALIGN_ANY);
 	EnableDocking(CBRS_ALIGN_ANY);
 	DockPane(&m_wndMenuBar);
 	DockPane(&m_wndToolBar);
