@@ -11,7 +11,8 @@ enum VALUE_IMAGE
 	VALUE_IMAGE_UNDEFINED = -1,
 	VALUE_IMAGE_RESCALE_0_TO_255 = 0,
 	VALUE_IMAGE_CLIP_0_TO_255 = 1,
-	VALUE_IMAGE_RAINBOW = 2,
+	VALUE_IMAGE_HUE_CYCLIC = 2,
+	VALUE_IMAGE_RAINBOW = 3,
 };
 
 enum IMAGE_TYPE
@@ -254,3 +255,6 @@ bool ImposeAlphaChannel(const CImage* imgSrc, CImage* imgDst);
 		COLOR_B=2,
 	};
 	bool Demosaic(const CImage* imgSrc,const COLOR_ELEMENT i00,const COLOR_ELEMENT i01,const COLOR_ELEMENT i10,const COLOR_ELEMENT i11, CImage* imgDst);
+
+	
+		bool GrayToRainbow(const CImage* imgSrc, CImage* imgDst);

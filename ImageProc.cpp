@@ -4,6 +4,11 @@
 #include "CommonFunction.h"
 #include "math.h"
 
+
+	static BYTE s_byVisibleR[256]={135, 136, 137, 138, 139, 140, 141, 142, 143, 144, 145, 146, 147, 148, 149, 150, 151, 152, 153, 154, 155, 156, 157, 158, 159, 160, 161, 162, 163, 164, 165, 166, 167, 168, 169, 170, 171, 172, 173, 174, 175, 176, 177, 178, 179, 180, 181, 182, 183, 184, 185, 186, 187, 188, 189, 190, 191, 192, 193, 194, 195, 196, 197, 198, 199, 200, 201, 202, 203, 204, 205, 206, 207, 208, 209, 210, 211, 212, 213, 214, 215, 216, 217, 218, 219, 220, 221, 222, 223, 224, 225, 226, 227, 228, 229, 230, 231, 232, 233, 234, 235, 236, 237, 238, 239, 240, 241, 242, 243, 244, 245, 246, 247, 248, 249, 250, 251, 252, 253, 254, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 249, 241, 233, 229, 220, 211, 201, 191, 179, 173, 160, 145, 128, 107, 79, 60, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 4, 24, 42, 54, 62, 69, 74, 79, 81, 84, 87, 90, 92, 94, 95, 97, 98, 99, 100, 101, 102, 103, 103, 104, 104, 105, 105, 105, 105, 105, 106, 106, 106, 106, 106, 106, 106, 107, 107, 107, 107, 107, 107, 107, 107, 107, 107, 108, 108, 108, 108, 108, 108, 108, 109, 109};
+	static BYTE s_byVisibleG[256]={0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 25, 49, 66, 79, 85, 96, 106, 116, 125, 134, 138, 146, 154, 162, 169, 176, 183, 186, 193, 199, 205, 211, 216, 219, 225, 230, 235, 240, 245, 247, 251, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 246, 234, 228, 215, 201, 186, 172, 158, 143, 136, 121, 107, 92, 77, 61, 51, 28, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
+	static BYTE s_byVisibleB[256]={0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 49, 77, 98, 116, 124, 138, 152, 164, 175, 185, 190, 198, 206, 212, 218, 223, 226, 228, 231, 233, 235, 237, 238, 238, 239, 240, 240, 240, 240, 240, 241, 241, 241, 241, 241, 241, 241, 241, 241, 241, 241, 241, 241, 241, 241, 241, 241, 241, 241, 241, 241, 241, 241, 241, 241, 241, 241, 241, 241, 241, 241, 241, 241, 241, 241, 241, 241, 241, 241, 241, 241, 241, 241, 241, 241, 241, 240, 240, 240, 240, 240, 240, 240, 240};
+
 inline void SetRGBAValue(BYTE* pbyData, const int r, const int c, const int iPitch, const BYTE byR, const BYTE byG, const BYTE byB, const BYTE byA)
 {
 	pbyData[r*iPitch+4*c+2]=byR;
@@ -3761,7 +3766,7 @@ const BYTE g_byFont_4_8[96]={
 				}
 			}
 		}
-		if(enumMode == VALUE_IMAGE_RAINBOW)
+		if(enumMode == VALUE_IMAGE_HUE_CYCLIC)
 		{
 			imgDst->Create(iWidth, iHeight,24);
 
@@ -3798,9 +3803,69 @@ const BYTE g_byFont_4_8[96]={
 				}
 			}
 		}
-		return false;
-	}
+		if(enumMode == VALUE_IMAGE_RAINBOW)
+		{
+			imgDst->Create(iWidth, iHeight,24);
 
+			BYTE* pbyDataDst = (BYTE*)imgDst->GetBits();
+			int iPitch = imgDst->GetPitch();
+			switch(enumImageType)
+			{
+			case IMAGE_TYPE_IIMAGE:
+				{
+					int iMax=INT_MIN;
+					int iMin=INT_MAX;
+					for(int r=0; r<iHeight; r++)
+					{
+						for(int c=0; c<iWidth; c++)
+						{
+							iMax=max(iMax,iImage[r*iWidth+c]);
+							iMin=min(iMin,iImage[r*iWidth+c]);
+						}
+					}
+					if(iMin==iMax){for(int r=0; r<iHeight; r++){for(int c=0; c<iWidth; c++){pbyDataDst[r*iPitch+c]=255;}return true;}}
+
+					for(int r=0; r<iHeight; r++)
+					{
+						for(int c=0; c<iWidth; c++)
+						{
+							BYTE byValue = min(255,max(0, (255 * (iImage[r*iWidth+c] - iMin)/double(iMax-iMin))));
+							SetRGBValue(pbyDataDst, r, c, iPitch, s_byVisibleR[byValue], s_byVisibleG[byValue], s_byVisibleB[byValue]);
+						}
+					}
+					return true;
+				}
+			case IMAGE_TYPE_DIMAGE:
+				{
+				}
+			}
+		}
+		return false;
+		}
+
+		bool GrayToRainbow(const CImage* imgSrc, CImage* imgDst)
+		{
+			if(_IsImageMonochrome(imgSrc)==false){return false;}
+
+			int iWidth = imgSrc->GetWidth();
+			int iHeight = imgSrc->GetHeight();
+			if(imgDst->IsNull()==false){imgDst->Destroy();}
+			imgDst->Create(iWidth, iHeight, 24);
+
+			BYTE* pbyDataDst = (BYTE*)imgDst->GetBits();
+			int iPitch = imgDst->GetPitch();
+			ImgRGB imgRGB;
+			_ConvertImage(imgSrc, &imgRGB);
+			for(int r=0; r<iHeight; r++)
+			{
+				for(int c=0; c<iWidth; c++)
+				{
+					BYTE byValue = imgRGB.byImgR[r*iWidth+c];
+					SetRGBValue(pbyDataDst, r, c, iPitch, s_byVisibleR[byValue], s_byVisibleG[byValue], s_byVisibleB[byValue]);
+				}
+			}
+			return true;
+		}
 
 	bool PanImage::GetValue(const int r, const int c, double* dValue) const
 	{

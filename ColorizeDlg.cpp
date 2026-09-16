@@ -46,6 +46,7 @@ BEGIN_MESSAGE_MAP(CColorizeDlg, CDialogEx)
 	ON_CBN_SELCHANGE(IDC_COLORIZE_COMBO_01, &CColorizeDlg::OnSelchangeColorizeCombo)
 	ON_CBN_SELCHANGE(IDC_COLORIZE_COMBO_10, &CColorizeDlg::OnSelchangeColorizeCombo)
 	ON_CBN_SELCHANGE(IDC_COLORIZE_COMBO_11, &CColorizeDlg::OnSelchangeColorizeCombo)
+	ON_BN_CLICKED(IDC_COLORIZE_RADIO_RAINBOW, &CColorizeDlg::OnBnClickedColorizeRadioRainbow)
 END_MESSAGE_MAP()
 
 
@@ -62,6 +63,13 @@ void CColorizeDlg::OnBnClickedOk()
 
 void CColorizeDlg::UpdateResultImage(CImage* imgResult)
 {	
+}
+void CColorizeDlg::OperateRainbow()
+{
+
+	GrayToRainbow(&m_image, &m_imageColorized);
+	CopyImage_CImage(&m_imageColorized, &m_pictureAfter.m_image);
+	m_pictureAfter.Invalidate(FALSE);
 }
 void CColorizeDlg::OperateThreshold()
 {
@@ -242,8 +250,16 @@ void CColorizeDlg::OnBnClickedColorizeRadioThreshold()
 	OperateThreshold();
 }
 
+void CColorizeDlg::OnBnClickedColorizeRadioRainbow()
+{
+	EnableDemosaic(false);
+	EnableThreshold(false);
+	OperateRainbow();
+}
+
 
 void CColorizeDlg::OnSelchangeColorizeCombo()
 {
 	OperateDemosaic();
 }
+

@@ -15,6 +15,7 @@ public:
 	CPictureCtrlEx m_pictureBefore;
 	CPictureCtrlEx m_pictureAfter;
 	CColorizeDlg(CWnd* pParent = NULL);   // 標準コンストラクター
+	void OperateRainbow();
 	void OperateThreshold();
 	void OperateDemosaic();
 	virtual ~CColorizeDlg();
@@ -42,4 +43,5 @@ public:
 	afx_msg void OnBnClickedColorizeRadioDemosaic();
 	afx_msg void OnBnClickedColorizeRadioThreshold();
 	afx_msg void OnSelchangeColorizeCombo();
+	afx_msg void OnBnClickedColorizeRadioRainbow();
 };
