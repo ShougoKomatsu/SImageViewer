@@ -275,7 +275,7 @@ inline bool SetHSVValue(BYTE* pbyData, const int iPitch, const int r, const int 
 	UINT uiValue_local=uiValue;
 	for (int i=1;i<=256/iDigit; i++)
 	{
-		bRet = HSVValue(pbyData, iPitch, r, c, uiValue, iDigit*i);
+		bRet = HSVValue(pbyData, iPitch, r, c, uiValue_local, iDigit*i);
 		if(bRet == true){break;}
 		uiValue_local-=iDigit*i*6;
 	}

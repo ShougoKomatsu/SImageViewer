@@ -1185,19 +1185,16 @@ IMPLEMENT_DYNCREATE(CSImageViewerView, CView)
 		return rectClient.Width();
 	}
 
-	bool CSImageViewerView::OnImagePP()
+	bool CSImageViewerView::OnImagePPFW(const int iStep)
 	{
-		m_iImageIndex--;
-		m_iImageIndex = max(m_iImageIndex,0);
-		ResetImage(false, false);
-		SetCaption();
-		Invalidate();
-		return true;
-	}
-	bool CSImageViewerView::OnImageFW()
-	{
-		m_iImageIndex++;
-		m_iImageIndex = min(m_iImageIndex,m_iImageMax-1);
+		if(iStep==INT_MAX){m_iImageIndex=m_iImageMax-1;}
+		else if(iStep==INT_MIN){m_iImageIndex=0;}
+		else
+		{
+			m_iImageIndex+=iStep;
+			if(iStep<0){m_iImageIndex = max(m_iImageIndex,0);}
+			if(iStep>0){m_iImageIndex = min(m_iImageIndex,m_iImageMax-1);}
+		}
 		ResetImage(false, false);
 		SetCaption();
 		Invalidate();
@@ -1893,19 +1890,12 @@ IMPLEMENT_DYNCREATE(CSImageViewerView, CView)
 					return TRUE; 
 				}
 
-				if(pMsg->wParam == VK_LEFT)
-				{
-					OnImagePP();
-					Invalidate();
-					return TRUE;
-				}
-
-				if(pMsg->wParam == VK_RIGHT)
-				{
-					OnImageFW();
-					Invalidate();
-					return TRUE;
-				}
+				if(pMsg->wParam == VK_LEFT){OnImagePPFW(-1);Invalidate();return TRUE;}
+				if(pMsg->wParam == VK_RIGHT){OnImagePPFW(+1);Invalidate();return TRUE;}
+				if(pMsg->wParam == VK_PRIOR){OnImagePPFW(-10);Invalidate();return TRUE;}
+				if(pMsg->wParam == VK_NEXT){OnImagePPFW(+10);Invalidate();return TRUE;}
+				if(pMsg->wParam == VK_HOME){OnImagePPFW(INT_MIN);Invalidate();return TRUE;}
+				if(pMsg->wParam == VK_END){OnImagePPFW(INT_MAX);Invalidate();return TRUE;}
 			}
 
 			if(GetKeyState(VK_SHIFT)<0)
