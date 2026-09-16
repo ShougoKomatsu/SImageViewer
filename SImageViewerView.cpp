@@ -828,9 +828,8 @@ IMPLEMENT_DYNCREATE(CSImageViewerView, CView)
 		if(m_Rect_i.IsRectNull() == TRUE){bAutoFull = true; FullDomain();}
 
 		ImgRGB imgRGB;
-		ImgRGB imgMeaned;
 		_ConvertImage(m_image[m_iImageIndex].GetCurrentProcess(), &imgRGB);
-
+		InvertImage(&imgRGB,&imgRGB,m_Rect_i.top,m_Rect_i.left,m_Rect_i.bottom,m_Rect_i.right); 
 
 		if(bAutoFull == true)
 		{
@@ -840,7 +839,8 @@ IMPLEMENT_DYNCREATE(CSImageViewerView, CView)
 			pFrame->m_bRegionSelected = false;
 		}
 
-		ConvertImage(&imgMeaned,m_image[m_iImageIndex].ProgressImageProcess());
+
+		ConvertImage(&imgRGB,m_image[m_iImageIndex].ProgressImageProcess());
 		Invalidate();
 	}
 
