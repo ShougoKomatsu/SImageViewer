@@ -912,39 +912,14 @@ bool ReadCImageFromData(const BYTE* byData, const SIZE_T dataSize, CImage* imgDs
 
 bool CopyFromClipBoardImg(PanImage* imgDst)
 {
-	BOOL bRet;
-
-	bRet = OpenClipboard(NULL);
-	if(bRet == FALSE){return false;}
-
-	HANDLE hResult;
-
-	hResult = GetClipboardData(CF_UNICODETEXT );
-	if(hResult != NULL)
+	CString sData;
+	bool bRet = CopyFromClipBoardStr(&sData);
+	if(bRet == true)
 	{
-		LPVOID byDataTemp = GlobalLock(hResult);
-		if(byDataTemp==NULL){CloseClipboard();return false;}
-
-		SIZE_T dataSize = GlobalSize(hResult);
-		if (dataSize == 0) { GlobalUnlock(hResult);CloseClipboard(); return false;} 
-
-		BYTE* byData;
-		byData = new BYTE[dataSize];
-
-		memcpy(byData, byDataTemp, dataSize);
-
-		GlobalUnlock(hResult);
-
-		bRet = CloseClipboard();
-		if(bRet == FALSE){SAFE_DELETE(byData); return false;}
-		CString sData;
-		sData.Format(_T("%s"),byData);
-		SAFE_DELETE(byData); 
-		
 		return ConvertStrToPanImage(sData,VALUE_IMAGE_CLIP_0_TO_255, _T("Clipboard"), imgDst);
 	}
 
-	hResult = GetClipboardData(CF_DIB);
+	HANDLE hResult = GetClipboardData(CF_DIB);
 	if(hResult == NULL){CloseClipboard();return false;}
 
 	LPVOID byDataTemp = GlobalLock(hResult);

@@ -333,3 +333,35 @@ bool CopyToClipBoardStr(const CString sValue)
 		return true;
 	}
 
+	
+bool CopyFromClipBoardStr(CString* sData)
+{
+	BOOL bRet;
+
+	bRet = OpenClipboard(NULL);
+	if(bRet == FALSE){return false;}
+
+	HANDLE hResult;
+
+	hResult = GetClipboardData(CF_UNICODETEXT );
+	if(hResult == NULL){return false;}
+	LPVOID byDataTemp = GlobalLock(hResult);
+	if(byDataTemp==NULL){CloseClipboard();return false;}
+
+	SIZE_T dataSize = GlobalSize(hResult);
+	if (dataSize == 0) { GlobalUnlock(hResult);CloseClipboard(); return false;} 
+
+	BYTE* byData;
+	byData = new BYTE[dataSize];
+
+	memcpy(byData, byDataTemp, dataSize);
+
+	GlobalUnlock(hResult);
+
+	bRet = CloseClipboard();
+	if(bRet == FALSE){SAFE_DELETE(byData); return false;}
+	sData->Format(_T("%s"),byData);
+	SAFE_DELETE(byData); 
+
+	return true;
+}

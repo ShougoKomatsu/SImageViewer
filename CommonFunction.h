@@ -11,6 +11,7 @@ protected:
     DECLARE_MESSAGE_MAP()
 };
 
+bool CopyFromClipBoardStr(CString* sData);
 
 
 bool isNearTheBoarder(double d, double dBoarder, double dMargin);
