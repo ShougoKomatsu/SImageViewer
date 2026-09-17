@@ -80,7 +80,7 @@ class PanImage
 {
 public:
 	CImage* ProgressImageProcess();
-	CImage* GetCurrentProcess();
+	const CImage* GetCurrentProcess() const;
 	bool UnDo();
 	bool ReDo();
 	bool CopyImage(const PanImage* imgSrc);

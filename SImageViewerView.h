@@ -47,7 +47,7 @@ public:
 	int GetClientWidth();
 
 	void SetScroll();
-	bool SaveImage(CImage* image);
+	bool SaveImage(const CImage* image);
 	CSImageViewerDoc* GetDocument() const;
 	CRect v_to_i(const CRect* rect_v);
 	CRect i_to_v(const CRect* rect_i);
@@ -78,7 +78,7 @@ public:
 	void OperateChangeColorDepth();
 	void OperateInvert();
 	void SetGridEnableDesable();
-	bool GetColorAtCursor(CImage* img, CPoint point_v, int* iR_img, int* iC_img, ColorValue* colorValue);
+	bool GetColorAtCursor(const CImage* img, CPoint point_v, int* iR_img, int* iC_img, ColorValue* colorValue);
 	bool GetColorAtCursor(PanImage* img, CPoint point_v, int* iR_img, int* iC_img, ColorValue* colorValue);
 	void OnScroll(int iSB, int nSBCode, int nPos);
 	void DispStatus(CPoint point);

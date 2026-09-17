@@ -163,7 +163,7 @@ bool PanImage::ReDo()
 	return true;
 
 }
-CImage* PanImage::GetCurrentProcess()
+const CImage* PanImage::GetCurrentProcess() const
 {
 	return &(m_imageProcessed[(m_iImgProcessIndex % MAX_IMG_PROCESS)]);
 }
@@ -2036,7 +2036,11 @@ const BYTE g_byFont_4_8[96]={
 						int iValueG =  GetGValue(col);
 						int iValueB =  GetBValue(col);
 
-						BYTE byDot=iValueR+iValueG+iValueB<480 ? 255:0;
+						col = (imgSrc->GetCurrentProcess())->GetPixel(ic_i, ir_i);
+						int iValue =  GetRValue(col);
+						iValue +=  GetGValue(col);
+						iValue +=  GetBValue(col);
+						BYTE byDot=iValue<480 ? 255:0;
 
 						if(dScale>48)
 						{

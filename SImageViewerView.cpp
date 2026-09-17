@@ -618,7 +618,7 @@ IMPLEMENT_DYNCREATE(CSImageViewerView, CView)
 		return true;
 	}
 
-	bool CSImageViewerView::SaveImage(CImage* image)
+	bool CSImageViewerView::SaveImage(const CImage* image)
 	{
 
 		CFormatSelectionDlg formatDlg;
@@ -905,11 +905,11 @@ IMPLEMENT_DYNCREATE(CSImageViewerView, CView)
 		CopyImage_CImage(m_image[m_iImageIndex].GetCurrentProcess(), &imgSrc);
 		if((dlg.m_resample == RESIZE_NEAREST) || (dlg.m_resample == RESIZE_BILINEAR))
 		{
-			Resize(&imgSrc, m_image[m_iImageIndex].GetCurrentProcess(), dlg.m_iWidth,dlg.m_iHeight,dlg.m_resample);
+			Resize(&imgSrc, m_image[m_iImageIndex].ProgressImageProcess(), dlg.m_iWidth,dlg.m_iHeight,dlg.m_resample);
 		}
 		else
 		{
-			Resample(&imgSrc, m_image[m_iImageIndex].GetCurrentProcess(), dlg.m_resample);
+			Resample(&imgSrc, m_image[m_iImageIndex].ProgressImageProcess(), dlg.m_resample);
 		}
 		if(bAutoFull == true)
 		{
@@ -1462,7 +1462,7 @@ IMPLEMENT_DYNCREATE(CSImageViewerView, CView)
 		}
 		return false;
 	}
-	bool CSImageViewerView::GetColorAtCursor(CImage* img, CPoint point_v, int* iR_img, int* iC_img, ColorValue* colorValue)
+	bool CSImageViewerView::GetColorAtCursor(const CImage* img, CPoint point_v, int* iR_img, int* iC_img, ColorValue* colorValue)
 	{
 		colorValue->Init();
 		CPoint point_tv((int)(point_v.x + GetDispOriginC_tv()), (int)(point_v.y + GetDispOriginR_tv()));
