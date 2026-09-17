@@ -51,7 +51,7 @@ CSImageViewerApp theApp;
 
 BOOL CSImageViewerApp::InitInstance()
 {
-	CleanState();
+//	CleanState();
 	CWinAppEx::InitInstance();
 
 	SetMenuDefaultItem(0, FALSE, 0);
