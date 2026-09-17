@@ -817,6 +817,8 @@ IMPLEMENT_DYNCREATE(CSImageViewerView, CView)
 				sHist+=sTemp;
 			}
 		}
+
+		sHist.Delete(sHist.GetLength()-1);
 		CopyToClipBoardStr(sHist);
 	}
 
