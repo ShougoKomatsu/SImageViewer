@@ -258,3 +258,4 @@ bool ImposeAlphaChannel(const CImage* imgSrc, CImage* imgDst);
 
 	
 		bool GrayToRainbow(const CImage* imgSrc, CImage* imgDst);
+	void GenHSImage(CImage* imgDst, const int iWidth, const int iHeight, const double dHue0to360Min, const double dHue0to360Max, const double dSaturation0to1Min, const double dSaturation0to1Max);

@@ -4291,3 +4291,80 @@ bool ReadBinaryFile(const CString sFilePath, FileFormatList* fileFormatList, Pan
 		}
 		return true;
 	}
+
+	void GenHSImage(CImage* imgDst, const int iWidth, const int iHeight, const double dHue0to360Min, const double dHue0to360Max, const double dSaturation0to1Min, const double dSaturation0to1Max)
+	{
+		if(imgDst->IsNull()!=true){imgDst->Destroy();}
+		imgDst->Create(iWidth, iHeight, 24);
+
+		double dHs=max(0, min(360, min(dHue0to360Min, dHue0to360Max)));
+		double dHe=max(0, min(360, max(dHue0to360Min, dHue0to360Max)));
+
+		double dSs=max(0, min(1, min(dSaturation0to1Min, dSaturation0to1Max)));
+		double dSe=max(0, min(1, max(dSaturation0to1Min, dSaturation0to1Max)));
+
+
+		double dHStep = (dHe-dHs)/((iWidth-1)*1.0);
+		double dSStep = (dSe-dSs)/((iWidth-1)*1.0);
+
+		BYTE* pbyData=(BYTE*)imgDst->GetBits();
+		int iPitch = imgDst->GetPitch();
+
+
+		for(int r=0; r<iHeight; r++)
+		{
+			for(int c=0; c<iWidth; c++)
+			{
+				double dH=dHs+c*dHStep;
+				double dS=dSs+(iHeight-1-r)*dSStep;
+
+				BYTE byR;
+				BYTE byG;
+				BYTE byB;
+				if(dH<=60)
+				{
+					byR=min(255, int(dS*255));
+					byG=min(255, int( (dH)/60.0 * dS*255));
+					byB=0;
+				}
+				else if(dH<=120)
+				{
+					byR=min(255, int( (120-dH)/60.0 * dS*255));
+					byG=min(255, int(dS*255));
+					byB=0;
+				}
+				else if(dH<=180)
+				{
+					byR=0;
+					byG=min(255, int(dS*255));
+					byB=min(255, int( (dH-120)/60.0 * dS*255));
+				}
+				else if(dH<=240)
+				{
+					byR=0;
+					byG=min(255, int( (240-dH)/60.0 * dS*255));
+					byB=min(255, int(dS*255));
+				}
+				else if(dH<=300)
+				{
+					byR=min(255, int( (dH-240)/60.0 * dS*255));
+					byG=0;
+					byB=min(255, int(dS*255));
+				}
+				else if(dH<=360)
+				{
+					byR=min(255, int(dS*255));
+					byG=0;
+					byB=min(255, int( (360-dH)/60.0 * dS*255));
+				}
+				else
+				{
+					continue;
+				}
+					pbyData[r*iPitch+c*3+0] =byB;
+					pbyData[r*iPitch+c*3+1] =byG;
+					pbyData[r*iPitch+c*3+2] =byR;
+			}
+		}
+		return;
+	}
