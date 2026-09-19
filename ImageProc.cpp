@@ -1565,6 +1565,71 @@ bool ExtractChannel(const CImage* imgSrc, CImage* imgDst, const ENUM_COLOR color
 	return ConvertImage(&imgDstRGB,imgDst);
 }
 
+bool ImposeLine(const CImage* imgSrc, CImage* imgDst, const double dR0, const double dC0, const double dR1, const double dC1)
+{
+	if(imgSrc != imgDst)
+	{
+		CopyImage_CImage(imgSrc,imgDst);
+	}
+
+	int iBPP = imgDst->GetBPP();
+	if(iBPP != 32){return false;}
+	int iPitch =imgDst->GetPitch();
+	int iWidth = imgDst->GetWidth();
+	int iHeight = imgDst->GetHeight();
+	BYTE* pbyDataDst = (BYTE*)imgDst->GetBits();
+
+
+	if(fabs(dR1-dR0)>fabs(dC1-dC0))
+	{
+		double dSlope=(dC1-dC0)/(dR1-dR0);
+		BYTE byDot=0;
+		for(int r=int(dR0); r<=(int)dR1; r++)
+		{
+			if(r<0){continue;}
+			if(r>=iHeight){continue;}
+
+			int c=int(dSlope*r+dC0);
+			byDot = (r&0x02)*255;
+			if((c>0) && (c<iWidth))
+			{
+				SetRGBAValue(pbyDataDst, r, c, iPitch, byDot, byDot, byDot, 255);
+			}
+
+			if((c+1>0) && (c*1<iWidth))
+			{
+				SetRGBAValue(pbyDataDst, r, c+1, iPitch, byDot, byDot, byDot, 255);
+			}
+		}
+	}
+	else
+	{
+		
+		double dSlope=(dR1-dR0)/(dC1-dC0);
+		BYTE byDot=0;
+		for(int c=int(dC0); c<=int(dC1); c++)
+		{
+			if(c<0){continue;}
+			if(c>=iWidth){continue;}
+
+			int r=int(dSlope*c+dR0);
+			byDot = (c&0x02)*255;
+
+			if((r>=0) && (r<iHeight))
+			{
+				SetRGBAValue(pbyDataDst, r, c, iPitch, byDot, byDot, byDot, 255);
+			}
+
+			if((r+1>=0) && (r+1<iHeight))
+			{
+				SetRGBAValue(pbyDataDst, r+1, c, iPitch, byDot, byDot, byDot, 255);
+			}
+		}
+	}
+	return true;
+}
+
+
 bool ImposeRect(const CImage* imgSrc, CImage* imgDst, const CRect* rect)
 {
 	if(imgSrc != imgDst)
@@ -2252,7 +2317,7 @@ const BYTE g_byFont_4_8[96]={
 
 		return true;
 	}
-
+	
 	bool ZoomImage(const CImage* imgSrc, CImage* imgDst, const double dR0_Src, const double dC0_Src, const double dScale, const int iWidth_Dst, const int iHeight_Dst, const bool bRGBSeparated)
 	{
 
@@ -4292,7 +4357,55 @@ bool ReadBinaryFile(const CString sFilePath, FileFormatList* fileFormatList, Pan
 		return true;
 	}
 
-	void GenHSImage(CImage* imgDst, const int iWidth, const int iHeight, const double dHue0to360Min, const double dHue0to360Max, const double dSaturation0to1Min, const double dSaturation0to1Max)
+
+	inline void HSVtoRGB(BYTE* pbyDataR, BYTE* pbyDataG, BYTE* pbyDataB, double dH, double dS, double dV)
+	{
+		if(dH<=60)
+		{
+			(*pbyDataR)=BYTE(dV*255);
+			(*pbyDataG)=min(255, BYTE((1-dS*(60-dH)/60.0) * dV*255));
+			(*pbyDataB)=min(255, BYTE((1-dS)*dV*255));
+			return;
+		}
+		if(dH<=120)
+		{
+			(*pbyDataR)=min(255, BYTE((1-dS*(dH-60)/60.0) * dV*255));
+			(*pbyDataG)=BYTE(dV*255);
+			(*pbyDataB)=min(255, BYTE((1-dS)*dV*255));
+			return;
+		}
+		if(dH<=180)
+		{
+			(*pbyDataR)=min(255, BYTE((1-dS)*dV*255));
+			(*pbyDataG)=BYTE(dV*255);
+			(*pbyDataB)=min(255, BYTE((1-dS*(180-dH)/60.0) * dV*255));
+			return;
+		}
+		if(dH<=240)
+		{
+			(*pbyDataR)=min(255, BYTE((1-dS)*dV*255));
+			(*pbyDataG)=min(255, BYTE((1-dS*(dH-180)/60.0) * dV*255));
+			(*pbyDataB)=BYTE(dV*255);
+			return;
+		}
+		if(dH<=300)
+		{
+			(*pbyDataR)=min(255, BYTE((1-dS*(300-dH)/60.0) *dV* 255));
+			(*pbyDataG)=min(255, BYTE((1-dS)*dV*255));
+			(*pbyDataB)=BYTE(dV*255);
+			return;
+		}
+		if(dH<=360)
+		{
+			(*pbyDataR)=BYTE(dV*255);
+			(*pbyDataG)=min(255, BYTE((1-dS)*dV*255));
+			(*pbyDataB)=min(255, BYTE((1-dS*(dH-300)/60.0) *dV* 255));
+			return;
+		}
+		return;
+	}
+
+	void GenHSImage(CImage* imgDst, const int iWidth, const int iHeight, const double dHue0to360Min, const double dHue0to360Max, const double dSaturation0to1Min, const double dSaturation0to1Max, const double dBrightness0to1)
 	{
 		if(imgDst->IsNull()!=true){imgDst->Destroy();}
 		imgDst->Create(iWidth, iHeight, 24);
@@ -4305,7 +4418,7 @@ bool ReadBinaryFile(const CString sFilePath, FileFormatList* fileFormatList, Pan
 
 
 		double dHStep = (dHe-dHs)/((iWidth-1)*1.0);
-		double dSStep = (dSe-dSs)/((iWidth-1)*1.0);
+		double dSStep = (dSe-dSs)/((iHeight-1)*1.0);
 
 		BYTE* pbyData=(BYTE*)imgDst->GetBits();
 		int iPitch = imgDst->GetPitch();
@@ -4317,53 +4430,164 @@ bool ReadBinaryFile(const CString sFilePath, FileFormatList* fileFormatList, Pan
 			{
 				double dH=dHs+c*dHStep;
 				double dS=dSs+(iHeight-1-r)*dSStep;
+				double dV=dBrightness0to1;
 
-				BYTE byR;
-				BYTE byG;
-				BYTE byB;
-				if(dH<=60)
-				{
-					byR=min(255, int(dS*255));
-					byG=min(255, int( (dH)/60.0 * dS*255));
-					byB=0;
-				}
-				else if(dH<=120)
-				{
-					byR=min(255, int( (120-dH)/60.0 * dS*255));
-					byG=min(255, int(dS*255));
-					byB=0;
-				}
-				else if(dH<=180)
-				{
-					byR=0;
-					byG=min(255, int(dS*255));
-					byB=min(255, int( (dH-120)/60.0 * dS*255));
-				}
-				else if(dH<=240)
-				{
-					byR=0;
-					byG=min(255, int( (240-dH)/60.0 * dS*255));
-					byB=min(255, int(dS*255));
-				}
-				else if(dH<=300)
-				{
-					byR=min(255, int( (dH-240)/60.0 * dS*255));
-					byG=0;
-					byB=min(255, int(dS*255));
-				}
-				else if(dH<=360)
-				{
-					byR=min(255, int(dS*255));
-					byG=0;
-					byB=min(255, int( (360-dH)/60.0 * dS*255));
-				}
-				else
-				{
-					continue;
-				}
-					pbyData[r*iPitch+c*3+0] =byB;
-					pbyData[r*iPitch+c*3+1] =byG;
-					pbyData[r*iPitch+c*3+2] =byR;
+				HSVtoRGB(&(pbyData[r*iPitch+c*3+2]), &(pbyData[r*iPitch+c*3+1]), &(pbyData[r*iPitch+c*3+0]), dH, dS, dV);
+			}
+		}
+		return;
+	}
+
+	void GenHVImage(CImage* imgDst, const int iWidth, const int iHeight, const double dHue0to360Min, const double dHue0to360Max, const double dSaturation0to1, const double dBrightness0to1Min, const double dBrightness0to1Max)
+	{
+		if(imgDst->IsNull()!=true){imgDst->Destroy();}
+		imgDst->Create(iWidth, iHeight, 24);
+
+		double dHs=max(0, min(360, min(dHue0to360Min, dHue0to360Max)));
+		double dHe=max(0, min(360, max(dHue0to360Min, dHue0to360Max)));
+
+		double dVs=max(0, min(1, min(dBrightness0to1Min, dBrightness0to1Max)));
+		double dVe=max(0, min(1, max(dBrightness0to1Min, dBrightness0to1Max)));
+
+
+		double dHStep = (dHe-dHs)/((iWidth-1)*1.0);
+		double dVStep = (dVe-dVs)/((iHeight-1)*1.0);
+
+		BYTE* pbyData=(BYTE*)imgDst->GetBits();
+		int iPitch = imgDst->GetPitch();
+
+
+		for(int r=0; r<iHeight; r++)
+		{
+			for(int c=0; c<iWidth; c++)
+			{
+				double dH=dHs+c*dHStep;
+				double dS=dSaturation0to1;
+				double dV=dVs+(iHeight-1-r)*dVStep;
+				HSVtoRGB(&(pbyData[r*iPitch+c*3+2]), &(pbyData[r*iPitch+c*3+1]), &(pbyData[r*iPitch+c*3+0]), dH, dS, dV);
+			}
+		}
+		return;
+	}
+
+	void GenSVImage(CImage* imgDst, const int iWidth, const int iHeight, const double dHue0to360, const double dSaturation0to1Min, const double dSaturation0to1Max, const double dBrightness0to1Min, const double dBrightness0to1Max)
+	{
+		if(imgDst->IsNull()!=true){imgDst->Destroy();}
+		imgDst->Create(iWidth, iHeight, 24);
+
+		double dSs=max(0, min(1, min(dSaturation0to1Min, dSaturation0to1Max)));
+		double dSe=max(0, min(1, max(dSaturation0to1Min, dSaturation0to1Max)));
+
+		double dVs=max(0, min(1, min(dBrightness0to1Min, dBrightness0to1Max)));
+		double dVe=max(0, min(1, max(dBrightness0to1Min, dBrightness0to1Max)));
+
+
+		double dSStep = (dSe-dSs)/((iWidth-1)*1.0);
+		double dVStep = (dVe-dVs)/((iHeight-1)*1.0);
+
+		BYTE* pbyData=(BYTE*)imgDst->GetBits();
+		int iPitch = imgDst->GetPitch();
+
+
+		for(int r=0; r<iHeight; r++)
+		{
+			for(int c=0; c<iWidth; c++)
+			{
+				double dH=dHue0to360;
+				double dS=dSs+c*dSStep;
+				double dV=dVs+(iHeight-1-r)*dVStep;
+				HSVtoRGB(&(pbyData[r*iPitch+c*3+2]), &(pbyData[r*iPitch+c*3+1]), &(pbyData[r*iPitch+c*3+0]), dH, dS, dV);
+			}
+		}
+		return;
+	}
+
+	void GenRGImage(CImage* imgDst, const int iWidth, const int iHeight, const BYTE byRMin, const BYTE byRMax, const BYTE byGMin, const BYTE byGMax, const BYTE byB)
+	{
+		if(imgDst->IsNull()!=true){imgDst->Destroy();}
+		imgDst->Create(iWidth, iHeight, 24);
+
+		double dRs=max(0, min(255, min(byRMin, byRMax)));
+		double dRe=max(0, min(255, max(byRMin, byRMax)));
+
+		double dGs=max(0, min(255, min(byGMin, byGMax)));
+		double dGe=max(0, min(255, max(byGMin, byGMax)));
+
+		double dRStep = (dRe-dRs)/((iWidth-1)*1.0);
+		double dGStep = (dGe-dGs)/((iHeight-1)*1.0);
+
+		BYTE* pbyData=(BYTE*)imgDst->GetBits();
+		int iPitch = imgDst->GetPitch();
+
+
+		for(int r=0; r<iHeight; r++)
+		{
+			for(int c=0; c<iWidth; c++)
+			{
+				BYTE byR=dRs+c*dRStep;
+				BYTE byG=dGs+(iHeight-1-r)*dGStep;
+				SetRGBValue(pbyData, r, c, iPitch, byR, byG, byB);
+			}
+		}
+		return;
+	}
+
+	void GenGBImage(CImage* imgDst, const int iWidth, const int iHeight, const BYTE byR, const BYTE byGMin, const BYTE byGMax, const BYTE byBMin, const BYTE byBMax)
+	{
+		if(imgDst->IsNull()!=true){imgDst->Destroy();}
+		imgDst->Create(iWidth, iHeight, 24);
+
+		double dGs=max(0, min(255, min(byGMin, byGMax)));
+		double dGe=max(0, min(255, max(byGMin, byGMax)));
+
+		double dBs=max(0, min(255, min(byBMin, byBMax)));
+		double dBe=max(0, min(255, max(byBMin, byBMax)));
+
+
+		double dGStep = (dGe-dGs)/((iWidth-1)*1.0);
+		double dBStep = (dBe-dBs)/((iHeight-1)*1.0);
+
+		BYTE* pbyData=(BYTE*)imgDst->GetBits();
+		int iPitch = imgDst->GetPitch();
+
+
+		for(int r=0; r<iHeight; r++)
+		{
+			for(int c=0; c<iWidth; c++)
+			{
+				BYTE byG=dGs+c*dGStep;
+				BYTE byB=dBs+(iHeight-1-r)*dBStep;
+				SetRGBValue(pbyData, r, c, iPitch, byR, byG, byB);
+			}
+		}
+		return;
+	}
+	void GenBRImage(CImage* imgDst, const int iWidth, const int iHeight, const BYTE byRMin, const BYTE byRMax, const BYTE byG, const BYTE byBMin, const BYTE byBMax)
+	{
+		if(imgDst->IsNull()!=true){imgDst->Destroy();}
+		imgDst->Create(iWidth, iHeight, 24);
+
+
+		double dBs=max(0, min(255, min(byBMin, byBMax)));
+		double dBe=max(0, min(255, max(byBMin, byBMax)));
+
+		double dRs=max(0, min(255, min(byRMin, byRMax)));
+		double dRe=max(0, min(255, max(byRMin, byRMax)));
+
+		double dBStep = (dBe-dBs)/((iWidth-1)*1.0);
+		double dRStep = (dRe-dRs)/((iHeight-1)*1.0);
+
+		BYTE* pbyData=(BYTE*)imgDst->GetBits();
+		int iPitch = imgDst->GetPitch();
+
+
+		for(int r=0; r<iHeight; r++)
+		{
+			for(int c=0; c<iWidth; c++)
+			{
+				BYTE byB=dBs+c*dBStep;
+				BYTE byR=dRs+(iHeight-1-r)*dRStep;
+				SetRGBValue(pbyData, r, c, iPitch, byR, byG, byB);
 			}
 		}
 		return;

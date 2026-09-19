@@ -258,4 +258,16 @@ bool ImposeAlphaChannel(const CImage* imgSrc, CImage* imgDst);
 
 	
 		bool GrayToRainbow(const CImage* imgSrc, CImage* imgDst);
-	void GenHSImage(CImage* imgDst, const int iWidth, const int iHeight, const double dHue0to360Min, const double dHue0to360Max, const double dSaturation0to1Min, const double dSaturation0to1Max);
+	void GenHSImage(CImage* imgDst, const int iWidth, const int iHeight, const double dHue0to360Min, const double dHue0to360Max, const double dSaturation0to1Min, const double dSaturation0to1Max, const double dBrightness0to1);
+	void GenHVImage(CImage* imgDst, const int iWidth, const int iHeight, const double dHue0to360Min, const double dHue0to360Max,  const double dSaturation0to1, const double dBrightness0to1Min, const double dBrightness0to1Max);
+		void GenSVImage(CImage* imgDst, const int iWidth, const int iHeight, const double dHue0to360, const double dSaturation0to1Min, const double dSaturation0to1Max, const double dBrightness0to1Min, const double dBrightness0to1Max);
+		
+	void GenRGImage(CImage* imgDst, const int iWidth, const int iHeight, const BYTE byRMin, const BYTE byRMax, const BYTE byGMin, const BYTE byGMax, const BYTE byB);
+
+
+	
+	void GenGBImage(CImage* imgDst, const int iWidth, const int iHeight, const BYTE byR, const BYTE byGMin, const BYTE byGMax, const BYTE byBMin, const BYTE byBMax);
+	void GenBRImage(CImage* imgDst, const int iWidth, const int iHeight, const BYTE byRMin, const BYTE byRMax, const BYTE byG, const BYTE byBMin, const BYTE byBMax);
+
+
+bool ImposeLine(const CImage* imgSrc, CImage* imgDst, const double dR0, const double dC0, const double dR1, const double dC1);

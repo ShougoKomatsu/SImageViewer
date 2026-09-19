@@ -25,41 +25,13 @@
 #include "FileFormatDlg.h"
 #include "InputDlg.h"
 #include "ColorizeDlg.h"
+#include "SetTransparentDlg.h"
 #ifdef _DEBUG
 #define new DEBUG_NEW
 #endif
 
 #define TIMER_INIT (100)
 #define TIMER_REFRESH (101)
-#define SCALE_VAR_NUM (25)
-double g_dScale[SCALE_VAR_NUM] = 
-{
-	0.125000,
-	0.162105,
-	0.210224,
-	0.272627,
-	0.353553,
-	0.458502,
-	0.594604,
-	0.771105,
-	1.000000,
-	1.296840,
-	1.681793,
-	2.181015,
-	2.828427,
-	3.668016,
-	4.756828,
-	6.168843,
-	8.000000,
-	10.374716,
-	13.454343,
-	17.448124,
-	22.627417,
-	29.344129,
-	38.054628,
-	49.350746,
-	64.000000,
-};
 #define RECT_CHANGE_MARGIN_PIX (10)
 enum MOUSE_CURSOR
 {
@@ -93,6 +65,7 @@ IMPLEMENT_DYNCREATE(CSImageViewerView, CView)
 		ON_COMMAND(ID_MENU_EDIT_CHANGE_COLOR_DEPTH, &CSImageViewerView::OperateChangeColorDepth)
 		ON_COMMAND(ID_MENU_EDIT_COLOR_CORRECTON, &CSImageViewerView::OperateBrightnessContrastGamma)
 		ON_COMMAND(ID_MENU_EDIT_COLORIZE, &CSImageViewerView::OperateColorize)
+		ON_COMMAND(ID_MENU_EDIT_TRANSPARENT, &CSImageViewerView::OperateTransparent)
 		ON_COMMAND(ID_MENU_EDIT_INVERT, &CSImageViewerView::OperateInvert)
 		ON_COMMAND(ID_MENU_EDIT_EQU_HIST, &CSImageViewerView::OperateEquHistImage)
 		ON_COMMAND(ID_MENU_EDIT_RESAMPLE, &CSImageViewerView::OperateResample)
@@ -775,7 +748,23 @@ IMPLEMENT_DYNCREATE(CSImageViewerView, CView)
 		CMainFrame* pFrame = (CMainFrame*)AfxGetMainWnd();
 		pFrame->m_bRegionSelected = true;
 	}
+	void CSImageViewerView::OperateTransparent()
+	{
+		if(m_iImageMax <= 0){return;}
+		if(_IsImageMonochrome(m_image[m_iImageIndex].GetCurrentProcess())==false){AfxMessageBox(_T("This image is not monochrome.")); return;}
+		bool bAutoFull = false;
+		if(m_Rect_i.IsRectNull() == TRUE){bAutoFull = true;FullDomain();}
+		
+		CSetTransparentDlg dlg;
 
+		CImage imgClipped;
+		ClipImage(m_image[m_iImageIndex].GetCurrentProcess(), &imgClipped, m_Rect_i.top,m_Rect_i.left, m_Rect_i.bottom, m_Rect_i.right); 
+		CopyImage_CImage(&imgClipped, &dlg.m_image);
+		INT_PTR iRet = dlg.DoModal();
+
+
+
+	}
 	void CSImageViewerView::OperateCopyHistGramToClipboard()
 	{
 		if(m_iImageMax <= 0){return;}
@@ -843,6 +832,8 @@ IMPLEMENT_DYNCREATE(CSImageViewerView, CView)
 
 
 		ConvertImage(&imgRGB,m_image[m_iImageIndex].ProgressImageProcess());
+
+
 		Invalidate();
 	}
 
@@ -2078,6 +2069,7 @@ IMPLEMENT_DYNCREATE(CSImageViewerView, CView)
 		pPopup->EnableMenuItem(ID_MENU_EDIT_CHANGE_COLOR_DEPTH, MF_BYCOMMAND | (( bFileOpened == true) ? MF_ENABLED : MF_DISABLED));
 		pPopup->EnableMenuItem(ID_MENU_EDIT_COLOR_CORRECTON, MF_BYCOMMAND | (( bFileOpened == true) ? MF_ENABLED : MF_DISABLED));
 		pPopup->EnableMenuItem(ID_MENU_EDIT_COLORIZE, MF_BYCOMMAND | (( bFileOpened == true) ? MF_ENABLED : MF_DISABLED));
+		pPopup->EnableMenuItem(ID_MENU_EDIT_TRANSPARENT, MF_BYCOMMAND | (( bFileOpened == true) ? MF_ENABLED : MF_DISABLED));
 		pPopup->EnableMenuItem(ID_MENU_EDIT_INVERT, MF_BYCOMMAND | (( bFileOpened == true) ? MF_ENABLED : MF_DISABLED));
 		pPopup->EnableMenuItem(ID_MENU_EDIT_SET_SELECTION, MF_BYCOMMAND | (( bFileOpened == true) ? MF_ENABLED : MF_DISABLED));
 

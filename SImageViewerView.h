@@ -78,6 +78,7 @@ public:
 	void OperateChangeColorDepth();
 	void OperateInvert();
 	void SetGridEnableDesable();
+	void OperateTransparent();
 	bool GetColorAtCursor(const CImage* img, CPoint point_v, int* iR_img, int* iC_img, ColorValue* colorValue);
 	bool GetColorAtCursor(PanImage* img, CPoint point_v, int* iR_img, int* iC_img, ColorValue* colorValue);
 	void OnScroll(int iSB, int nSBCode, int nPos);
