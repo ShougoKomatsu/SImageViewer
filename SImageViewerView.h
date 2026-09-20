@@ -17,7 +17,8 @@ protected: // ÉVÉäÉAÉãâªÇ©ÇÁÇÃÇ›çÏê¨ÇµÇ‹Ç∑ÅB
 
 // ëÆê´
 public:
-	
+	ViewDraw view;
+
 		CString m_sIniFilePath;
 
 	FileFormatList m_fileFomatList;
@@ -30,18 +31,13 @@ public:
 	int m_iImageMax;
 	bool m_bRefresh;
 
-	int m_iScaleIndex;
-	int m_iMouseMode;
-	double m_dDispOriginR_tv;
-	double m_dDispOriginC_tv;
 
 	bool m_bBeingFullScreen;
 	bool m_bCBar;
 	bool m_bRBar;
-	bool m_bDragging; 
-	CPoint m_PointStart_v; 
-	CRect m_Rect_v;
-	CRect m_Rect_i;
+
+	CRect v_to_i(const CRect* rect_v);
+	CRect i_to_v(const CRect* rect_i);
 
 	int GetClientHeight();
 	int GetClientWidth();
@@ -49,8 +45,6 @@ public:
 	void SetScroll();
 	bool SaveImage(const CImage* image);
 	CSImageViewerDoc* GetDocument() const;
-	CRect v_to_i(const CRect* rect_v);
-	CRect i_to_v(const CRect* rect_i);
 	void SetCaption();
 	void ResetImage(bool bZoomReset, bool bProcessReset);
 	void AdjustViewClientSize(int desiredClientWidth, int desiredClientHeight);
@@ -61,8 +55,9 @@ public:
 	bool ZoomChange(int iMousePosR_v, int iMousePosC_v,int iChange);
 	bool ZoomChange(int iR0_i, int iC0_i, int iR1_i, int iC1_i);
 	void SetScrollPos(int iR, int iC);
-	double GetDispOriginR_tv();
-	double GetDispOriginC_tv();
+	double GetDispOriginR_tv(){return view.GetDispOriginR_tv();}
+	double GetDispOriginC_tv(){return view.GetDispOriginC_tv();}
+
 
 	void EnterFullScreen();
 	void ExitFullScreen();

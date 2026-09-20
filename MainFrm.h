@@ -4,6 +4,7 @@
 
 #pragma once
 
+#include "SImageViewerView.h"
 class CMainFrame : public CFrameWndEx
 {
 
@@ -13,6 +14,8 @@ protected: // ƒVƒŠƒAƒ‹‰»‚©‚ç‚Ì‚İì¬‚µ‚Ü‚·B
 	
 	// ‘®«
 public:
+	CSImageViewerView* m_pView;
+
 	bool m_bGridAble;
 	bool m_bFileOpened;
 	bool m_bRegionSelected;
@@ -28,9 +31,6 @@ public:
 	CString m_sStatusRGBOriginal;
 	CString m_sStatusRGBProcessed;
 	CString m_sStatusSelection;
-int m_iGrid;
-bool m_bValue;
-bool m_bRGB_Separate;
 	// ‘€ì
 public:
 	void ShowNormal();

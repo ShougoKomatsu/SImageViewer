@@ -50,6 +50,189 @@ void CPictureCtrlEx::OnMouseMove(UINT nFlags, CPoint point)
 	CStatic::OnMouseMove(nFlags, point);
 }
 
+	double ViewDraw::GetDispOriginR_tv()
+	{
+		return m_dDispOriginR_tv;
+	}
+	double ViewDraw::GetDispOriginC_tv()
+	{
+		return m_dDispOriginC_tv;
+	}
+	
+	CRect ViewDraw::v_to_i(const CRect* rect_v)
+	{
+		CRect rect_i;
+		rect_i.SetRectEmpty();
+		if(rect_v->IsRectNull() == TRUE)
+		{
+			return rect_i;
+		}
+
+		int iCOrigin_tv = (int)(GetDispOriginC_tv());
+		int iROrigin_tv = (int)(GetDispOriginR_tv());
+
+		rect_i.SetRect(
+			(int)(((rect_v->left+ iCOrigin_tv) / g_dScale[m_iScaleIndex]) +0.5)
+			,(int)(((rect_v->top+ iROrigin_tv) / g_dScale[m_iScaleIndex]) +0.5)
+			,(int)(((rect_v->right+ iCOrigin_tv) / g_dScale[m_iScaleIndex]) -0.5)
+			,(int)(((rect_v->bottom+ iROrigin_tv) / g_dScale[m_iScaleIndex]) -0.5));
+		if(rect_i.right<rect_i.left){rect_i.right = rect_i.left;}
+		if(rect_i.bottom<rect_i.top){rect_i.bottom = rect_i.top;}
+		return rect_i;
+	}
+
+	CRect ViewDraw::i_to_v(const CRect* rect_i)
+	{
+		CRect rect_v;
+		if(rect_i->IsRectNull() == TRUE)
+		{
+			rect_v.SetRectEmpty();
+			return rect_v;
+		}
+
+		int iCOrigin_tv = (int)GetDispOriginC_tv();
+		int iROrigin_tv = (int)GetDispOriginR_tv();
+
+		rect_v.SetRect(
+			(int)((rect_i->left ) * g_dScale[m_iScaleIndex])-iCOrigin_tv
+			,(int)((rect_i->top ) * g_dScale[m_iScaleIndex])-iROrigin_tv
+			,(int)((rect_i->right +1 ) * g_dScale[m_iScaleIndex])-iCOrigin_tv
+			,(int)((rect_i->bottom +1) * g_dScale[m_iScaleIndex])-iROrigin_tv);
+
+		return rect_v;
+	}
+
+
+
+	void ViewDraw::OnMouseMove(UINT nFlags, CPoint point_v)
+	{
+
+
+		if (m_bDragging == true) 
+		{ 
+			switch(m_iMouseMode)
+			{
+			case CHANGE_U: {CRect rectTemp_v = i_to_v(&m_Rect_i); m_Rect_v = CRect(CPoint(rectTemp_v.left,point_v.y), CPoint(rectTemp_v.right,rectTemp_v.bottom)); break;}
+			case CHANGE_B: {CRect rectTemp_v = i_to_v(&m_Rect_i); m_Rect_v = CRect(CPoint(rectTemp_v.left,rectTemp_v.top), CPoint(rectTemp_v.right,point_v.y)); break;}
+			case CHANGE_L: {CRect rectTemp_v = i_to_v(&m_Rect_i); m_Rect_v = CRect(CPoint(point_v.x,rectTemp_v.top), CPoint(rectTemp_v.right,rectTemp_v.bottom)); break;}
+			case CHANGE_R: {CRect rectTemp_v = i_to_v(&m_Rect_i); m_Rect_v = CRect(CPoint(rectTemp_v.left, rectTemp_v.top), CPoint(point_v.x,rectTemp_v.bottom)); break;}
+			case CHANGE_LU: {CRect rectTemp_v = i_to_v(&m_Rect_i); m_Rect_v = CRect(CPoint(point_v.x, point_v.y), CPoint(rectTemp_v.right,rectTemp_v.bottom)); break;}
+			case CHANGE_RU: {CRect rectTemp_v = i_to_v(&m_Rect_i); m_Rect_v = CRect(CPoint(rectTemp_v.left, point_v.y), CPoint(point_v.x,rectTemp_v.bottom)); break;}
+			case CHANGE_LB: {CRect rectTemp_v = i_to_v(&m_Rect_i); m_Rect_v = CRect(CPoint(point_v.x, rectTemp_v.top), CPoint(rectTemp_v.right,point_v.y)); break;}
+			case CHANGE_RB: {CRect rectTemp_v = i_to_v(&m_Rect_i); m_Rect_v = CRect(CPoint(rectTemp_v.left, rectTemp_v.top), CPoint(point_v.x,point_v.y)); break;}
+			default :
+				{
+					m_Rect_v = CRect(m_PointStart_v, point_v);
+				}
+			}
+			m_Rect_v.NormalizeRect();
+			return;
+		} 
+
+
+		CRect rectTemp_v;
+		rectTemp_v = i_to_v(&m_Rect_i);
+
+		int iBoarder = 0;
+		if(isNearTheBoarder(point_v.y, rectTemp_v.top,RECT_CHANGE_MARGIN_PIX) == true){iBoarder += 1;}
+		if(isNearTheBoarder(point_v.x, rectTemp_v.left,RECT_CHANGE_MARGIN_PIX) == true){iBoarder += 2;}
+		if(isNearTheBoarder(point_v.x, rectTemp_v.right,RECT_CHANGE_MARGIN_PIX) == true){iBoarder += 4;}
+		if(isNearTheBoarder(point_v.y, rectTemp_v.bottom,RECT_CHANGE_MARGIN_PIX) == true){iBoarder += 8;}
+
+		switch(iBoarder)
+		{
+		case 1:{if(isInTheRange(point_v.x,rectTemp_v.left,rectTemp_v.right) == true){m_iMouseMode = CHANGE_U;} return;}
+		case 2:{if(isInTheRange(point_v.y,rectTemp_v.top,rectTemp_v.bottom) == true){m_iMouseMode = CHANGE_L;} return;}
+		case 4:{if(isInTheRange(point_v.y,rectTemp_v.top,rectTemp_v.bottom) == true){m_iMouseMode = CHANGE_R;} return;}
+		case 8:{if(isInTheRange(point_v.x,rectTemp_v.left,rectTemp_v.right) == true){m_iMouseMode = CHANGE_B;} return;}
+		case 3:{m_iMouseMode = CHANGE_LU; return;}
+		case 5:{m_iMouseMode = CHANGE_RU; return;}
+		case 10:{m_iMouseMode = CHANGE_LB; return;}
+		case 12:{m_iMouseMode = CHANGE_RB; return;}
+		default:{break;}
+		}
+		if((point_v.y >= rectTemp_v.top)&&(point_v.y <= rectTemp_v.bottom)&&(point_v.x >= rectTemp_v.left)&&(point_v.x <= rectTemp_v.right))
+		{
+			m_iMouseMode = CHANGE_ZOOMUP;
+		}
+		else
+		{
+			m_iMouseMode = CHANGE_NONE;
+		}
+
+	}
+	
+	void ViewDraw::OnDraw(CWnd* wnd, CDC* pDC, const CImage* img, PanImage* panImg)
+	{
+		
+		CDC memDC;
+		memDC.CreateCompatibleDC(pDC);
+
+		CImage imgZoomed;
+		int iHeight_v = GetClientHeight(wnd);
+		int iWidth_v = GetClientWidth(wnd);
+
+		CBitmap bufferBmp; 
+		bufferBmp.CreateCompatibleBitmap(pDC, iWidth_v, iHeight_v);
+		CBitmap* pOldBmp = memDC.SelectObject(&bufferBmp);
+
+		double dDispOriginR_tv = GetDispOriginR_tv();
+		double dDispOriginC_tv = GetDispOriginC_tv();
+
+
+
+		double dR0_i = (dDispOriginR_tv/g_dScale[m_iScaleIndex]);
+		double dC0_i = (dDispOriginC_tv/g_dScale[m_iScaleIndex]);
+		if (img->IsNull()){return;}
+
+		int iRMax = img->GetHeight()-1;
+		int iCMax = img->GetWidth()-1;
+
+
+		ZoomImage(img,&imgZoomed,dR0_i,dC0_i,g_dScale[m_iScaleIndex],iWidth_v,iHeight_v,m_bRGB_Separate);
+		CImage imgValue;
+		ZoomImage(img,&imgValue,dR0_i,dC0_i,g_dScale[m_iScaleIndex],iWidth_v,iHeight_v,false);
+
+		int iGrid = 0;
+		switch(m_iGrid)
+		{
+		case ID_TOOLBAR_GRID_NONE:{iGrid = 0;break;}
+		case ID_TOOLBAR_GRID_DOT:{iGrid = 1;break;}
+		case ID_TOOLBAR_GRID_LINE:{iGrid = 2;break;}
+		case ID_TOOLBAR_GRID_CONNECT:{iGrid = 3;break;}
+		default:{iGrid = 0;}
+		}
+		ImposeGrid(&imgValue, &imgZoomed, &imgZoomed, iGrid, int(dR0_i)-dR0_i, int(dC0_i)-dC0_i,g_dScale[m_iScaleIndex], 10, iRMax, iCMax);
+		if(m_bValue == true)
+		{
+			ImposeRGBValue(panImg, &imgZoomed, &imgZoomed, iGrid, int(dR0_i)-dR0_i, int(dC0_i)-dC0_i,g_dScale[m_iScaleIndex], 10, int(dR0_i),int(dC0_i),iRMax, iCMax);
+		}
+		if(m_bDragging == true)
+		{
+			if (m_Rect_v.IsRectNull() == FALSE)
+			{
+				CRect rect_i = v_to_i(&m_Rect_v);
+				CRect rect_v = i_to_v(&rect_i);
+				ImposeRect(&imgZoomed, &imgZoomed,&rect_v);
+			}
+		}
+		else
+		{
+			if (m_Rect_i.IsRectNull() == FALSE)
+			{
+				CRect rect_v = i_to_v(&m_Rect_i);
+				ImposeRect(&imgZoomed, &imgZoomed,&rect_v);
+			}
+		}
+		CImage imgAlphaed;
+		ImposeAlphaChannel(&imgZoomed,&imgAlphaed);
+
+		imgAlphaed.BitBlt( memDC.GetSafeHdc(), 0, 0,imgAlphaed.GetWidth(), imgAlphaed.GetHeight(), 0, 0 );
+		int ii = imgAlphaed.GetWidth();
+		pDC->BitBlt(0, 0, iWidth_v, iHeight_v, &memDC, 0, 0,SRCCOPY);
+
+		memDC.SelectObject(pOldBmp);
+	}
 void CPictureCtrlEx::OnPaint()
 {
 	CPaintDC dc(this);

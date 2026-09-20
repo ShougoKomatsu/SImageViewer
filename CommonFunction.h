@@ -1,8 +1,9 @@
 #include "stdafx.h"
 #pragma once
 #include "ImageProc.h"
+#include "resource.h"
 
-
+#define RECT_CHANGE_MARGIN_PIX (10)
 #define SCALE_VAR_NUM (25)
 extern double g_dScale[SCALE_VAR_NUM];
 
@@ -27,6 +28,73 @@ struct Line
 		Line line;
 		line.Set(line_in.dR0, line_in.dC0, line_in.dR1, line_in.dC1);
 		return line;
+	}
+};
+
+
+enum MOUSE_CURSOR
+{
+	CHANGE_NONE = 0,
+	CHANGE_ZOOMUP = 1,
+	CHANGE_L = 2,
+	CHANGE_R = 3,
+	CHANGE_U = 4,
+	CHANGE_B = 5,
+	CHANGE_LU = 6,
+	CHANGE_RU = 7,
+	CHANGE_LB = 8,
+	CHANGE_RB = 9,
+
+};
+
+class ViewDraw
+{
+public:
+int m_iGrid;
+bool m_bValue;
+bool m_bRGB_Separate;
+	double m_dDispOriginR_tv;
+	double m_dDispOriginC_tv;
+	
+	CPoint m_PointStart_v; 
+	int m_iMouseMode;
+	int m_iScaleIndex;
+	bool m_bDragging; 
+	CRect m_Rect_v;
+	CRect m_Rect_i;
+	CRect v_to_i(const CRect* rect_v);
+	CRect i_to_v(const CRect* rect_i);
+	void OnMouseMove(UINT nFlags, CPoint point_v);
+	double GetDispOriginR_tv();
+	double GetDispOriginC_tv();
+	void OnDraw(CWnd* wnd, CDC* pDC, const CImage* img, PanImage* panImg);
+	void Init()
+	{
+		m_bDragging = false;
+		m_Rect_v.SetRectEmpty();
+		m_Rect_i.SetRectEmpty();
+		m_iScaleIndex = 8;
+
+	m_iGrid = ID_TOOLBAR_GRID_NONE;
+	m_bValue = false;
+	m_bRGB_Separate = false;
+	}
+	ViewDraw()
+	{
+		Init();
+	}
+	int GetClientHeight(CWnd* wnd)
+	{
+		CRect rectClient;
+		wnd->GetClientRect(&rectClient);
+		return rectClient.Height();
+	}
+
+	int GetClientWidth(CWnd* wnd)
+	{
+		CRect rectClient;
+		wnd->GetClientRect(&rectClient);
+		return rectClient.Width();
 	}
 };
 
