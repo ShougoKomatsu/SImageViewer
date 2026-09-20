@@ -33,8 +33,6 @@ public:
 
 
 	bool m_bBeingFullScreen;
-	bool m_bCBar;
-	bool m_bRBar;
 
 	CRect v_to_i(const CRect* rect_v);
 	CRect i_to_v(const CRect* rect_i);

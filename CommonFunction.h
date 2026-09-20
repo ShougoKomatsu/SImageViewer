@@ -55,12 +55,19 @@ private:
 	double m_dDispOriginR_tv;
 	double m_dDispOriginC_tv;
 	CPoint m_PointStart_v; 
-
+	
 public:
-	void SetGridEnableDesable(CWnd* pFrame);
+	
+	bool m_bCBar;
+	bool m_bRBar;
+	void SetScroll(const CImage* img, CWnd* wnd);
+
+	void SetGridEnableDesable();
 		void SetScrollPos(int iR_tv, int iC_tv, CWnd* wnd);
-//	bool ZoomChange(int iR0_i, int iC0_i, int iR1_i, int iC1_i, CWnd* wnd);
-//	bool ZoomChange(int iChange,  const CImage* img,  CWnd* wnd);
+	bool ZoomChange(int iR0_i, int iC0_i, int iR1_i, int iC1_i, const CImage* img,  CWnd* wnd);
+	bool ZoomChange(int iChange,  const CImage* img,  CWnd* wnd);
+	bool ZoomChange(int iMousePosR_v, int iMousePosC_v, int iChange,  const CImage* img,  CWnd* wnd);
+
 //	int OnLButtonUp(UINT nFlags, CPoint point_v, CWnd* wnd);
 	afx_msg BOOL OnSetCursor(CWnd* pWnd, UINT nHitTest, UINT message);
 	int m_iGrid;
@@ -87,6 +94,8 @@ public:
 	void SetRect_v(const CRect* rect_in){ if(rect_in==NULL){m_Rect_v.SetRectEmpty();}else{m_Rect_v=(*rect_in);}}
 	void Init()
 	{
+		m_bCBar = false;
+		m_bRBar = false;
 		m_bDragging = false;
 		m_Rect_v.SetRectEmpty();
 		m_Rect_i.SetRectEmpty();
