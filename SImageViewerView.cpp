@@ -1006,13 +1006,13 @@ IMPLEMENT_DYNCREATE(CSImageViewerView, CView)
 		Invalidate();
 		return true;
 	}
-	bool CSImageViewerView::ZoomChange(int iChange)
-	{
-		if(m_iImageMax <= 0){return false;}
-		view.ZoomChange(iChange, m_image[m_iImageIndex].GetCurrentProcess(), this);		
-		return true; 
-	}
 	
+	void CSImageViewerView::SetGridEnableDesable()
+	{
+		view.SetGridEnableDesable();
+	}
+
+
 	bool CSImageViewerView::ZoomChange(int iR0_i, int iC0_i, int iR1_i, int iC1_i)
 	{
 		if(m_iImageMax <= 0){return false;}
@@ -1020,9 +1020,11 @@ IMPLEMENT_DYNCREATE(CSImageViewerView, CView)
 		return true; 
 	}
 
-	void CSImageViewerView::SetGridEnableDesable()
+	bool CSImageViewerView::ZoomChange(int iChange)
 	{
-		view.SetGridEnableDesable();
+		if(m_iImageMax <= 0){return false;}
+		view.ZoomChange(iChange, m_image[m_iImageIndex].GetCurrentProcess(), this);		
+		return true; 
 	}
 
 	bool CSImageViewerView::ZoomChange(int iMousePosR_v, int iMousePosC_v, int iChange)
@@ -1033,28 +1035,6 @@ IMPLEMENT_DYNCREATE(CSImageViewerView, CView)
 	}
 
 
-	void CSImageViewerView::SetScrollPos(int iR_tv, int iC_tv)
-	{		
-		SCROLLINFO si;
-
-		GetScrollInfo(SB_VERT, &si);
-		if(si.nPage>0)
-		{
-			int iNewPos_scl = (int)(iR_tv*(si.nMax-si.nPage+1.0)/(si.nMax *1.0));
-			view.SetDispOriginR_tv(iR_tv);
-			si.nPos = (int)(max(si.nMin,min(si.nMax-si.nPage+1.0,iNewPos_scl) ));;
-			SetScrollInfo(SB_VERT, &si, TRUE);
-		}
-
-		GetScrollInfo(SB_HORZ, &si);
-		if(si.nPage>0)
-		{
-			int iNewPos_scl = (int)(iC_tv*(si.nMax-si.nPage+1.0)/(si.nMax *1.0));
-			view.SetDispOriginC_tv(iC_tv);
-			si.nPos = (int)(max(si.nMin,min(si.nMax-si.nPage+1.0, iNewPos_scl) )); 
-			SetScrollInfo(SB_HORZ, &si, TRUE);
-		}
-	}
 
 	void CSImageViewerView::EnterFullScreen()
 	{
@@ -1270,55 +1250,7 @@ IMPLEMENT_DYNCREATE(CSImageViewerView, CView)
 
 	void CSImageViewerView::OnLButtonUp(UINT nFlags, CPoint point_v)
 	{
-		if (view.m_bDragging == TRUE) 
-		{
-			ReleaseCapture(); 
-			view.m_bDragging = false; 
-			
-				CRect rect_i=view.GetRect_i();
-			if(view.GetPointStart_v() == point_v)
-			{
-				if(view.m_iMouseMode == CHANGE_B){CView::OnLButtonUp(nFlags, point_v); return;}
-				if(view.m_iMouseMode == CHANGE_L){CView::OnLButtonUp(nFlags, point_v); return;}
-				if(view.m_iMouseMode == CHANGE_R){CView::OnLButtonUp(nFlags, point_v); return;}
-				if(view.m_iMouseMode == CHANGE_U){CView::OnLButtonUp(nFlags, point_v); return;}
-				if(view.m_iMouseMode == CHANGE_LB){CView::OnLButtonUp(nFlags, point_v); return;}
-				if(view.m_iMouseMode == CHANGE_LU){CView::OnLButtonUp(nFlags, point_v); return;}
-				if(view.m_iMouseMode == CHANGE_RB){CView::OnLButtonUp(nFlags, point_v); return;}
-				if(view.m_iMouseMode == CHANGE_RU){CView::OnLButtonUp(nFlags, point_v); return;}
-
-				CRect rect_v;
-				rect_v = i_to_v(&rect_i);
-				if((point_v.y >= rect_v.top)&&(point_v.y <= rect_v.bottom)&&(point_v.x >= rect_v.left)&&(point_v.x <= rect_v.right) && (view.m_iMouseMode == CHANGE_ZOOMUP))
-				{
-					ZoomChange(rect_i.top, rect_i.left, rect_i.bottom,rect_i.right);
-					view.SetRect_v(NULL);
-					view.SetRect_i(NULL);
-					view.m_iMouseMode = CHANGE_NONE;
-					CMainFrame* pFrame = (CMainFrame*)AfxGetMainWnd();
-					pFrame->m_bRegionSelected = false;
-					Invalidate();
-					CView::OnLButtonUp(nFlags, point_v);
-					return;
-				}
-				view.SetRect_v(NULL);
-				view.SetRect_i(NULL);
-				CMainFrame* pFrame = (CMainFrame*)AfxGetMainWnd();
-				pFrame->m_bRegionSelected = false;
-				Invalidate();
-				CView::OnLButtonUp(nFlags, point_v);
-				return;
-			}
-			rect_i = v_to_i(&(view.GetRect_v()));
-			rect_i.left = max(0,rect_i.left);
-			rect_i.top = max(0,rect_i.top);
-			view.SetRect_i(&rect_i);
-			view.SetRect_v(NULL);
-			CMainFrame* pFrame = (CMainFrame*)AfxGetMainWnd();
-			pFrame->m_bRegionSelected = true;
-			Invalidate();
-		}
-
+		 view.OnLButtonUp(nFlags, point_v,  m_image[m_iImageIndex].GetCurrentProcess(), this);
 		CView::OnLButtonUp(nFlags, point_v);
 	}
 
@@ -1525,72 +1457,7 @@ IMPLEMENT_DYNCREATE(CSImageViewerView, CView)
 	void CSImageViewerView::OnScroll(int iSB, int nSBCode, int nPos)
 	{
 		if(m_iImageMax <= 0){return;}
-		if((iSB == SB_VERT) && (view.m_bRBar == false)){return ;}
-		if((iSB == SB_HORZ) && (view.m_bCBar == false)){return ;}
-
-		int iHeight_v = GetClientHeight();
-		int iWidth_v = GetClientWidth();
-
-		int iBarWidth = ::GetSystemMetrics(SM_CYHSCROLL);
-		int iBarHeight = ::GetSystemMetrics(SM_CXVSCROLL);
-
-		int iWidth_i = max(0,m_image[m_iImageIndex].GetCurrentProcess()->GetWidth());
-		int iHeight_i = max(0,m_image[m_iImageIndex].GetCurrentProcess()->GetHeight());
-
-		int iWidth_tv = (int)(iWidth_i*g_dScale[view.m_iScaleIndex]);
-		int iHeight_tv = (int)(iHeight_i*g_dScale[view.m_iScaleIndex]);
-
-
-
-		int iHeightIfNoBar_v = iHeight_v+(view.m_bCBar ? iBarHeight : 0);
-		int iWidthIfNoBar_v = iWidth_v+(view.m_bRBar ? iBarWidth : 0);
-
-
-		SCROLLINFO si;
-		GetScrollInfo(iSB,&si);
-		if(si.nPage == 0){return ;}
-
-		int iPageSize = si.nPage;
-		int iMin = si.nMin;
-		int iMax = si.nMax;
-		int iTrackPos = si.nTrackPos ;
-		int iOldPos_scl;
-		if(iSB == SB_VERT)
-		{
-			iOldPos_scl = (int)(GetDispOriginR_tv()*(iMax-iPageSize+1.0)/(iMax*1.0));
-		}
-		else
-		{
-			iOldPos_scl = (int)(GetDispOriginC_tv()*(iMax-iPageSize+1.0)/(iMax*1.0));
-		}
-
-
-		int iStep;
-		if(g_dScale[view.m_iScaleIndex] == 64)	{iStep = 64;}
-		else{iStep = max(int(g_dScale[view.m_iScaleIndex]),(int)(iPageSize/8.0));}
-
-		int iNewPos_scl;
-		switch (nSBCode)
-		{
-		case SB_LINEUP:		{iNewPos_scl = max(iMin, iOldPos_scl-iStep); break;}
-		case SB_LINEDOWN:	{iNewPos_scl = min(iMax-iPageSize+1, iOldPos_scl+iStep); break;}
-		case SB_PAGEUP:		{iNewPos_scl = max(iMin, iOldPos_scl-iPageSize); break;}
-		case SB_PAGEDOWN:	{iNewPos_scl = min(iMax-iPageSize+1, iOldPos_scl+iPageSize); break;}
-		case SB_THUMBTRACK:	{iNewPos_scl = max(iMin,min(iMax-iPageSize+1 , iTrackPos)); break;}
-		default:{return;}
-		}
-
-		if(iSB == SB_VERT)
-		{
-			view.SetDispOriginR_tv(max(0, iMax*(iNewPos_scl*1.0)/(iMax-iPageSize+1.0)));
-		}
-		else
-		{
-			view.SetDispOriginC_tv(max(0, iMax*(iNewPos_scl*1.0)/(iMax-iPageSize+1.0)));
-		}
-		si.nPos = (iNewPos_scl); 
-		SetScrollInfo(iSB, &si, TRUE);
-		Invalidate();
+		view.OnScroll(iSB, nSBCode, nPos, m_image[m_iImageIndex].GetCurrentProcess(), this);
 	}
 
 

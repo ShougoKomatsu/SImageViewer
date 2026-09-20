@@ -67,6 +67,9 @@ public:
 	bool ZoomChange(int iR0_i, int iC0_i, int iR1_i, int iC1_i, const CImage* img,  CWnd* wnd);
 	bool ZoomChange(int iChange,  const CImage* img,  CWnd* wnd);
 	bool ZoomChange(int iMousePosR_v, int iMousePosC_v, int iChange,  const CImage* img,  CWnd* wnd);
+	
+	void OnLButtonUp(UINT nFlags, CPoint point_v,  const CImage* img,  CWnd* wnd);
+	void OnScroll(int iSB, int nSBCode, int nPos,  const CImage* img,  CWnd* wnd);
 
 //	int OnLButtonUp(UINT nFlags, CPoint point_v, CWnd* wnd);
 	afx_msg BOOL OnSetCursor(CWnd* pWnd, UINT nHitTest, UINT message);
