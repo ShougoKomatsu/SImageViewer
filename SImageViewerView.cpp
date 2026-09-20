@@ -737,8 +737,8 @@ IMPLEMENT_DYNCREATE(CSImageViewerView, CView)
 
 		if(bAutoFull == true)
 		{
-			view.m_Rect_v.SetRectEmpty();
-			rect_i.SetRectEmpty();
+			view.SetRect_v(NULL);
+			view.SetRect_i(NULL);
 			CMainFrame* pFrame = (CMainFrame*)AfxGetMainWnd();
 			pFrame->m_bRegionSelected = false;
 		}
@@ -763,8 +763,8 @@ IMPLEMENT_DYNCREATE(CSImageViewerView, CView)
 		EquHistImage(&imgRGB,&imgMeaned,rect_i.top,rect_i.left,rect_i.bottom,rect_i.right);
 		if(bAutoFull == true)
 		{
-			view.m_Rect_v.SetRectEmpty();
-			rect_i.SetRectEmpty();
+			view.SetRect_v(NULL);
+			view.SetRect_i(NULL);
 			CMainFrame* pFrame = (CMainFrame*)AfxGetMainWnd();
 			pFrame->m_bRegionSelected = false;
 		}
@@ -799,8 +799,8 @@ IMPLEMENT_DYNCREATE(CSImageViewerView, CView)
 		{
 			if(bAutoFull == true)
 			{
-				view.m_Rect_v.SetRectEmpty();
-				rect_i.SetRectEmpty();
+				view.SetRect_v(NULL);
+				view.SetRect_i(NULL);
 				CMainFrame* pFrame = (CMainFrame*)AfxGetMainWnd();
 				pFrame->m_bRegionSelected = false;
 			}
@@ -819,8 +819,8 @@ IMPLEMENT_DYNCREATE(CSImageViewerView, CView)
 		}
 		if(bAutoFull == true)
 		{
-			view.m_Rect_v.SetRectEmpty();
-			rect_i.SetRectEmpty();
+			view.SetRect_v(NULL);
+			view.SetRect_i(NULL);
 			CMainFrame* pFrame = (CMainFrame*)AfxGetMainWnd();
 			pFrame->m_bRegionSelected = false;
 		}
@@ -908,8 +908,8 @@ IMPLEMENT_DYNCREATE(CSImageViewerView, CView)
 		{
 			if(bAutoFull == true)
 			{
-				view.m_Rect_v.SetRectEmpty();
-				rect_i.SetRectEmpty();
+				view.SetRect_v(NULL);
+				view.SetRect_i(NULL);
 				CMainFrame* pFrame = (CMainFrame*)AfxGetMainWnd();
 				pFrame->m_bRegionSelected = false;
 			}
@@ -922,8 +922,8 @@ IMPLEMENT_DYNCREATE(CSImageViewerView, CView)
 		ConvertImage(&imgRGB, m_image[m_iImageIndex].ProgressImageProcess());
 		if(bAutoFull == true)
 		{
-			view.m_Rect_v.SetRectEmpty();
-			rect_i.SetRectEmpty();
+			view.SetRect_v(NULL);
+			view.SetRect_i(NULL);
 			CMainFrame* pFrame = (CMainFrame*)AfxGetMainWnd();
 			pFrame->m_bRegionSelected = false;
 		}
@@ -949,8 +949,8 @@ IMPLEMENT_DYNCREATE(CSImageViewerView, CView)
 		{
 			if(bAutoFull == true)
 			{
-				view.m_Rect_v.SetRectEmpty();
-				rect_i.SetRectEmpty();
+				view.SetRect_v(NULL);
+				view.SetRect_i(NULL);
 				CMainFrame* pFrame = (CMainFrame*)AfxGetMainWnd();
 				pFrame->m_bRegionSelected = false;
 			}
@@ -969,8 +969,8 @@ IMPLEMENT_DYNCREATE(CSImageViewerView, CView)
 		Gamma(&imgResult1,&imgResult2,rect_i.top, rect_i.left, rect_i.bottom, rect_i.right,dGamma);
 		if(bAutoFull == true)
 		{
-			view.m_Rect_v.SetRectEmpty();
-			rect_i.SetRectEmpty();
+			view.SetRect_v(NULL);
+			view.SetRect_i(NULL);
 			CMainFrame* pFrame = (CMainFrame*)AfxGetMainWnd();
 			pFrame->m_bRegionSelected = false;
 		}
@@ -1468,13 +1468,13 @@ IMPLEMENT_DYNCREATE(CSImageViewerView, CView)
 		CRect rect_i=view.GetRect_i();
 		if(view.m_bDragging == true)
 		{
-			if(view.m_Rect_v.IsRectNull() == TRUE)
+			if(view.GetRect_v().IsRectNull() == TRUE)
 			{
 				pFrame->m_sStatusSelection.Format(_T("not selected"));
 			}
 			else
 			{
-				CRect rectTemp = v_to_i(&view.m_Rect_v);
+				CRect rectTemp = v_to_i(&(view.GetRect_v()));
 				pFrame->m_sStatusSelection.Format(_T("(%d, %d) - (%d, %d) : %d x %d "), rectTemp.left,rectTemp.top,rectTemp.right,rectTemp.bottom,rectTemp.right-rectTemp.left+1,rectTemp.bottom-rectTemp.top+1);	
 			}
 		}
@@ -1544,8 +1544,8 @@ IMPLEMENT_DYNCREATE(CSImageViewerView, CView)
 				if((point_v.y >= rect_v.top)&&(point_v.y <= rect_v.bottom)&&(point_v.x >= rect_v.left)&&(point_v.x <= rect_v.right) && (view.m_iMouseMode == CHANGE_ZOOMUP))
 				{
 					ZoomChange(rect_i.top, rect_i.left, rect_i.bottom,rect_i.right);
-					view.m_Rect_v.SetRectEmpty();
-			view.SetRect_i(NULL);
+					view.SetRect_v(NULL);
+					view.SetRect_i(NULL);
 					view.m_iMouseMode = CHANGE_NONE;
 					CMainFrame* pFrame = (CMainFrame*)AfxGetMainWnd();
 					pFrame->m_bRegionSelected = false;
@@ -1553,19 +1553,19 @@ IMPLEMENT_DYNCREATE(CSImageViewerView, CView)
 					CView::OnLButtonUp(nFlags, point_v);
 					return;
 				}
-				view.m_Rect_v.SetRectEmpty();
-			view.SetRect_i(NULL);
+				view.SetRect_v(NULL);
+				view.SetRect_i(NULL);
 				CMainFrame* pFrame = (CMainFrame*)AfxGetMainWnd();
 				pFrame->m_bRegionSelected = false;
 				Invalidate();
 				CView::OnLButtonUp(nFlags, point_v);
 				return;
 			}
-			rect_i = v_to_i(&view.m_Rect_v);
+			rect_i = v_to_i(&(view.GetRect_v()));
 			rect_i.left = max(0,rect_i.left);
 			rect_i.top = max(0,rect_i.top);
 			view.SetRect_i(&rect_i);
-			view.m_Rect_v.SetRectEmpty();
+			view.SetRect_v(NULL);
 			CMainFrame* pFrame = (CMainFrame*)AfxGetMainWnd();
 			pFrame->m_bRegionSelected = true;
 			Invalidate();

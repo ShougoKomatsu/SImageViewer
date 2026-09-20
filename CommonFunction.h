@@ -51,6 +51,7 @@ class ViewDraw
 {
 private:
 	CRect m_Rect_i;
+	CRect m_Rect_v;
 public:
 	int m_iGrid;
 	bool m_bValue;
@@ -62,7 +63,6 @@ public:
 	int m_iMouseMode;
 	int m_iScaleIndex;
 	bool m_bDragging; 
-	CRect m_Rect_v;
 	CRect v_to_i(const CRect* rect_v);
 	CRect i_to_v(const CRect* rect_i);
 	void OnMouseMove(UINT nFlags, CPoint point_v);
@@ -70,7 +70,9 @@ public:
 	double GetDispOriginC_tv();
 	void OnDraw(CWnd* wnd, CDC* pDC, const CImage* img, PanImage* panImg);
 	const CRect GetRect_i(){return m_Rect_i;}
+	const CRect GetRect_v(){return m_Rect_v;}
 	void SetRect_i(const CRect* rect_in){ if(rect_in==NULL){m_Rect_i.SetRectEmpty();}else{m_Rect_i=(*rect_in);}}
+	void SetRect_v(const CRect* rect_in){ if(rect_in==NULL){m_Rect_v.SetRectEmpty();}else{m_Rect_v=(*rect_in);}}
 	void Init()
 	{
 		m_bDragging = false;
@@ -104,6 +106,7 @@ public:
 class CPictureCtrlEx : public CStatic
 {
 public:
+	ViewDraw view;
 	CImage m_image;
 
 	Line m_HBar1_v;
@@ -116,18 +119,14 @@ public:
 	Line m_VBar1_i;
 	Line m_VBar2_i;
 
-	int m_iScaleIndex;
-	int m_iMouseMode;
-	double m_dDispOriginR_tv;
-	double m_dDispOriginC_tv;
 
 	double GetDispOriginR_tv()
 	{
-		return m_dDispOriginR_tv;
+		return view.GetDispOriginR_tv();
 	}
 	double GetDispOriginC_tv()
 	{
-		return m_dDispOriginC_tv;
+		return view.GetDispOriginC_tv();
 	}
 
 
@@ -144,10 +143,10 @@ public:
 		int iROrigin_tv = (int)(GetDispOriginR_tv());
 
 		line.Set(
-			((line_v->dR0+ iROrigin_tv) / g_dScale[m_iScaleIndex]) +0.5
-			,((line_v->dC0+ iCOrigin_tv) / g_dScale[m_iScaleIndex]) +0.5
-			,((line_v->dR0+ iROrigin_tv) / g_dScale[m_iScaleIndex]) -0.5
-			,((line_v->dC1+ iCOrigin_tv) / g_dScale[m_iScaleIndex]) -0.5);
+			((line_v->dR0+ iROrigin_tv) / g_dScale[view.m_iScaleIndex]) +0.5
+			,((line_v->dC0+ iCOrigin_tv) / g_dScale[view.m_iScaleIndex]) +0.5
+			,((line_v->dR0+ iROrigin_tv) / g_dScale[view.m_iScaleIndex]) -0.5
+			,((line_v->dC1+ iCOrigin_tv) / g_dScale[view.m_iScaleIndex]) -0.5);
 
 		double dTemp;
 		dTemp=line.dR0;
@@ -173,10 +172,10 @@ public:
 		int iROrigin_tv = (int)GetDispOriginR_tv();
 
 		line.Set(
-			((line_i->dR0) * g_dScale[m_iScaleIndex])-iROrigin_tv
-			,((line_i->dC0) * g_dScale[m_iScaleIndex])-iCOrigin_tv
-			,((line_i->dR1+1) * g_dScale[m_iScaleIndex])-iROrigin_tv
-			,((line_i->dC1+1 ) * g_dScale[m_iScaleIndex])-iCOrigin_tv);
+			((line_i->dR0) * g_dScale[view.m_iScaleIndex])-iROrigin_tv
+			,((line_i->dC0) * g_dScale[view.m_iScaleIndex])-iCOrigin_tv
+			,((line_i->dR1+1) * g_dScale[view.m_iScaleIndex])-iROrigin_tv
+			,((line_i->dC1+1 ) * g_dScale[view.m_iScaleIndex])-iCOrigin_tv);
 
 		return line;
 	}
@@ -184,8 +183,6 @@ public:
 
 	CPictureCtrlEx()
 	{
-		m_dDispOriginR_tv=0;
-		m_dDispOriginC_tv=0;
 	}
 
 protected:
