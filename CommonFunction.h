@@ -2,7 +2,6 @@
 #pragma once
 #include "ImageProc.h"
 #include "resource.h"
-
 #define RECT_CHANGE_MARGIN_PIX (10)
 #define SCALE_VAR_NUM (25)
 extern double g_dScale[SCALE_VAR_NUM];
@@ -58,6 +57,7 @@ private:
 	CPoint m_PointStart_v; 
 
 public:
+	void SetGridEnableDesable(CWnd* pFrame);
 		void SetScrollPos(int iR_tv, int iC_tv, CWnd* wnd);
 //	bool ZoomChange(int iR0_i, int iC0_i, int iR1_i, int iC1_i, CWnd* wnd);
 //	bool ZoomChange(int iChange,  const CImage* img,  CWnd* wnd);

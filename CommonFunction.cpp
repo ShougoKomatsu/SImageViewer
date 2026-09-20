@@ -1,6 +1,8 @@
 #include "stdafx.h"
 #include "CommonFunction.h"
 
+#include "MainFrm.h"
+
 double g_dScale[SCALE_VAR_NUM] = 
 {
 	0.125000,
@@ -184,6 +186,13 @@ END_MESSAGE_MAP()
 		return true; 
 	}
 	*/
+	void ViewDraw::SetGridEnableDesable(CWnd* pFrame_in)
+	{
+		CMainFrame* pFrame = (CMainFrame*)pFrame_in;
+		if(g_dScale[m_iScaleIndex]>10){	pFrame->m_bGridAble = true;}
+		else{pFrame->m_bGridAble = false;}
+	}
+
 void ViewDraw::SetScrollPos(int iR_tv, int iC_tv, CWnd* wnd)
 	{		
 		if(wnd==NULL){return;}

@@ -1174,9 +1174,7 @@ IMPLEMENT_DYNCREATE(CSImageViewerView, CView)
 	}
 	void CSImageViewerView::SetGridEnableDesable()
 	{
-		CMainFrame* pFrame = (CMainFrame*)AfxGetMainWnd();
-		if(g_dScale[view.m_iScaleIndex]>10){	pFrame->m_bGridAble = true;}
-		else{pFrame->m_bGridAble = false;}
+		view.SetGridEnableDesable(AfxGetMainWnd());
 	}
 
 	bool CSImageViewerView::ZoomChange(int iMousePosR_v, int iMousePosC_v, int iChange)
