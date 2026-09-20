@@ -1240,10 +1240,7 @@ IMPLEMENT_DYNCREATE(CSImageViewerView, CView)
 
 	void CSImageViewerView::OnLButtonDown(UINT nFlags, CPoint point_v)
 	{
-		SetCapture(); 
-		view.m_bDragging = true;
-		view.SetPointStart_v(point_v); 
-
+		view.OnLButtonDown(nFlags, point_v,  m_image[m_iImageIndex].GetCurrentProcess(), this);
 		CView::OnLButtonDown(nFlags, point_v);
 	}
 

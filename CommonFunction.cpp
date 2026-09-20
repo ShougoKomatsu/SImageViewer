@@ -387,6 +387,12 @@ void ViewDraw::SetScrollPos(int iR_tv, int iC_tv, CWnd* wnd)
 	}
 }
 
+	void ViewDraw::OnLButtonDown(UINT nFlags, CPoint point_v,  const CImage* img,  CWnd* wnd)
+	{
+		wnd->SetCapture(); 
+		m_bDragging = true;
+		SetPointStart_v(point_v); 
+	}
 	void ViewDraw::OnLButtonUp(UINT nFlags, CPoint point_v,  const CImage* img,  CWnd* wnd)
 	{
 		if (m_bDragging == TRUE) 

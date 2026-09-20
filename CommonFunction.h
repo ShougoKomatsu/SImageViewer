@@ -68,6 +68,7 @@ public:
 	bool ZoomChange(int iChange,  const CImage* img,  CWnd* wnd);
 	bool ZoomChange(int iMousePosR_v, int iMousePosC_v, int iChange,  const CImage* img,  CWnd* wnd);
 	
+	void OnLButtonDown(UINT nFlags, CPoint point_v,  const CImage* img,  CWnd* wnd);
 	void OnLButtonUp(UINT nFlags, CPoint point_v,  const CImage* img,  CWnd* wnd);
 	void OnScroll(int iSB, int nSBCode, int nPos,  const CImage* img,  CWnd* wnd);
 
