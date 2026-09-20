@@ -248,52 +248,7 @@ IMPLEMENT_DYNCREATE(CSImageViewerView, CView)
 
 		if(bZoomReset == true)
 		{
-			view.m_iScaleIndex = 8;
-			CRect rectClient;
-			GetClientRect(&rectClient);
-
-			int iHeight_v = GetClientHeight();
-			int iWidth_v = GetClientWidth();
-
-			int iBarWidth = ::GetSystemMetrics(SM_CYHSCROLL);
-			int iBarHeight = ::GetSystemMetrics(SM_CXVSCROLL);
-
-			int iWidth_i = max(0,m_image[m_iImageIndex].GetCurrentProcess()->GetWidth());
-			int iHeight_i = max(0,m_image[m_iImageIndex].GetCurrentProcess()->GetHeight());
-
-			int iWidth_tv = (int)(iWidth_i*g_dScale[view.m_iScaleIndex]);
-			int iHeight_tv = (int)(iHeight_i*g_dScale[view.m_iScaleIndex]);
-
-			SCROLLINFO si = { 0 };
-
-			GetScrollInfo(SB_VERT, &si);
-			if(si.nPage == 0){view.m_bRBar = false;}
-
-			GetScrollInfo(SB_HORZ, &si);
-			if(si.nPage == 0){view.m_bCBar = false;}
-
-			int iHeightIfNoBar_v = iHeight_v+(view.m_bCBar ? iBarHeight : 0);
-			int iWidthIfNoBar_v = iWidth_v+(view.m_bRBar ? iBarWidth : 0);
-
-			pFrame->AdjustViewClientSize(m_image[m_iImageIndex].GetWidth(), m_image[m_iImageIndex].GetHeight(),iWidthIfNoBar_v, iHeightIfNoBar_v);
-			SetScroll();
-
-			view.SetDispOriginC_tv(0);
-			view.SetDispOriginR_tv(0);
-
-			GetScrollInfo(SB_HORZ, &si);
-			if(si.nPage>0)
-			{
-				si.nPos = 0; 
-				SetScrollInfo(SB_HORZ, &si, TRUE);
-			}
-
-			GetScrollInfo(SB_VERT, &si);
-			if(si.nPage>0)
-			{
-				si.nPos = 0; 
-				SetScrollInfo(SB_VERT, &si, TRUE);
-			}
+			view.ZoomReset( m_image[m_iImageIndex].GetCurrentProcess(), this);
 		}
 		view.m_iMouseMode = 0;
 		view.SetRect_i(NULL);;
@@ -370,7 +325,7 @@ IMPLEMENT_DYNCREATE(CSImageViewerView, CView)
 			m_image[i].Init();
 		}
 		SAFE_DELETE(m_image);
-
+		m_sFilePath.Format(_T("%s"), sFilePath);
 		CStringArray saFilePath;
 		bool bRet = RecursivelyGetImageFilePaths(sFilePath, &saFilePath, &m_fileFomatList);
 		if(bRet != true){return false;}
@@ -1232,22 +1187,21 @@ IMPLEMENT_DYNCREATE(CSImageViewerView, CView)
 
 		DispStatus(point_v);
 
-		view.OnMouseMove(nFlags, point_v);
-			Invalidate();
+		view.OnMouseMove(nFlags, point_v, m_image[m_iImageIndex].GetCurrentProcess(), this);
 		CView::OnMouseMove(nFlags, point_v);
 	}
 
 
 	void CSImageViewerView::OnLButtonDown(UINT nFlags, CPoint point_v)
 	{
-		view.OnLButtonDown(nFlags, point_v,  m_image[m_iImageIndex].GetCurrentProcess(), this);
+		view.OnLButtonDown(nFlags, point_v, m_image[m_iImageIndex].GetCurrentProcess(), this);
 		CView::OnLButtonDown(nFlags, point_v);
 	}
 
 
 	void CSImageViewerView::OnLButtonUp(UINT nFlags, CPoint point_v)
 	{
-		 view.OnLButtonUp(nFlags, point_v,  m_image[m_iImageIndex].GetCurrentProcess(), this);
+		 view.OnLButtonUp(nFlags, point_v, m_image[m_iImageIndex].GetCurrentProcess(), this);
 		CView::OnLButtonUp(nFlags, point_v);
 	}
 

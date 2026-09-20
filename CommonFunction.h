@@ -86,7 +86,8 @@ public:
 	bool m_bDragging; 
 	CRect v_to_i(const CRect* rect_v);
 	CRect i_to_v(const CRect* rect_i);
-	void OnMouseMove(UINT nFlags, CPoint point_v);
+void ZoomReset( const CImage* img,  CWnd* wnd);
+	void OnMouseMove(UINT nFlags, CPoint point_v, const CImage* img,  CWnd* wnd);
 	double GetDispOriginR_tv();
 	double GetDispOriginC_tv();
 	void SetDispOriginR_tv(const double dIn){m_dDispOriginR_tv = dIn;}

@@ -685,7 +685,7 @@ CRect ViewDraw::i_to_v(const CRect* rect_i)
 		return true; 
 	}
 
-void ViewDraw::OnMouseMove(UINT nFlags, CPoint point_v)
+void ViewDraw::OnMouseMove(UINT nFlags, CPoint point_v, const CImage* img,  CWnd* wnd)
 {
 
 
@@ -707,6 +707,7 @@ void ViewDraw::OnMouseMove(UINT nFlags, CPoint point_v)
 			}
 		}
 		m_Rect_v.NormalizeRect();
+		wnd->Invalidate();
 		return;
 	} 
 
@@ -722,14 +723,14 @@ void ViewDraw::OnMouseMove(UINT nFlags, CPoint point_v)
 
 	switch(iBoarder)
 	{
-	case 1:{if(isInTheRange(point_v.x,rectTemp_v.left,rectTemp_v.right) == true){m_iMouseMode = CHANGE_U;} return;}
-	case 2:{if(isInTheRange(point_v.y,rectTemp_v.top,rectTemp_v.bottom) == true){m_iMouseMode = CHANGE_L;} return;}
-	case 4:{if(isInTheRange(point_v.y,rectTemp_v.top,rectTemp_v.bottom) == true){m_iMouseMode = CHANGE_R;} return;}
-	case 8:{if(isInTheRange(point_v.x,rectTemp_v.left,rectTemp_v.right) == true){m_iMouseMode = CHANGE_B;} return;}
-	case 3:{m_iMouseMode = CHANGE_LU; return;}
-	case 5:{m_iMouseMode = CHANGE_RU; return;}
-	case 10:{m_iMouseMode = CHANGE_LB; return;}
-	case 12:{m_iMouseMode = CHANGE_RB; return;}
+	case 1:{if(isInTheRange(point_v.x,rectTemp_v.left,rectTemp_v.right) == true){m_iMouseMode = CHANGE_U;} wnd->Invalidate(); return;}
+	case 2:{if(isInTheRange(point_v.y,rectTemp_v.top,rectTemp_v.bottom) == true){m_iMouseMode = CHANGE_L;} wnd->Invalidate(); return;}
+	case 4:{if(isInTheRange(point_v.y,rectTemp_v.top,rectTemp_v.bottom) == true){m_iMouseMode = CHANGE_R;} wnd->Invalidate(); return;}
+	case 8:{if(isInTheRange(point_v.x,rectTemp_v.left,rectTemp_v.right) == true){m_iMouseMode = CHANGE_B;} wnd->Invalidate(); return;}
+	case 3:{m_iMouseMode = CHANGE_LU; wnd->Invalidate(); return;}
+	case 5:{m_iMouseMode = CHANGE_RU; wnd->Invalidate(); return;}
+	case 10:{m_iMouseMode = CHANGE_LB; wnd->Invalidate(); return;}
+	case 12:{m_iMouseMode = CHANGE_RB; wnd->Invalidate(); return;}
 	default:{break;}
 	}
 	if((point_v.y >= rectTemp_v.top)&&(point_v.y <= rectTemp_v.bottom)&&(point_v.x >= rectTemp_v.left)&&(point_v.x <= rectTemp_v.right))
@@ -740,7 +741,58 @@ void ViewDraw::OnMouseMove(UINT nFlags, CPoint point_v)
 	{
 		m_iMouseMode = CHANGE_NONE;
 	}
+	wnd->Invalidate(); 
+}
 
+void ViewDraw::ZoomReset( const CImage* img,  CWnd* wnd)
+{
+			m_iScaleIndex = 8;
+			CRect rectClient;
+			wnd->GetClientRect(&rectClient);
+
+			int iHeight_v = GetClientHeight(wnd);
+			int iWidth_v = GetClientWidth(wnd);
+
+			int iBarWidth = ::GetSystemMetrics(SM_CYHSCROLL);
+			int iBarHeight = ::GetSystemMetrics(SM_CXVSCROLL);
+
+			int iWidth_i = max(0,img->GetWidth());
+			int iHeight_i = max(0,img->GetHeight());
+
+			int iWidth_tv = (int)(iWidth_i*g_dScale[m_iScaleIndex]);
+			int iHeight_tv = (int)(iHeight_i*g_dScale[m_iScaleIndex]);
+
+			SCROLLINFO si = { 0 };
+
+			wnd->GetScrollInfo(SB_VERT, &si);
+			if(si.nPage == 0){m_bRBar = false;}
+
+			wnd->GetScrollInfo(SB_HORZ, &si);
+			if(si.nPage == 0){m_bCBar = false;}
+
+			int iHeightIfNoBar_v = iHeight_v+(m_bCBar ? iBarHeight : 0);
+			int iWidthIfNoBar_v = iWidth_v+(m_bRBar ? iBarWidth : 0);
+			
+			CMainFrame* pFrame = (CMainFrame*)AfxGetMainWnd();
+			pFrame->AdjustViewClientSize(img->GetWidth(), img->GetHeight(),iWidthIfNoBar_v, iHeightIfNoBar_v);
+			SetScroll(img, wnd);
+
+			SetDispOriginC_tv(0);
+			SetDispOriginR_tv(0);
+
+			wnd->GetScrollInfo(SB_HORZ, &si);
+			if(si.nPage>0)
+			{
+				si.nPos = 0; 
+				wnd->SetScrollInfo(SB_HORZ, &si, TRUE);
+			}
+
+			wnd->GetScrollInfo(SB_VERT, &si);
+			if(si.nPage>0)
+			{
+				si.nPos = 0; 
+				wnd->SetScrollInfo(SB_VERT, &si, TRUE);
+			}
 }
 
 void ViewDraw::OnDraw(CWnd* wnd, CDC* pDC, const CImage* img, PanImage* panImg)
