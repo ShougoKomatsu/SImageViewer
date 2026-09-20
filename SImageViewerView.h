@@ -22,7 +22,7 @@ public:
 		CString m_sIniFilePath;
 
 	FileFormatList m_fileFomatList;
-	void FullDomain();
+	void FullDomain(CRect* rect_i);
 	CString m_sFilePath;
 
 	CImage m_imageZoomed;

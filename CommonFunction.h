@@ -49,25 +49,28 @@ enum MOUSE_CURSOR
 
 class ViewDraw
 {
+private:
+	CRect m_Rect_i;
 public:
-int m_iGrid;
-bool m_bValue;
-bool m_bRGB_Separate;
+	int m_iGrid;
+	bool m_bValue;
+	bool m_bRGB_Separate;
 	double m_dDispOriginR_tv;
 	double m_dDispOriginC_tv;
-	
+
 	CPoint m_PointStart_v; 
 	int m_iMouseMode;
 	int m_iScaleIndex;
 	bool m_bDragging; 
 	CRect m_Rect_v;
-	CRect m_Rect_i;
 	CRect v_to_i(const CRect* rect_v);
 	CRect i_to_v(const CRect* rect_i);
 	void OnMouseMove(UINT nFlags, CPoint point_v);
 	double GetDispOriginR_tv();
 	double GetDispOriginC_tv();
 	void OnDraw(CWnd* wnd, CDC* pDC, const CImage* img, PanImage* panImg);
+	const CRect GetRect_i(){return m_Rect_i;}
+	void SetRect_i(const CRect* rect_in){ if(rect_in==NULL){m_Rect_i.SetRectEmpty();}else{m_Rect_i=(*rect_in);}}
 	void Init()
 	{
 		m_bDragging = false;
@@ -75,9 +78,9 @@ bool m_bRGB_Separate;
 		m_Rect_i.SetRectEmpty();
 		m_iScaleIndex = 8;
 
-	m_iGrid = ID_TOOLBAR_GRID_NONE;
-	m_bValue = false;
-	m_bRGB_Separate = false;
+		m_iGrid = ID_TOOLBAR_GRID_NONE;
+		m_bValue = false;
+		m_bRGB_Separate = false;
 	}
 	ViewDraw()
 	{
@@ -101,13 +104,13 @@ bool m_bRGB_Separate;
 class CPictureCtrlEx : public CStatic
 {
 public:
-    CImage m_image;
+	CImage m_image;
 
 	Line m_HBar1_v;
 	Line m_HBar2_v;
 	Line m_VBar1_v;
 	Line m_VBar2_v;
-	
+
 	Line m_HBar1_i;
 	Line m_HBar2_i;
 	Line m_VBar1_i;
@@ -168,7 +171,7 @@ public:
 
 		int iCOrigin_tv = (int)GetDispOriginC_tv();
 		int iROrigin_tv = (int)GetDispOriginR_tv();
-		
+
 		line.Set(
 			((line_i->dR0) * g_dScale[m_iScaleIndex])-iROrigin_tv
 			,((line_i->dC0) * g_dScale[m_iScaleIndex])-iCOrigin_tv
