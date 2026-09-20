@@ -52,14 +52,24 @@ class ViewDraw
 private:
 	CRect m_Rect_i;
 	CRect m_Rect_v;
+	
+	double m_dDispOriginR_tv;
+	double m_dDispOriginC_tv;
+	CPoint m_PointStart_v; 
+
 public:
+		void SetScrollPos(int iR_tv, int iC_tv, CWnd* wnd);
+//	bool ZoomChange(int iR0_i, int iC0_i, int iR1_i, int iC1_i, CWnd* wnd);
+//	bool ZoomChange(int iChange,  const CImage* img,  CWnd* wnd);
+//	int OnLButtonUp(UINT nFlags, CPoint point_v, CWnd* wnd);
+	afx_msg BOOL OnSetCursor(CWnd* pWnd, UINT nHitTest, UINT message);
 	int m_iGrid;
 	bool m_bValue;
 	bool m_bRGB_Separate;
-	double m_dDispOriginR_tv;
-	double m_dDispOriginC_tv;
 
-	CPoint m_PointStart_v; 
+	void SetPointStart_v(const CPoint p_in){m_PointStart_v.SetPoint(p_in.x, p_in.y);}
+	const CPoint GetPointStart_v(){return m_PointStart_v;}
+
 	int m_iMouseMode;
 	int m_iScaleIndex;
 	bool m_bDragging; 
@@ -68,6 +78,8 @@ public:
 	void OnMouseMove(UINT nFlags, CPoint point_v);
 	double GetDispOriginR_tv();
 	double GetDispOriginC_tv();
+	void SetDispOriginR_tv(const double dIn){m_dDispOriginR_tv = dIn;}
+	void SetDispOriginC_tv(const double dIn){m_dDispOriginC_tv = dIn;};
 	void OnDraw(CWnd* wnd, CDC* pDC, const CImage* img, PanImage* panImg);
 	const CRect GetRect_i(){return m_Rect_i;}
 	const CRect GetRect_v(){return m_Rect_v;}

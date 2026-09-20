@@ -281,7 +281,7 @@ IMPLEMENT_DYNCREATE(CSImageViewerView, CView)
 		}
 		else
 		{
-			view.m_dDispOriginR_tv = 0;
+			view.SetDispOriginR_tv(0);
 			si.nMin = 0;
 			si.nMax = 0;
 			si.nPage = 0;
@@ -301,7 +301,7 @@ IMPLEMENT_DYNCREATE(CSImageViewerView, CView)
 		}
 		else
 		{
-			view.m_dDispOriginC_tv = 0;
+			view.SetDispOriginC_tv(0);
 			si.nMin = 0;
 			si.nMax = 0;
 			si.nPage = 0;
@@ -382,8 +382,8 @@ IMPLEMENT_DYNCREATE(CSImageViewerView, CView)
 			pFrame->AdjustViewClientSize(m_image[m_iImageIndex].GetWidth(), m_image[m_iImageIndex].GetHeight(),iWidthIfNoBar_v, iHeightIfNoBar_v);
 			SetScroll();
 
-			view.m_dDispOriginC_tv = 0;
-			view.m_dDispOriginR_tv = 0;
+			view.SetDispOriginC_tv(0);
+			view.SetDispOriginR_tv(0);
 
 			GetScrollInfo(SB_HORZ, &si);
 			if(si.nPage>0)
@@ -1228,7 +1228,7 @@ IMPLEMENT_DYNCREATE(CSImageViewerView, CView)
 			dNewDispOriginR_tv = 0;
 		}
 
-		SetScrollPos((int)(dNewDispOriginR_tv), (int)(dNewDispOriginC_tv));
+		view.SetScrollPos((int)(dNewDispOriginR_tv), (int)(dNewDispOriginC_tv), this);
 
 		Invalidate();
 
@@ -1248,7 +1248,7 @@ IMPLEMENT_DYNCREATE(CSImageViewerView, CView)
 		if(si.nPage>0)
 		{
 			int iNewPos_scl = (int)(iR_tv*(si.nMax-si.nPage+1.0)/(si.nMax *1.0));
-			view.m_dDispOriginR_tv = iR_tv;
+			view.SetDispOriginR_tv(iR_tv);
 			si.nPos = (int)(max(si.nMin,min(si.nMax-si.nPage+1.0,iNewPos_scl) ));;
 			SetScrollInfo(SB_VERT, &si, TRUE);
 		}
@@ -1257,7 +1257,7 @@ IMPLEMENT_DYNCREATE(CSImageViewerView, CView)
 		if(si.nPage>0)
 		{
 			int iNewPos_scl = (int)(iC_tv*(si.nMax-si.nPage+1.0)/(si.nMax *1.0));
-			view.m_dDispOriginC_tv = iC_tv;
+			view.SetDispOriginC_tv(iC_tv);
 			si.nPos = (int)(max(si.nMin,min(si.nMax-si.nPage+1.0, iNewPos_scl) )); 
 			SetScrollInfo(SB_HORZ, &si, TRUE);
 		}
@@ -1514,7 +1514,7 @@ IMPLEMENT_DYNCREATE(CSImageViewerView, CView)
 	{
 		SetCapture(); 
 		view.m_bDragging = true;
-		view.m_PointStart_v.SetPoint(point_v.x,point_v.y); 
+		view.SetPointStart_v(point_v); 
 
 		CView::OnLButtonDown(nFlags, point_v);
 	}
@@ -1528,7 +1528,7 @@ IMPLEMENT_DYNCREATE(CSImageViewerView, CView)
 			view.m_bDragging = false; 
 			
 				CRect rect_i=view.GetRect_i();
-			if(view.m_PointStart_v == point_v)
+			if(view.GetPointStart_v() == point_v)
 			{
 				if(view.m_iMouseMode == CHANGE_B){CView::OnLButtonUp(nFlags, point_v); return;}
 				if(view.m_iMouseMode == CHANGE_L){CView::OnLButtonUp(nFlags, point_v); return;}
@@ -1604,22 +1604,7 @@ IMPLEMENT_DYNCREATE(CSImageViewerView, CView)
 
 	BOOL CSImageViewerView::OnSetCursor(CWnd* pWnd, UINT nHitTest, UINT message)
 	{
-		if (nHitTest == HTCLIENT) 
-		{
-			switch(view.m_iMouseMode)
-			{
-			case CHANGE_NONE:{SetCursor(AfxGetApp()->LoadCursorW(IDC_CURSOR_CROSS));return TRUE;}
-			case CHANGE_L:{SetCursor(AfxGetApp()->LoadStandardCursor(IDC_SIZEWE));return TRUE;}
-			case CHANGE_R:{SetCursor(AfxGetApp()->LoadStandardCursor(IDC_SIZEWE));return TRUE;}
-			case CHANGE_U:{SetCursor(AfxGetApp()->LoadStandardCursor(IDC_SIZENS));return TRUE;}
-			case CHANGE_B:{SetCursor(AfxGetApp()->LoadStandardCursor(IDC_SIZENS));return TRUE;}
-			case CHANGE_LU:{SetCursor(AfxGetApp()->LoadStandardCursor(IDC_SIZENWSE));return TRUE;}
-			case CHANGE_RB:{SetCursor(AfxGetApp()->LoadStandardCursor(IDC_SIZENWSE));return TRUE;}
-			case CHANGE_RU:{SetCursor(AfxGetApp()->LoadStandardCursor(IDC_SIZENESW));return TRUE;}
-			case CHANGE_LB:{SetCursor(AfxGetApp()->LoadStandardCursor(IDC_SIZENESW));return TRUE;}
-			case CHANGE_ZOOMUP:{SetCursor(AfxGetApp()->LoadCursorW(IDC_CURSOR_ZOOMIN));return TRUE;}
-			}
-		}
+		if(view.OnSetCursor(pWnd, nHitTest, message)==TRUE){return TRUE;}
 
 		return CView::OnSetCursor(pWnd, nHitTest, message);
 	}
@@ -1849,11 +1834,11 @@ IMPLEMENT_DYNCREATE(CSImageViewerView, CView)
 
 		if(iSB == SB_VERT)
 		{
-			view.m_dDispOriginR_tv = max(0, iMax*(iNewPos_scl*1.0)/(iMax-iPageSize+1.0));
+			view.SetDispOriginR_tv(max(0, iMax*(iNewPos_scl*1.0)/(iMax-iPageSize+1.0)));
 		}
 		else
 		{
-			view.m_dDispOriginC_tv = max(0, iMax*(iNewPos_scl*1.0)/(iMax-iPageSize+1.0));
+			view.SetDispOriginC_tv(max(0, iMax*(iNewPos_scl*1.0)/(iMax-iPageSize+1.0)));
 		}
 		si.nPos = (iNewPos_scl); 
 		SetScrollInfo(iSB, &si, TRUE);
