@@ -111,6 +111,9 @@
     <ClInclude Include="SetTransparentDlg.h">
       <Filter>ヘッダー ファイル</Filter>
     </ClInclude>
+    <ClInclude Include="ViewDraw.h">
+      <Filter>ヘッダー ファイル</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="SImageViewer.cpp">
@@ -167,8 +170,11 @@
     <ClCompile Include="ColorizeDlg.cpp">
       <Filter>ソース ファイル\Dlg</Filter>
     </ClCompile>
-    <ClCompile Include="SetTransparentDlg.cpp">
+    <ClCompile Include="ViewDraw.cpp">
       <Filter>ソース ファイル</Filter>
+    </ClCompile>
+    <ClCompile Include="SetTransparentDlg.cpp">
+      <Filter>ソース ファイル\Dlg</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

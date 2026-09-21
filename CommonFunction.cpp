@@ -1,44 +1,143 @@
 #include "stdafx.h"
 #include "CommonFunction.h"
 
-double g_dScale[SCALE_VAR_NUM] = 
-{
-	0.125000,
-	0.162105,
-	0.210224,
-	0.272627,
-	0.353553,
-	0.458502,
-	0.594604,
-	0.771105,
-	1.000000,
-	1.296840,
-	1.681793,
-	2.181015,
-	2.828427,
-	3.668016,
-	4.756828,
-	6.168843,
-	8.000000,
-	10.374716,
-	13.454343,
-	17.448124,
-	22.627417,
-	29.344129,
-	38.054628,
-	49.350746,
-	64.000000,
-};
-
+#include "MainFrm.h"
 
 BEGIN_MESSAGE_MAP(CPictureCtrlEx, CStatic)
 	ON_WM_PAINT()
 	ON_WM_MOUSEMOVE()
 END_MESSAGE_MAP()
 
+/*
+int ViewDraw::OnLButtonUp(UINT nFlags, CPoint point_v, CWnd* wnd)
+{
+
+if (m_bDragging == TRUE) 
+{
+ReleaseCapture(); 
+m_bDragging = false; 
+
+CRect rect_i=GetRect_i();
+if(GetPointStart_v() == point_v)
+{
+if(m_iMouseMode == CHANGE_B){return -1;}
+if(m_iMouseMode == CHANGE_L){return -1;}
+if(m_iMouseMode == CHANGE_R){return -1;}
+if(m_iMouseMode == CHANGE_U){return -1;}
+if(m_iMouseMode == CHANGE_LB){return -1;}
+if(m_iMouseMode == CHANGE_LU){return -1;}
+if(m_iMouseMode == CHANGE_RB){return -1;}
+if(m_iMouseMode == CHANGE_RU){return -1;}
+
+CRect rect_v;
+rect_v = i_to_v(&rect_i);
+if((point_v.y >= rect_v.top)&&(point_v.y <= rect_v.bottom)&&(point_v.x >= rect_v.left)&&(point_v.x <= rect_v.right) && (m_iMouseMode == CHANGE_ZOOMUP))
+{
+ZoomChange(rect_i.top, rect_i.left, rect_i.bottom,rect_i.right,wnd);
+return 0;
+}
+
+return 1;
+}
+rect_i = v_to_i(&(GetRect_v()));
+rect_i.left = max(0,rect_i.left);
+rect_i.top = max(0,rect_i.top);
+SetRect_i(&rect_i);
+return 2;
+}
+return 3;
+}
+bool ViewDraw::ZoomChange(int iR0_i, int iC0_i, int iR1_i, int iC1_i, CWnd* wnd)
+{
+int iHeight_v = GetClientHeight(wnd);
+int iWidth_v = GetClientWidth(wnd);
+
+int iNewScaleIndex = m_iScaleIndex;
+for(int i = SCALE_VAR_NUM-1; i >= 0; i--)
+{
+if((iHeight_v>(iR1_i-iR0_i+1)*g_dScale[i]) && (iWidth_v>(iC1_i-iC0_i+1)*g_dScale[i]))
+{
+iNewScaleIndex = i;
+break;
+}
+}
+
+
+m_iScaleIndex = iNewScaleIndex;
+if(m_iScaleIndex >= SCALE_VAR_NUM-1){m_iScaleIndex = SCALE_VAR_NUM-1;}
+if(m_iScaleIndex <= 0){m_iScaleIndex = 0;}
+
+double dNewCenterR_i = (iR0_i + iR1_i)/2.0;
+double dNewCenterC_i = (iC0_i + iC1_i)/2.0;
+
+double dNewCenterR_tv = dNewCenterR_i*g_dScale[m_iScaleIndex];
+double dNewCenterC_tv = dNewCenterC_i*g_dScale[m_iScaleIndex];
+
+
+int iNewScrollR_tv = max(0,int(dNewCenterR_tv-iHeight_v/2.0));
+int iNewScrollC_tv = max(0,int(dNewCenterC_tv-iWidth_v/2.0));
+
+return true; 
+}
+
+bool ViewDraw::ZoomChange(int iChange, const CImage* img, CWnd* wnd)
+{
+if((m_iScaleIndex >= SCALE_VAR_NUM-1)&&(iChange>0)){return false;}
+if((m_iScaleIndex <= 0)&&(iChange<0)){return false;}
+
+int iHeight_v = GetClientHeight(wnd);
+int iWidth_v = GetClientWidth(wnd);
+double dOldDispOriginR_tv = GetDispOriginR_tv();
+double dOldDispOriginC_tv = GetDispOriginC_tv();
+
+int iWidth_i = max(0,img->GetWidth());
+int iHeight_i = max(0,img->GetHeight());
+
+int iOldZoom = m_iScaleIndex;
+double dOldWidth_tv = iWidth_i*g_dScale[iOldZoom];
+double dNewDispOriginC_tv;
+double dNewDispOriginR_tv;
+int iNewZoom = m_iScaleIndex+= iChange;
+double dNewWidth_tv = iWidth_i*g_dScale[iNewZoom];
+double dNewHeight_tv = iHeight_i*g_dScale[iNewZoom];
+
+
+if(dNewWidth_tv>iWidth_v)
+{
+double dOldCenterC_i = (dOldDispOriginC_tv +iWidth_v/2.0)/g_dScale[iOldZoom];
+double dOldEndC_i = (dOldDispOriginC_tv +iWidth_v)/g_dScale[iOldZoom];
+dNewDispOriginC_tv = max(0, min(dOldCenterC_i*g_dScale[iNewZoom] - iWidth_v/2.0, dOldEndC_i*g_dScale[iNewZoom]-iWidth_v));
+}
+else
+{
+dNewDispOriginC_tv = 0;
+}
+
+if(dNewHeight_tv>iHeight_v)
+{
+double dOldCenterR_i = (dOldDispOriginR_tv +iHeight_v/2.0)/g_dScale[iOldZoom];
+double dOldEndR_i = (dOldDispOriginR_tv +iHeight_v)/g_dScale[iOldZoom];
+dNewDispOriginR_tv = max(0, min(dOldCenterR_i*g_dScale[iNewZoom] - iHeight_v/2.0, dOldEndR_i*g_dScale[iNewZoom]-iHeight_v));
+}
+else
+{
+dNewDispOriginR_tv = 0;
+}
+m_iScaleIndex = iNewZoom;
+
+
+SetScrollPos((int)(dNewDispOriginR_tv), (int)(dNewDispOriginC_tv));
+
+if(m_iScaleIndex >= SCALE_VAR_NUM-1){m_iScaleIndex = SCALE_VAR_NUM-1;}
+if(m_iScaleIndex <= 0){m_iScaleIndex = 0;}
+
+return true; 
+}
+*/
+
 void CPictureCtrlEx::OnMouseMove(UINT nFlags, CPoint point)
 {
-	
+
 	CRect rect;
 	this->GetWindowRect(&rect);		
 	this->GetParent()->ScreenToClient(&rect);
@@ -53,6 +152,7 @@ void CPictureCtrlEx::OnMouseMove(UINT nFlags, CPoint point)
 void CPictureCtrlEx::OnPaint()
 {
 	CPaintDC dc(this);
+	CDC* pDC = this->GetDC();
 
 	CRect rc;
 	GetClientRect(&rc);
@@ -62,16 +162,12 @@ void CPictureCtrlEx::OnPaint()
 	double dZoom=min(rc.Width()/(m_image.GetWidth()*1.0),rc.Height()/(m_image.GetHeight()*1.0));
 
 	CImage imgZoomed;
-	ZoomImage(&(m_image),&imgZoomed,0,0,dZoom,rc.Width(), rc.Height(),false);
-	
 
 
-	if(m_HBar1_i.bValid==true){Line line_v; line_v=i_to_v(&m_HBar1_i); ImposeLine(&imgZoomed, &imgZoomed, line_v.dR0, line_v.dC0, line_v.dR1, line_v.dC1);}
-	if(m_HBar2_i.bValid==true){Line line_v; line_v=i_to_v(&m_HBar2_i); ImposeLine(&imgZoomed, &imgZoomed, line_v.dR0, line_v.dC0, line_v.dR1, line_v.dC1);}
-	if(m_VBar1_i.bValid==true){Line line_v; line_v=i_to_v(&m_VBar1_i); ImposeLine(&imgZoomed, &imgZoomed, line_v.dR0, line_v.dC0, line_v.dR1, line_v.dC1);}
-	if(m_VBar2_i.bValid==true){Line line_v; line_v=i_to_v(&m_VBar2_i); ImposeLine(&imgZoomed, &imgZoomed, line_v.dR0, line_v.dC0, line_v.dR1, line_v.dC1);}
-
-	imgZoomed.BitBlt( dc.GetSafeHdc(), 0, 0,imgZoomed.GetWidth(), imgZoomed.GetHeight(), 0, 0  );
+	view.ZoomChange(0, 0, m_image.GetHeight()-1, m_image.GetWidth()-1, &m_image, this, false);
+	PanImage panImage;
+	panImage.Set(IMAGE_TYPE_CIMAGE, NULL, NULL, 0, 0, &m_image, VALUE_IMAGE_CLIP_0_TO_255, _T("temp"));
+	view.OnDraw(this, pDC, &m_image, &panImage, false);
 }
 bool CopyToClipBoardStr(const CString sValue)
 {

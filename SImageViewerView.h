@@ -17,11 +17,12 @@ protected: // ÉVÉäÉAÉãâªÇ©ÇÁÇÃÇ›çÏê¨ÇµÇ‹Ç∑ÅB
 
 // ëÆê´
 public:
-	
+	ViewDraw view;
+
 		CString m_sIniFilePath;
 
 	FileFormatList m_fileFomatList;
-	void FullDomain();
+	void FullDomain(CRect* rect_i);
 	CString m_sFilePath;
 
 	CImage m_imageZoomed;
@@ -30,18 +31,12 @@ public:
 	int m_iImageMax;
 	bool m_bRefresh;
 
-	int m_iScaleIndex;
-	int m_iMouseMode;
-	double m_dDispOriginR_tv;
-	double m_dDispOriginC_tv;
 
 	bool m_bBeingFullScreen;
-	bool m_bCBar;
-	bool m_bRBar;
-	bool m_bDragging; 
-	CPoint m_PointStart_v; 
-	CRect m_Rect_v;
-	CRect m_Rect_i;
+
+	const CRect v_to_i(const CRect* rect_v){return view.v_to_i(rect_v);}
+	const CRect i_to_v(const CRect* rect_i){return view.i_to_v(rect_i);}
+	
 
 	int GetClientHeight();
 	int GetClientWidth();
@@ -49,8 +44,6 @@ public:
 	void SetScroll();
 	bool SaveImage(const CImage* image);
 	CSImageViewerDoc* GetDocument() const;
-	CRect v_to_i(const CRect* rect_v);
-	CRect i_to_v(const CRect* rect_i);
 	void SetCaption();
 	void ResetImage(bool bZoomReset, bool bProcessReset);
 	void AdjustViewClientSize(int desiredClientWidth, int desiredClientHeight);
@@ -60,9 +53,9 @@ public:
 	bool OnImagePPFW(const int iStep);
 	bool ZoomChange(int iMousePosR_v, int iMousePosC_v,int iChange);
 	bool ZoomChange(int iR0_i, int iC0_i, int iR1_i, int iC1_i);
-	void SetScrollPos(int iR, int iC);
-	double GetDispOriginR_tv();
-	double GetDispOriginC_tv();
+	double GetDispOriginR_tv(){return view.GetDispOriginR_tv();}
+	double GetDispOriginC_tv(){return view.GetDispOriginC_tv();}
+
 
 	void EnterFullScreen();
 	void ExitFullScreen();
@@ -76,8 +69,8 @@ public:
 	void OperateEquHistImage();
 	void OperateConvertColorSpace();
 	void OperateChangeColorDepth();
-	void OperateInvert();
-	void SetGridEnableDesable();
+	void OperateInvert();	
+	void SetGridEnableDesable(){view.SetGridEnableDesable();}
 	void OperateTransparent();
 	bool GetColorAtCursor(const CImage* img, CPoint point_v, int* iR_img, int* iC_img, ColorValue* colorValue);
 	bool GetColorAtCursor(PanImage* img, CPoint point_v, int* iR_img, int* iC_img, ColorValue* colorValue);

@@ -5,6 +5,7 @@
 #include "stdafx.h"
 #include "SImageViewer.h"
 
+
 #include "MainFrm.h"
 
 #ifdef _DEBUG
@@ -143,7 +144,7 @@ int CMainFrame::OnCreate(LPCREATESTRUCT lpCreateStruct)
 		TRACE0("メニュー バーを作成できませんでした\n");
 		return -1;
 	}
-//	m_wndMenuBar.SetPaneStyle(CBRS_FLOATING);
+	//	m_wndMenuBar.SetPaneStyle(CBRS_FLOATING);
 
 	m_wndMenuBar.SetPaneStyle(m_wndMenuBar.GetPaneStyle() | ~CBRS_SIZE_DYNAMIC | CBRS_TOOLTIPS | ~CBRS_FLYBY);
 
@@ -156,11 +157,8 @@ int CMainFrame::OnCreate(LPCREATESTRUCT lpCreateStruct)
 		TRACE0("ツール バーの作成に失敗しました。\n");
 		return -1;
 	}
-//	m_wndToolBar.SetPaneStyle(m_wndToolBar.GetPaneStyle() |  ~CBRS_FLYBY);
+	//	m_wndToolBar.SetPaneStyle(m_wndToolBar.GetPaneStyle() |  ~CBRS_FLYBY);
 
-	m_iGrid = ID_TOOLBAR_GRID_NONE;
-	m_bValue = false;
-	m_bRGB_Separate = false;
 
 	CString strToolBarName;
 	bNameValid = strToolBarName.LoadString(IDS_TOOLBAR_STANDARD);
@@ -206,8 +204,8 @@ int CMainFrame::OnCreate(LPCREATESTRUCT lpCreateStruct)
 
 
 	// TODO: ツール バーおよびメニュー バーをドッキング可能にしない場合は、この 5 つの行を削除します
-//	m_wndMenuBar.EnableDocking(CBRS_ALIGN_ANY);
-//	m_wndToolBar.EnableDocking(CBRS_ALIGN_ANY);
+	//	m_wndMenuBar.EnableDocking(CBRS_ALIGN_ANY);
+	//	m_wndToolBar.EnableDocking(CBRS_ALIGN_ANY);
 	EnableDocking(CBRS_ALIGN_ANY);
 	DockPane(&m_wndMenuBar);
 	DockPane(&m_wndToolBar);
@@ -250,7 +248,7 @@ int CMainFrame::OnCreate(LPCREATESTRUCT lpCreateStruct)
 
 	lstBasicCommands.AddTail(ID_FILE_SAVE_AS);
 	lstBasicCommands.AddTail(ID_EDIT_COPY);
-	
+
 	lstBasicCommands.AddTail(ID_EDIT_CUT);
 	lstBasicCommands.AddTail(ID_MENU_EDIT_EQU_HIST);
 	lstBasicCommands.AddTail(ID_MENU_EDIT_SET_SELECTION);
@@ -456,26 +454,15 @@ void CMainFrame::OnUpdateAfxIdpCommandFailure(CCmdUI *pCmdUI)
 	pCmdUI->Enable(TRUE); 
 }
 
-#include "SImageViewerView.h"
-
 void CMainFrame::OnZoomdown()
 {
-
-	CView* pView = GetActiveView();
-	if (pView != nullptr)
-	{
-		((CSImageViewerView*)pView)->ZoomChange(-1);
-	}
+	m_pView->ZoomChange(-1);
 }
 
 
 void CMainFrame::OnZoomup()
 {
-	CView* pView = GetActiveView();
-	if (pView != nullptr)
-	{
-		((CSImageViewerView*)pView)->ZoomChange(1);
-	}
+	m_pView->ZoomChange(1);
 }
 
 void CMainFrame::LaunchNewInstance(CStringArray* saFilePath)
@@ -655,107 +642,66 @@ void CMainFrame::OnDestroy()
 
 	CFrameWndEx::OnDestroy();
 }
-void CMainFrame::OnButtonGridNone()
+
+void CMainFrame::OnButtonAdd()
 {
-	m_iGrid = ID_TOOLBAR_GRID_NONE;
+	m_pView->OnFileAdd();
 	Invalidate();
 }
 
 
 void CMainFrame::OnButtonValue()
 {
-	if(m_bValue == true)
-	{
-		m_bValue = false;
-		Invalidate();
-		return;
-	}
-	m_bValue = true;
+	m_pView->view.ToggleValueMode();
 	Invalidate();
 }
 
 void CMainFrame::OnButtonRGBSeparate()
 {
-	if(m_bRGB_Separate == true)
-	{
-		m_bRGB_Separate = false;
-		Invalidate();
-		return;
-	}
-	m_bRGB_Separate = true;
-	Invalidate();
-}
-void CMainFrame::OnButtonAdd()
-{
-	CView* pView = GetActiveView();
-	if (pView != nullptr)
-	{
-		((CSImageViewerView*)pView)->OnFileAdd();
-	}
+	m_pView->view.ToggleRGBSeparate();
 	Invalidate();
 }
 
+
+void CMainFrame::OnButtonGridNone()
+{
+	m_pView->view.ToggleGridMode(ID_TOOLBAR_GRID_DOT);
+	Invalidate();
+}
 
 void CMainFrame::OnButtonGridDot()
 {
-	if(m_iGrid == ID_TOOLBAR_GRID_DOT)
-	{
-		m_iGrid = ID_TOOLBAR_GRID_NONE;
-		Invalidate();
-		return;
-	}
-	m_iGrid = ID_TOOLBAR_GRID_DOT;
+	m_pView->view.ToggleGridMode(ID_TOOLBAR_GRID_DOT);
 	Invalidate();
 }
 
 void CMainFrame::OnButtonGridLine()
 {
-	if(m_iGrid == ID_TOOLBAR_GRID_LINE)
-	{
-		m_iGrid = ID_TOOLBAR_GRID_NONE;
-		Invalidate();
-		return;
-	}
-	m_iGrid = ID_TOOLBAR_GRID_LINE;
+	m_pView->view.ToggleGridMode(ID_TOOLBAR_GRID_LINE);
 	Invalidate();
 }
 
 void CMainFrame::OnButtonGridConnect()
 {
-	if(m_iGrid == ID_TOOLBAR_GRID_CONNECT)
-	{
-		m_iGrid = ID_TOOLBAR_GRID_NONE;
-		Invalidate();
-		return;
-	}
-	m_iGrid = ID_TOOLBAR_GRID_CONNECT;
+	m_pView->view.ToggleGridMode(ID_TOOLBAR_GRID_CONNECT);
 	Invalidate();
 }
 
 void CMainFrame::OnImageFW()
 {
-	CView* pView = GetActiveView();
-	if (pView != nullptr)
-	{
-		((CSImageViewerView*)pView)->OnImagePPFW(+1);
-	}
+	m_pView->OnImagePPFW(+1);
 	Invalidate();
 }
 
 void CMainFrame::OnImagePP()
 {
-	CView* pView = GetActiveView();
-	if (pView != nullptr)
-	{
-		((CSImageViewerView*)pView)->OnImagePPFW(+1);
-	}
+	m_pView->OnImagePPFW(-1);
 	Invalidate();
 }
 
 void CMainFrame::OnUpdateMenu(CCmdUI* pCmdUI)
 {
 
-	CView* pView = GetActiveView();
 	switch (pCmdUI->m_nID)
 	{
 	case ID_EDIT_PASTE:
@@ -783,8 +729,8 @@ void CMainFrame::OnUpdateMenu(CCmdUI* pCmdUI)
 	case ID_TOOLBAR_GRID_LINE:{pCmdUI->Enable(m_bFileOpened & m_bGridAble);break;}
 	case ID_TOOLBAR_GRID_CONNECT:{pCmdUI->Enable(m_bFileOpened & m_bGridAble);break;}
 
-	case ID_TOOLBAR_IMAGE_FW:{CSImageViewerView* pView = (CSImageViewerView*)GetActiveView();pCmdUI->Enable(pView->m_iImageIndex+1 < pView->m_iImageMax);break;}
-	case ID_TOOLBAR_IMAGE_PP:{CSImageViewerView* pView = (CSImageViewerView*)GetActiveView();pCmdUI->Enable(pView->m_iImageIndex >= 1);break;}
+	case ID_TOOLBAR_IMAGE_FW:{pCmdUI->Enable(m_pView->m_iImageIndex+1 < m_pView->m_iImageMax);break;}
+	case ID_TOOLBAR_IMAGE_PP:{pCmdUI->Enable(m_pView->m_iImageIndex >= 1);break;}
 
 	case ID_TOOLBAR_ZOOMDOWN:
 	case ID_TOOLBAR_ZOOMUP:
@@ -800,24 +746,24 @@ void CMainFrame::OnUpdateMenu(CCmdUI* pCmdUI)
 	case ID_MENU_EDIT_SET_SELECTION:
 	case ID_MENU_EDIT_RESAMPLE:
 		{
-		pCmdUI->Enable(m_bFileOpened);
-		break;
+			pCmdUI->Enable(m_bFileOpened);
+			break;
 		}
 	}
 
 	if(pCmdUI->m_nID== ID_TOOLBAR_VALUE)
 	{
-		pCmdUI->SetCheck(m_bValue == true);
+		pCmdUI->SetCheck(m_pView->view.GetValueMode() == true);
 	}
 	if(pCmdUI->m_nID== ID_TOOLBAR_RGBSEPARATE)
 	{
-		pCmdUI->SetCheck(m_bRGB_Separate == true);
+		pCmdUI->SetCheck(m_pView->view.GetRGBSeparateMode() == true);
 	}
 	switch (pCmdUI->m_nID)
 	{
-	case ID_TOOLBAR_GRID_DOT:{pCmdUI->SetCheck(m_iGrid == ID_TOOLBAR_GRID_DOT);break;}
-	case ID_TOOLBAR_GRID_LINE:{pCmdUI->SetCheck(m_iGrid == ID_TOOLBAR_GRID_LINE);break;}
-	case ID_TOOLBAR_GRID_CONNECT:{pCmdUI->SetCheck(m_iGrid == ID_TOOLBAR_GRID_CONNECT);break;}
+	case ID_TOOLBAR_GRID_DOT:{pCmdUI->SetCheck(m_pView->view.GetGridMode() == ID_TOOLBAR_GRID_DOT);break;}
+	case ID_TOOLBAR_GRID_LINE:{pCmdUI->SetCheck(m_pView->view.GetGridMode() == ID_TOOLBAR_GRID_LINE);break;}
+	case ID_TOOLBAR_GRID_CONNECT:{pCmdUI->SetCheck(m_pView->view.GetGridMode() == ID_TOOLBAR_GRID_CONNECT);break;}
 	default:{}
 	}
 

@@ -32,21 +32,6 @@
 
 #define TIMER_INIT (100)
 #define TIMER_REFRESH (101)
-#define RECT_CHANGE_MARGIN_PIX (10)
-enum MOUSE_CURSOR
-{
-	CHANGE_NONE = 0,
-	CHANGE_ZOOMUP = 1,
-	CHANGE_L = 2,
-	CHANGE_R = 3,
-	CHANGE_U = 4,
-	CHANGE_B = 5,
-	CHANGE_LU = 6,
-	CHANGE_RU = 7,
-	CHANGE_LB = 8,
-	CHANGE_RB = 9,
-
-};
 // CSImageViewerView
 
 IMPLEMENT_DYNCREATE(CSImageViewerView, CView)
@@ -86,15 +71,11 @@ IMPLEMENT_DYNCREATE(CSImageViewerView, CView)
 
 	CSImageViewerView::CSImageViewerView()
 	{
-		m_bDragging = false;
-		m_Rect_v.SetRectEmpty();
-		m_Rect_i.SetRectEmpty();
+		view.Init();
+
 		m_image = NULL;
 		m_iImageIndex = 0;
 		m_iImageMax = 0;
-		m_iScaleIndex = 8;
-		m_bCBar = false;
-		m_bRBar = false;
 		m_sFilePath = _T("");
 		if(g_sParam.GetLength()>0){m_sFilePath.Format(_T("%s"), g_sParam);}
 	}
@@ -114,7 +95,8 @@ IMPLEMENT_DYNCREATE(CSImageViewerView, CView)
 	void CSImageViewerView::OnCopyAs()
 	{
 		if(m_iImageMax <= 0){return;}
-		if(m_Rect_i.IsRectNull() == TRUE){return;}
+		CRect rect_i=view.GetRect_i();
+		if(rect_i.IsRectNull() == TRUE){return;}
 
 		CCopyAsDlg copyAsdlg;
 
@@ -123,7 +105,7 @@ IMPLEMENT_DYNCREATE(CSImageViewerView, CView)
 
 		CImage imgClipped;
 
-		ClipImage(m_image[m_iImageIndex].GetCurrentProcess(),&imgClipped, m_Rect_i.top,m_Rect_i.left, m_Rect_i.bottom, m_Rect_i.right); 
+		ClipImage(m_image[m_iImageIndex].GetCurrentProcess(),&imgClipped, rect_i.top,rect_i.left, rect_i.bottom, rect_i.right); 
 		switch(copyAsdlg.m_enumCopyMode)
 		{
 		case COPY_AS_IMAGE:
@@ -152,18 +134,19 @@ IMPLEMENT_DYNCREATE(CSImageViewerView, CView)
 	void CSImageViewerView::OnSetSelection()
 	{
 		CSetSelectionDlg setdlg;
-		if(m_Rect_i.IsRectNull() != TRUE)
+		CRect rect_i=view.GetRect_i();
+		if(rect_i.IsRectNull() != TRUE)
 		{
-			setdlg.m_iC0 = m_Rect_i.left;
-			setdlg.m_iR0 = m_Rect_i.top;
-			setdlg.m_iC1 = m_Rect_i.right;
-			setdlg.m_iR1 = m_Rect_i.bottom;
+			setdlg.m_iC0 = rect_i.left;
+			setdlg.m_iR0 = rect_i.top;
+			setdlg.m_iC1 = rect_i.right;
+			setdlg.m_iR1 = rect_i.bottom;
 		}
 
 		INT_PTR iRet = setdlg.DoModal();
 		if(iRet == IDOK)
 		{
-			m_Rect_i.SetRect(setdlg.m_iC0,setdlg.m_iR0,setdlg.m_iC1,setdlg.m_iR1);
+			rect_i.SetRect(setdlg.m_iC0,setdlg.m_iR0,setdlg.m_iC1,setdlg.m_iR1);
 			CMainFrame* pFrame = (CMainFrame*)AfxGetMainWnd();
 			pFrame->m_bRegionSelected = true;
 			Invalidate();
@@ -171,14 +154,7 @@ IMPLEMENT_DYNCREATE(CSImageViewerView, CView)
 	}
 
 	// CSImageViewerView •`‰æ
-	double CSImageViewerView::GetDispOriginR_tv()
-	{
-		return m_dDispOriginR_tv;
-	}
-	double CSImageViewerView::GetDispOriginC_tv()
-	{
-		return m_dDispOriginC_tv;
-	}
+
 	void CSImageViewerView::OnDraw(CDC* pDC)
 	{
 		CSImageViewerDoc* pDoc = GetDocument();
@@ -186,75 +162,7 @@ IMPLEMENT_DYNCREATE(CSImageViewerView, CView)
 		if (!pDoc){return;}
 		if(m_iImageMax <= 0){return;}
 
-		CDC memDC;
-		memDC.CreateCompatibleDC(pDC);
-
-		CImage imgZoomed;
-		int iHeight_v = GetClientHeight();
-		int iWidth_v = GetClientWidth();
-
-		CBitmap bufferBmp; 
-		bufferBmp.CreateCompatibleBitmap(pDC, iWidth_v, iHeight_v);
-		CBitmap* pOldBmp = memDC.SelectObject(&bufferBmp);
-
-		double dDispOriginR_tv = GetDispOriginR_tv();
-		double dDispOriginC_tv = GetDispOriginC_tv();
-
-
-
-		double dR0_i = (dDispOriginR_tv/g_dScale[m_iScaleIndex]);
-		double dC0_i = (dDispOriginC_tv/g_dScale[m_iScaleIndex]);
-		if (m_image[m_iImageIndex].GetCurrentProcess()->IsNull()){return;}
-
-		int iRMax = m_image[m_iImageIndex].GetCurrentProcess()->GetHeight()-1;
-		int iCMax = m_image[m_iImageIndex].GetCurrentProcess()->GetWidth()-1;
-
-		CMainFrame* pFrame = (CMainFrame*)AfxGetMainWnd();
-
-		ZoomImage(m_image[m_iImageIndex].GetCurrentProcess(),&imgZoomed,dR0_i,dC0_i,g_dScale[m_iScaleIndex],iWidth_v,iHeight_v,pFrame->m_bRGB_Separate);
-		CImage imgValue;
-		ZoomImage(m_image[m_iImageIndex].GetCurrentProcess(),&imgValue,dR0_i,dC0_i,g_dScale[m_iScaleIndex],iWidth_v,iHeight_v,false);
-
-		int iGrid = 0;
-		switch(pFrame->m_iGrid)
-		{
-		case ID_TOOLBAR_GRID_NONE:{iGrid = 0;break;}
-		case ID_TOOLBAR_GRID_DOT:{iGrid = 1;break;}
-		case ID_TOOLBAR_GRID_LINE:{iGrid = 2;break;}
-		case ID_TOOLBAR_GRID_CONNECT:{iGrid = 3;break;}
-		default:{iGrid = 0;}
-		}
-		ImposeGrid(&imgValue, &imgZoomed, &imgZoomed, iGrid, int(dR0_i)-dR0_i, int(dC0_i)-dC0_i,g_dScale[m_iScaleIndex], 10, iRMax, iCMax);
-		if(pFrame->m_bValue == true)
-		{
-			ImposeRGBValue(&(m_image[m_iImageIndex]), &imgZoomed, &imgZoomed, iGrid, int(dR0_i)-dR0_i, int(dC0_i)-dC0_i,g_dScale[m_iScaleIndex], 10, int(dR0_i),int(dC0_i),iRMax, iCMax);
-		}
-		if(m_bDragging == true)
-		{
-			if (m_Rect_v.IsRectNull() == FALSE)
-			{
-				CRect rect_i = v_to_i(&m_Rect_v);
-				CRect rect_v = i_to_v(&rect_i);
-				ImposeRect(&imgZoomed, &imgZoomed,&rect_v);
-			}
-		}
-		else
-		{
-			if (m_Rect_i.IsRectNull() == FALSE)
-			{
-				CRect rect_v = i_to_v(&m_Rect_i);
-				ImposeRect(&imgZoomed, &imgZoomed,&rect_v);
-			}
-		}
-		CImage imgAlphaed;
-		ImposeAlphaChannel(&imgZoomed,&imgAlphaed);
-
-		imgAlphaed.BitBlt( memDC.GetSafeHdc(), 0, 0,imgAlphaed.GetWidth(), imgAlphaed.GetHeight(), 0, 0 );
-		int ii = imgAlphaed.GetWidth();
-		pDC->BitBlt(0, 0, iWidth_v, iHeight_v, &memDC, 0, 0,SRCCOPY);
-
-		memDC.SelectObject(pOldBmp);
-
+		view.OnDraw(this, pDC, m_image[m_iImageIndex].GetCurrentProcess(), &(m_image[m_iImageIndex]), true);
 
 	}
 
@@ -292,113 +200,10 @@ IMPLEMENT_DYNCREATE(CSImageViewerView, CView)
 	}
 #endif //_DEBUG
 
-	void CheckIfScrollBarsAreNeeded(const int iWidth_tv, const int iHeight_tv, const int iWidthIfNoBar_v, const int iHeightIfNoBar_v, const int iBarWidth, const int iBarHeight, bool* bRBar, bool* bCBar)
-	{
-
-		if((iWidth_tv <= iWidthIfNoBar_v)&&(iHeight_tv <= iHeightIfNoBar_v))
-		{
-			*bRBar = false;
-			*bCBar = false;
-			return;
-		}
-
-		if(iWidth_tv>iWidthIfNoBar_v)
-		{
-			*bCBar = true;
-
-			if(iHeight_tv <= iHeightIfNoBar_v-iBarHeight)
-			{
-				*bRBar = false;
-				return;
-			}
-			*bRBar = true;
-			return;
-		}
-
-		*bRBar = true;
-		if(iWidth_tv <= iWidthIfNoBar_v-iBarWidth)
-		{
-			*bCBar = false;
-			return;
-		}
-		*bCBar = true;
-		return;
-
-	}
 	void CSImageViewerView::SetScroll()
 	{
 		if(m_iImageMax <= 0){return;}
-		int iHeight_v = GetClientHeight();
-		int iWidth_v = GetClientWidth();
-
-		int iBarWidth = ::GetSystemMetrics(SM_CYHSCROLL);
-		int iBarHeight = ::GetSystemMetrics(SM_CXVSCROLL);
-
-		int iWidth_i = max(0,m_image[m_iImageIndex].GetCurrentProcess()->GetWidth());
-		int iHeight_i = max(0,m_image[m_iImageIndex].GetCurrentProcess()->GetHeight());
-
-		int iWidth_tv = (int)(iWidth_i*g_dScale[m_iScaleIndex]);
-		int iHeight_tv = (int)(iHeight_i*g_dScale[m_iScaleIndex]);
-
-		SCROLLINFO si = { 0 };
-		int iPageV, iPageH;
-		GetScrollInfo(SB_VERT, &si);
-		if(si.nPage == 0){m_bRBar = false;}
-		iPageV = si.nPage;
-
-		GetScrollInfo(SB_HORZ, &si);
-		if(si.nPage == 0){m_bCBar = false;}
-		iPageH = si.nPage;
-
-		int iHeightIfNoBar_v = iHeight_v+(m_bCBar ? iBarHeight : 0);
-		int iWidthIfNoBar_v = iWidth_v+(m_bRBar ? iBarWidth : 0);
-
-		bool bRBar = false;
-		bool bCBar = false;
-
-
-		CheckIfScrollBarsAreNeeded(iWidth_tv, iHeight_tv, iWidthIfNoBar_v, iHeightIfNoBar_v, iBarWidth, iBarHeight, &bRBar, &bCBar);
-
-		if(bRBar == true)
-		{
-			GetScrollInfo(SB_VERT, &si);
-			int iPageR = (iHeightIfNoBar_v-(bCBar ? iBarHeight:0))/10;
-			si.nMin = 0;
-			si.nMax = max(0,(iHeight_tv-(iHeightIfNoBar_v-(bCBar ? iBarHeight:0)))+1);
-			si.nPage = min(si.nMax,iPageR);
-			if(si.nPage>0){m_bRBar = true;}else{m_bRBar = false;}
-			SetScrollInfo(SB_VERT, &si, TRUE);
-		}
-		else
-		{
-			m_dDispOriginR_tv = 0;
-			si.nMin = 0;
-			si.nMax = 0;
-			si.nPage = 0;
-			m_bRBar = false;
-			SetScrollInfo(SB_VERT, &si, TRUE);
-		}
-
-		if(bCBar == true)
-		{
-			int iPageC = (iWidthIfNoBar_v-(bRBar ? iBarWidth :0))/10;
-			GetScrollInfo(SB_HORZ, &si);
-			si.nMin = 0;
-			si.nMax = max(0,(iWidth_tv-(iWidthIfNoBar_v-(bRBar ? iBarWidth :0)))+1);
-			si.nPage = min(si.nMax, iPageC);
-			if(si.nPage>0){m_bCBar = true;}else{m_bCBar = false;}
-			SetScrollInfo(SB_HORZ, &si, TRUE);
-		}
-		else
-		{
-			m_dDispOriginC_tv = 0;
-			si.nMin = 0;
-			si.nMax = 0;
-			si.nPage = 0;
-			m_bCBar = false;
-			SetScrollInfo(SB_HORZ, &si, TRUE);
-		}
-
+		view.SetScroll(m_image[m_iImageIndex].GetCurrentProcess(), this, true);
 	}
 
 
@@ -442,55 +247,10 @@ IMPLEMENT_DYNCREATE(CSImageViewerView, CView)
 
 		if(bZoomReset == true)
 		{
-			m_iScaleIndex = 8;
-			CRect rectClient;
-			GetClientRect(&rectClient);
-
-			int iHeight_v = GetClientHeight();
-			int iWidth_v = GetClientWidth();
-
-			int iBarWidth = ::GetSystemMetrics(SM_CYHSCROLL);
-			int iBarHeight = ::GetSystemMetrics(SM_CXVSCROLL);
-
-			int iWidth_i = max(0,m_image[m_iImageIndex].GetCurrentProcess()->GetWidth());
-			int iHeight_i = max(0,m_image[m_iImageIndex].GetCurrentProcess()->GetHeight());
-
-			int iWidth_tv = (int)(iWidth_i*g_dScale[m_iScaleIndex]);
-			int iHeight_tv = (int)(iHeight_i*g_dScale[m_iScaleIndex]);
-
-			SCROLLINFO si = { 0 };
-
-			GetScrollInfo(SB_VERT, &si);
-			if(si.nPage == 0){m_bRBar = false;}
-
-			GetScrollInfo(SB_HORZ, &si);
-			if(si.nPage == 0){m_bCBar = false;}
-
-			int iHeightIfNoBar_v = iHeight_v+(m_bCBar ? iBarHeight : 0);
-			int iWidthIfNoBar_v = iWidth_v+(m_bRBar ? iBarWidth : 0);
-
-			pFrame->AdjustViewClientSize(m_image[m_iImageIndex].GetWidth(), m_image[m_iImageIndex].GetHeight(),iWidthIfNoBar_v, iHeightIfNoBar_v);
-			SetScroll();
-
-			m_dDispOriginC_tv = 0;
-			m_dDispOriginR_tv = 0;
-
-			GetScrollInfo(SB_HORZ, &si);
-			if(si.nPage>0)
-			{
-				si.nPos = 0; 
-				SetScrollInfo(SB_HORZ, &si, TRUE);
-			}
-
-			GetScrollInfo(SB_VERT, &si);
-			if(si.nPage>0)
-			{
-				si.nPos = 0; 
-				SetScrollInfo(SB_VERT, &si, TRUE);
-			}
+			view.ZoomReset( m_image[m_iImageIndex].GetCurrentProcess(), this, true);
 		}
-		m_iMouseMode = 0;
-		m_Rect_i.SetRectEmpty();
+		view.SetMouseMode(0);
+		view.SetRect_i(NULL);
 		pFrame->m_bRegionSelected = false;
 		Invalidate();
 
@@ -564,7 +324,7 @@ IMPLEMENT_DYNCREATE(CSImageViewerView, CView)
 			m_image[i].Init();
 		}
 		SAFE_DELETE(m_image);
-
+		m_sFilePath.Format(_T("%s"), sFilePath);
 		CStringArray saFilePath;
 		bool bRet = RecursivelyGetImageFilePaths(sFilePath, &saFilePath, &m_fileFomatList);
 		if(bRet != true){return false;}
@@ -658,10 +418,11 @@ IMPLEMENT_DYNCREATE(CSImageViewerView, CView)
 	void CSImageViewerView::OnEditCopy()
 	{
 		if(m_iImageMax <= 0){return;}
-		if(m_Rect_i.IsRectNull() == TRUE){return;}
+		CRect rect_i=view.GetRect_i();
+		if(rect_i.IsRectNull() == TRUE){return;}
 
 		CImage imgClipped;
-		ClipImage(m_image[m_iImageIndex].GetCurrentProcess(),&imgClipped, m_Rect_i.top,m_Rect_i.left, m_Rect_i.bottom, m_Rect_i.right); 
+		ClipImage(m_image[m_iImageIndex].GetCurrentProcess(),&imgClipped, rect_i.top,rect_i.left, rect_i.bottom, rect_i.right); 
 		CopyToClipBoardImg(&imgClipped);
 		return;
 	}
@@ -741,10 +502,10 @@ IMPLEMENT_DYNCREATE(CSImageViewerView, CView)
 		SetCaption();
 	}
 
-	void CSImageViewerView::FullDomain()
+	void CSImageViewerView::FullDomain(CRect* rect_i)
 	{
 		if(m_iImageMax <= 0){return;}
-		m_Rect_i.SetRect(0, 0, m_image[m_iImageIndex].GetCurrentProcess()->GetWidth()-1,m_image[m_iImageIndex].GetCurrentProcess()->GetHeight()-1);
+		rect_i->SetRect(0, 0, m_image[m_iImageIndex].GetCurrentProcess()->GetWidth()-1,m_image[m_iImageIndex].GetCurrentProcess()->GetHeight()-1);
 		CMainFrame* pFrame = (CMainFrame*)AfxGetMainWnd();
 		pFrame->m_bRegionSelected = true;
 	}
@@ -753,17 +514,15 @@ IMPLEMENT_DYNCREATE(CSImageViewerView, CView)
 		if(m_iImageMax <= 0){return;}
 		if(_IsImageMonochrome(m_image[m_iImageIndex].GetCurrentProcess())==false){AfxMessageBox(_T("This image is not monochrome.")); return;}
 		bool bAutoFull = false;
-		if(m_Rect_i.IsRectNull() == TRUE){bAutoFull = true;FullDomain();}
+		CRect rect_i=view.GetRect_i();
+		if(rect_i.IsRectNull() == TRUE){bAutoFull = true;FullDomain(&rect_i);}
 		
 		CSetTransparentDlg dlg;
 
 		CImage imgClipped;
-		ClipImage(m_image[m_iImageIndex].GetCurrentProcess(), &imgClipped, m_Rect_i.top,m_Rect_i.left, m_Rect_i.bottom, m_Rect_i.right); 
+		ClipImage(m_image[m_iImageIndex].GetCurrentProcess(), &imgClipped, rect_i.top,rect_i.left, rect_i.bottom, rect_i.right); 
 		CopyImage_CImage(&imgClipped, &dlg.m_image);
 		INT_PTR iRet = dlg.DoModal();
-
-
-
 	}
 	void CSImageViewerView::OperateCopyHistGramToClipboard()
 	{
@@ -816,23 +575,22 @@ IMPLEMENT_DYNCREATE(CSImageViewerView, CView)
 	{
 		if(m_iImageMax <= 0){return;}
 		bool bAutoFull = false;
-		if(m_Rect_i.IsRectNull() == TRUE){bAutoFull = true; FullDomain();}
+		CRect rect_i=view.GetRect_i();
+		if(rect_i.IsRectNull() == TRUE){bAutoFull = true; FullDomain(&rect_i);}
 
 		ImgRGB imgRGB;
 		_ConvertImage(m_image[m_iImageIndex].GetCurrentProcess(), &imgRGB);
-		InvertImage(&imgRGB,&imgRGB,m_Rect_i.top,m_Rect_i.left,m_Rect_i.bottom,m_Rect_i.right); 
+		InvertImage(&imgRGB,&imgRGB,rect_i.top,rect_i.left,rect_i.bottom,rect_i.right); 
 
 		if(bAutoFull == true)
 		{
-			m_Rect_v.SetRectEmpty();
-			m_Rect_i.SetRectEmpty();
+			view.SetRect_v(NULL);
+			view.SetRect_i(NULL);
 			CMainFrame* pFrame = (CMainFrame*)AfxGetMainWnd();
 			pFrame->m_bRegionSelected = false;
 		}
 
-
 		ConvertImage(&imgRGB,m_image[m_iImageIndex].ProgressImageProcess());
-
 
 		Invalidate();
 	}
@@ -841,16 +599,17 @@ IMPLEMENT_DYNCREATE(CSImageViewerView, CView)
 	{
 		if(m_iImageMax <= 0){return;}
 		bool bAutoFull = false;
-		if(m_Rect_i.IsRectNull() == TRUE){bAutoFull = true; FullDomain();}
+		CRect rect_i=view.GetRect_i();
+		if(rect_i.IsRectNull() == TRUE){bAutoFull = true; FullDomain(&rect_i);}
 
 		ImgRGB imgRGB;
 		ImgRGB imgMeaned;
 		_ConvertImage(m_image[m_iImageIndex].GetCurrentProcess(), &imgRGB);
-		EquHistImage(&imgRGB,&imgMeaned,m_Rect_i.top,m_Rect_i.left,m_Rect_i.bottom,m_Rect_i.right);
+		EquHistImage(&imgRGB,&imgMeaned,rect_i.top,rect_i.left,rect_i.bottom,rect_i.right);
 		if(bAutoFull == true)
 		{
-			m_Rect_v.SetRectEmpty();
-			m_Rect_i.SetRectEmpty();
+			view.SetRect_v(NULL);
+			view.SetRect_i(NULL);
 			CMainFrame* pFrame = (CMainFrame*)AfxGetMainWnd();
 			pFrame->m_bRegionSelected = false;
 		}
@@ -874,7 +633,8 @@ IMPLEMENT_DYNCREATE(CSImageViewerView, CView)
 	{
 		if(m_iImageMax <= 0){return;}
 		bool bAutoFull = false;
-		if(m_Rect_i.IsRectNull() == TRUE){bAutoFull = true; FullDomain();}
+		CRect rect_i=view.GetRect_i();
+		if(rect_i.IsRectNull() == TRUE){bAutoFull = true; FullDomain(&rect_i);}
 
 		CResampleDlg dlg;
 		dlg.m_iHeightOrg = m_image[m_iImageIndex].GetCurrentProcess()->GetHeight();
@@ -884,8 +644,8 @@ IMPLEMENT_DYNCREATE(CSImageViewerView, CView)
 		{
 			if(bAutoFull == true)
 			{
-				m_Rect_v.SetRectEmpty();
-				m_Rect_i.SetRectEmpty();
+				view.SetRect_v(NULL);
+				view.SetRect_i(NULL);
 				CMainFrame* pFrame = (CMainFrame*)AfxGetMainWnd();
 				pFrame->m_bRegionSelected = false;
 			}
@@ -904,8 +664,8 @@ IMPLEMENT_DYNCREATE(CSImageViewerView, CView)
 		}
 		if(bAutoFull == true)
 		{
-			m_Rect_v.SetRectEmpty();
-			m_Rect_i.SetRectEmpty();
+			view.SetRect_v(NULL);
+			view.SetRect_i(NULL);
 			CMainFrame* pFrame = (CMainFrame*)AfxGetMainWnd();
 			pFrame->m_bRegionSelected = false;
 		}
@@ -980,20 +740,21 @@ IMPLEMENT_DYNCREATE(CSImageViewerView, CView)
 		if(m_iImageMax <= 0){return;}
 		if(_IsImageMonochrome(m_image[m_iImageIndex].GetCurrentProcess())==false){AfxMessageBox(_T("This image is not monochrome.")); return;}
 		bool bAutoFull = false;
-		if(m_Rect_i.IsRectNull() == TRUE){bAutoFull = true;FullDomain();}
+		CRect rect_i=view.GetRect_i();
+		if(rect_i.IsRectNull() == TRUE){bAutoFull = true;FullDomain(&rect_i);}
 
 		CColorizeDlg dlgModify;
 
 		CImage imgClipped;
-		ClipImage(m_image[m_iImageIndex].GetCurrentProcess(), &imgClipped, m_Rect_i.top,m_Rect_i.left, m_Rect_i.bottom, m_Rect_i.right); 
+		ClipImage(m_image[m_iImageIndex].GetCurrentProcess(), &imgClipped, rect_i.top,rect_i.left, rect_i.bottom, rect_i.right); 
 		CopyImage_CImage(&imgClipped, &dlgModify.m_image);
 		INT_PTR iRet = dlgModify.DoModal();
 		if(iRet != IDOK)
 		{
 			if(bAutoFull == true)
 			{
-				m_Rect_v.SetRectEmpty();
-				m_Rect_i.SetRectEmpty();
+				view.SetRect_v(NULL);
+				view.SetRect_i(NULL);
 				CMainFrame* pFrame = (CMainFrame*)AfxGetMainWnd();
 				pFrame->m_bRegionSelected = false;
 			}
@@ -1006,8 +767,8 @@ IMPLEMENT_DYNCREATE(CSImageViewerView, CView)
 		ConvertImage(&imgRGB, m_image[m_iImageIndex].ProgressImageProcess());
 		if(bAutoFull == true)
 		{
-			m_Rect_v.SetRectEmpty();
-			m_Rect_i.SetRectEmpty();
+			view.SetRect_v(NULL);
+			view.SetRect_i(NULL);
 			CMainFrame* pFrame = (CMainFrame*)AfxGetMainWnd();
 			pFrame->m_bRegionSelected = false;
 		}
@@ -1018,12 +779,13 @@ IMPLEMENT_DYNCREATE(CSImageViewerView, CView)
 	{
 		if(m_iImageMax <= 0){return;}
 		bool bAutoFull = false;
-		if(m_Rect_i.IsRectNull() == TRUE){bAutoFull = true;FullDomain();}
+		CRect rect_i=view.GetRect_i();
+		if(rect_i.IsRectNull() == TRUE){bAutoFull = true;FullDomain(&rect_i);}
 
 		CImageModifyDlg dlgModify;
 
 		CImage imgClipped;
-		ClipImage(m_image[m_iImageIndex].GetCurrentProcess(), &imgClipped, m_Rect_i.top,m_Rect_i.left, m_Rect_i.bottom, m_Rect_i.right); 
+		ClipImage(m_image[m_iImageIndex].GetCurrentProcess(), &imgClipped, rect_i.top,rect_i.left, rect_i.bottom, rect_i.right); 
 		CopyImage_CImage(&imgClipped, &dlgModify.m_image);
 		INT_PTR iRet;
 		dlgModify.DoModal();
@@ -1032,8 +794,8 @@ IMPLEMENT_DYNCREATE(CSImageViewerView, CView)
 		{
 			if(bAutoFull == true)
 			{
-				m_Rect_v.SetRectEmpty();
-				m_Rect_i.SetRectEmpty();
+				view.SetRect_v(NULL);
+				view.SetRect_i(NULL);
 				CMainFrame* pFrame = (CMainFrame*)AfxGetMainWnd();
 				pFrame->m_bRegionSelected = false;
 			}
@@ -1048,12 +810,12 @@ IMPLEMENT_DYNCREATE(CSImageViewerView, CView)
 		ImgRGB imgResult1;
 		ImgRGB imgResult2;
 		_ConvertImage(m_image[m_iImageIndex].GetCurrentProcess(), &imgRGB);
-		BrightnessContrast(&imgRGB,&imgResult1,m_Rect_i.top,m_Rect_i.left,m_Rect_i.bottom,m_Rect_i.right,(double)iBrightness,(double)iContrast);
-		Gamma(&imgResult1,&imgResult2,m_Rect_i.top,m_Rect_i.left,m_Rect_i.bottom,m_Rect_i.right,dGamma);
+		BrightnessContrast(&imgRGB,&imgResult1,rect_i.top, rect_i.left, rect_i.bottom, rect_i.right,(double)iBrightness,(double)iContrast);
+		Gamma(&imgResult1,&imgResult2,rect_i.top, rect_i.left, rect_i.bottom, rect_i.right,dGamma);
 		if(bAutoFull == true)
 		{
-			m_Rect_v.SetRectEmpty();
-			m_Rect_i.SetRectEmpty();
+			view.SetRect_v(NULL);
+			view.SetRect_i(NULL);
 			CMainFrame* pFrame = (CMainFrame*)AfxGetMainWnd();
 			pFrame->m_bRegionSelected = false;
 		}
@@ -1111,12 +873,9 @@ IMPLEMENT_DYNCREATE(CSImageViewerView, CView)
 
 		imgTest.Save(_T("d:\\16_16_256.bmp"));
 		*/
-		int iHeight_v = GetClientHeight();
-		int iWidth_v = GetClientWidth();
-		int iBarWidth = ::GetSystemMetrics(SM_CYHSCROLL);
-		int iBarHeight = ::GetSystemMetrics(SM_CXVSCROLL);
-		int iHeightIfNoBar_v = iHeight_v+(m_bCBar ? iBarHeight : 0);
-		int iWidthIfNoBar_v = iWidth_v+(m_bRBar ? iBarWidth : 0);
+		int iHeightIfNoBar_v;
+		int iWidthIfNoBar_v;
+		view.GetSizeIfNoBar(&iHeightIfNoBar_v, &iWidthIfNoBar_v, this, true);
 		//		m_image[m_iImageIndex].m_imageProcessed[m_image[m_iImageIndex].m_iImgProcessIndex].Create(100,100,0);
 		pFrame->AdjustViewClientSize(100, 100,iWidthIfNoBar_v, iHeightIfNoBar_v);
 		/*
@@ -1159,7 +918,7 @@ IMPLEMENT_DYNCREATE(CSImageViewerView, CView)
 			bRet = GetFileFormat(m_sIniFilePath, sType, &(m_fileFomatList.fileFormat[i]));
 		}
 
-
+		pFrame->m_pView = this;
 
 		SetTimer(TIMER_INIT, 100, 0);
 	}
@@ -1193,203 +952,30 @@ IMPLEMENT_DYNCREATE(CSImageViewerView, CView)
 		Invalidate();
 		return true;
 	}
+
+
+	bool CSImageViewerView::ZoomChange(int iR0_i, int iC0_i, int iR1_i, int iC1_i)
+	{
+		if(m_iImageMax <= 0){return false;}
+		view.ZoomChange(iR0_i, iC0_i, iR1_i, iC1_i, m_image[m_iImageIndex].GetCurrentProcess(), this, true);
+		return true; 
+	}
+
 	bool CSImageViewerView::ZoomChange(int iChange)
 	{
 		if(m_iImageMax <= 0){return false;}
-		if((m_iScaleIndex >= SCALE_VAR_NUM-1)&&(iChange>0)){return false;}
-		if((m_iScaleIndex <= 0)&&(iChange<0)){return false;}
-
-		int iHeight_v = GetClientHeight();
-		int iWidth_v = GetClientWidth();
-		double dOldDispOriginR_tv = GetDispOriginR_tv();
-		double dOldDispOriginC_tv = GetDispOriginC_tv();
-
-		int iWidth_i = max(0,m_image[m_iImageIndex].GetCurrentProcess()->GetWidth());
-		int iHeight_i = max(0,m_image[m_iImageIndex].GetCurrentProcess()->GetHeight());
-
-		int iOldZoom = m_iScaleIndex;
-		double dOldWidth_tv = iWidth_i*g_dScale[iOldZoom];
-		double dNewDispOriginC_tv;
-		double dNewDispOriginR_tv;
-		int iNewZoom = m_iScaleIndex+= iChange;
-		double dNewWidth_tv = iWidth_i*g_dScale[iNewZoom];
-		double dNewHeight_tv = iHeight_i*g_dScale[iNewZoom];
-
-
-		if(dNewWidth_tv>iWidth_v)
-		{
-			double dOldCenterC_i = (dOldDispOriginC_tv +iWidth_v/2.0)/g_dScale[iOldZoom];
-			double dOldEndC_i = (dOldDispOriginC_tv +iWidth_v)/g_dScale[iOldZoom];
-			dNewDispOriginC_tv = max(0, min(dOldCenterC_i*g_dScale[iNewZoom] - iWidth_v/2.0, dOldEndC_i*g_dScale[iNewZoom]-iWidth_v));
-		}
-		else
-		{
-			dNewDispOriginC_tv = 0;
-		}
-
-		if(dNewHeight_tv>iHeight_v)
-		{
-			double dOldCenterR_i = (dOldDispOriginR_tv +iHeight_v/2.0)/g_dScale[iOldZoom];
-			double dOldEndR_i = (dOldDispOriginR_tv +iHeight_v)/g_dScale[iOldZoom];
-			dNewDispOriginR_tv = max(0, min(dOldCenterR_i*g_dScale[iNewZoom] - iHeight_v/2.0, dOldEndR_i*g_dScale[iNewZoom]-iHeight_v));
-		}
-		else
-		{
-			dNewDispOriginR_tv = 0;
-		}
-		m_iScaleIndex = iNewZoom;
-
-
-		SetScrollPos((int)(dNewDispOriginR_tv), (int)(dNewDispOriginC_tv));
-
-		if(m_iScaleIndex >= SCALE_VAR_NUM-1){m_iScaleIndex = SCALE_VAR_NUM-1;}
-		if(m_iScaleIndex <= 0){m_iScaleIndex = 0;}
-
-		SetGridEnableDesable();
-		SetScroll();
-		Invalidate();
-
-		CPoint point_v;
-		GetCursorPos(&point_v);
-		ScreenToClient(&point_v);
-		DispStatus(point_v);
+		view.ZoomChange(iChange, m_image[m_iImageIndex].GetCurrentProcess(), this, true);		
 		return true; 
-	}
-	void CSImageViewerView::SetGridEnableDesable()
-	{
-		CMainFrame* pFrame = (CMainFrame*)AfxGetMainWnd();
-		if(g_dScale[m_iScaleIndex]>10){	pFrame->m_bGridAble = true;}
-		else{pFrame->m_bGridAble = false;}
 	}
 
 	bool CSImageViewerView::ZoomChange(int iMousePosR_v, int iMousePosC_v, int iChange)
 	{
 		if(m_iImageMax <= 0){return false;}
-		if((m_iScaleIndex >= SCALE_VAR_NUM-1)&&(iChange>0)){return false;}
-		if((m_iScaleIndex <= 0)&&(iChange<0)){return false;}
-
-		double dMousePosR_tv = iMousePosR_v + GetDispOriginR_tv();
-		double dMousePosC_tv = iMousePosC_v + GetDispOriginC_tv();
-
-		double dMousePosR_i = dMousePosR_tv/g_dScale[m_iScaleIndex];
-		double dMousePosC_i = dMousePosC_tv/g_dScale[m_iScaleIndex];
-
-
-		int iHeight_v = GetClientHeight();
-		int iWidth_v = GetClientWidth();
-		double dOldDispOriginR_tv = GetDispOriginR_tv();
-		double dOldDispOriginC_tv = GetDispOriginC_tv();
-
-		int iWidth_i = max(0,m_image[m_iImageIndex].GetCurrentProcess()->GetWidth());
-		int iHeight_i = max(0,m_image[m_iImageIndex].GetCurrentProcess()->GetHeight());
-
-		double dWidth_tv = iWidth_i*g_dScale[m_iScaleIndex];
-		double dHeight_tv = iHeight_i*g_dScale[m_iScaleIndex];
-		double dNewDispOriginC_tv;
-		double dNewDispOriginR_tv;
-		m_iScaleIndex+= iChange;		
-
-		SetGridEnableDesable();
-		SetScroll();
-		if(dWidth_tv>iWidth_v)
-		{
-			double dNewMousePosC_tv = dMousePosC_i*g_dScale[m_iScaleIndex];
-			dNewDispOriginC_tv = max(0, (dNewMousePosC_tv-iMousePosC_v));
-		}
-		else
-		{
-			dNewDispOriginC_tv = 0;
-		}
-
-		if(dHeight_tv>iHeight_v)
-		{
-			double dNewMousePosR_tv = dMousePosR_i*g_dScale[m_iScaleIndex];
-			dNewDispOriginR_tv = max(0, dNewMousePosR_tv-iMousePosR_v);
-		}
-		else
-		{
-			dNewDispOriginR_tv = 0;
-		}
-
-		SetScrollPos((int)(dNewDispOriginR_tv), (int)(dNewDispOriginC_tv));
-
-		Invalidate();
-
-		CPoint point_v;
-		GetCursorPos(&point_v);
-		ScreenToClient(&point_v);
-		DispStatus(point_v);
+		view.ZoomChange(iMousePosR_v, iMousePosC_v, iChange, m_image[m_iImageIndex].GetCurrentProcess(), this, true);
 		return true; 
 	}
 
 
-	void CSImageViewerView::SetScrollPos(int iR_tv, int iC_tv)
-	{		
-		SCROLLINFO si;
-
-		GetScrollInfo(SB_VERT, &si);
-		if(si.nPage>0)
-		{
-			int iNewPos_scl = (int)(iR_tv*(si.nMax-si.nPage+1.0)/(si.nMax *1.0));
-			m_dDispOriginR_tv = iR_tv;
-			si.nPos = (int)(max(si.nMin,min(si.nMax-si.nPage+1.0,iNewPos_scl) ));;
-			SetScrollInfo(SB_VERT, &si, TRUE);
-		}
-
-		GetScrollInfo(SB_HORZ, &si);
-		if(si.nPage>0)
-		{
-			int iNewPos_scl = (int)(iC_tv*(si.nMax-si.nPage+1.0)/(si.nMax *1.0));
-			m_dDispOriginC_tv = iC_tv;
-			si.nPos = (int)(max(si.nMin,min(si.nMax-si.nPage+1.0, iNewPos_scl) )); 
-			SetScrollInfo(SB_HORZ, &si, TRUE);
-		}
-	}
-	bool CSImageViewerView::ZoomChange(int iR0_i, int iC0_i, int iR1_i, int iC1_i)
-	{
-		int iHeight_v = GetClientHeight();
-		int iWidth_v = GetClientWidth();
-
-		int iNewScaleIndex = m_iScaleIndex;
-		for(int i = SCALE_VAR_NUM-1; i >= 0; i--)
-		{
-			if((iHeight_v>(iR1_i-iR0_i+1)*g_dScale[i]) && (iWidth_v>(iC1_i-iC0_i+1)*g_dScale[i]))
-			{
-				iNewScaleIndex = i;
-				break;
-			}
-		}
-
-
-		m_iScaleIndex = iNewScaleIndex;
-		if(m_iScaleIndex >= SCALE_VAR_NUM-1){m_iScaleIndex = SCALE_VAR_NUM-1;}
-		if(m_iScaleIndex <= 0){m_iScaleIndex = 0;}
-
-		SetGridEnableDesable();
-
-		SetScroll();
-
-		double dNewCenterR_i = (iR0_i + iR1_i)/2.0;
-		double dNewCenterC_i = (iC0_i + iC1_i)/2.0;
-
-		double dNewCenterR_tv = dNewCenterR_i*g_dScale[m_iScaleIndex];
-		double dNewCenterC_tv = dNewCenterC_i*g_dScale[m_iScaleIndex];
-
-
-		int iNewScrollR_tv = max(0,int(dNewCenterR_tv-iHeight_v/2.0));
-		int iNewScrollC_tv = max(0,int(dNewCenterC_tv-iWidth_v/2.0));
-
-		SetScrollPos(iNewScrollR_tv, iNewScrollC_tv);
-
-
-		Invalidate();
-
-		CPoint point_v;
-		GetCursorPos(&point_v);
-		ScreenToClient(&point_v);
-		DispStatus(point_v);
-		return true; 
-	}
 
 	void CSImageViewerView::EnterFullScreen()
 	{
@@ -1415,8 +1001,8 @@ IMPLEMENT_DYNCREATE(CSImageViewerView, CView)
 		colorValue->Init();
 		CPoint point_tv((int)(point_v.x + GetDispOriginC_tv()), (int)(point_v.y + GetDispOriginR_tv()));
 
-		int iC_img_Local = (int)((point_tv.x) / g_dScale[m_iScaleIndex]);
-		int iR_img_Local = (int)((point_tv.y) / g_dScale[m_iScaleIndex]);
+		int iC_img_Local = (int)((point_tv.x) / view.GetScale());
+		int iR_img_Local = (int)((point_tv.y) / view.GetScale());
 
 
 		if (iC_img_Local < 0){return false;}
@@ -1458,8 +1044,8 @@ IMPLEMENT_DYNCREATE(CSImageViewerView, CView)
 		colorValue->Init();
 		CPoint point_tv((int)(point_v.x + GetDispOriginC_tv()), (int)(point_v.y + GetDispOriginR_tv()));
 
-		int iC_img_Local = (int)((point_tv.x) / g_dScale[m_iScaleIndex]);
-		int iR_img_Local = (int)((point_tv.y) / g_dScale[m_iScaleIndex]);
+		int iC_img_Local = (int)((point_tv.x) / view.GetScale());
+		int iR_img_Local = (int)((point_tv.y) / view.GetScale());
 
 
 		if (iC_img_Local < 0){return false;}
@@ -1547,34 +1133,35 @@ IMPLEMENT_DYNCREATE(CSImageViewerView, CView)
 		{
 			pFrame->m_sStatusMousePos.Format(_T("(%d, %d)"),iC_img, iR_img);
 		}
-
-		if(m_bDragging == true)
+		
+		CRect rect_i=view.GetRect_i();
+		if(view.GetDragging() == true)
 		{
-			if(m_Rect_v.IsRectNull() == TRUE)
+			if(view.GetRect_v().IsRectNull() == TRUE)
 			{
 				pFrame->m_sStatusSelection.Format(_T("not selected"));
 			}
 			else
 			{
-				CRect rectTemp = v_to_i(&m_Rect_v);
+				CRect rectTemp = v_to_i(&(view.GetRect_v()));
 				pFrame->m_sStatusSelection.Format(_T("(%d, %d) - (%d, %d) : %d x %d "), rectTemp.left,rectTemp.top,rectTemp.right,rectTemp.bottom,rectTemp.right-rectTemp.left+1,rectTemp.bottom-rectTemp.top+1);	
 			}
 		}
 		else
 		{
-			if(m_Rect_i.IsRectNull() == TRUE)
+			if(rect_i.IsRectNull() == TRUE)
 			{
 				pFrame->m_sStatusSelection.Format(_T("not selected"));
 			}
 			else
 			{
-				pFrame->m_sStatusSelection.Format(_T("(%d, %d) - (%d, %d) : %d x %d "), m_Rect_i.left,m_Rect_i.top,m_Rect_i.right,m_Rect_i.bottom,m_Rect_i.right-m_Rect_i.left+1,m_Rect_i.bottom-m_Rect_i.top+1);	
+				pFrame->m_sStatusSelection.Format(_T("(%d, %d) - (%d, %d) : %d x %d "), rect_i.left,rect_i.top,rect_i.right,rect_i.bottom,rect_i.right-rect_i.left+1,rect_i.bottom-rect_i.top+1);	
 			}
 		}
 
 		pFrame->SendMessage(WM_COMMAND, ID_DISP_STATUS_MOUSE_POS);
 
-		pFrame->m_sStatusZoom.Format(_T("%.3f%%"), 100*g_dScale[m_iScaleIndex]);
+		pFrame->m_sStatusZoom.Format(_T("%.3f%%"), 100*view.GetScale());
 		pFrame->SendMessage(WM_COMMAND, ID_DISP_STATUS_ZOOM);
 
 		return;
@@ -1586,123 +1173,21 @@ IMPLEMENT_DYNCREATE(CSImageViewerView, CView)
 
 		DispStatus(point_v);
 
-		if (m_bDragging == true) 
-		{ 
-			switch(m_iMouseMode)
-			{
-			case CHANGE_U: {CRect rectTemp_v = i_to_v(&m_Rect_i); m_Rect_v = CRect(CPoint(rectTemp_v.left,point_v.y), CPoint(rectTemp_v.right,rectTemp_v.bottom)); break;}
-			case CHANGE_B: {CRect rectTemp_v = i_to_v(&m_Rect_i); m_Rect_v = CRect(CPoint(rectTemp_v.left,rectTemp_v.top), CPoint(rectTemp_v.right,point_v.y)); break;}
-			case CHANGE_L: {CRect rectTemp_v = i_to_v(&m_Rect_i); m_Rect_v = CRect(CPoint(point_v.x,rectTemp_v.top), CPoint(rectTemp_v.right,rectTemp_v.bottom)); break;}
-			case CHANGE_R: {CRect rectTemp_v = i_to_v(&m_Rect_i); m_Rect_v = CRect(CPoint(rectTemp_v.left, rectTemp_v.top), CPoint(point_v.x,rectTemp_v.bottom)); break;}
-			case CHANGE_LU: {CRect rectTemp_v = i_to_v(&m_Rect_i); m_Rect_v = CRect(CPoint(point_v.x, point_v.y), CPoint(rectTemp_v.right,rectTemp_v.bottom)); break;}
-			case CHANGE_RU: {CRect rectTemp_v = i_to_v(&m_Rect_i); m_Rect_v = CRect(CPoint(rectTemp_v.left, point_v.y), CPoint(point_v.x,rectTemp_v.bottom)); break;}
-			case CHANGE_LB: {CRect rectTemp_v = i_to_v(&m_Rect_i); m_Rect_v = CRect(CPoint(point_v.x, rectTemp_v.top), CPoint(rectTemp_v.right,point_v.y)); break;}
-			case CHANGE_RB: {CRect rectTemp_v = i_to_v(&m_Rect_i); m_Rect_v = CRect(CPoint(rectTemp_v.left, rectTemp_v.top), CPoint(point_v.x,point_v.y)); break;}
-			default :
-				{
-					m_Rect_v = CRect(m_PointStart_v, point_v);
-				}
-			}
-			m_Rect_v.NormalizeRect();
-			CView::OnMouseMove(nFlags, point_v);
-			Invalidate();
-			return;
-		} 
-
-
-		CRect rectTemp_v;
-		rectTemp_v = i_to_v(&m_Rect_i);
-
-		int iBoarder = 0;
-		if(isNearTheBoarder(point_v.y, rectTemp_v.top,RECT_CHANGE_MARGIN_PIX) == true){iBoarder += 1;}
-		if(isNearTheBoarder(point_v.x, rectTemp_v.left,RECT_CHANGE_MARGIN_PIX) == true){iBoarder += 2;}
-		if(isNearTheBoarder(point_v.x, rectTemp_v.right,RECT_CHANGE_MARGIN_PIX) == true){iBoarder += 4;}
-		if(isNearTheBoarder(point_v.y, rectTemp_v.bottom,RECT_CHANGE_MARGIN_PIX) == true){iBoarder += 8;}
-
-		switch(iBoarder)
-		{
-		case 1:{if(isInTheRange(point_v.x,rectTemp_v.left,rectTemp_v.right) == true){m_iMouseMode = CHANGE_U;} CView::OnMouseMove(nFlags, point_v); return;}
-		case 2:{if(isInTheRange(point_v.y,rectTemp_v.top,rectTemp_v.bottom) == true){m_iMouseMode = CHANGE_L;} CView::OnMouseMove(nFlags, point_v); return;}
-		case 4:{if(isInTheRange(point_v.y,rectTemp_v.top,rectTemp_v.bottom) == true){m_iMouseMode = CHANGE_R;} CView::OnMouseMove(nFlags, point_v); return;}
-		case 8:{if(isInTheRange(point_v.x,rectTemp_v.left,rectTemp_v.right) == true){m_iMouseMode = CHANGE_B;} CView::OnMouseMove(nFlags, point_v); return;}
-		case 3:{m_iMouseMode = CHANGE_LU; CView::OnMouseMove(nFlags, point_v); return;}
-		case 5:{m_iMouseMode = CHANGE_RU; CView::OnMouseMove(nFlags, point_v); return;}
-		case 10:{m_iMouseMode = CHANGE_LB; CView::OnMouseMove(nFlags, point_v); return;}
-		case 12:{m_iMouseMode = CHANGE_RB; CView::OnMouseMove(nFlags, point_v); return;}
-		default:{break;}
-		}
-		if((point_v.y >= rectTemp_v.top)&&(point_v.y <= rectTemp_v.bottom)&&(point_v.x >= rectTemp_v.left)&&(point_v.x <= rectTemp_v.right))
-		{
-			m_iMouseMode = CHANGE_ZOOMUP;
-		}
-		else
-		{
-			m_iMouseMode = CHANGE_NONE;
-		}
-
+		view.OnMouseMove(nFlags, point_v, m_image[m_iImageIndex].GetCurrentProcess(), this, true);
 		CView::OnMouseMove(nFlags, point_v);
 	}
 
 
 	void CSImageViewerView::OnLButtonDown(UINT nFlags, CPoint point_v)
 	{
-		SetCapture(); 
-		m_bDragging = true;
-		m_PointStart_v.SetPoint(point_v.x,point_v.y); 
-
+		view.OnLButtonDown(nFlags, point_v, m_image[m_iImageIndex].GetCurrentProcess(), this, true);
 		CView::OnLButtonDown(nFlags, point_v);
 	}
 
 
 	void CSImageViewerView::OnLButtonUp(UINT nFlags, CPoint point_v)
 	{
-		if (m_bDragging == TRUE) 
-		{
-			ReleaseCapture(); 
-			m_bDragging = false; 
-
-			if(m_PointStart_v == point_v)
-			{
-				if(m_iMouseMode == CHANGE_B){CView::OnLButtonUp(nFlags, point_v); return;}
-				if(m_iMouseMode == CHANGE_L){CView::OnLButtonUp(nFlags, point_v); return;}
-				if(m_iMouseMode == CHANGE_R){CView::OnLButtonUp(nFlags, point_v); return;}
-				if(m_iMouseMode == CHANGE_U){CView::OnLButtonUp(nFlags, point_v); return;}
-				if(m_iMouseMode == CHANGE_LB){CView::OnLButtonUp(nFlags, point_v); return;}
-				if(m_iMouseMode == CHANGE_LU){CView::OnLButtonUp(nFlags, point_v); return;}
-				if(m_iMouseMode == CHANGE_RB){CView::OnLButtonUp(nFlags, point_v); return;}
-				if(m_iMouseMode == CHANGE_RU){CView::OnLButtonUp(nFlags, point_v); return;}
-
-				CRect rect_v;
-				rect_v = i_to_v(&m_Rect_i);
-				if((point_v.y >= rect_v.top)&&(point_v.y <= rect_v.bottom)&&(point_v.x >= rect_v.left)&&(point_v.x <= rect_v.right) && (m_iMouseMode == CHANGE_ZOOMUP))
-				{
-					ZoomChange(m_Rect_i.top, m_Rect_i.left, m_Rect_i.bottom,m_Rect_i.right);
-					m_Rect_v.SetRectEmpty();
-					m_Rect_i.SetRectEmpty();
-					m_iMouseMode = CHANGE_NONE;
-					CMainFrame* pFrame = (CMainFrame*)AfxGetMainWnd();
-					pFrame->m_bRegionSelected = false;
-					Invalidate();
-					CView::OnLButtonUp(nFlags, point_v);
-					return;
-				}
-				m_Rect_v.SetRectEmpty();
-				m_Rect_i.SetRectEmpty();
-				CMainFrame* pFrame = (CMainFrame*)AfxGetMainWnd();
-				pFrame->m_bRegionSelected = false;
-				Invalidate();
-				CView::OnLButtonUp(nFlags, point_v);
-				return;
-			}
-			m_Rect_i = v_to_i(&m_Rect_v);
-			m_Rect_i.left = max(0,m_Rect_i.left);
-			m_Rect_i.top = max(0,m_Rect_i.top);
-			m_Rect_v.SetRectEmpty();
-			CMainFrame* pFrame = (CMainFrame*)AfxGetMainWnd();
-			pFrame->m_bRegionSelected = true;
-			Invalidate();
-		}
-
+		view.OnLButtonUp(nFlags, point_v, m_image[m_iImageIndex].GetCurrentProcess(), this, true);
 		CView::OnLButtonUp(nFlags, point_v);
 	}
 
@@ -1736,67 +1221,8 @@ IMPLEMENT_DYNCREATE(CSImageViewerView, CView)
 
 	BOOL CSImageViewerView::OnSetCursor(CWnd* pWnd, UINT nHitTest, UINT message)
 	{
-		if (nHitTest == HTCLIENT) 
-		{
-			switch(m_iMouseMode)
-			{
-			case CHANGE_NONE:{SetCursor(AfxGetApp()->LoadCursorW(IDC_CURSOR_CROSS));return TRUE;}
-			case CHANGE_L:{SetCursor(AfxGetApp()->LoadStandardCursor(IDC_SIZEWE));return TRUE;}
-			case CHANGE_R:{SetCursor(AfxGetApp()->LoadStandardCursor(IDC_SIZEWE));return TRUE;}
-			case CHANGE_U:{SetCursor(AfxGetApp()->LoadStandardCursor(IDC_SIZENS));return TRUE;}
-			case CHANGE_B:{SetCursor(AfxGetApp()->LoadStandardCursor(IDC_SIZENS));return TRUE;}
-			case CHANGE_LU:{SetCursor(AfxGetApp()->LoadStandardCursor(IDC_SIZENWSE));return TRUE;}
-			case CHANGE_RB:{SetCursor(AfxGetApp()->LoadStandardCursor(IDC_SIZENWSE));return TRUE;}
-			case CHANGE_RU:{SetCursor(AfxGetApp()->LoadStandardCursor(IDC_SIZENESW));return TRUE;}
-			case CHANGE_LB:{SetCursor(AfxGetApp()->LoadStandardCursor(IDC_SIZENESW));return TRUE;}
-			case CHANGE_ZOOMUP:{SetCursor(AfxGetApp()->LoadCursorW(IDC_CURSOR_ZOOMIN));return TRUE;}
-			}
-		}
-
+		if(view.OnSetCursor(pWnd, nHitTest, message)==TRUE){return TRUE;}
 		return CView::OnSetCursor(pWnd, nHitTest, message);
-	}
-
-	CRect CSImageViewerView::v_to_i(const CRect* rect_v)
-	{
-		CRect rect_i;
-		rect_i.SetRectEmpty();
-		if(rect_v->IsRectNull() == TRUE)
-		{
-			return rect_i;
-		}
-
-		int iCOrigin_tv = (int)(GetDispOriginC_tv());
-		int iROrigin_tv = (int)(GetDispOriginR_tv());
-
-		rect_i.SetRect(
-			(int)(((rect_v->left+ iCOrigin_tv) / g_dScale[m_iScaleIndex]) +0.5)
-			,(int)(((rect_v->top+ iROrigin_tv) / g_dScale[m_iScaleIndex]) +0.5)
-			,(int)(((rect_v->right+ iCOrigin_tv) / g_dScale[m_iScaleIndex]) -0.5)
-			,(int)(((rect_v->bottom+ iROrigin_tv) / g_dScale[m_iScaleIndex]) -0.5));
-		if(rect_i.right<rect_i.left){rect_i.right = rect_i.left;}
-		if(rect_i.bottom<rect_i.top){rect_i.bottom = rect_i.top;}
-		return rect_i;
-	}
-
-	CRect CSImageViewerView::i_to_v(const CRect* rect_i)
-	{
-		CRect rect_v;
-		if(rect_i->IsRectNull() == TRUE)
-		{
-			rect_v.SetRectEmpty();
-			return rect_v;
-		}
-
-		int iCOrigin_tv = (int)GetDispOriginC_tv();
-		int iROrigin_tv = (int)GetDispOriginR_tv();
-
-		rect_v.SetRect(
-			(int)((rect_i->left ) * g_dScale[m_iScaleIndex])-iCOrigin_tv
-			,(int)((rect_i->top ) * g_dScale[m_iScaleIndex])-iROrigin_tv
-			,(int)((rect_i->right +1 ) * g_dScale[m_iScaleIndex])-iCOrigin_tv
-			,(int)((rect_i->bottom +1) * g_dScale[m_iScaleIndex])-iROrigin_tv);
-
-		return rect_v;
 	}
 
 
@@ -1863,7 +1289,9 @@ IMPLEMENT_DYNCREATE(CSImageViewerView, CView)
 				}
 				if(pMsg->wParam == 'A')
 				{
-					FullDomain();
+					CRect rect_i;
+					FullDomain(&rect_i);
+					view.SetRect_i(&rect_i);
 					return TRUE; 
 				}
 				if(pMsg->wParam == 'Z')
@@ -1955,85 +1383,12 @@ IMPLEMENT_DYNCREATE(CSImageViewerView, CView)
 	void CSImageViewerView::OnScroll(int iSB, int nSBCode, int nPos)
 	{
 		if(m_iImageMax <= 0){return;}
-		if((iSB == SB_VERT) && (m_bRBar == false)){return ;}
-		if((iSB == SB_HORZ) && (m_bCBar == false)){return ;}
-
-		int iHeight_v = GetClientHeight();
-		int iWidth_v = GetClientWidth();
-
-		int iBarWidth = ::GetSystemMetrics(SM_CYHSCROLL);
-		int iBarHeight = ::GetSystemMetrics(SM_CXVSCROLL);
-
-		int iWidth_i = max(0,m_image[m_iImageIndex].GetCurrentProcess()->GetWidth());
-		int iHeight_i = max(0,m_image[m_iImageIndex].GetCurrentProcess()->GetHeight());
-
-		int iWidth_tv = (int)(iWidth_i*g_dScale[m_iScaleIndex]);
-		int iHeight_tv = (int)(iHeight_i*g_dScale[m_iScaleIndex]);
-
-
-
-		int iHeightIfNoBar_v = iHeight_v+(m_bCBar ? iBarHeight : 0);
-		int iWidthIfNoBar_v = iWidth_v+(m_bRBar ? iBarWidth : 0);
-
-
-		SCROLLINFO si;
-		GetScrollInfo(iSB,&si);
-		if(si.nPage == 0){return ;}
-
-		int iPageSize = si.nPage;
-		int iMin = si.nMin;
-		int iMax = si.nMax;
-		int iTrackPos = si.nTrackPos ;
-		int iOldPos_scl;
-		if(iSB == SB_VERT)
-		{
-			iOldPos_scl = (int)(GetDispOriginR_tv()*(iMax-iPageSize+1.0)/(iMax*1.0));
-		}
-		else
-		{
-			iOldPos_scl = (int)(GetDispOriginC_tv()*(iMax-iPageSize+1.0)/(iMax*1.0));
-		}
-
-
-		int iStep;
-		if(g_dScale[m_iScaleIndex] == 64)	{iStep = 64;}
-		else{iStep = max(int(g_dScale[m_iScaleIndex]),(int)(iPageSize/8.0));}
-
-		int iNewPos_scl;
-		switch (nSBCode)
-		{
-		case SB_LINEUP:		{iNewPos_scl = max(iMin, iOldPos_scl-iStep); break;}
-		case SB_LINEDOWN:	{iNewPos_scl = min(iMax-iPageSize+1, iOldPos_scl+iStep); break;}
-		case SB_PAGEUP:		{iNewPos_scl = max(iMin, iOldPos_scl-iPageSize); break;}
-		case SB_PAGEDOWN:	{iNewPos_scl = min(iMax-iPageSize+1, iOldPos_scl+iPageSize); break;}
-		case SB_THUMBTRACK:	{iNewPos_scl = max(iMin,min(iMax-iPageSize+1 , iTrackPos)); break;}
-		default:{return;}
-		}
-
-		if(iSB == SB_VERT)
-		{
-			m_dDispOriginR_tv = max(0, iMax*(iNewPos_scl*1.0)/(iMax-iPageSize+1.0));
-		}
-		else
-		{
-			m_dDispOriginC_tv = max(0, iMax*(iNewPos_scl*1.0)/(iMax-iPageSize+1.0));
-		}
-		si.nPos = (iNewPos_scl); 
-		SetScrollInfo(iSB, &si, TRUE);
-		Invalidate();
+		view.OnScroll(iSB, nSBCode, nPos, m_image[m_iImageIndex].GetCurrentProcess(), this, true);
 	}
 
 
-	void CSImageViewerView::OnHScroll(UINT nSBCode, UINT nPos, CScrollBar* pScrollBar)
-	{
-		OnScroll(SB_HORZ, nSBCode,nPos);
-	}
-
-
-	void CSImageViewerView::OnVScroll(UINT nSBCode, UINT nPos, CScrollBar* pScrollBar)
-	{
-		OnScroll(SB_VERT, nSBCode,nPos);
-	}
+	void CSImageViewerView::OnHScroll(UINT nSBCode, UINT nPos, CScrollBar* pScrollBar){OnScroll(SB_HORZ, nSBCode,nPos);}
+	void CSImageViewerView::OnVScroll(UINT nSBCode, UINT nPos, CScrollBar* pScrollBar){OnScroll(SB_VERT, nSBCode,nPos);}
 
 
 	BOOL CSImageViewerView::OnEraseBkgnd(CDC* pDC)
