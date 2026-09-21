@@ -170,11 +170,11 @@
     <ClCompile Include="ColorizeDlg.cpp">
       <Filter>ソース ファイル\Dlg</Filter>
     </ClCompile>
-    <ClCompile Include="SetTransparentDlg.cpp">
-      <Filter>ソース ファイル</Filter>
-    </ClCompile>
     <ClCompile Include="ViewDraw.cpp">
       <Filter>ソース ファイル</Filter>
+    </ClCompile>
+    <ClCompile Include="SetTransparentDlg.cpp">
+      <Filter>ソース ファイル\Dlg</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

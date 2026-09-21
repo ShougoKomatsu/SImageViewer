@@ -54,7 +54,7 @@ BOOL CSetTransparentDlg::OnInitDialog()
     CopyImage_CImage(&m_imageColor1,&m_pictureColor1.m_image);
     m_pictureColor1.Invalidate(FALSE);
 
-	m_pictureColor1.m_HBar1_i.Set(10, 0, 100, m_imageColor1.GetWidth()-1);
+	m_pictureColor1.view.m_HBar1_i.Set(10, 0, 100, m_imageColor1.GetWidth()-1);
 	
 //	m_pictureColor1.m_bHBar2=true;
 //	m_pictureColor1.m_iHBar2=100;

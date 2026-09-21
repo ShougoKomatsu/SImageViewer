@@ -21,6 +21,29 @@ enum MOUSE_CURSOR
 	CHANGE_RB = 9,
 
 };
+struct Line
+{
+	double dR0, dR1, dC0, dC1;
+	bool bValid;
+	Line(){Init();}
+	~Line(){Init();}
+	void Init(){bValid=false;}
+	void Set(const double dR0_in, const double dC0_in, const double dR1_in, const double dC1_in)
+	{
+		dR0=dR0_in;
+		dR1=dR1_in;
+		dC0=dC0_in;
+		dC1=dC1_in;
+		bValid=true;
+	}
+
+	const void operator = (const Line line_in)
+	{
+		this->Set(line_in.dR0, line_in.dC0, line_in.dR1, line_in.dC1);
+		return;
+	}
+};
+
 
 class ViewDraw
 {
@@ -40,54 +63,72 @@ private:
 	int m_iGrid;
 	bool m_bValue;
 	bool m_bRGB_Separate;
-public:
+	
 
-void ToggleGridMode(const int iGrid);
-void ToggleRGBSeparate();
+public:
+	
+	Line m_HBar1_v;
+	Line m_HBar2_v;
+	Line m_VBar1_v;
+	Line m_VBar2_v;
+
+	Line m_HBar1_i;
+	Line m_HBar2_i;
+	Line m_VBar1_i;
+	Line m_VBar2_i;
+
+	const Line v_to_i(const Line* line_v);
+	const Line i_to_v(const Line* line_i);
+
+	void ToggleGridMode(const int iGrid);
+	void ToggleRGBSeparate();
 	const bool GetRGBSeparateMode(){return m_bRGB_Separate;}
 
 	void ToggleValueMode();
 	const bool GetValueMode(){return m_bValue;}
 
 	const int GetGridMode(){return m_iGrid;}
-	void GetSizeIfNoBar(int* iHeightIfNoBar_v, int* iWidthIfNoBar_v, CWnd* wnd);
+	void GetSizeIfNoBar(int* iHeightIfNoBar_v, int* iWidthIfNoBar_v, CWnd* wnd, const bool bTopView);
 	void SetMouseMode(const int iMouseMode){m_iMouseMode=iMouseMode;}
 	const bool GetDragging(){return m_bDragging;}
 	const int GetMouseMode(){return m_iMouseMode;}
 	const double GetScale(){return g_dScale[m_iScaleIndex];}
-	void SetScroll(const CImage* img, CWnd* wnd);
+	void SetScroll(const CImage* img, CWnd* wnd, const bool bTopView);
 
 	void SetGridEnableDesable();
-	void SetScrollPos(int iR_tv, int iC_tv, CWnd* wnd);
-	bool ZoomChange(int iR0_i, int iC0_i, int iR1_i, int iC1_i, const CImage* img,  CWnd* wnd);
-	bool ZoomChange(int iChange,  const CImage* img,  CWnd* wnd);
-	bool ZoomChange(int iMousePosR_v, int iMousePosC_v, int iChange,  const CImage* img,  CWnd* wnd);
+	void SetScrollPos(int iR_tv, int iC_tv, CWnd* wnd, const bool bTopView);
+	const bool ZoomChange(int iR0_i, int iC0_i, int iR1_i, int iC1_i, const CImage* img,  CWnd* wnd, const bool bTopView);
+	const bool ZoomChange(int iChange,  const CImage* img,  CWnd* wnd, const bool bTopView);
+	const bool ZoomChange(int iMousePosR_v, int iMousePosC_v, int iChange,  const CImage* img,  CWnd* wnd, const bool bTopView);
 
-	void OnLButtonDown(UINT nFlags, CPoint point_v,  const CImage* img,  CWnd* wnd);
-	void OnLButtonUp(UINT nFlags, CPoint point_v,  const CImage* img,  CWnd* wnd);
-	void OnScroll(int iSB, int nSBCode, int nPos,  const CImage* img,  CWnd* wnd);
+	void OnLButtonDown(UINT nFlags, CPoint point_v,  const CImage* img,  CWnd* wnd, const bool bTopView);
+	void OnLButtonUp(UINT nFlags, CPoint point_v,  const CImage* img,  CWnd* wnd, const bool bTopView);
+	void OnScroll(int iSB, int nSBCode, int nPos,  const CImage* img,  CWnd* wnd, const bool bTopView);
 
-	//	int OnLButtonUp(UINT nFlags, CPoint point_v, CWnd* wnd);
+	//	int OnLButtonUp(UINT nFlags, CPoint point_v, CWnd* wnd, const bool bTopView);
 	afx_msg BOOL OnSetCursor(CWnd* pWnd, UINT nHitTest, UINT message);
 
 	void SetPointStart_v(const CPoint p_in){m_PointStart_v.SetPoint(p_in.x, p_in.y);}
 	const CPoint GetPointStart_v(){return m_PointStart_v;}
 
-	CRect v_to_i(const CRect* rect_v);
-	CRect i_to_v(const CRect* rect_i);
-	void ZoomReset( const CImage* img,  CWnd* wnd);
-	void OnMouseMove(UINT nFlags, CPoint point_v, const CImage* img,  CWnd* wnd);
-	double GetDispOriginR_tv();
-	double GetDispOriginC_tv();
+	const CRect v_to_i(const CRect* rect_v);
+	const CRect i_to_v(const CRect* rect_i);
+	void ZoomReset( const CImage* img,  CWnd* wnd, const bool bTopView);
+	void OnMouseMove(UINT nFlags, CPoint point_v, const CImage* img,  CWnd* wnd, const bool bTopView);
+	const double GetDispOriginR_tv(){return m_dDispOriginR_tv;};
+	const double GetDispOriginC_tv(){return m_dDispOriginC_tv;};
+
 	void SetDispOriginR_tv(const double dIn){m_dDispOriginR_tv = dIn;}
 	void SetDispOriginC_tv(const double dIn){m_dDispOriginC_tv = dIn;};
-	void OnDraw(CWnd* wnd, CDC* pDC, const CImage* img, PanImage* panImg);
+	void OnDraw(CWnd* wnd, CDC* pDC, const CImage* img, PanImage* panImg, const bool bTopView);
 	const CRect GetRect_i(){return m_Rect_i;}
 	const CRect GetRect_v(){return m_Rect_v;}
 	void SetRect_i(const CRect* rect_in){ if(rect_in==NULL){m_Rect_i.SetRectEmpty();}else{m_Rect_i=(*rect_in);}}
 	void SetRect_v(const CRect* rect_in){ if(rect_in==NULL){m_Rect_v.SetRectEmpty();}else{m_Rect_v=(*rect_in);}}
 	void Init()
 	{
+	m_dDispOriginR_tv=0;
+	m_dDispOriginC_tv=0;
 		m_bCBar = false;
 		m_bRBar = false;
 		m_bDragging = false;
@@ -103,14 +144,14 @@ void ToggleRGBSeparate();
 	{
 		Init();
 	}
-	int GetClientHeight(CWnd* wnd)
+	int GetClientHeight(CWnd* wnd, const bool bTopView)
 	{
 		CRect rectClient;
 		wnd->GetClientRect(&rectClient);
 		return rectClient.Height();
 	}
 
-	int GetClientWidth(CWnd* wnd)
+	int GetClientWidth(CWnd* wnd, const bool bTopView)
 	{
 		CRect rectClient;
 		wnd->GetClientRect(&rectClient);

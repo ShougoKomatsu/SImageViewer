@@ -152,6 +152,7 @@ void CPictureCtrlEx::OnMouseMove(UINT nFlags, CPoint point)
 void CPictureCtrlEx::OnPaint()
 {
 	CPaintDC dc(this);
+	CDC* pDC = this->GetDC();
 
 	CRect rc;
 	GetClientRect(&rc);
@@ -161,16 +162,12 @@ void CPictureCtrlEx::OnPaint()
 	double dZoom=min(rc.Width()/(m_image.GetWidth()*1.0),rc.Height()/(m_image.GetHeight()*1.0));
 
 	CImage imgZoomed;
-	ZoomImage(&(m_image),&imgZoomed,0,0,dZoom,rc.Width(), rc.Height(),false);
 
 
-
-	if(m_HBar1_i.bValid==true){Line line_v; line_v=i_to_v(&m_HBar1_i); ImposeLine(&imgZoomed, &imgZoomed, line_v.dR0, line_v.dC0, line_v.dR1, line_v.dC1);}
-	if(m_HBar2_i.bValid==true){Line line_v; line_v=i_to_v(&m_HBar2_i); ImposeLine(&imgZoomed, &imgZoomed, line_v.dR0, line_v.dC0, line_v.dR1, line_v.dC1);}
-	if(m_VBar1_i.bValid==true){Line line_v; line_v=i_to_v(&m_VBar1_i); ImposeLine(&imgZoomed, &imgZoomed, line_v.dR0, line_v.dC0, line_v.dR1, line_v.dC1);}
-	if(m_VBar2_i.bValid==true){Line line_v; line_v=i_to_v(&m_VBar2_i); ImposeLine(&imgZoomed, &imgZoomed, line_v.dR0, line_v.dC0, line_v.dR1, line_v.dC1);}
-
-	imgZoomed.BitBlt( dc.GetSafeHdc(), 0, 0,imgZoomed.GetWidth(), imgZoomed.GetHeight(), 0, 0  );
+	view.ZoomChange(0, 0, m_image.GetHeight()-1, m_image.GetWidth()-1, &m_image, this, false);
+	PanImage panImage;
+	panImage.Set(IMAGE_TYPE_CIMAGE, NULL, NULL, 0, 0, &m_image, VALUE_IMAGE_CLIP_0_TO_255, _T("temp"));
+	view.OnDraw(this, pDC, &m_image, &panImage, false);
 }
 bool CopyToClipBoardStr(const CString sValue)
 {

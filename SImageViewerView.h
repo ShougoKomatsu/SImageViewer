@@ -34,8 +34,9 @@ public:
 
 	bool m_bBeingFullScreen;
 
-	CRect v_to_i(const CRect* rect_v);
-	CRect i_to_v(const CRect* rect_i);
+	const CRect v_to_i(const CRect* rect_v){return view.v_to_i(rect_v);}
+	const CRect i_to_v(const CRect* rect_i){return view.i_to_v(rect_i);}
+	
 
 	int GetClientHeight();
 	int GetClientWidth();
@@ -68,8 +69,8 @@ public:
 	void OperateEquHistImage();
 	void OperateConvertColorSpace();
 	void OperateChangeColorDepth();
-	void OperateInvert();
-	void SetGridEnableDesable();
+	void OperateInvert();	
+	void SetGridEnableDesable(){view.SetGridEnableDesable();}
 	void OperateTransparent();
 	bool GetColorAtCursor(const CImage* img, CPoint point_v, int* iR_img, int* iC_img, ColorValue* colorValue);
 	bool GetColorAtCursor(PanImage* img, CPoint point_v, int* iR_img, int* iC_img, ColorValue* colorValue);
