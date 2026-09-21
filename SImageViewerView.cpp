@@ -250,8 +250,8 @@ IMPLEMENT_DYNCREATE(CSImageViewerView, CView)
 		{
 			view.ZoomReset( m_image[m_iImageIndex].GetCurrentProcess(), this);
 		}
-		view.m_iMouseMode = 0;
-		view.SetRect_i(NULL);;
+		view.SetMouseMode(0);
+		view.SetRect_i(NULL);
 		pFrame->m_bRegionSelected = false;
 		Invalidate();
 
@@ -879,12 +879,9 @@ IMPLEMENT_DYNCREATE(CSImageViewerView, CView)
 
 		imgTest.Save(_T("d:\\16_16_256.bmp"));
 		*/
-		int iHeight_v = GetClientHeight();
-		int iWidth_v = GetClientWidth();
-		int iBarWidth = ::GetSystemMetrics(SM_CYHSCROLL);
-		int iBarHeight = ::GetSystemMetrics(SM_CXVSCROLL);
-		int iHeightIfNoBar_v = iHeight_v+(view.m_bCBar ? iBarHeight : 0);
-		int iWidthIfNoBar_v = iWidth_v+(view.m_bRBar ? iBarWidth : 0);
+		int iHeightIfNoBar_v;
+		int iWidthIfNoBar_v;
+		view.GetSizeIfNoBar(&iHeightIfNoBar_v, &iWidthIfNoBar_v, this);
 		//		m_image[m_iImageIndex].m_imageProcessed[m_image[m_iImageIndex].m_iImgProcessIndex].Create(100,100,0);
 		pFrame->AdjustViewClientSize(100, 100,iWidthIfNoBar_v, iHeightIfNoBar_v);
 		/*
@@ -1015,8 +1012,8 @@ IMPLEMENT_DYNCREATE(CSImageViewerView, CView)
 		colorValue->Init();
 		CPoint point_tv((int)(point_v.x + GetDispOriginC_tv()), (int)(point_v.y + GetDispOriginR_tv()));
 
-		int iC_img_Local = (int)((point_tv.x) / g_dScale[view.m_iScaleIndex]);
-		int iR_img_Local = (int)((point_tv.y) / g_dScale[view.m_iScaleIndex]);
+		int iC_img_Local = (int)((point_tv.x) / view.GetScale());
+		int iR_img_Local = (int)((point_tv.y) / view.GetScale());
 
 
 		if (iC_img_Local < 0){return false;}
@@ -1058,8 +1055,8 @@ IMPLEMENT_DYNCREATE(CSImageViewerView, CView)
 		colorValue->Init();
 		CPoint point_tv((int)(point_v.x + GetDispOriginC_tv()), (int)(point_v.y + GetDispOriginR_tv()));
 
-		int iC_img_Local = (int)((point_tv.x) / g_dScale[view.m_iScaleIndex]);
-		int iR_img_Local = (int)((point_tv.y) / g_dScale[view.m_iScaleIndex]);
+		int iC_img_Local = (int)((point_tv.x) / view.GetScale());
+		int iR_img_Local = (int)((point_tv.y) / view.GetScale());
 
 
 		if (iC_img_Local < 0){return false;}
@@ -1149,7 +1146,7 @@ IMPLEMENT_DYNCREATE(CSImageViewerView, CView)
 		}
 		
 		CRect rect_i=view.GetRect_i();
-		if(view.m_bDragging == true)
+		if(view.GetDragging() == true)
 		{
 			if(view.GetRect_v().IsRectNull() == TRUE)
 			{
@@ -1175,7 +1172,7 @@ IMPLEMENT_DYNCREATE(CSImageViewerView, CView)
 
 		pFrame->SendMessage(WM_COMMAND, ID_DISP_STATUS_MOUSE_POS);
 
-		pFrame->m_sStatusZoom.Format(_T("%.3f%%"), 100*g_dScale[view.m_iScaleIndex]);
+		pFrame->m_sStatusZoom.Format(_T("%.3f%%"), 100*view.GetScale());
 		pFrame->SendMessage(WM_COMMAND, ID_DISP_STATUS_ZOOM);
 
 		return;
