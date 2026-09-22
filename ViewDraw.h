@@ -118,17 +118,17 @@ public:
 	const bool GetDragging(){return m_bDragging;}
 	const int GetMouseMode(){return m_enumMouseMode;}
 	const double GetScale(){return g_dScale[m_iScaleIndex];}
-	void SetScroll(const CImage* img, CWnd* wnd, const bool bTopView);
+	void SetScroll(const PanImage* img, CWnd* wnd, const bool bTopView);
 
 	void SetGridEnableDesable();
 	void SetScrollPos(int iR_tv, int iC_tv, CWnd* wnd, const bool bTopView);
-	const bool ZoomChange(int iR0_i, int iC0_i, int iR1_i, int iC1_i, const CImage* img,  CWnd* wnd, const bool bTopView);
-	const bool ZoomChange(int iChange,  const CImage* img,  CWnd* wnd, const bool bTopView);
-	const bool ZoomChange(int iMousePosR_v, int iMousePosC_v, int iChange,  const CImage* img,  CWnd* wnd, const bool bTopView);
+	const bool ZoomChange(int iR0_i, int iC0_i, int iR1_i, int iC1_i, const PanImage* img,  CWnd* wnd, const bool bTopView);
+	const bool ZoomChange(int iChange,  const PanImage* img,  CWnd* wnd, const bool bTopView);
+	const bool ZoomChange(int iMousePosR_v, int iMousePosC_v, int iChange,  const PanImage* img,  CWnd* wnd, const bool bTopView);
 
-	void OnLButtonDown(UINT nFlags, CPoint point_v,  const CImage* img,  CWnd* wnd, const bool bTopView);
-	void OnLButtonUp(UINT nFlags, CPoint point_v,  const CImage* img,  CWnd* wnd, const bool bTopView);
-	void OnScroll(int iSB, int nSBCode, int nPos,  const CImage* img,  CWnd* wnd, const bool bTopView);
+	void OnLButtonDown(UINT nFlags, CPoint point_v,  const PanImage* img,  CWnd* wnd, const bool bTopView);
+	void OnLButtonUp(UINT nFlags, CPoint point_v,  const PanImage* img,  CWnd* wnd, const bool bTopView);
+	void OnScroll(int iSB, int nSBCode, int nPos,  const PanImage* img,  CWnd* wnd, const bool bTopView);
 
 	//	int OnLButtonUp(UINT nFlags, CPoint point_v, CWnd* wnd, const bool bTopView);
 	afx_msg BOOL OnSetCursor(CWnd* pWnd, UINT nHitTest, UINT message);
@@ -138,8 +138,8 @@ public:
 
 	const CRect v_to_i(const CRect* rect_v);
 	const CRect i_to_v(const CRect* rect_i);
-	void ZoomReset( const CImage* img,  CWnd* wnd, const bool bTopView);
-	void OnMouseMove(UINT nFlags, CPoint point_v, const CImage* img,  CWnd* wnd, const bool bTopView);
+	void ZoomReset( const PanImage* img,  CWnd* wnd, const bool bTopView);
+	void OnMouseMove(UINT nFlags, CPoint point_v, const PanImage* img,  CWnd* wnd, const bool bTopView);
 	const double GetDispOriginR_tv(){return m_dDispOriginR_tv;};
 	const double GetDispOriginC_tv(){return m_dDispOriginC_tv;};
 

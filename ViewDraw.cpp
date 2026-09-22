@@ -33,7 +33,7 @@ double g_dScale[SCALE_VAR_NUM] =
 };
 
 
-const bool ViewDraw::ZoomChange(int iChange,  const CImage* img,  CWnd* wnd, const bool bTopView)
+const bool ViewDraw::ZoomChange(int iChange,  const PanImage* img,  CWnd* wnd, const bool bTopView)
 {
 	int iHeight_v = GetClientHeight(wnd, bTopView);
 	int iWidth_v = GetClientWidth(wnd, bTopView);
@@ -42,9 +42,9 @@ const bool ViewDraw::ZoomChange(int iChange,  const CImage* img,  CWnd* wnd, con
 
 	double dOldDispOriginR_tv = GetDispOriginR_tv();
 	double dOldDispOriginC_tv = GetDispOriginC_tv();
-
-	int iWidth_i = max(0,img->GetWidth());
-	int iHeight_i = max(0,img->GetHeight());
+	const CImage* cimg=img->GetCurrentProcess();
+	int iWidth_i = max(0,cimg->GetWidth());
+	int iHeight_i = max(0,cimg->GetHeight());
 
 	int iOldZoom = m_iScaleIndex;
 	double dNewDispOriginC_tv;
@@ -90,7 +90,7 @@ const bool ViewDraw::ZoomChange(int iChange,  const CImage* img,  CWnd* wnd, con
 	return true;
 }
 
-const bool ViewDraw::ZoomChange(int iMousePosR_v, int iMousePosC_v, int iChange,  const CImage* img,  CWnd* wnd, const bool bTopView)
+const bool ViewDraw::ZoomChange(int iMousePosR_v, int iMousePosC_v, int iChange,  const PanImage* img,  CWnd* wnd, const bool bTopView)
 {
 	int iHeight_v = GetClientHeight(wnd, bTopView);
 	int iWidth_v = GetClientWidth(wnd, bTopView);
@@ -106,9 +106,9 @@ const bool ViewDraw::ZoomChange(int iMousePosR_v, int iMousePosC_v, int iChange,
 
 	double dOldDispOriginR_tv = GetDispOriginR_tv();
 	double dOldDispOriginC_tv = GetDispOriginC_tv();
-
-	int iWidth_i = max(0,img->GetWidth());
-	int iHeight_i = max(0,img->GetHeight());
+	const CImage* cimg=img->GetCurrentProcess();
+	int iWidth_i = max(0,cimg->GetWidth());
+	int iHeight_i = max(0,cimg->GetHeight());
 
 	int iOldZoom = m_iScaleIndex;
 	double dNewDispOriginC_tv;
@@ -152,7 +152,7 @@ const bool ViewDraw::ZoomChange(int iMousePosR_v, int iMousePosC_v, int iChange,
 	return true;
 }
 
-const bool ViewDraw::ZoomChange(int iR0_i, int iC0_i, int iR1_i, int iC1_i, const CImage* img,  CWnd* wnd, const bool bTopView)
+const bool ViewDraw::ZoomChange(int iR0_i, int iC0_i, int iR1_i, int iC1_i, const PanImage* img,  CWnd* wnd, const bool bTopView)
 {
 	int iHeight_v = GetClientHeight(wnd, bTopView);
 	int iWidth_v = GetClientWidth(wnd, bTopView);
@@ -259,13 +259,13 @@ void ViewDraw::GetSizeIfNoBar(int* iHeightIfNoBar_v, int* iWidthIfNoBar_v, CWnd*
 	*iWidthIfNoBar_v = iWidth_v+(m_bRBar ? iBarWidth : 0);
 }
 
-void ViewDraw::OnLButtonDown(UINT nFlags, CPoint point_v,  const CImage* img,  CWnd* wnd, const bool bTopView)
+void ViewDraw::OnLButtonDown(UINT nFlags, CPoint point_v,  const PanImage* img,  CWnd* wnd, const bool bTopView)
 {
 	wnd->SetCapture(); 
 	m_bDragging = true;
 	SetPointStart_v(point_v); 
 }
-void ViewDraw::OnLButtonUp(UINT nFlags, CPoint point_v,  const CImage* img,  CWnd* wnd, const bool bTopView)
+void ViewDraw::OnLButtonUp(UINT nFlags, CPoint point_v,  const PanImage* img,  CWnd* wnd, const bool bTopView)
 {
 	if (m_bDragging == TRUE) 
 	{
@@ -315,7 +315,7 @@ void ViewDraw::OnLButtonUp(UINT nFlags, CPoint point_v,  const CImage* img,  CWn
 	}
 	return;
 }
-void ViewDraw::OnScroll(int iSB, int nSBCode, int nPos,  const CImage* img,  CWnd* wnd, const bool bTopView)
+void ViewDraw::OnScroll(int iSB, int nSBCode, int nPos,  const PanImage* img,  CWnd* wnd, const bool bTopView)
 {
 
 	if((iSB == SB_VERT) && (m_bRBar == false)){return ;}
@@ -326,9 +326,9 @@ void ViewDraw::OnScroll(int iSB, int nSBCode, int nPos,  const CImage* img,  CWn
 
 	int iBarWidth = ::GetSystemMetrics(SM_CYHSCROLL);
 	int iBarHeight = ::GetSystemMetrics(SM_CXVSCROLL);
-
-	int iWidth_i = max(0,img->GetWidth());
-	int iHeight_i = max(0,img->GetHeight());
+	const CImage* cimg=img->GetCurrentProcess();
+	int iWidth_i = max(0,cimg->GetWidth());
+	int iHeight_i = max(0,cimg->GetHeight());
 
 	int iWidth_tv = (int)(iWidth_i*g_dScale[m_iScaleIndex]);
 	int iHeight_tv = (int)(iHeight_i*g_dScale[m_iScaleIndex]);
@@ -539,7 +539,7 @@ MOUSE_MODE ViewDraw::CheckLine(const CPoint* point_v, const Line* line_i)
 	return CHANGE_NONE;
 }
 
-void ViewDraw::OnMouseMove(UINT nFlags, CPoint point_v, const CImage* img,  CWnd* wnd, const bool bTopView)
+void ViewDraw::OnMouseMove(UINT nFlags, CPoint point_v, const PanImage* img,  CWnd* wnd, const bool bTopView)
 {
 
 
@@ -581,7 +581,7 @@ void ViewDraw::OnMouseMove(UINT nFlags, CPoint point_v, const CImage* img,  CWnd
 	wnd->Invalidate(); 
 }
 
-void ViewDraw::ZoomReset( const CImage* img,  CWnd* wnd, const bool bTopView)
+void ViewDraw::ZoomReset( const PanImage* img,  CWnd* wnd, const bool bTopView)
 {
 	m_iScaleIndex = 8;
 	CRect rectClient;
@@ -592,9 +592,9 @@ void ViewDraw::ZoomReset( const CImage* img,  CWnd* wnd, const bool bTopView)
 
 	int iBarWidth = ::GetSystemMetrics(SM_CYHSCROLL);
 	int iBarHeight = ::GetSystemMetrics(SM_CXVSCROLL);
-
-	int iWidth_i = max(0,img->GetWidth());
-	int iHeight_i = max(0,img->GetHeight());
+	const CImage* cimg=img->GetCurrentProcess();
+	int iWidth_i = max(0,cimg->GetWidth());
+	int iHeight_i = max(0,cimg->GetHeight());
 
 	int iWidth_tv = (int)(iWidth_i*g_dScale[m_iScaleIndex]);
 	int iHeight_tv = (int)(iHeight_i*g_dScale[m_iScaleIndex]);
@@ -611,7 +611,7 @@ void ViewDraw::ZoomReset( const CImage* img,  CWnd* wnd, const bool bTopView)
 	int iWidthIfNoBar_v = iWidth_v+(m_bRBar ? iBarWidth : 0);
 
 	CMainFrame* pFrame = (CMainFrame*)AfxGetMainWnd();
-	pFrame->AdjustViewClientSize(img->GetWidth(), img->GetHeight(),iWidthIfNoBar_v, iHeightIfNoBar_v);
+	pFrame->AdjustViewClientSize(cimg->GetWidth(), cimg->GetHeight(),iWidthIfNoBar_v, iHeightIfNoBar_v);
 	SetScroll(img, wnd, bTopView);
 
 	SetDispOriginC_tv(0);
@@ -752,16 +752,16 @@ void CheckIfScrollBarsAreNeeded(const int iWidth_tv, const int iHeight_tv, const
 
 }
 
-void ViewDraw::SetScroll(const CImage* img, CWnd* wnd, const bool bTopView)
+void ViewDraw::SetScroll(const PanImage* img, CWnd* wnd, const bool bTopView)
 {
 	int iHeight_v = GetClientHeight(wnd, bTopView);
 	int iWidth_v = GetClientWidth(wnd, bTopView);
 
 	int iBarWidth = ::GetSystemMetrics(SM_CYHSCROLL);
 	int iBarHeight = ::GetSystemMetrics(SM_CXVSCROLL);
-
-	int iWidth_i = max(0,img->GetWidth());
-	int iHeight_i = max(0,img->GetHeight());
+	const CImage* cimg=img->GetCurrentProcess();
+	int iWidth_i = max(0,cimg->GetWidth());
+	int iHeight_i = max(0,cimg->GetHeight());
 
 	int iWidth_tv = (int)(iWidth_i*g_dScale[m_iScaleIndex]);
 	int iHeight_tv = (int)(iHeight_i*g_dScale[m_iScaleIndex]);
