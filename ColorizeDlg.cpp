@@ -100,6 +100,8 @@ void CColorizeDlg::OperateThreshold()
 	}
 	ConvertImage(&imgResult, &m_imageColorized);
 	CopyImage_CImage(&m_imageColorized, &m_pictureAfter.m_image);
+
+	m_pictureAfter.Reflesh();
 	m_pictureAfter.Invalidate(FALSE);
 }
 
@@ -173,6 +175,10 @@ BOOL CColorizeDlg::OnInitDialog()
 
 	m_sEditThreshMin.Format(_T("0"));
 	m_sEditThreshMax.Format(_T("0"));
+	m_pictureBefore.iID=0;
+	m_pictureAfter.iID=1;
+
+
 	
 	CopyImage_CImage(&m_image,&m_imageColorized);
 

@@ -10,11 +10,11 @@ class CPictureCtrlEx : public CStatic
 public:
 	ViewDraw view;
 	CImage m_image;
-
+	int iID;
 
 	const double GetDispOriginR_tv(){return view.GetDispOriginR_tv();}
 	const double GetDispOriginC_tv(){return view.GetDispOriginC_tv();}
-
+	void Reflesh(){OnPaint();}
 	CPictureCtrlEx()
 	{
 	}

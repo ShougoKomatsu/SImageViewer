@@ -148,9 +148,11 @@ void CPictureCtrlEx::OnMouseMove(UINT nFlags, CPoint point)
 
 	CStatic::OnMouseMove(nFlags, point);
 }
-
+static int iIDLast=0;
 void CPictureCtrlEx::OnPaint()
 {
+	if(iID==iIDLast){return;}
+	iIDLast=iID;
 	CPaintDC dc(this);
 	CDC* pDC = this->GetDC();
 
