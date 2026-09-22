@@ -566,7 +566,7 @@ void ViewDraw::OnMouseMove(UINT nFlags, CPoint point_v, const CImage* img,  CWnd
 	} 
 
 	MOUSE_MODE enumMouseMode = CheckRect(&point_v, &m_Rect_i);
-	if(m_enumMouseMode != CHANGE_NONE){m_enumMouseMode = enumMouseMode; wnd->Invalidate(); return;}
+	if(enumMouseMode != CHANGE_NONE){m_enumMouseMode = enumMouseMode; wnd->Invalidate(); return;}
 
 	enumMouseMode = CheckLine(&point_v, &m_HBar1_i);
 	if(enumMouseMode != CHANGE_NONE){m_enumMouseMode = (MOUSE_MODE)(CHANGE_LINE_OFFSET + enumMouseMode); wnd->Invalidate(); return;}
@@ -850,10 +850,10 @@ BOOL ViewDraw::OnSetCursor(CWnd* pWnd, UINT nHitTest, UINT message)
 		case CHANGE_RU:{SetCursor(AfxGetApp()->LoadStandardCursor(IDC_SIZENESW));return TRUE;}
 		case CHANGE_LB:{SetCursor(AfxGetApp()->LoadStandardCursor(IDC_SIZENESW));return TRUE;}
 		case CHANGE_ZOOMUP:{SetCursor(AfxGetApp()->LoadCursorW(IDC_CURSOR_ZOOMIN));return TRUE;}
-		case CHANGE_LINE1_LR:
-		case CHANGE_LINE1_LR:
-		case CHANGE_LINE1_LR:
-		case CHANGE_LINE1_LR:
+		case CHANGE_LINE1_LR:{}
+		case CHANGE_LINE1_UD:{}
+		case CHANGE_LINE1_1ST:{}
+		case CHANGE_LINE1_2ND:{}
 		}
 	}
 	return FALSE;
