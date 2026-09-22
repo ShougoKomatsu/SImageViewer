@@ -249,7 +249,7 @@ IMPLEMENT_DYNCREATE(CSImageViewerView, CView)
 		{
 			view.ZoomReset( m_image[m_iImageIndex].GetCurrentProcess(), this, true);
 		}
-		view.SetMouseMode(0);
+		view.SetMouseMode(CHANGE_NONE);
 		view.SetRect_i(NULL);
 		pFrame->m_bRegionSelected = false;
 		Invalidate();

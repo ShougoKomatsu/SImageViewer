@@ -7,7 +7,7 @@
 #define SCALE_VAR_NUM (25)
 extern double g_dScale[SCALE_VAR_NUM];
 
-enum MOUSE_CURSOR
+enum MOUSE_MODE
 {
 	CHANGE_NONE = 0,
 	CHANGE_ZOOMUP = 1,
@@ -19,6 +19,22 @@ enum MOUSE_CURSOR
 	CHANGE_RU = 7,
 	CHANGE_LB = 8,
 	CHANGE_RB = 9,
+	CHANGE_LINE1_LR = 10,
+	CHANGE_LINE1_UD = 11,
+	CHANGE_LINE1_1ST = 12,
+	CHANGE_LINE1_2ND = 13,
+	CHANGE_LINE2_LR = 20,
+	CHANGE_LINE2_UD = 21,
+	CHANGE_LINE2_1ST = 22,
+	CHANGE_LINE2_2ND = 23,
+	CHANGE_LINE3_LR = 30,
+	CHANGE_LINE3_UD = 31,
+	CHANGE_LINE3_1ST = 32,
+	CHANGE_LINE3_2ND = 33,
+	CHANGE_LINE4_LR = 40,
+	CHANGE_LINE4_UD = 41,
+	CHANGE_LINE4_1ST = 42,
+	CHANGE_LINE4_2ND = 43,
 
 };
 struct Line
@@ -56,7 +72,7 @@ private:
 	CPoint m_PointStart_v; 
 	int m_iScaleIndex;
 
-	int m_iMouseMode;
+	MOUSE_MODE m_enumMouseMode;
 	bool m_bDragging; 
 	bool m_bCBar;
 	bool m_bRBar;
@@ -66,7 +82,8 @@ private:
 	
 
 public:
-	
+	MOUSE_MODE CheckRect(const CPoint* point_v, const CRect* rect_i);
+
 	Line m_HBar1_v;
 	Line m_HBar2_v;
 	Line m_VBar1_v;
@@ -89,9 +106,9 @@ public:
 
 	const int GetGridMode(){return m_iGrid;}
 	void GetSizeIfNoBar(int* iHeightIfNoBar_v, int* iWidthIfNoBar_v, CWnd* wnd, const bool bTopView);
-	void SetMouseMode(const int iMouseMode){m_iMouseMode=iMouseMode;}
+	void SetMouseMode(const MOUSE_MODE iMouseMode){m_enumMouseMode=iMouseMode;}
 	const bool GetDragging(){return m_bDragging;}
-	const int GetMouseMode(){return m_iMouseMode;}
+	const int GetMouseMode(){return m_enumMouseMode;}
 	const double GetScale(){return g_dScale[m_iScaleIndex];}
 	void SetScroll(const CImage* img, CWnd* wnd, const bool bTopView);
 

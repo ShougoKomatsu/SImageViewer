@@ -275,23 +275,23 @@ void ViewDraw::OnLButtonUp(UINT nFlags, CPoint point_v,  const CImage* img,  CWn
 		CRect rect_i=GetRect_i();
 		if(GetPointStart_v() == point_v)
 		{
-			if(m_iMouseMode == CHANGE_B){return;}
-			if(m_iMouseMode == CHANGE_L){return;}
-			if(m_iMouseMode == CHANGE_R){return;}
-			if(m_iMouseMode == CHANGE_U){return;}
-			if(m_iMouseMode == CHANGE_LB){return;}
-			if(m_iMouseMode == CHANGE_LU){return;}
-			if(m_iMouseMode == CHANGE_RB){return;}
-			if(m_iMouseMode == CHANGE_RU){return;}
+			if(m_enumMouseMode == CHANGE_B){return;}
+			if(m_enumMouseMode == CHANGE_L){return;}
+			if(m_enumMouseMode == CHANGE_R){return;}
+			if(m_enumMouseMode == CHANGE_U){return;}
+			if(m_enumMouseMode == CHANGE_LB){return;}
+			if(m_enumMouseMode == CHANGE_LU){return;}
+			if(m_enumMouseMode == CHANGE_RB){return;}
+			if(m_enumMouseMode == CHANGE_RU){return;}
 
 			CRect rect_v;
 			rect_v = i_to_v(&rect_i);
-			if((point_v.y >= rect_v.top)&&(point_v.y <= rect_v.bottom)&&(point_v.x >= rect_v.left)&&(point_v.x <= rect_v.right) && (m_iMouseMode == CHANGE_ZOOMUP))
+			if((point_v.y >= rect_v.top)&&(point_v.y <= rect_v.bottom)&&(point_v.x >= rect_v.left)&&(point_v.x <= rect_v.right) && (m_enumMouseMode == CHANGE_ZOOMUP))
 			{
 				ZoomChange(rect_i.top, rect_i.left, rect_i.bottom,rect_i.right, img, wnd, bTopView);
 				SetRect_v(NULL);
 				SetRect_i(NULL);
-				m_iMouseMode = CHANGE_NONE;
+				m_enumMouseMode = CHANGE_NONE;
 				CMainFrame* pFrame = (CMainFrame*)AfxGetMainWnd();
 				pFrame->m_bRegionSelected = false;
 				wnd->Invalidate();
@@ -484,6 +484,36 @@ const CRect ViewDraw::i_to_v(const CRect* rect_i)
 	return rect_v;
 }
 
+MOUSE_MODE ViewDraw::CheckRect(const CPoint* point_v, const CRect* rect_i)
+{
+	CRect rectTemp_v;
+	rectTemp_v = i_to_v(rect_i);
+
+	int iBoarder = 0;
+	if(isNearTheBoarder(point_v->y, rectTemp_v.top,RECT_CHANGE_MARGIN_PIX) == true){iBoarder += 1;}
+	if(isNearTheBoarder(point_v->x, rectTemp_v.left,RECT_CHANGE_MARGIN_PIX) == true){iBoarder += 2;}
+	if(isNearTheBoarder(point_v->x, rectTemp_v.right,RECT_CHANGE_MARGIN_PIX) == true){iBoarder += 4;}
+	if(isNearTheBoarder(point_v->y, rectTemp_v.bottom,RECT_CHANGE_MARGIN_PIX) == true){iBoarder += 8;}
+	switch(iBoarder)
+	{
+	case 1:{if(isInTheRange(point_v->x,rectTemp_v.left,rectTemp_v.right) == true){return CHANGE_U;} break;}
+	case 2:{if(isInTheRange(point_v->y,rectTemp_v.top,rectTemp_v.bottom) == true){return CHANGE_L;} break;}
+	case 4:{if(isInTheRange(point_v->y,rectTemp_v.top,rectTemp_v.bottom) == true){return CHANGE_R;} break;}
+	case 8:{if(isInTheRange(point_v->x,rectTemp_v.left,rectTemp_v.right) == true){return CHANGE_B;} break;}
+	case 3:{return CHANGE_LU; break;}
+	case 5:{return CHANGE_RU; break;}
+	case 10:{return CHANGE_LB; break;}
+	case 12:{return CHANGE_RB; break;}
+	default:{break;}
+	}
+	if((point_v->y >= rectTemp_v.top)&&(point_v->y <= rectTemp_v.bottom)&&(point_v->x >= rectTemp_v.left)&&(point_v->x <= rectTemp_v.right))
+	{
+		return CHANGE_ZOOMUP;
+	}
+
+	return CHANGE_NONE;
+}
+
 
 void ViewDraw::OnMouseMove(UINT nFlags, CPoint point_v, const CImage* img,  CWnd* wnd, const bool bTopView)
 {
@@ -491,7 +521,7 @@ void ViewDraw::OnMouseMove(UINT nFlags, CPoint point_v, const CImage* img,  CWnd
 
 	if (m_bDragging == true) 
 	{ 
-		switch(m_iMouseMode)
+		switch(m_enumMouseMode)
 		{
 		case CHANGE_U: {CRect rectTemp_v = i_to_v(&m_Rect_i); m_Rect_v = CRect(CPoint(rectTemp_v.left,point_v.y), CPoint(rectTemp_v.right,rectTemp_v.bottom)); break;}
 		case CHANGE_B: {CRect rectTemp_v = i_to_v(&m_Rect_i); m_Rect_v = CRect(CPoint(rectTemp_v.left,rectTemp_v.top), CPoint(rectTemp_v.right,point_v.y)); break;}
@@ -511,36 +541,9 @@ void ViewDraw::OnMouseMove(UINT nFlags, CPoint point_v, const CImage* img,  CWnd
 		return;
 	} 
 
+m_enumMouseMode = CheckRect(&point_v, &m_Rect_i);
+if(m_enumMouseMode != CHANGE_NONE){wnd->Invalidate(); return;}
 
-	CRect rectTemp_v;
-	rectTemp_v = i_to_v(&m_Rect_i);
-
-	int iBoarder = 0;
-	if(isNearTheBoarder(point_v.y, rectTemp_v.top,RECT_CHANGE_MARGIN_PIX) == true){iBoarder += 1;}
-	if(isNearTheBoarder(point_v.x, rectTemp_v.left,RECT_CHANGE_MARGIN_PIX) == true){iBoarder += 2;}
-	if(isNearTheBoarder(point_v.x, rectTemp_v.right,RECT_CHANGE_MARGIN_PIX) == true){iBoarder += 4;}
-	if(isNearTheBoarder(point_v.y, rectTemp_v.bottom,RECT_CHANGE_MARGIN_PIX) == true){iBoarder += 8;}
-
-	switch(iBoarder)
-	{
-	case 1:{if(isInTheRange(point_v.x,rectTemp_v.left,rectTemp_v.right) == true){m_iMouseMode = CHANGE_U;} wnd->Invalidate(); return;}
-	case 2:{if(isInTheRange(point_v.y,rectTemp_v.top,rectTemp_v.bottom) == true){m_iMouseMode = CHANGE_L;} wnd->Invalidate(); return;}
-	case 4:{if(isInTheRange(point_v.y,rectTemp_v.top,rectTemp_v.bottom) == true){m_iMouseMode = CHANGE_R;} wnd->Invalidate(); return;}
-	case 8:{if(isInTheRange(point_v.x,rectTemp_v.left,rectTemp_v.right) == true){m_iMouseMode = CHANGE_B;} wnd->Invalidate(); return;}
-	case 3:{m_iMouseMode = CHANGE_LU; wnd->Invalidate(); return;}
-	case 5:{m_iMouseMode = CHANGE_RU; wnd->Invalidate(); return;}
-	case 10:{m_iMouseMode = CHANGE_LB; wnd->Invalidate(); return;}
-	case 12:{m_iMouseMode = CHANGE_RB; wnd->Invalidate(); return;}
-	default:{break;}
-	}
-	if((point_v.y >= rectTemp_v.top)&&(point_v.y <= rectTemp_v.bottom)&&(point_v.x >= rectTemp_v.left)&&(point_v.x <= rectTemp_v.right))
-	{
-		m_iMouseMode = CHANGE_ZOOMUP;
-	}
-	else
-	{
-		m_iMouseMode = CHANGE_NONE;
-	}
 	wnd->Invalidate(); 
 }
 
@@ -801,7 +804,7 @@ BOOL ViewDraw::OnSetCursor(CWnd* pWnd, UINT nHitTest, UINT message)
 {
 	if (nHitTest == HTCLIENT) 
 	{
-		switch(m_iMouseMode)
+		switch(m_enumMouseMode)
 		{
 		case CHANGE_NONE:{SetCursor(AfxGetApp()->LoadCursorW(IDC_CURSOR_CROSS));return TRUE;}
 		case CHANGE_L:{SetCursor(AfxGetApp()->LoadStandardCursor(IDC_SIZEWE));return TRUE;}

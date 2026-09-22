@@ -20,18 +20,18 @@ m_bDragging = false;
 CRect rect_i=GetRect_i();
 if(GetPointStart_v() == point_v)
 {
-if(m_iMouseMode == CHANGE_B){return -1;}
-if(m_iMouseMode == CHANGE_L){return -1;}
-if(m_iMouseMode == CHANGE_R){return -1;}
-if(m_iMouseMode == CHANGE_U){return -1;}
-if(m_iMouseMode == CHANGE_LB){return -1;}
-if(m_iMouseMode == CHANGE_LU){return -1;}
-if(m_iMouseMode == CHANGE_RB){return -1;}
-if(m_iMouseMode == CHANGE_RU){return -1;}
+if(m_enumMouseMode == CHANGE_B){return -1;}
+if(m_enumMouseMode == CHANGE_L){return -1;}
+if(m_enumMouseMode == CHANGE_R){return -1;}
+if(m_enumMouseMode == CHANGE_U){return -1;}
+if(m_enumMouseMode == CHANGE_LB){return -1;}
+if(m_enumMouseMode == CHANGE_LU){return -1;}
+if(m_enumMouseMode == CHANGE_RB){return -1;}
+if(m_enumMouseMode == CHANGE_RU){return -1;}
 
 CRect rect_v;
 rect_v = i_to_v(&rect_i);
-if((point_v.y >= rect_v.top)&&(point_v.y <= rect_v.bottom)&&(point_v.x >= rect_v.left)&&(point_v.x <= rect_v.right) && (m_iMouseMode == CHANGE_ZOOMUP))
+if((point_v.y >= rect_v.top)&&(point_v.y <= rect_v.bottom)&&(point_v.x >= rect_v.left)&&(point_v.x <= rect_v.right) && (m_enumMouseMode == CHANGE_ZOOMUP))
 {
 ZoomChange(rect_i.top, rect_i.left, rect_i.bottom,rect_i.right,wnd);
 return 0;
