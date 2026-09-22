@@ -515,6 +515,30 @@ MOUSE_MODE ViewDraw::CheckRect(const CPoint* point_v, const CRect* rect_i)
 }
 
 
+MOUSE_MODE ViewDraw::CheckLine(const CPoint* point_v, const Line* line_i)
+{
+	Line lineTemp_v;
+	lineTemp_v = i_to_v(line_i);
+
+	int iBoarder = 0;
+	if(isNearTheBoarder(point_v->y, lineTemp_v.dR0, RECT_CHANGE_MARGIN_PIX) == true){iBoarder += 1;}
+	if(isNearTheBoarder(point_v->x, lineTemp_v.dC0, RECT_CHANGE_MARGIN_PIX) == true){iBoarder += 2;}
+	if(isNearTheBoarder(point_v->x, lineTemp_v.dR1, RECT_CHANGE_MARGIN_PIX) == true){iBoarder += 4;}
+	if(isNearTheBoarder(point_v->y, lineTemp_v.dC1, RECT_CHANGE_MARGIN_PIX) == true){iBoarder += 8;}
+	switch(iBoarder)
+	{
+	case 1:{if(isInTheRange(point_v->x,lineTemp_v.dC0,lineTemp_v.dC1) == true){return CHANGE_LINE_UD;} break;}
+	case 2:{if(isInTheRange(point_v->y,lineTemp_v.dR0,lineTemp_v.dR1) == true){return CHANGE_LINE_LR;} break;}
+	case 4:{if(isInTheRange(point_v->x,lineTemp_v.dC0,lineTemp_v.dC1) == true){return CHANGE_LINE_UD;} break;}
+	case 8:{if(isInTheRange(point_v->y,lineTemp_v.dR0,lineTemp_v.dR1) == true){return CHANGE_LINE_LR;} break;}
+	case 3:{return CHANGE_LINE_1ST; break;}
+	case 12:{return CHANGE_LINE_2ND; break;}
+	default:{break;}
+	}
+
+	return CHANGE_NONE;
+}
+
 void ViewDraw::OnMouseMove(UINT nFlags, CPoint point_v, const CImage* img,  CWnd* wnd, const bool bTopView)
 {
 
@@ -541,8 +565,18 @@ void ViewDraw::OnMouseMove(UINT nFlags, CPoint point_v, const CImage* img,  CWnd
 		return;
 	} 
 
-m_enumMouseMode = CheckRect(&point_v, &m_Rect_i);
-if(m_enumMouseMode != CHANGE_NONE){wnd->Invalidate(); return;}
+	MOUSE_MODE enumMouseMode = CheckRect(&point_v, &m_Rect_i);
+	if(m_enumMouseMode != CHANGE_NONE){m_enumMouseMode = enumMouseMode; wnd->Invalidate(); return;}
+
+	enumMouseMode = CheckLine(&point_v, &m_HBar1_i);
+	if(enumMouseMode != CHANGE_NONE){m_enumMouseMode = (MOUSE_MODE)(CHANGE_LINE_OFFSET + enumMouseMode); wnd->Invalidate(); return;}
+	enumMouseMode = CheckLine(&point_v, &m_HBar2_i);
+	if(enumMouseMode != CHANGE_NONE){m_enumMouseMode = (MOUSE_MODE)(CHANGE_LINE_OFFSET + CHANGE_LINE_OFFSET + enumMouseMode); wnd->Invalidate(); return;}
+	enumMouseMode = CheckLine(&point_v, &m_VBar1_i);
+	if(enumMouseMode != CHANGE_NONE){m_enumMouseMode = (MOUSE_MODE)(CHANGE_LINE_OFFSET + CHANGE_LINE_OFFSET + CHANGE_LINE_OFFSET + enumMouseMode); wnd->Invalidate(); return;}
+	enumMouseMode = CheckLine(&point_v, &m_VBar2_i);
+	if(enumMouseMode != CHANGE_NONE){m_enumMouseMode = (MOUSE_MODE)(CHANGE_LINE_OFFSET + CHANGE_LINE_OFFSET + CHANGE_LINE_OFFSET + CHANGE_LINE_OFFSET + enumMouseMode); wnd->Invalidate(); return;}
+
 
 	wnd->Invalidate(); 
 }
@@ -816,6 +850,10 @@ BOOL ViewDraw::OnSetCursor(CWnd* pWnd, UINT nHitTest, UINT message)
 		case CHANGE_RU:{SetCursor(AfxGetApp()->LoadStandardCursor(IDC_SIZENESW));return TRUE;}
 		case CHANGE_LB:{SetCursor(AfxGetApp()->LoadStandardCursor(IDC_SIZENESW));return TRUE;}
 		case CHANGE_ZOOMUP:{SetCursor(AfxGetApp()->LoadCursorW(IDC_CURSOR_ZOOMIN));return TRUE;}
+		case CHANGE_LINE1_LR:
+		case CHANGE_LINE1_LR:
+		case CHANGE_LINE1_LR:
+		case CHANGE_LINE1_LR:
 		}
 	}
 	return FALSE;
