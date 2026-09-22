@@ -145,7 +145,7 @@ public:
 
 	void SetDispOriginR_tv(const double dIn){m_dDispOriginR_tv = dIn;}
 	void SetDispOriginC_tv(const double dIn){m_dDispOriginC_tv = dIn;};
-	void OnDraw(CWnd* wnd, CDC* pDC, const CImage* img, PanImage* panImg, const bool bTopView);
+	void OnDraw(CWnd* wnd, CDC* pDC, const PanImage* panImg, const bool bTopView);
 	const CRect GetRect_i(){return m_Rect_i;}
 	const CRect GetRect_v(){return m_Rect_v;}
 	void SetRect_i(const CRect* rect_in){ if(rect_in==NULL){m_Rect_i.SetRectEmpty();}else{m_Rect_i=(*rect_in);}}

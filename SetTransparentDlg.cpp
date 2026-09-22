@@ -44,15 +44,15 @@ BOOL CSetTransparentDlg::OnInitDialog()
 	
 	CopyImage_CImage(&m_image,&m_imageTransparent);
 
-    CopyImage_CImage(&m_image,&m_pictureBefore.m_image);
-    m_pictureBefore.Invalidate(FALSE);
+	m_pictureBefore.m_image.Set(IMAGE_TYPE_CIMAGE, NULL, NULL, 0, 0, &m_image, VALUE_IMAGE_CLIP_0_TO_255, _T("temp"));
+	m_pictureBefore.Refresh();
 	
-    CopyImage_CImage(&m_image,&m_pictureAfter.m_image);
-    m_pictureAfter.Invalidate(FALSE);
+	m_pictureAfter.m_image.Set(IMAGE_TYPE_CIMAGE, NULL, NULL, 0, 0, &m_image, VALUE_IMAGE_CLIP_0_TO_255, _T("temp"));
+    m_pictureAfter.Refresh();
 
 	GenHSImage(&m_imageColor1, 256, 256, 0, 360, 0, 1, 1);
-    CopyImage_CImage(&m_imageColor1,&m_pictureColor1.m_image);
-    m_pictureColor1.Invalidate(FALSE);
+	m_pictureColor1.m_image.Set(IMAGE_TYPE_CIMAGE, NULL, NULL, 0, 0, &m_image, VALUE_IMAGE_CLIP_0_TO_255, _T("temp"));
+	m_pictureColor1.Refresh();
 
 	m_pictureColor1.view.m_HBar1_i.Set(10, 0, 100, m_imageColor1.GetWidth()-1);
 	

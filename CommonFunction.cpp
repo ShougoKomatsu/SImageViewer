@@ -151,25 +151,23 @@ void CPictureCtrlEx::OnMouseMove(UINT nFlags, CPoint point)
 static int iIDLast=0;
 void CPictureCtrlEx::OnPaint()
 {
-	if(iID==iIDLast){return;}
-	iIDLast=iID;
+//	if(iID==iIDLast){return;}
+//	iIDLast=iID;
 	CPaintDC dc(this);
 	CDC* pDC = this->GetDC();
 
 	CRect rc;
 	GetClientRect(&rc);
 
-	if (m_image.IsNull()==true){return;}
+	if (m_image.GetCurrentProcess()->IsNull()==true){return;}
 
 	double dZoom=min(rc.Width()/(m_image.GetWidth()*1.0),rc.Height()/(m_image.GetHeight()*1.0));
 
 	CImage imgZoomed;
 
 
-	view.ZoomChange(0, 0, m_image.GetHeight()-1, m_image.GetWidth()-1, &m_image, this, false);
-	PanImage panImage;
-	panImage.Set(IMAGE_TYPE_CIMAGE, NULL, NULL, 0, 0, &m_image, VALUE_IMAGE_CLIP_0_TO_255, _T("temp"));
-	view.OnDraw(this, pDC, &m_image, &panImage, false);
+	view.ZoomChange(0, 0, m_image.GetHeight()-1, m_image.GetWidth()-1, m_image.GetCurrentProcess(), this, false);
+	view.OnDraw(this, pDC, &m_image, false);
 }
 bool CopyToClipBoardStr(const CString sValue)
 {

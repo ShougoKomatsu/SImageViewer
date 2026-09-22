@@ -82,12 +82,11 @@ BOOL CImageModifyDlg::OnInitDialog()
 	m_sliderGamma.SetPos(50);
 	m_sEditGamma=_T("1.0");
 
+	m_pictureBefore.m_image.Set(IMAGE_TYPE_CIMAGE, NULL, NULL, 0, 0, &m_image, VALUE_IMAGE_CLIP_0_TO_255, _T("temp"));
+    m_pictureBefore.Refresh();
 	
-    CopyImage_CImage(&m_image,&m_pictureBefore.m_image);
-    m_pictureBefore.Invalidate(FALSE);
-	
-    CopyImage_CImage(&m_image,&m_pictureAfter.m_image);
-    m_pictureAfter.Invalidate(FALSE);
+	m_pictureAfter.m_image.Set(IMAGE_TYPE_CIMAGE, NULL, NULL, 0, 0, &m_image, VALUE_IMAGE_CLIP_0_TO_255, _T("temp"));
+    m_pictureAfter.Refresh();
 
 	UpdateData(FALSE);
 	return TRUE;  // return TRUE unless you set the focus to a control
@@ -217,7 +216,9 @@ void CImageModifyDlg::UpdateResultImage()
 	BrightnessContrast(&imgRGB,&imgResult1,0,0,m_image.GetHeight()-1,m_image.GetWidth()-1,(double)m_iBrightness,(double)m_iContrast);
 	Gamma(&imgResult1,&imgResult2,0,0,m_image.GetHeight()-1,m_image.GetWidth()-1,m_dGamma);
 	
-    ConvertImage(&imgResult2, &m_pictureAfter.m_image);
-    m_pictureAfter.Invalidate(FALSE);
+	CImage cimage;
+	ConvertImage(&imgResult2,&cimage);
+	m_pictureAfter.m_image.Set(IMAGE_TYPE_CIMAGE, NULL, NULL, 0, 0, &cimage, VALUE_IMAGE_CLIP_0_TO_255, _T("temp"));
+	m_pictureAfter.Refresh();
 
 }

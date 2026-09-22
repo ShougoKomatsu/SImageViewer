@@ -162,7 +162,7 @@ IMPLEMENT_DYNCREATE(CSImageViewerView, CView)
 		if (!pDoc){return;}
 		if(m_iImageMax <= 0){return;}
 
-		view.OnDraw(this, pDC, m_image[m_iImageIndex].GetCurrentProcess(), &(m_image[m_iImageIndex]), true);
+		view.OnDraw(this, pDC,  &(m_image[m_iImageIndex]), true);
 
 	}
 

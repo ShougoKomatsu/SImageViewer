@@ -68,8 +68,8 @@ void CColorizeDlg::OperateRainbow()
 {
 
 	GrayToRainbow(&m_image, &m_imageColorized);
-	CopyImage_CImage(&m_imageColorized, &m_pictureAfter.m_image);
-	m_pictureAfter.Invalidate(FALSE);
+	m_pictureAfter.m_image.Set(IMAGE_TYPE_CIMAGE, NULL, NULL, 0, 0, &m_imageColorized, VALUE_IMAGE_CLIP_0_TO_255, _T("temp"));
+	m_pictureAfter.Refresh();
 }
 void CColorizeDlg::OperateThreshold()
 {
@@ -99,10 +99,9 @@ void CColorizeDlg::OperateThreshold()
 		PaintRegion(&imgRGB, &objConnected, &imgResult); 
 	}
 	ConvertImage(&imgResult, &m_imageColorized);
-	CopyImage_CImage(&m_imageColorized, &m_pictureAfter.m_image);
+	m_pictureAfter.m_image.Set(IMAGE_TYPE_CIMAGE, NULL, NULL, 0, 0, &m_imageColorized, VALUE_IMAGE_CLIP_0_TO_255, _T("temp"));
 
-	m_pictureAfter.Reflesh();
-	m_pictureAfter.Invalidate(FALSE);
+	m_pictureAfter.Refresh();
 }
 
 void CColorizeDlg::OperateDemosaic()
@@ -127,8 +126,8 @@ void CColorizeDlg::OperateDemosaic()
 	i11 = (sText.Compare(_T("R"))==0) ? COLOR_R : ((sText.Compare(_T("G"))==0) ? COLOR_G: COLOR_B);
 
 	Demosaic(&m_image, i00, i01, i10, i11, &m_imageColorized);
-	CopyImage_CImage(&m_imageColorized, &m_pictureAfter.m_image);
-	m_pictureAfter.Invalidate(FALSE);
+	m_pictureAfter.m_image.Set(IMAGE_TYPE_CIMAGE, NULL, NULL, 0, 0, &m_imageColorized, VALUE_IMAGE_CLIP_0_TO_255, _T("temp"));
+	m_pictureAfter.Refresh();
 }
 void CColorizeDlg::OnChangeColorizeEditValue1()
 {
@@ -182,11 +181,11 @@ BOOL CColorizeDlg::OnInitDialog()
 	
 	CopyImage_CImage(&m_image,&m_imageColorized);
 
-    CopyImage_CImage(&m_image,&m_pictureBefore.m_image);
-    m_pictureBefore.Invalidate(FALSE);
+	m_pictureBefore.m_image.Set(IMAGE_TYPE_CIMAGE, NULL, NULL, 0, 0, &m_image, VALUE_IMAGE_CLIP_0_TO_255, _T("temp"));
+    m_pictureBefore.Refresh();
 	
-    CopyImage_CImage(&m_image,&m_pictureAfter.m_image);
-    m_pictureAfter.Invalidate(FALSE);
+	m_pictureAfter.m_image.Set(IMAGE_TYPE_CIMAGE, NULL, NULL, 0, 0, &m_image, VALUE_IMAGE_CLIP_0_TO_255, _T("temp"));
+    m_pictureAfter.Refresh();
 
 	UpdateData(FALSE);
 

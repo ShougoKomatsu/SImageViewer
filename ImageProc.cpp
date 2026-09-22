@@ -3978,6 +3978,7 @@ const BYTE g_byFont_4_8[96]={
 				this->iHeight=this->cImage.GetHeight();
 				this->enumValueImage = VALUE_IMAGE_UNDEFINED;
 				this->sDataSource.Format(_T("%s"), (LPCTSTR)sDataSource_in);
+				bRet = CopyImage_CImage(&(this->cImage), &((this->m_imageProcessed[0])));
 				return true;
 			}
 		case IMAGE_TYPE_IIMAGE:
@@ -3999,6 +4000,7 @@ const BYTE g_byFont_4_8[96]={
 				}
 				this->sDataSource.Format(_T("%s"), (LPCTSTR)sDataSource_in);
 				Convert(enumValueImage, &(this->cImage));
+				bool bRet = CopyImage_CImage(&(this->cImage), &((this->m_imageProcessed[0])));
 				return true;
 			}
 		case IMAGE_TYPE_DIMAGE:
@@ -4020,6 +4022,7 @@ const BYTE g_byFont_4_8[96]={
 				}
 				this->sDataSource.Format(_T("%s"), (LPCTSTR)sDataSource_in);
 				Convert(enumValueImage, &(this->cImage));
+				bool bRet = CopyImage_CImage(&(this->cImage), &((this->m_imageProcessed[0])));
 				return true;
 			}
 		default:{return false;}

@@ -632,7 +632,7 @@ void ViewDraw::ZoomReset( const CImage* img,  CWnd* wnd, const bool bTopView)
 	}
 }
 
-void ViewDraw::OnDraw(CWnd* wnd, CDC* pDC, const CImage* img, PanImage* panImg, const bool bTopView)
+void ViewDraw::OnDraw(CWnd* wnd, CDC* pDC, const PanImage* panImg, const bool bTopView)
 {
 
 	CDC memDC;
@@ -653,6 +653,7 @@ void ViewDraw::OnDraw(CWnd* wnd, CDC* pDC, const CImage* img, PanImage* panImg, 
 
 	double dR0_i = (dDispOriginR_tv/g_dScale[m_iScaleIndex]);
 	double dC0_i = (dDispOriginC_tv/g_dScale[m_iScaleIndex]);
+	const CImage* img=panImg->GetCurrentProcess();
 	if (img->IsNull()){return;}
 
 	int iRMax = img->GetHeight()-1;
