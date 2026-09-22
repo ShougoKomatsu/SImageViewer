@@ -79,6 +79,10 @@ struct ColorValue
 class PanImage
 {
 public:
+	int m_iScaleIndex;
+	double m_dDispOriginR_tv;
+	double m_dDispOriginC_tv;
+
 	CImage* ProgressImageProcess();
 	const CImage* GetCurrentProcess() const;
 	bool UnDo();
