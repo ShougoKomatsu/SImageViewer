@@ -222,7 +222,7 @@ void ViewDraw::SetScrollPos(int iR_tv, int iC_tv, double* pdCahngeR, double* pdC
 	if(si.nPage>0)
 	{
 		int iNewPos_scl = (int)(iC_tv*(si.nMax-si.nPage+1.0)/(si.nMax *1.0));
-		SetDispOriginC_tv(iC_tv);
+		SetDispOriginC_tv(iC_tv, pdChangeC);
 		si.nPos = (int)(max(si.nMin,min(si.nMax-si.nPage+1.0, iNewPos_scl) )); 
 		wnd->SetScrollInfo(SB_HORZ, &si, TRUE);
 	}
@@ -236,6 +236,15 @@ void ViewDraw::ToggleValueMode()
 	}
 	m_bValue = true;
 }
+	void ViewDraw::ToggleScrollPin()
+	{
+	if(m_bScrollPin == true)
+	{
+		m_bScrollPin = false;
+		return;
+	}
+	m_bScrollPin = true;
+	}
 void ViewDraw::ToggleRGBSeparate()
 {
 	if(m_bRGB_Separate == true)
@@ -387,7 +396,7 @@ void ViewDraw::OnScroll(int iSB, int nSBCode, int nPos,  PanImage* img,  const b
 	}
 	else
 	{
-		SetDispOriginC_tv(max(0, iMax*(iNewPos_scl*1.0)/(iMax-iPageSize+1.0)));
+		SetDispOriginC_tv(max(0, iMax*(iNewPos_scl*1.0)/(iMax-iPageSize+1.0)), pdC);
 	}
 	si.nPos = (iNewPos_scl); 
 	wnd->SetScrollInfo(iSB, &si, TRUE);
@@ -625,7 +634,7 @@ void ViewDraw::ZoomReset( PanImage* img, const bool bChange, CWnd* wnd, const bo
 	double* pdR = ((bChange==true) ? &(img->m_dDispOriginR_tv) : NULL);
 	double* pdC = ((bChange==true) ? &(img->m_dDispOriginC_tv) : NULL);
 
-	SetDispOriginC_tv(0);
+	SetDispOriginC_tv(0, pdC);
 	SetDispOriginR_tv(0, pdR);
 
 	wnd->GetScrollInfo(SB_HORZ, &si);
@@ -831,7 +840,7 @@ void ViewDraw::SetScroll(PanImage* img, const bool bChange, CWnd* wnd, const boo
 	}
 	else
 	{
-		SetDispOriginC_tv(0);
+		SetDispOriginC_tv(0, pdC);
 		si.nMin = 0;
 		si.nMax = 0;
 		si.nPage = 0;

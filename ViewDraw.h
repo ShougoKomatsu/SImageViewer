@@ -86,6 +86,7 @@ private:
 	int m_iGrid;
 	bool m_bValue;
 	bool m_bRGB_Separate;
+	bool m_bScrollPin;
 	
 
 public:
@@ -105,9 +106,11 @@ public:
 	const Line v_to_i(const Line* line_v);
 	const Line i_to_v(const Line* line_i);
 
+	void ToggleScrollPin();
 	void ToggleGridMode(const int iGrid);
 	void ToggleRGBSeparate();
 	const bool GetRGBSeparateMode(){return m_bRGB_Separate;}
+	const bool GetScrollPin(){return m_bScrollPin;}
 
 	void ToggleValueMode();
 	const bool GetValueMode(){return m_bValue;}
@@ -144,7 +147,7 @@ public:
 	const double GetDispOriginC_tv(){return m_dDispOriginC_tv;};
 
 	void SetDispOriginR_tv(const double dIn, double* pdChange){ if(pdChange == NULL){m_dDispOriginR_tv = dIn;return;}else{*pdChange=dIn, this->m_dDispOriginR_tv=dIn;}}
-	void SetDispOriginC_tv(const double dIn){m_dDispOriginC_tv = dIn;};
+	void SetDispOriginC_tv(const double dIn, double* pdChange){ if(pdChange == NULL){m_dDispOriginC_tv = dIn;return;}else{*pdChange=dIn, this->m_dDispOriginC_tv=dIn;}}
 	void OnDraw(CWnd* wnd, CDC* pDC, const PanImage* panImg, const bool bTopView);
 	const CRect GetRect_i(){return m_Rect_i;}
 	const CRect GetRect_v(){return m_Rect_v;}
@@ -164,6 +167,7 @@ public:
 		m_iGrid = ID_TOOLBAR_GRID_NONE;
 		m_bValue = false;
 		m_bRGB_Separate = false;
+		m_bScrollPin=false;
 	}
 	ViewDraw()
 	{

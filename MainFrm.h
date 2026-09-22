@@ -18,6 +18,7 @@ public:
 
 	bool m_bGridAble;
 	bool m_bFileOpened;
+	bool m_bScrollPin;
 	bool m_bRegionSelected;
 	CFont m_cfStatus;
 	bool m_bBeingFullScreen;
@@ -76,6 +77,7 @@ protected:
 	afx_msg void OnButtonValue();
 	afx_msg void OnButtonRGBSeparate();
 	afx_msg void OnButtonGridConnect();
+	afx_msg void OnButtonScrollPin();
 	DECLARE_MESSAGE_MAP()
 public:
 	afx_msg void OnUpdateAfxIdpCommandFailure(CCmdUI *pCmdUI);

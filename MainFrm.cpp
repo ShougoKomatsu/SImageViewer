@@ -54,6 +54,7 @@ BEGIN_MESSAGE_MAP(CMainFrame, CFrameWndEx)
 	ON_UPDATE_COMMAND_UI(ID_TOOLBAR_IMAGE_FW, &CMainFrame::OnUpdateMenu)
 	ON_UPDATE_COMMAND_UI(ID_TOOLBAR_VALUE, &CMainFrame::OnUpdateMenu)
 	ON_UPDATE_COMMAND_UI(ID_TOOLBAR_RGBSEPARATE, &CMainFrame::OnUpdateMenu)
+	ON_UPDATE_COMMAND_UI(ID_TOOLBAR_SCROLL_PIN, &CMainFrame::OnUpdateMenu)
 	ON_UPDATE_COMMAND_UI(ID_MENU_EDIT_INVERT, &CMainFrame::OnUpdateMenu)
 
 	ON_COMMAND(ID_TOOLBAR_GRID_DOT, &CMainFrame::OnButtonGridDot)
@@ -62,6 +63,7 @@ BEGIN_MESSAGE_MAP(CMainFrame, CFrameWndEx)
 
 	ON_COMMAND(ID_TOOLBAR_VALUE, &CMainFrame::OnButtonValue)
 	ON_COMMAND(ID_TOOLBAR_RGBSEPARATE, &CMainFrame::OnButtonRGBSeparate)
+	ON_COMMAND(ID_TOOLBAR_SCROLL_PIN, &CMainFrame::OnButtonScrollPin)
 	ON_COMMAND(ID_TOOLBAR_ADD, &CMainFrame::OnButtonAdd)
 
 	ON_COMMAND(ID_TOOLBAR_ZOOMDOWN, &CMainFrame::OnZoomdown)
@@ -656,6 +658,11 @@ void CMainFrame::OnButtonValue()
 	Invalidate();
 }
 
+	void CMainFrame::OnButtonScrollPin()
+	{
+	m_pView->view.ToggleScrollPin();
+	Invalidate();
+	}
 void CMainFrame::OnButtonRGBSeparate()
 {
 	m_pView->view.ToggleRGBSeparate();
@@ -745,6 +752,7 @@ void CMainFrame::OnUpdateMenu(CCmdUI* pCmdUI)
 	case ID_MENU_EDIT_INVERT:
 	case ID_MENU_EDIT_SET_SELECTION:
 	case ID_MENU_EDIT_RESAMPLE:
+	case ID_TOOLBAR_SCROLL_PIN:
 		{
 			pCmdUI->Enable(m_bFileOpened);
 			break;
@@ -758,6 +766,10 @@ void CMainFrame::OnUpdateMenu(CCmdUI* pCmdUI)
 	if(pCmdUI->m_nID== ID_TOOLBAR_RGBSEPARATE)
 	{
 		pCmdUI->SetCheck(m_pView->view.GetRGBSeparateMode() == true);
+	}
+	if(pCmdUI->m_nID== ID_TOOLBAR_SCROLL_PIN)
+	{
+		pCmdUI->SetCheck(m_pView->view.GetScrollPin() == true);
 	}
 	switch (pCmdUI->m_nID)
 	{
