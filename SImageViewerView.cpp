@@ -356,6 +356,7 @@ IMPLEMENT_DYNCREATE(CSImageViewerView, CView)
 		m_iImageMax = iImageNum;
 		pFrame->m_bFileOpened = true;
 		pFrame->m_bRegionSelected = true;
+		if(m_iImageMax>=2){m_bScrollPin=true; Invalidate();}
 
 		ResetImage(true, true);
 		SetCaption();
@@ -1231,7 +1232,7 @@ IMPLEMENT_DYNCREATE(CSImageViewerView, CView)
 			CMainFrame* pFrame = (CMainFrame*)AfxGetMainWnd();
 			if (pFrame == NULL) {return;}
 			pFrame->ShowNormal();
-			m_sFilePath.Format(_T("C:\\Users\\PC9\\Desktop\\test"));
+	//		m_sFilePath.Format(_T("C:\\Users\\PC9\\Desktop\\test"));
 		if(m_sFilePath.GetLength()>0)
 			{
 				ReadImage(m_sFilePath);
