@@ -55,6 +55,7 @@ public:
 	bool OnImagePPFW(const int iStep);
 	bool ZoomChange(int iMousePosR_v, int iMousePosC_v,int iChange);
 	bool ZoomChange(int iR0_i, int iC0_i, int iR1_i, int iC1_i);
+	bool ZoomChangeAbs(int iChangeAbs);
 	double GetDispOriginR_tv(){return view.GetDispOriginR_tv();}
 	double GetDispOriginC_tv(){return view.GetDispOriginC_tv();}
 

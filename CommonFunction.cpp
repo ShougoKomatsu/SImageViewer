@@ -353,11 +353,11 @@ bool ReadAndAppendImage(CString sFilePath, FileFormatList* fileFormatList, PanIm
 		*iImageIndexNew = iImageIndex+uiIconNum;
 		return true;
 	}
-	HRESULT hResult = panImage->SetCImage()->Load(sFilePath);
+	CImage img;
+	HRESULT hResult = img.Load(sFilePath);
 	if(hResult != S_OK){return false;}
-	panImage->SetImageType(IMAGE_TYPE_CIMAGE);
-	panImage->SetDataSource(sFilePath);
-	panImage->ResetProcessImage();
+
+	panImage->Set(IMAGE_TYPE_CIMAGE, NULL, NULL, 0, 0, &img, VALUE_IMAGE_UNDEFINED, sFilePath);
 
 	*iImageIndexNew = iImageIndex+1;
 	return true;

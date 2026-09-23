@@ -109,6 +109,9 @@ public:
 		SAFE_DELETE(dImage);
 		iWidth=0;
 		iHeight=0;
+		m_dDispOriginC_tv=0;
+		m_dDispOriginR_tv=0;
+		m_iScaleIndex=8;
 		sDataSource.Format(_T(""));
 		enumImageType=IMAGE_TYPE_UNDEFINED;
 		enumValueImage=VALUE_IMAGE_UNDEFINED;

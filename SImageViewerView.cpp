@@ -339,7 +339,7 @@ IMPLEMENT_DYNCREATE(CSImageViewerView, CView)
 		m_sFilePath.Format(_T("%s"), sFilePath);
 		CStringArray saFilePath;
 		bool bRet = RecursivelyGetImageFilePaths(sFilePath, &saFilePath, &m_fileFomatList);
-		if(bRet != true){return false;}
+		if((bRet != true) && saFilePath.GetCount()<0){return false;}
 		int iImageNum = CountImages(sFilePath, &m_fileFomatList);
 
 		m_image = new PanImage[iImageNum];
@@ -931,7 +931,6 @@ IMPLEMENT_DYNCREATE(CSImageViewerView, CView)
 		}
 
 		pFrame->m_pView = this;
-
 		SetTimer(TIMER_INIT, 100, 0);
 	}
 
@@ -962,9 +961,15 @@ IMPLEMENT_DYNCREATE(CSImageViewerView, CView)
 		ResetImage(false, false);
 		if(m_bScrollPin==false)
 		{
-			view.ZoomChange(m_image[m_iImageIndex].m_iScaleIndex, &(m_image[m_iImageIndex]), false, this, true);
-			view.SetDispOriginR_tv(m_image[m_iImageIndex].m_dDispOriginR_tv, false, &(m_image[m_iImageIndex].m_dDispOriginR_tv));
-			view.SetDispOriginR_tv(m_image[m_iImageIndex].m_dDispOriginC_tv, false, &(m_image[m_iImageIndex].m_dDispOriginC_tv));
+			double dR=(m_image[m_iImageIndex].m_dDispOriginR_tv);
+				double dC=(m_image[m_iImageIndex].m_dDispOriginC_tv);
+			view.ZoomChangeAbs(m_image[m_iImageIndex].m_iScaleIndex, &(m_image[m_iImageIndex]), false, this, true);
+
+			view.SetDispOriginR_tv(dR, false, &(m_image[m_iImageIndex].m_dDispOriginR_tv));
+			view.SetDispOriginC_tv(dC, false, &(m_image[m_iImageIndex].m_dDispOriginC_tv));
+			
+		view.OnScroll(SB_VERT, -1, 0, &(m_image[m_iImageIndex]), m_bScrollPin, this, true);
+		view.OnScroll(SB_HORZ, -1, 0, &(m_image[m_iImageIndex]), m_bScrollPin, this, true);
 		}
 		SetCaption();
 		Invalidate();
@@ -983,6 +988,13 @@ IMPLEMENT_DYNCREATE(CSImageViewerView, CView)
 	{
 		if(m_iImageMax <= 0){return false;}
 		view.ZoomChange(iChange, &(m_image[m_iImageIndex]), m_bScrollPin, this, true);		
+		return true; 
+	}
+	
+	bool CSImageViewerView::ZoomChangeAbs(int iChangeAbs)
+	{
+		if(m_iImageMax <= 0){return false;}
+		view.ZoomChangeAbs(iChangeAbs, &(m_image[m_iImageIndex]), m_bScrollPin, this, true);		
 		return true; 
 	}
 
@@ -1219,7 +1231,8 @@ IMPLEMENT_DYNCREATE(CSImageViewerView, CView)
 			CMainFrame* pFrame = (CMainFrame*)AfxGetMainWnd();
 			if (pFrame == NULL) {return;}
 			pFrame->ShowNormal();
-			if(m_sFilePath.GetLength()>0)
+			m_sFilePath.Format(_T("C:\\Users\\PC9\\Desktop\\test"));
+		if(m_sFilePath.GetLength()>0)
 			{
 				ReadImage(m_sFilePath);
 			}
@@ -1405,8 +1418,14 @@ IMPLEMENT_DYNCREATE(CSImageViewerView, CView)
 	}
 
 
-	void CSImageViewerView::OnHScroll(UINT nSBCode, UINT nPos, CScrollBar* pScrollBar){OnScroll(SB_HORZ, nSBCode,nPos);}
-	void CSImageViewerView::OnVScroll(UINT nSBCode, UINT nPos, CScrollBar* pScrollBar){OnScroll(SB_VERT, nSBCode,nPos);}
+	void CSImageViewerView::OnHScroll(UINT nSBCode, UINT nPos, CScrollBar* pScrollBar)
+	{
+		OnScroll(SB_HORZ, nSBCode,nPos);
+	}
+	void CSImageViewerView::OnVScroll(UINT nSBCode, UINT nPos, CScrollBar* pScrollBar)
+	{
+		OnScroll(SB_VERT, nSBCode,nPos);
+	}
 
 
 	BOOL CSImageViewerView::OnEraseBkgnd(CDC* pDC)
