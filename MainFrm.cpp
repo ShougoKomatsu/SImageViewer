@@ -660,7 +660,7 @@ void CMainFrame::OnButtonValue()
 
 	void CMainFrame::OnButtonScrollPin()
 	{
-	m_pView->view.ToggleScrollPin();
+	m_pView->ToggleScrollPin();
 	Invalidate();
 	}
 void CMainFrame::OnButtonRGBSeparate()
@@ -769,7 +769,7 @@ void CMainFrame::OnUpdateMenu(CCmdUI* pCmdUI)
 	}
 	if(pCmdUI->m_nID== ID_TOOLBAR_SCROLL_PIN)
 	{
-		pCmdUI->SetCheck(m_pView->view.GetScrollPin() == true);
+		pCmdUI->SetCheck(m_pView->GetScrollPin() == true);
 	}
 	switch (pCmdUI->m_nID)
 	{

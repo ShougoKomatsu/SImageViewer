@@ -30,9 +30,11 @@ public:
 	int m_iImageIndex;
 	int m_iImageMax;
 	bool m_bRefresh;
+		bool m_bScrollPin;
 
-
+	const bool GetScrollPin(){return m_bScrollPin;}
 	bool m_bBeingFullScreen;
+			void ToggleScrollPin();
 
 	const CRect v_to_i(const CRect* rect_v){return view.v_to_i(rect_v);}
 	const CRect i_to_v(const CRect* rect_i){return view.i_to_v(rect_i);}

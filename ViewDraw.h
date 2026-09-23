@@ -86,7 +86,7 @@ private:
 	int m_iGrid;
 	bool m_bValue;
 	bool m_bRGB_Separate;
-	bool m_bScrollPin;
+//	bool m_bScrollPin;
 	
 
 public:
@@ -106,11 +106,11 @@ public:
 	const Line v_to_i(const Line* line_v);
 	const Line i_to_v(const Line* line_i);
 
-	void ToggleScrollPin();
+//	void ToggleScrollPin();
 	void ToggleGridMode(const int iGrid);
 	void ToggleRGBSeparate();
 	const bool GetRGBSeparateMode(){return m_bRGB_Separate;}
-	const bool GetScrollPin(){return m_bScrollPin;}
+//	const bool GetScrollPin(){return m_bScrollPin;}
 
 	void ToggleValueMode();
 	const bool GetValueMode(){return m_bValue;}
@@ -121,33 +121,34 @@ public:
 	const bool GetDragging(){return m_bDragging;}
 	const int GetMouseMode(){return m_enumMouseMode;}
 	const double GetScale(){return g_dScale[m_iScaleIndex];}
-	void SetScroll(PanImage* img, const bool bChange, CWnd* wnd, const bool bTopView);
+	void SetScroll(PanImage* img, const bool bScrollPin, CWnd* wnd, const bool bTopView);
 
 	void SetGridEnableDesable();
-	void SetScrollPos(int iR_tv, int iC_tv, double* pdCahngeR, double* pdChangeC, CWnd* wnd, const bool bTopView);
-	const bool ZoomChange(int iR0_i, int iC0_i, int iR1_i, int iC1_i, PanImage* img, const bool bChange, CWnd* wnd, const bool bTopView);
-	const bool ZoomChange(int iChange,  PanImage* img, const bool bChange, CWnd* wnd, const bool bTopView);
-	const bool ZoomChange(int iMousePosR_v, int iMousePosC_v, int iChange,  PanImage* img, const bool bChange, CWnd* wnd, const bool bTopView);
+	void SetScrollPos(int iR_tv, int iC_tv, const bool bScrollPin, double* pdCahngeR, double* pdChangeC, CWnd* wnd, const bool bTopView);
+	const bool ZoomChange(int iR0_i, int iC0_i, int iR1_i, int iC1_i, PanImage* img, const bool bScrollPin, CWnd* wnd, const bool bTopView);
+	const bool ZoomChange(int iChange,  PanImage* img, const bool bScrollPin, CWnd* wnd, const bool bTopView);
+	const bool ZoomChange(int iMousePosR_v, int iMousePosC_v, int iChange,  PanImage* img, const bool bScrollPin, CWnd* wnd, const bool bTopView);
+	const bool ZoomChangeAbs(const int iScaleIndex,  PanImage* img, const bool bScrollPin, CWnd* wnd, const bool bTopView);
 
 	void OnLButtonDown(UINT nFlags, CPoint point_v,  const PanImage* img,  CWnd* wnd, const bool bTopView);
-	void OnLButtonUp(UINT nFlags, CPoint point_v,  PanImage* img, const bool bChange, CWnd* wnd, const bool bTopView);
-	void OnScroll(int iSB, int nSBCode, int nPos,  PanImage* img, const bool bChange, CWnd* wnd, const bool bTopView);
+	void OnLButtonUp(UINT nFlags, CPoint point_v,  PanImage* img, const bool bScrollPin, CWnd* wnd, const bool bTopView);
+	void OnScroll(int iSB, int nSBCode, int nPos,  PanImage* img, const bool bScrollPin, CWnd* wnd, const bool bTopView);
 
 	//	int OnLButtonUp(UINT nFlags, CPoint point_v, CWnd* wnd, const bool bTopView);
 	afx_msg BOOL OnSetCursor(CWnd* pWnd, UINT nHitTest, UINT message);
 
 	void SetPointStart_v(const CPoint p_in){m_PointStart_v.SetPoint(p_in.x, p_in.y);}
 	const CPoint GetPointStart_v(){return m_PointStart_v;}
-
+	
 	const CRect v_to_i(const CRect* rect_v);
 	const CRect i_to_v(const CRect* rect_i);
-	void ZoomReset( PanImage* img, const bool bChange, CWnd* wnd, const bool bTopView);
+	void ZoomReset( PanImage* img, const bool bScrollPin, CWnd* wnd, const bool bTopView);
 	void OnMouseMove(UINT nFlags, CPoint point_v, const PanImage* img,  CWnd* wnd, const bool bTopView);
 	const double GetDispOriginR_tv(){return m_dDispOriginR_tv;};
 	const double GetDispOriginC_tv(){return m_dDispOriginC_tv;};
 
-	void SetDispOriginR_tv(const double dIn, double* pdChange){ if(pdChange == NULL){m_dDispOriginR_tv = dIn;return;}else{*pdChange=dIn, this->m_dDispOriginR_tv=dIn;}}
-	void SetDispOriginC_tv(const double dIn, double* pdChange){ if(pdChange == NULL){m_dDispOriginC_tv = dIn;return;}else{*pdChange=dIn, this->m_dDispOriginC_tv=dIn;}}
+	void SetDispOriginR_tv(const double dIn, const bool bScrollPin, double* pdChange);
+	void SetDispOriginC_tv(const double dIn, const bool bScrollPin, double* pdChange);
 	void OnDraw(CWnd* wnd, CDC* pDC, const PanImage* panImg, const bool bTopView);
 	const CRect GetRect_i(){return m_Rect_i;}
 	const CRect GetRect_v(){return m_Rect_v;}
@@ -167,7 +168,7 @@ public:
 		m_iGrid = ID_TOOLBAR_GRID_NONE;
 		m_bValue = false;
 		m_bRGB_Separate = false;
-		m_bScrollPin=false;
+//		m_bScrollPin=false;
 	}
 	ViewDraw()
 	{
