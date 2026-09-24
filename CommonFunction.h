@@ -12,8 +12,17 @@ public:
 	PanImage m_image;
 	int iID;
 
-	const double GetDispOriginR_tv(){return view.GetDispOriginR_tv(&m_image, true);}
-	const double GetDispOriginC_tv(){return view.GetDispOriginC_tv(&m_image, true);}
+		double GetDispOriginR_tv()
+	{
+		return view.GetDispOriginR_tv();
+	}
+	double GetDispOriginC_tv()
+	{
+		return view.GetDispOriginC_tv();
+	}
+
+
+
 	void Refresh(){OnPaint();Invalidate();}
 	CPictureCtrlEx()
 	{

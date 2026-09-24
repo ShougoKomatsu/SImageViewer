@@ -166,7 +166,8 @@ void CPictureCtrlEx::OnPaint()
 	CImage imgZoomed;
 
 
-	view.ZoomChange(0, 0, m_image.GetHeight()-1, m_image.GetWidth()-1, &m_image, false, this, false);
+	view.ZoomChange(0, 0, m_image.GetHeight()-1, m_image.GetWidth()-1, &m_image, this, false);
+			view.GetScrollSetting(&(m_image.scr));
 	view.OnDraw(this, pDC, &m_image, false);
 }
 bool CopyToClipBoardStr(const CString sValue)

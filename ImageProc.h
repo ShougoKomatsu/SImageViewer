@@ -77,12 +77,26 @@ struct ColorValue
 	ColorValue(){Init();}
 };
 #define MAX_IMG_PROCESS (32)
-class PanImage
+
+
+struct ScrollSetting
 {
-public:
 	int m_iScaleIndex;
 	double m_dDispOriginR_tv;
 	double m_dDispOriginC_tv;
+	ScrollSetting()
+	{
+	m_iScaleIndex=8;
+	m_dDispOriginR_tv=0;
+	m_dDispOriginC_tv=0;
+	}
+};
+
+
+class PanImage
+{
+public:
+	ScrollSetting scr;
 
 	CImage* ProgressImageProcess();
 	const CImage* GetCurrentProcess() const;
@@ -110,9 +124,6 @@ public:
 		SAFE_DELETE(dImage);
 		iWidth=0;
 		iHeight=0;
-		m_dDispOriginC_tv=0;
-		m_dDispOriginR_tv=0;
-		m_iScaleIndex=8;
 		sDataSource.Format(_T(""));
 		enumImageType=IMAGE_TYPE_UNDEFINED;
 		enumValueImage=VALUE_IMAGE_UNDEFINED;

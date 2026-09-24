@@ -32,48 +32,44 @@ double g_dScale[SCALE_VAR_NUM] =
 	64.000000,
 };
 
-const double ViewDraw::GetDispOriginR_tv(PanImage* panImg, const bool bSynchroScroll)
+const double ViewDraw::GetDispOriginR_tv()
 {
-	if(panImg==NULL){return m_dDispOriginR_tv;}
-	if(bSynchroScroll==false){return panImg->m_dDispOriginR_tv;} 
 	return m_dDispOriginR_tv;
 }
 
 
-const double ViewDraw::GetDispOriginC_tv(PanImage* panImg, const bool bSynchroScroll)
+const double ViewDraw::GetDispOriginC_tv()
 {
-	if(panImg==NULL){return m_dDispOriginR_tv;}
-	if(bSynchroScroll==false){return panImg->m_dDispOriginC_tv;} 
 	return m_dDispOriginC_tv;
 }
 
 
-const bool ViewDraw::ZoomChange(int iChange,  PanImage* panImg, const bool bSynchroScroll, CWnd* wnd, const bool bTopView)
+const bool ViewDraw::ZoomChange(int iChange,  const PanImage* panImg,  CWnd* wnd, const bool bTopView)
 {
 	int iHeight_v = GetClientHeight(wnd, bTopView);
 	int iWidth_v = GetClientWidth(wnd, bTopView);
 	if((m_iScaleIndex >= SCALE_VAR_NUM-1)&&(iChange>0)){return false;}
 	if((m_iScaleIndex <= 0)&&(iChange<0)){return false;}
 
-	double dOldDispOriginR_tv = GetDispOriginR_tv(panImg, bSynchroScroll);
-	double dOldDispOriginC_tv = GetDispOriginC_tv(panImg, bSynchroScroll);
+	double dOldDispOriginR_tv = GetDispOriginR_tv();
+	double dOldDispOriginC_tv = GetDispOriginC_tv();
 	const CImage* cimg=panImg->GetCurrentProcess();
 	int iWidth_i = max(0,cimg->GetWidth());
 	int iHeight_i = max(0,cimg->GetHeight());
 
 	int iOldZoom = m_iScaleIndex;
 	m_iScaleIndex += iChange;
-	return ZoomChangeAbs(m_iScaleIndex, panImg, bSynchroScroll, wnd, bTopView);
+	return ZoomChangeAbs(m_iScaleIndex, panImg, wnd, bTopView);
 }
-const bool ViewDraw::ZoomChangeAbs(const int iScaleIndex,  PanImage* panImg, const bool bSynchroScroll, CWnd* wnd, const bool bTopView)
+const bool ViewDraw::ZoomChangeAbs(const int iScaleIndex, const PanImage* panImg, CWnd* wnd, const bool bTopView)
 {
 	int iHeight_v = GetClientHeight(wnd, bTopView);
 	int iWidth_v = GetClientWidth(wnd, bTopView);
 	if(iScaleIndex<0){return false;}
 	if(iScaleIndex>=SCALE_VAR_NUM){return false;}
 
-	double dOldDispOriginR_tv = GetDispOriginR_tv(panImg, bSynchroScroll);
-	double dOldDispOriginC_tv = GetDispOriginC_tv(panImg, bSynchroScroll);
+	double dOldDispOriginR_tv = GetDispOriginR_tv();
+	double dOldDispOriginC_tv = GetDispOriginC_tv();
 	const CImage* cimg=panImg->GetCurrentProcess();
 	int iWidth_i = max(0,cimg->GetWidth());
 	int iHeight_i = max(0,cimg->GetHeight());
@@ -82,13 +78,6 @@ const bool ViewDraw::ZoomChangeAbs(const int iScaleIndex,  PanImage* panImg, con
 	double dNewDispOriginC_tv;
 	double dNewDispOriginR_tv;
 	m_iScaleIndex = iScaleIndex;
-
-	if(bSynchroScroll==false)
-	{
-		panImg->m_iScaleIndex = m_iScaleIndex;
-	}
-
-
 
 
 	if(m_iScaleIndex >= SCALE_VAR_NUM-1){m_iScaleIndex = SCALE_VAR_NUM-1;}
@@ -120,8 +109,8 @@ const bool ViewDraw::ZoomChangeAbs(const int iScaleIndex,  PanImage* panImg, con
 	}
 
 	SetGridEnableDesable();
-	SetScroll(panImg, bSynchroScroll, wnd, bTopView);
-	SetScrollPos((int)(dNewDispOriginR_tv), (int)(dNewDispOriginC_tv), panImg, bSynchroScroll, wnd, bTopView);
+	SetScroll(panImg, wnd, bTopView);
+	SetScrollPos((int)(dNewDispOriginR_tv), (int)(dNewDispOriginC_tv), panImg, wnd, bTopView);
 	wnd->Invalidate();
 
 	CPoint point_v;
@@ -131,22 +120,22 @@ const bool ViewDraw::ZoomChangeAbs(const int iScaleIndex,  PanImage* panImg, con
 	return true;
 }
 
-const bool ViewDraw::ZoomChange(int iMousePosR_v, int iMousePosC_v, int iChange, PanImage* panImg, const bool bSynchroScroll, CWnd* wnd, const bool bTopView)
+const bool ViewDraw::ZoomChange(int iMousePosR_v, int iMousePosC_v, int iChange, const PanImage* panImg,  CWnd* wnd, const bool bTopView)
 {
 	int iHeight_v = GetClientHeight(wnd, bTopView);
 	int iWidth_v = GetClientWidth(wnd, bTopView);
 	if((m_iScaleIndex >= SCALE_VAR_NUM-1)&&(iChange>0)){return false;}
 	if((m_iScaleIndex <= 0)&&(iChange<0)){return false;}
 
-	double dMousePosR_tv = iMousePosR_v + GetDispOriginR_tv(panImg, bSynchroScroll);
-	double dMousePosC_tv = iMousePosC_v + GetDispOriginC_tv(panImg, bSynchroScroll);
+	double dMousePosR_tv = iMousePosR_v + GetDispOriginR_tv();
+	double dMousePosC_tv = iMousePosC_v + GetDispOriginC_tv();
 
 	double dMousePosR_i = dMousePosR_tv/g_dScale[m_iScaleIndex];
 	double dMousePosC_i = dMousePosC_tv/g_dScale[m_iScaleIndex];
 
 
-	double dOldDispOriginR_tv = GetDispOriginR_tv(NULL, true);
-	double dOldDispOriginC_tv = GetDispOriginC_tv(NULL, true);
+	double dOldDispOriginR_tv = GetDispOriginR_tv();
+	double dOldDispOriginC_tv = GetDispOriginC_tv();
 	const CImage* cimg=panImg->GetCurrentProcess();
 	int iWidth_i = max(0,cimg->GetWidth());
 	int iHeight_i = max(0,cimg->GetHeight());
@@ -158,10 +147,6 @@ const bool ViewDraw::ZoomChange(int iMousePosR_v, int iMousePosC_v, int iChange,
 	if(m_iScaleIndex >= SCALE_VAR_NUM-1){m_iScaleIndex = SCALE_VAR_NUM-1;}
 	if(m_iScaleIndex <= 0){m_iScaleIndex = 0;}
 
-	if(bSynchroScroll==false)
-	{
-		panImg->m_iScaleIndex = m_iScaleIndex;
-	}
 	int iNewZoom = m_iScaleIndex;
 	double dNewWidth_tv = iWidth_i*g_dScale[iNewZoom];
 	double dNewHeight_tv = iHeight_i*g_dScale[iNewZoom];
@@ -187,8 +172,8 @@ const bool ViewDraw::ZoomChange(int iMousePosR_v, int iMousePosC_v, int iChange,
 	}
 
 	SetGridEnableDesable();
-	SetScroll(panImg, bSynchroScroll, wnd, bTopView);
-	SetScrollPos((int)(dNewDispOriginR_tv), (int)(dNewDispOriginC_tv), panImg, bSynchroScroll, wnd, bTopView);
+	SetScroll(panImg, wnd, bTopView);
+	SetScrollPos((int)(dNewDispOriginR_tv), (int)(dNewDispOriginC_tv), panImg, wnd, bTopView);
 	wnd->Invalidate();
 
 	CPoint point_v;
@@ -198,7 +183,7 @@ const bool ViewDraw::ZoomChange(int iMousePosR_v, int iMousePosC_v, int iChange,
 	return true;
 }
 
-const bool ViewDraw::ZoomChange(int iR0_i, int iC0_i, int iR1_i, int iC1_i, PanImage* panImg, const bool bSynchroScroll, CWnd* wnd, const bool bTopView)
+const bool ViewDraw::ZoomChange(int iR0_i, int iC0_i, int iR1_i, int iC1_i, const PanImage* panImg,  CWnd* wnd, const bool bTopView)
 {
 	int iHeight_v = GetClientHeight(wnd, bTopView);
 	int iWidth_v = GetClientWidth(wnd, bTopView);
@@ -219,11 +204,6 @@ const bool ViewDraw::ZoomChange(int iR0_i, int iC0_i, int iR1_i, int iC1_i, PanI
 	if(m_iScaleIndex >= SCALE_VAR_NUM-1){m_iScaleIndex = SCALE_VAR_NUM-1;}
 	if(m_iScaleIndex <= 0){m_iScaleIndex = 0;}
 
-	if(bSynchroScroll==false)
-	{
-		panImg->m_iScaleIndex = m_iScaleIndex;
-	}
-
 	double dNewCenterR_i = (iR0_i + iR1_i)/2.0;
 	double dNewCenterC_i = (iC0_i + iC1_i)/2.0;
 
@@ -237,8 +217,8 @@ const bool ViewDraw::ZoomChange(int iR0_i, int iC0_i, int iR1_i, int iC1_i, PanI
 
 
 	SetGridEnableDesable();
-	SetScroll(panImg, bSynchroScroll, wnd, bTopView);
-	SetScrollPos((int)(dNewDispOriginR_tv), (int)(dNewDispOriginC_tv), panImg, bSynchroScroll, wnd, bTopView);
+	SetScroll(panImg, wnd, bTopView);
+	SetScrollPos((int)(dNewDispOriginR_tv), (int)(dNewDispOriginC_tv), panImg, wnd, bTopView);
 	wnd->Invalidate();
 
 	CPoint point_v;
@@ -248,7 +228,7 @@ const bool ViewDraw::ZoomChange(int iR0_i, int iC0_i, int iR1_i, int iC1_i, PanI
 	return true;
 }
 
-void ViewDraw::SetScrollPos(int iR_tv, int iC_tv, PanImage* panImg, const bool bSynchroScroll, CWnd* wnd, const bool bTopView)
+void ViewDraw::SetScrollPos(int iR_tv, int iC_tv, const PanImage* panImg,  CWnd* wnd, const bool bTopView)
 {		
 	if(wnd==NULL){return;}
 	SCROLLINFO si;
@@ -257,7 +237,7 @@ void ViewDraw::SetScrollPos(int iR_tv, int iC_tv, PanImage* panImg, const bool b
 	if(si.nPage>0)
 	{
 		int iNewPos_scl = (int)(iR_tv*(si.nMax-si.nPage+1.0)/(si.nMax *1.0));
-		SetDispOriginR_tv(iR_tv, panImg, bSynchroScroll);
+		SetDispOriginR_tv(iR_tv);
 		si.nPos = (int)(max(si.nMin,min(si.nMax-si.nPage+1.0,iNewPos_scl) ));;
 		wnd->SetScrollInfo(SB_VERT, &si, TRUE);
 	}
@@ -266,7 +246,7 @@ void ViewDraw::SetScrollPos(int iR_tv, int iC_tv, PanImage* panImg, const bool b
 	if(si.nPage>0)
 	{
 		int iNewPos_scl = (int)(iC_tv*(si.nMax-si.nPage+1.0)/(si.nMax *1.0));
-		SetDispOriginC_tv(iC_tv, panImg, bSynchroScroll);
+		SetDispOriginC_tv(iC_tv);
 		si.nPos = (int)(max(si.nMin,min(si.nMax-si.nPage+1.0, iNewPos_scl) )); 
 		wnd->SetScrollInfo(SB_HORZ, &si, TRUE);
 	}
@@ -315,7 +295,7 @@ void ViewDraw::OnLButtonDown(UINT nFlags, CPoint point_v,  const PanImage* panIm
 	m_bDragging = true;
 	SetPointStart_v(point_v); 
 }
-void ViewDraw::OnLButtonUp(UINT nFlags, CPoint point_v,  PanImage* panImg, const bool bSynchroScroll, CWnd* wnd, const bool bTopView)
+void ViewDraw::OnLButtonUp(UINT nFlags, CPoint point_v,  const PanImage* panImg,  CWnd* wnd, const bool bTopView)
 {
 	if (m_bDragging == TRUE) 
 	{
@@ -338,7 +318,7 @@ void ViewDraw::OnLButtonUp(UINT nFlags, CPoint point_v,  PanImage* panImg, const
 			rect_v = i_to_v(&rect_i);
 			if((point_v.y >= rect_v.top)&&(point_v.y <= rect_v.bottom)&&(point_v.x >= rect_v.left)&&(point_v.x <= rect_v.right) && (m_enumMouseMode == CHANGE_ZOOMUP))
 			{
-				ZoomChange(rect_i.top, rect_i.left, rect_i.bottom,rect_i.right, panImg, bSynchroScroll, wnd, bTopView);
+				ZoomChange(rect_i.top, rect_i.left, rect_i.bottom,rect_i.right, panImg, wnd, bTopView);
 				SetRect_v(NULL);
 				SetRect_i(NULL);
 				m_enumMouseMode = CHANGE_NONE;
@@ -365,7 +345,7 @@ void ViewDraw::OnLButtonUp(UINT nFlags, CPoint point_v,  PanImage* panImg, const
 	}
 	return;
 }
-void ViewDraw::OnScroll(int iSB, int nSBCode, int nPos,  PanImage* panImg,  const bool bSynchroScroll, CWnd* wnd, const bool bTopView)
+void ViewDraw::OnScroll(int iSB, int nSBCode, int nPos, const PanImage* panImg, CWnd* wnd, const bool bTopView)
 {
 
 	if((iSB == SB_VERT) && (m_bRBar == false)){return ;}
@@ -400,11 +380,11 @@ void ViewDraw::OnScroll(int iSB, int nSBCode, int nPos,  PanImage* panImg,  cons
 	int iOldPos_scl;
 	if(iSB == SB_VERT)
 	{
-		iOldPos_scl = (int)(GetDispOriginR_tv(NULL, true)*(iMax-iPageSize+1.0)/(iMax*1.0));
+		iOldPos_scl = (int)(GetDispOriginR_tv()*(iMax-iPageSize+1.0)/(iMax*1.0));
 	}
 	else
 	{
-		iOldPos_scl = (int)(GetDispOriginC_tv(NULL, true)*(iMax-iPageSize+1.0)/(iMax*1.0));
+		iOldPos_scl = (int)(GetDispOriginC_tv()*(iMax-iPageSize+1.0)/(iMax*1.0));
 	}
 
 
@@ -425,11 +405,11 @@ void ViewDraw::OnScroll(int iSB, int nSBCode, int nPos,  PanImage* panImg,  cons
 
 	if(iSB == SB_VERT)
 	{
-		SetDispOriginR_tv(max(0, iMax*(iNewPos_scl*1.0)/(iMax-iPageSize+1.0)), panImg,  bSynchroScroll);
+		SetDispOriginR_tv(max(0, iMax*(iNewPos_scl*1.0)/(iMax-iPageSize+1.0)));
 	}
 	else
 	{
-		SetDispOriginC_tv(max(0, iMax*(iNewPos_scl*1.0)/(iMax-iPageSize+1.0)), panImg, bSynchroScroll);
+		SetDispOriginC_tv(max(0, iMax*(iNewPos_scl*1.0)/(iMax-iPageSize+1.0)));
 	}
 
 	si.nPos = (iNewPos_scl); 
@@ -438,22 +418,14 @@ void ViewDraw::OnScroll(int iSB, int nSBCode, int nPos,  PanImage* panImg,  cons
 }
 
 
-void ViewDraw::SetDispOriginR_tv(const double dIn, PanImage* panImg, const bool bSynchroScroll)
+void ViewDraw::SetDispOriginR_tv(const double dIn)
 {
 	m_dDispOriginR_tv=dIn;
-	if(bSynchroScroll==false)
-	{
-		panImg->m_dDispOriginR_tv=m_dDispOriginR_tv;
-	}
 }
 
-void ViewDraw::SetDispOriginC_tv(const double dIn, PanImage* panImg, const bool bSynchroScroll)
+void ViewDraw::SetDispOriginC_tv(const double dIn)
 {
 	m_dDispOriginC_tv=dIn;
-	if(bSynchroScroll==false)
-	{
-		panImg->m_dDispOriginC_tv=m_dDispOriginC_tv;
-	}
 }
 
 
@@ -466,8 +438,8 @@ const Line ViewDraw::v_to_i(const Line* line_v)
 		return line;
 	}
 
-	int iCOrigin_tv = (int)(GetDispOriginC_tv(NULL, true));
-	int iROrigin_tv = (int)(GetDispOriginR_tv(NULL, true));
+	int iCOrigin_tv = (int)(GetDispOriginC_tv());
+	int iROrigin_tv = (int)(GetDispOriginR_tv());
 
 	line.Set(
 		((line_v->dR0+ iROrigin_tv) / GetScale()) +0.5
@@ -495,8 +467,8 @@ const Line ViewDraw::i_to_v(const Line* line_i)
 		return line;
 	}
 
-	int iCOrigin_tv = (int)GetDispOriginC_tv(NULL, true);
-	int iROrigin_tv = (int)GetDispOriginR_tv(NULL, true);
+	int iCOrigin_tv = (int)GetDispOriginC_tv();
+	int iROrigin_tv = (int)GetDispOriginR_tv();
 
 	line.Set(
 		((line_i->dR0) * GetScale())-iROrigin_tv
@@ -518,8 +490,8 @@ const CRect ViewDraw::v_to_i(const CRect* rect_v)
 		return rect_i;
 	}
 
-	int iCOrigin_tv = (int)(GetDispOriginC_tv(NULL, true));
-	int iROrigin_tv = (int)(GetDispOriginR_tv(NULL, true));
+	int iCOrigin_tv = (int)(GetDispOriginC_tv());
+	int iROrigin_tv = (int)(GetDispOriginR_tv());
 
 	rect_i.SetRect(
 		(int)(((rect_v->left+ iCOrigin_tv) / g_dScale[m_iScaleIndex]) +0.5)
@@ -540,8 +512,8 @@ const CRect ViewDraw::i_to_v(const CRect* rect_i)
 		return rect_v;
 	}
 
-	int iCOrigin_tv = (int)GetDispOriginC_tv(NULL, true);
-	int iROrigin_tv = (int)GetDispOriginR_tv(NULL, true);
+	int iCOrigin_tv = (int)GetDispOriginC_tv();
+	int iROrigin_tv = (int)GetDispOriginR_tv();
 
 	rect_v.SetRect(
 		(int)((rect_i->left ) * g_dScale[m_iScaleIndex])-iCOrigin_tv
@@ -649,7 +621,7 @@ void ViewDraw::OnMouseMove(UINT nFlags, CPoint point_v, const PanImage* panImg, 
 	wnd->Invalidate(); 
 }
 
-void ViewDraw::ZoomReset( PanImage* panImg, const bool bSynchroScroll, CWnd* wnd, const bool bTopView)
+void ViewDraw::ZoomReset( const PanImage* panImg,  CWnd* wnd, const bool bTopView)
 {
 	m_iScaleIndex = 8;
 	CRect rectClient;
@@ -680,10 +652,10 @@ void ViewDraw::ZoomReset( PanImage* panImg, const bool bSynchroScroll, CWnd* wnd
 
 	CMainFrame* pFrame = (CMainFrame*)AfxGetMainWnd();
 	pFrame->AdjustViewClientSize(cimg->GetWidth(), cimg->GetHeight(),iWidthIfNoBar_v, iHeightIfNoBar_v);
-	SetScroll(panImg, bSynchroScroll, wnd, bTopView);
+	SetScroll(panImg, wnd, bTopView);
 
-	SetDispOriginC_tv(0, panImg, bSynchroScroll);
-	SetDispOriginR_tv(0, panImg, bSynchroScroll);
+	SetDispOriginC_tv(0);
+	SetDispOriginR_tv(0);
 
 	wnd->GetScrollInfo(SB_HORZ, &si);
 	if(si.nPage>0)
@@ -714,8 +686,8 @@ void ViewDraw::OnDraw(CWnd* wnd, CDC* pDC, const PanImage* panImg, const bool bT
 	bufferBmp.CreateCompatibleBitmap(pDC, iWidth_v, iHeight_v);
 	CBitmap* pOldBmp = memDC.SelectObject(&bufferBmp);
 
-	double dDispOriginR_tv = GetDispOriginR_tv(NULL, true);
-	double dDispOriginC_tv = GetDispOriginC_tv(NULL, true);
+	double dDispOriginR_tv = GetDispOriginR_tv();
+	double dDispOriginC_tv = GetDispOriginC_tv();
 
 
 
@@ -820,7 +792,7 @@ void CheckIfScrollBarsAreNeeded(const int iWidth_tv, const int iHeight_tv, const
 
 }
 
-void ViewDraw::SetScroll(PanImage* panImg, const bool bSynchroScroll, CWnd* wnd, const bool bTopView)
+void ViewDraw::SetScroll(const PanImage* panImg, CWnd* wnd, const bool bTopView)
 {
 	int iHeight_v = GetClientHeight(wnd, bTopView);
 	int iWidth_v = GetClientWidth(wnd, bTopView);
@@ -865,7 +837,7 @@ void ViewDraw::SetScroll(PanImage* panImg, const bool bSynchroScroll, CWnd* wnd,
 	}
 	else
 	{
-		SetDispOriginR_tv(0, panImg, bSynchroScroll);
+		SetDispOriginR_tv(0);
 		si.nMin = 0;
 		si.nMax = 0;
 		si.nPage = 0;
@@ -885,7 +857,7 @@ void ViewDraw::SetScroll(PanImage* panImg, const bool bSynchroScroll, CWnd* wnd,
 	}
 	else
 	{
-		SetDispOriginC_tv(0, panImg, bSynchroScroll);
+		SetDispOriginC_tv(0);
 		si.nMin = 0;
 		si.nMax = 0;
 		si.nPage = 0;

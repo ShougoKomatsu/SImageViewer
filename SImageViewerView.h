@@ -18,6 +18,7 @@ protected: // ƒVƒŠƒAƒ‹‰»‚©‚ç‚Ì‚İì¬‚µ‚Ü‚·B
 // ‘®«
 public:
 	ViewDraw view;
+	ScrollSetting scr;
 
 		CString m_sIniFilePath;
 
@@ -56,8 +57,18 @@ public:
 	bool ZoomChange(int iMousePosR_v, int iMousePosC_v,int iChange);
 	bool ZoomChange(int iR0_i, int iC0_i, int iR1_i, int iC1_i);
 	bool ZoomChangeAbs(int iChangeAbs);
-	double GetDispOriginR_tv(){if(m_iImageMax<=0){return 0;} return view.GetDispOriginR_tv(&(m_image[m_iImageIndex]), m_bSynchroScroll);}
-	double GetDispOriginC_tv(){if(m_iImageMax<=0){return 0;} return view.GetDispOriginC_tv(&(m_image[m_iImageIndex]), m_bSynchroScroll);}
+	double GetDispOriginR_tv()
+	{
+		if(m_bSynchroScroll==false){return view.GetDispOriginR_tv();}
+		if(m_iImageMax<=0){return 0;} 
+		return scr.m_dDispOriginR_tv;
+	}
+	double GetDispOriginC_tv()
+	{
+		if(m_bSynchroScroll==false){return view.GetDispOriginC_tv();}
+		if(m_iImageMax<=0){return 0;} 
+		return scr.m_dDispOriginC_tv;
+	}
 
 
 	void EnterFullScreen();
