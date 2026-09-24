@@ -376,6 +376,29 @@ bool isInTheRange(double d, double dMin, double dMax)
 	return true;
 }
 
+void QuickSortIndex(const int* iValues, int* iIndex, const int iL, const int iR)
+{
+	int iL_Local=iL;
+	int iR_Local=iR;
+	int iPivot = iValues[iIndex[(iL_Local + iR_Local) / 2]];
+
+	while (iL_Local <= iR_Local) 
+	{
+		while (iValues[iIndex[iL_Local]] < iPivot) {iL_Local++;}
+		while (iValues[iIndex[iR_Local]] > iPivot) {iR_Local--;}
+
+		if (iL_Local <= iR_Local) 
+		{
+			SwapInt(&iIndex[iL_Local], &iIndex[iR_Local]);
+			iL_Local++;
+			iR_Local--;
+		}
+	}
+
+	if (iL < iR_Local) {QuickSortIndex(iValues, iIndex, iL, iR_Local);}
+	if (iL_Local < iR) {QuickSortIndex(iValues, iIndex, iL_Local, iR);}
+}
+
 void QuickSortIndex(const ULONGLONG* iValues, int* iIndex, const int iL, const int iR)
 {
 	int iL_Local=iL;
@@ -399,6 +422,13 @@ void QuickSortIndex(const ULONGLONG* iValues, int* iIndex, const int iL, const i
 	if (iL_Local < iR) {QuickSortIndex(iValues, iIndex, iL_Local, iR);}
 }
 
+bool index_i(const int* iValues, const int iLength, int* iIndex)
+{
+	for (int i = 0; i < iLength; i++) {iIndex[i] = i;}
+
+	QuickSortIndex(iValues, iIndex, 0, iLength - 1);
+	return true;
+}
 bool index_i(const ULONGLONG* iValues, const int iLength, int* iIndex)
 {
 	for (int i = 0; i < iLength; i++) {iIndex[i] = i;}

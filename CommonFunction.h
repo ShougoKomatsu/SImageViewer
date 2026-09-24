@@ -38,6 +38,8 @@ bool ReadAndAppendImage(CString sFilePath, FileFormatList* fileFormatList, PanIm
 bool GetOpenFileList(CString* sFilePaths);
 
 
+bool index_i(const int* iValues, const int iLength, int* iIndex);
+void QuickSortIndex(const int* iValues, int* iIndex, const int iL, const int iR);
 void QuickSortIndex(const ULONGLONG* iValues, int* iIndex, const int iL, const int iR);
 bool index_i(const ULONGLONG* iValues, const int iLength, int* iIndex);
 

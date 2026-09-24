@@ -60,6 +60,10 @@ void CPasteAsDlg::OnBnClickedOk()
 	{
 		m_enumPasteAs=VALUE_IMAGE_RAINBOW;
 	}
+	if( ((CButton*)GetDlgItem(IDC_PASTE_AS_RADIO_EQUALIZE_0TO256))->GetCheck() == TRUE)
+	{
+		m_enumPasteAs=VALUE_IMAGE_EQUALIZE;
+	}
 	CDialogEx::OnOK();
 }
 
@@ -71,14 +75,17 @@ BOOL CPasteAsDlg::OnInitDialog()
 	{
 		((CButton*)GetDlgItem(IDC_PASTE_AS_RADIO_CLIP_0TO255))->EnableWindow(TRUE);
 		((CButton*)GetDlgItem(IDC_PASTE_AS_RADIO_RESCALE_0TO255))->EnableWindow(TRUE);
+		((CButton*)GetDlgItem(IDC_PASTE_AS_RADIO_EQUALIZE_0TO256))->EnableWindow(TRUE);
 		((CButton*)GetDlgItem(IDC_PASTE_AS_RADIO_HUE_CYCLIC_RESCALE0TO6910))->EnableWindow(TRUE);
-		((CButton*)GetDlgItem(IDC_PASTE_AS_RADIO_CLIP_0TO255))->SetCheck(true);
+		((CButton*)GetDlgItem(IDC_PASTE_AS_RADIO_RAINBOW))->EnableWindow(TRUE);
 	}
 	else
 	{
 		((CButton*)GetDlgItem(IDC_PASTE_AS_RADIO_CLIP_0TO255))->EnableWindow(FALSE);
 		((CButton*)GetDlgItem(IDC_PASTE_AS_RADIO_RESCALE_0TO255))->EnableWindow(FALSE);
+		((CButton*)GetDlgItem(IDC_PASTE_AS_RADIO_EQUALIZE_0TO256))->EnableWindow(FALSE);
 		((CButton*)GetDlgItem(IDC_PASTE_AS_RADIO_HUE_CYCLIC_RESCALE0TO6910))->EnableWindow(FALSE);
+		((CButton*)GetDlgItem(IDC_PASTE_AS_RADIO_RAINBOW))->EnableWindow(FALSE);
 	}
 
 	return TRUE;  // return TRUE unless you set the focus to a control

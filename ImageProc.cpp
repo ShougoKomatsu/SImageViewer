@@ -3809,6 +3809,70 @@ const BYTE g_byFont_4_8[96]={
 				}
 			}
 		}
+		if(enumMode == VALUE_IMAGE_EQUALIZE)
+		{
+			imgDst->Create(iWidth, iHeight, 8);
+
+			RGBQUAD colorTable[256];
+			for(int i=0; i<256; i++)
+			{
+				colorTable[i].rgbBlue=i;
+				colorTable[i].rgbGreen=i;
+				colorTable[i].rgbRed=i;
+				colorTable[i].rgbReserved=0;
+			}
+			SetColorTable(imgDst, colorTable, 256);
+			BYTE* pbyDataDst = (BYTE*)imgDst->GetBits();
+			int iPitch = imgDst->GetPitch();
+
+			switch(enumImageType)
+			{
+			case IMAGE_TYPE_IIMAGE:
+				{
+					int* iIndex;
+					int iThreshList[257];
+					iThreshList[0]=0;
+					int iLength = this->iWidth*this->iHeight;
+					iIndex=new int[iLength];
+
+					index_i(iImage, iLength, iIndex);
+
+					int iCoutStep=(iLength-1)/256;
+					for(int iLUT=1; iLUT<257; iLUT++)
+					{
+						int iCountThresh=iCoutStep*(iLUT);
+						iThreshList[iLUT]=iImage[iIndex[iCountThresh]];
+					}
+					SAFE_DELETE(iIndex);
+
+					for(int r=0; r<iHeight; r++)
+					{
+						for(int c=0; c<iWidth; c++)
+						{
+							pbyDataDst[r*iPitch+c]=255;
+							for(int iLUT=0; iLUT<257; iLUT++)
+							{
+								if ((iImage[r*iWidth+c]>=iThreshList[iLUT])&&(iImage[r*iWidth+c]<iThreshList[iLUT+1])){pbyDataDst[r*iPitch+c]=iLUT; break;}
+							}
+
+						}
+					}
+					return true;
+				}
+			case IMAGE_TYPE_DIMAGE:
+				{
+					for(int r=0; r<iHeight; r++)
+					{
+						for(int c=0; c<iWidth; c++)
+						{
+							pbyDataDst[r*iPitch+c]=123;
+						}
+					}
+					return true;
+				}
+			}
+			return false;
+		}
 		if(enumMode == VALUE_IMAGE_HUE_CYCLIC)
 		{
 			imgDst->Create(iWidth, iHeight,24);
