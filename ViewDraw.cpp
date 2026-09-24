@@ -32,8 +32,21 @@ double g_dScale[SCALE_VAR_NUM] =
 	64.000000,
 };
 
-const double ViewDraw::GetDispOriginR_tv(PanImage* panImg, const bool bSynchroScroll){if(bSynchroScroll==false){return panImg->m_dDispOriginR_tv;} return m_dDispOriginR_tv;};
-const double ViewDraw::GetDispOriginC_tv(PanImage* panImg, const bool bSynchroScroll){if(bSynchroScroll==false){return panImg->m_dDispOriginC_tv;} return m_dDispOriginC_tv;};
+const double ViewDraw::GetDispOriginR_tv(PanImage* panImg, const bool bSynchroScroll)
+{
+	if(panImg==NULL){return m_dDispOriginR_tv;}
+	if(bSynchroScroll==false){return panImg->m_dDispOriginR_tv;} 
+	return m_dDispOriginR_tv;
+}
+
+
+const double ViewDraw::GetDispOriginC_tv(PanImage* panImg, const bool bSynchroScroll)
+{
+	if(panImg==NULL){return m_dDispOriginR_tv;}
+	if(bSynchroScroll==false){return panImg->m_dDispOriginC_tv;} 
+	return m_dDispOriginC_tv;
+}
+
 
 const bool ViewDraw::ZoomChange(int iChange,  PanImage* panImg, const bool bSynchroScroll, CWnd* wnd, const bool bTopView)
 {
@@ -132,8 +145,8 @@ const bool ViewDraw::ZoomChange(int iMousePosR_v, int iMousePosC_v, int iChange,
 	double dMousePosC_i = dMousePosC_tv/g_dScale[m_iScaleIndex];
 
 
-	double dOldDispOriginR_tv = GetDispOriginR_tv();
-	double dOldDispOriginC_tv = GetDispOriginC_tv();
+	double dOldDispOriginR_tv = GetDispOriginR_tv(NULL, true);
+	double dOldDispOriginC_tv = GetDispOriginC_tv(NULL, true);
 	const CImage* cimg=panImg->GetCurrentProcess();
 	int iWidth_i = max(0,cimg->GetWidth());
 	int iHeight_i = max(0,cimg->GetHeight());
@@ -387,11 +400,11 @@ void ViewDraw::OnScroll(int iSB, int nSBCode, int nPos,  PanImage* panImg,  cons
 	int iOldPos_scl;
 	if(iSB == SB_VERT)
 	{
-		iOldPos_scl = (int)(GetDispOriginR_tv()*(iMax-iPageSize+1.0)/(iMax*1.0));
+		iOldPos_scl = (int)(GetDispOriginR_tv(NULL, true)*(iMax-iPageSize+1.0)/(iMax*1.0));
 	}
 	else
 	{
-		iOldPos_scl = (int)(GetDispOriginC_tv()*(iMax-iPageSize+1.0)/(iMax*1.0));
+		iOldPos_scl = (int)(GetDispOriginC_tv(NULL, true)*(iMax-iPageSize+1.0)/(iMax*1.0));
 	}
 
 
@@ -453,8 +466,8 @@ const Line ViewDraw::v_to_i(const Line* line_v)
 		return line;
 	}
 
-	int iCOrigin_tv = (int)(GetDispOriginC_tv());
-	int iROrigin_tv = (int)(GetDispOriginR_tv());
+	int iCOrigin_tv = (int)(GetDispOriginC_tv(NULL, true));
+	int iROrigin_tv = (int)(GetDispOriginR_tv(NULL, true));
 
 	line.Set(
 		((line_v->dR0+ iROrigin_tv) / GetScale()) +0.5
@@ -482,8 +495,8 @@ const Line ViewDraw::i_to_v(const Line* line_i)
 		return line;
 	}
 
-	int iCOrigin_tv = (int)GetDispOriginC_tv();
-	int iROrigin_tv = (int)GetDispOriginR_tv();
+	int iCOrigin_tv = (int)GetDispOriginC_tv(NULL, true);
+	int iROrigin_tv = (int)GetDispOriginR_tv(NULL, true);
 
 	line.Set(
 		((line_i->dR0) * GetScale())-iROrigin_tv
@@ -505,8 +518,8 @@ const CRect ViewDraw::v_to_i(const CRect* rect_v)
 		return rect_i;
 	}
 
-	int iCOrigin_tv = (int)(GetDispOriginC_tv());
-	int iROrigin_tv = (int)(GetDispOriginR_tv());
+	int iCOrigin_tv = (int)(GetDispOriginC_tv(NULL, true));
+	int iROrigin_tv = (int)(GetDispOriginR_tv(NULL, true));
 
 	rect_i.SetRect(
 		(int)(((rect_v->left+ iCOrigin_tv) / g_dScale[m_iScaleIndex]) +0.5)
@@ -527,8 +540,8 @@ const CRect ViewDraw::i_to_v(const CRect* rect_i)
 		return rect_v;
 	}
 
-	int iCOrigin_tv = (int)GetDispOriginC_tv();
-	int iROrigin_tv = (int)GetDispOriginR_tv();
+	int iCOrigin_tv = (int)GetDispOriginC_tv(NULL, true);
+	int iROrigin_tv = (int)GetDispOriginR_tv(NULL, true);
 
 	rect_v.SetRect(
 		(int)((rect_i->left ) * g_dScale[m_iScaleIndex])-iCOrigin_tv
@@ -701,8 +714,8 @@ void ViewDraw::OnDraw(CWnd* wnd, CDC* pDC, const PanImage* panImg, const bool bT
 	bufferBmp.CreateCompatibleBitmap(pDC, iWidth_v, iHeight_v);
 	CBitmap* pOldBmp = memDC.SelectObject(&bufferBmp);
 
-	double dDispOriginR_tv = GetDispOriginR_tv();
-	double dDispOriginC_tv = GetDispOriginC_tv();
+	double dDispOriginR_tv = GetDispOriginR_tv(NULL, true);
+	double dDispOriginC_tv = GetDispOriginC_tv(NULL, true);
 
 
 
