@@ -169,25 +169,25 @@ const CImage* PanImage::GetCurrentProcess() const
 }
 
 
-bool PanImage::CopyImage(const PanImage* imgSrc)
+bool PanImage::CopyImage(const PanImage* panImgSrc)
 {
-	bool bRet = this->Set(imgSrc->enumImageType, imgSrc->iImage, imgSrc->dImage, imgSrc->iWidth, imgSrc->iHeight, &imgSrc->cImage, imgSrc->enumValueImage, imgSrc->sDataSource);
+	bool bRet = this->Set(panImgSrc->enumImageType, panImgSrc->iImage, panImgSrc->dImage, panImgSrc->iWidth, panImgSrc->iHeight, &panImgSrc->cImage, panImgSrc->enumValueImage, panImgSrc->sDataSource);
 	if(bRet != true){return false;}
-	if(imgSrc->enumImageType != IMAGE_TYPE_CIMAGE)
+	if(panImgSrc->enumImageType != IMAGE_TYPE_CIMAGE)
 	{
-		bRet = CopyImage_CImage(&(imgSrc->cImage), &(this->cImage));
+		bRet = CopyImage_CImage(&(panImgSrc->cImage), &(this->cImage));
 		if(bRet != true){return false;}
 	}
 	for(int i=0; i<MAX_IMG_PROCESS; i++)
 	{
-		if(imgSrc->m_imageProcessed[i].IsNull() != true)
+		if(panImgSrc->m_imageProcessed[i].IsNull() != true)
 		{
-			CopyImage_CImage(&(imgSrc->m_imageProcessed[i]), &(this->m_imageProcessed[i]));
+			CopyImage_CImage(&(panImgSrc->m_imageProcessed[i]), &(this->m_imageProcessed[i]));
 		}
 
-		this->m_iImgProcessIndex = imgSrc->m_iImgProcessIndex;
-		this->m_iUnDoAvailableCount = imgSrc->m_iUnDoAvailableCount;
-		this->m_iReDoAvailableCount = imgSrc->m_iReDoAvailableCount;
+		this->m_iImgProcessIndex = panImgSrc->m_iImgProcessIndex;
+		this->m_iUnDoAvailableCount = panImgSrc->m_iUnDoAvailableCount;
+		this->m_iReDoAvailableCount = panImgSrc->m_iReDoAvailableCount;
 	}
 	return true;
 }
@@ -480,7 +480,7 @@ bool ConvertStrToByte3(const CString sImage, const CString sSeparator, const int
 
 
 
-bool ConvertStrToPanImage(const CString sImage,  const VALUE_IMAGE enumImageMode, const CString sDataSource, PanImage* imgDst)
+bool ConvertStrToPanImage(const CString sImage,  const VALUE_IMAGE enumImageMode, const CString sDataSource, PanImage* panImgDst)
 {
 	CString sSeparator;
 	int iHeight;
@@ -514,7 +514,7 @@ bool ConvertStrToPanImage(const CString sImage,  const VALUE_IMAGE enumImageMode
 		SAFE_DELETE(byImageR);
 		SAFE_DELETE(byImageG);
 		SAFE_DELETE(byImageB);
-		imgDst->Set(IMAGE_TYPE_CIMAGE, NULL, NULL, iWidth, iHeight, &imgTemp, VALUE_IMAGE_CLIP_0_TO_255, sDataSource);
+		panImgDst->Set(IMAGE_TYPE_CIMAGE, NULL, NULL, iWidth, iHeight, &imgTemp, VALUE_IMAGE_CLIP_0_TO_255, sDataSource);
 		return true;
 	}
 
@@ -528,7 +528,7 @@ bool ConvertStrToPanImage(const CString sImage,  const VALUE_IMAGE enumImageMode
 		bRet = ConvertStrToInt(sImage, sSeparator, iHeight, iWidth, iImage);
 		if(bRet != true){SAFE_DELETE(iImage); return false;}
 
-		imgDst->Set(IMAGE_TYPE_IIMAGE,iImage,NULL, iWidth,iHeight,NULL,enumImageMode, sDataSource);
+		panImgDst->Set(IMAGE_TYPE_IIMAGE,iImage,NULL, iWidth,iHeight,NULL,enumImageMode, sDataSource);
 		SAFE_DELETE(iImage);
 		return true;
 	}
@@ -909,13 +909,13 @@ bool ReadCImageFromData(const BYTE* byData, const SIZE_T dataSize, CImage* imgDs
 	return true;
 }
 
-bool CopyFromClipBoardImg(PanImage* imgDst)
+bool CopyFromClipBoardImg(PanImage* panImgDst)
 {
 	CString sData;
 	bool bRet = CopyFromClipBoardStr(&sData);
 	if(bRet == true)
 	{
-		return ConvertStrToPanImage(sData,VALUE_IMAGE_CLIP_0_TO_255, _T("Clipboard"), imgDst);
+		return ConvertStrToPanImage(sData,VALUE_IMAGE_CLIP_0_TO_255, _T("Clipboard"), panImgDst);
 	}
 
 	HANDLE hResult = GetClipboardData(CF_DIB);
@@ -937,12 +937,12 @@ bool CopyFromClipBoardImg(PanImage* imgDst)
 	bRet = CloseClipboard();
 	if(bRet == FALSE){SAFE_DELETE(byData); return false;}
 	
-	bRet = ReadCImageFromData(byData, dataSize, imgDst->SetCImage());
+	bRet = ReadCImageFromData(byData, dataSize, panImgDst->SetCImage());
 	if(bRet == FALSE){SAFE_DELETE(byData); return false;}
 
 	SAFE_DELETE(byData); 
-	imgDst->SetImageType(IMAGE_TYPE_CIMAGE);
-	imgDst->SetDataSource(_T("Clipboard"));
+	panImgDst->SetImageType(IMAGE_TYPE_CIMAGE);
+	panImgDst->SetDataSource(_T("Clipboard"));
 	return true;
 }
 int GetColorTableIndex(const RGBQUAD* rgbqTable, const int iLength, const BYTE byR, const BYTE byG, const BYTE byB, const BYTE byA)
@@ -2026,7 +2026,7 @@ const BYTE g_byFont_4_8[96]={
 		}
 	}
 
-	bool ImposeRGBValue(const PanImage* imgSrc, const CImage* imgZoomed, CImage* imgDst, const int iType,const double dROffset, const double dCOffset, const double dScale, const double dScaleThresh,const int iRs_i, const int iCs_i, const int iRe_i, const int iCe_i)
+	bool ImposeRGBValue(const PanImage* panImgSrc, const CImage* imgZoomed, CImage* imgDst, const int iType,const double dROffset, const double dCOffset, const double dScale, const double dScaleThresh,const int iRs_i, const int iCs_i, const int iRe_i, const int iCe_i)
 	{
 		if(imgZoomed != imgDst)
 		{
@@ -2044,7 +2044,7 @@ const BYTE g_byFont_4_8[96]={
 		int iRMaxDst = int(iHeightDst/dScale+2);
 		int iCMaxDst = int(iWidthDst/dScale+2);
 
-		switch(imgSrc->GetImageType())
+		switch(panImgSrc->GetImageType())
 		{
 		case IMAGE_TYPE_IIMAGE:
 			{
@@ -2068,7 +2068,7 @@ const BYTE g_byFont_4_8[96]={
 						int iValueB =  GetBValue(col);
 						BYTE byDot=iValueR+iValueG+iValueB<480 ? 255:0;
 						int iValue;
-						imgSrc->GetValue(ir_i, ic_i,&iValue);
+						panImgSrc->GetValue(ir_i, ic_i,&iValue);
 						if(dScale>48)
 						{
 							ImposeValue_8_16(pbyDataDst, iPitchDst, iHeightDst, iWidthDst, iValue,ir0_v-8-0, ic0_v-2-16, byDot);
@@ -2096,12 +2096,12 @@ const BYTE g_byFont_4_8[96]={
 						if(ic0_v<0){continue;}
 						if(ic0_v>=iWidthDst){continue;}
 
-						COLORREF col = imgSrc->GetCImage()->GetPixel(ic_i, ir_i);
+						COLORREF col = panImgSrc->GetCImage()->GetPixel(ic_i, ir_i);
 						int iValueR =  GetRValue(col);
 						int iValueG =  GetGValue(col);
 						int iValueB =  GetBValue(col);
 
-						col = (imgSrc->GetCurrentProcess())->GetPixel(ic_i, ir_i);
+						col = (panImgSrc->GetCurrentProcess())->GetPixel(ic_i, ir_i);
 						int iValue =  GetRValue(col);
 						iValue +=  GetGValue(col);
 						iValue +=  GetBValue(col);
@@ -3662,7 +3662,7 @@ const BYTE g_byFont_4_8[96]={
 
 	}
 
-	bool LoadICON2(const CString sFilePath, PanImage* imgs, const UINT uiNum)
+	bool LoadICON2(const CString sFilePath, PanImage* panImgs, const UINT uiNum)
 	{
 		HINSTANCE hExe;
 		hExe = LoadLibrary(sFilePath);
@@ -3694,7 +3694,7 @@ const BYTE g_byFont_4_8[96]={
 			SM_CXICON, SM_CYICON, LR_DEFAULTCOLOR); 
 
 		HDC hScreenDC = ::GetDC(NULL);
-		bool bRet = ConvertIconToImg(hScreenDC, hIcon1, imgs[0].SetCImage());
+		bool bRet = ConvertIconToImg(hScreenDC, hIcon1, panImgs[0].SetCImage());
 		return true;
 	}
 
@@ -4045,7 +4045,7 @@ const BYTE g_byFont_4_8[96]={
 		return false;
 	}
 
-bool ReadBinaryFile(const CString sFilePath, FileFormatList* fileFormatList, PanImage* imgDst)
+bool ReadBinaryFile(const CString sFilePath, FileFormatList* fileFormatList, PanImage* panImgDst)
 {
 	CString sExt;
 	int iPlace = sFilePath.ReverseFind('.');
@@ -4107,7 +4107,7 @@ bool ReadBinaryFile(const CString sFilePath, FileFormatList* fileFormatList, Pan
 
 	SAFE_DELETE(byData);
 
-	imgDst->Set(IMAGE_TYPE_CIMAGE, NULL, NULL, uiWidth, uiHeight, &imgTemp, VALUE_IMAGE_UNDEFINED, sFilePath);
+	panImgDst->Set(IMAGE_TYPE_CIMAGE, NULL, NULL, uiWidth, uiHeight, &imgTemp, VALUE_IMAGE_UNDEFINED, sFilePath);
 	return true;
 }
 	bool GetFileFormat(const CString sIniFilePath, const CString sType, FileFormat* fileFormat)

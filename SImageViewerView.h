@@ -30,9 +30,9 @@ public:
 	int m_iImageIndex;
 	int m_iImageMax;
 	bool m_bRefresh;
-		bool m_bScrollPin;
+		bool m_bSynchroScroll;
 
-	const bool GetScrollPin(){return m_bScrollPin;}
+	const bool GetScrollPin(){return m_bSynchroScroll;}
 	bool m_bBeingFullScreen;
 			void ToggleScrollPin();
 
@@ -56,8 +56,8 @@ public:
 	bool ZoomChange(int iMousePosR_v, int iMousePosC_v,int iChange);
 	bool ZoomChange(int iR0_i, int iC0_i, int iR1_i, int iC1_i);
 	bool ZoomChangeAbs(int iChangeAbs);
-	double GetDispOriginR_tv(){return view.GetDispOriginR_tv();}
-	double GetDispOriginC_tv(){return view.GetDispOriginC_tv();}
+	double GetDispOriginR_tv(){if(m_iImageMax<=0){return 0;} return view.GetDispOriginR_tv(&(m_image[m_iImageIndex]), m_bSynchroScroll);}
+	double GetDispOriginC_tv(){if(m_iImageMax<=0){return 0;} return view.GetDispOriginC_tv(&(m_image[m_iImageIndex]), m_bSynchroScroll);}
 
 
 	void EnterFullScreen();
@@ -76,7 +76,7 @@ public:
 	void SetGridEnableDesable(){view.SetGridEnableDesable();}
 	void OperateTransparent();
 	bool GetColorAtCursor(const CImage* img, CPoint point_v, int* iR_img, int* iC_img, ColorValue* colorValue);
-	bool GetColorAtCursor(PanImage* img, CPoint point_v, int* iR_img, int* iC_img, ColorValue* colorValue);
+	bool GetColorAtCursor(PanImage* panImg, CPoint point_v, int* iR_img, int* iC_img, ColorValue* colorValue);
 	void OnScroll(int iSB, int nSBCode, int nPos);
 	void DispStatus(CPoint point);
 // ‘€ì

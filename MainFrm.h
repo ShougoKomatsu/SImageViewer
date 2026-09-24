@@ -18,7 +18,7 @@ public:
 
 	bool m_bGridAble;
 	bool m_bFileOpened;
-	bool m_bScrollPin;
+	bool m_bSynchroScroll;
 	bool m_bRegionSelected;
 	CFont m_cfStatus;
 	bool m_bBeingFullScreen;

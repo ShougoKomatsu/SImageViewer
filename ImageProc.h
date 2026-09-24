@@ -87,7 +87,7 @@ public:
 	const CImage* GetCurrentProcess() const;
 	bool UnDo();
 	bool ReDo();
-	bool CopyImage(const PanImage* imgSrc);
+	bool CopyImage(const PanImage* panImgSrc);
 	void ResetProcessImage();
 	bool Set(const IMAGE_TYPE enumImageType, const int* iImage_in, const double* dImage_in, const int iWidth, const int iHeight, const CImage* cImage_in, const VALUE_IMAGE enumValueImage_in, const CString sDataSource_in);
 	int GetWidth(){if(enumImageType==IMAGE_TYPE_CIMAGE){return cImage.GetWidth();} return iWidth;}
@@ -154,7 +154,7 @@ private:
 
 
 bool ConvertImage(const ImgRGB* imgRGB, CImage* imgDst, const int iBPPDst, const RGBQUAD* rgbqTable, const int iColors);
-bool ConvertStrToPanImage(const CString sImage, const VALUE_IMAGE enumImageMode, const CString sDataSource, PanImage* imgDst);
+bool ConvertStrToPanImage(const CString sImage, const VALUE_IMAGE enumImageMode, const CString sDataSource, PanImage* panImgDst);
 bool ConvertImage_AreaCoverage(const CImage* imgSrc,const int iBPP, CImage* imgDst);
 bool ConvertImage_ByDeviation(const CImage* imgSrc,const int iBPP,  CImage* imgDst);
 bool ConvertImage_LossLess(const CImage* imgSrc, const int iBPP, CImage* imgDst);
@@ -163,7 +163,7 @@ bool ConvertImage(const ImgRGB* imgRGB, CImage* cimage);
 
 
 bool CopyToClipBoardImg(const CImage* img);
-bool CopyFromClipBoardImg(PanImage* img);
+bool CopyFromClipBoardImg(PanImage* panImg);
 
 bool CopyImage_CImage(const CImage* imgSrc, CImage* imgDst);
 bool ClipImage(const CImage* imgOriginal, CImage* imgClipped, const int iR0, const int iC0, const int iR1, const int iC1);
@@ -182,11 +182,11 @@ bool SetColorTable(CImage* img, const RGBQUAD* rgbTable, int iLength);
 
 
 UINT CountIconNum(const CString sFilePath);
-bool LoadICOFile(const CString sFilePath, PanImage* img, UINT uiNum);
-bool LoadICON2(const CString sFilePath, PanImage* imgs, UINT uiNum);
+bool LoadICOFile(const CString sFilePath, PanImage* panImg, UINT uiNum);
+bool LoadICON2(const CString sFilePath, PanImage* panImgs, UINT uiNum);
 
 bool ImposeGrid(const CImage* imgValueSrc, const CImage* imgSrc, CImage* imgDst, const int iType, const double dROffset, const double dCOffset, const double dScale, const double dScaleThresh,const int iRMax_i, const int iCMax_i);
-bool ImposeRGBValue(const PanImage* imgSrc, const CImage* imgZoomed, CImage* imgDst, const int iType,const double dROffset, const double dCOffset, const double dScale, const double dScaleThresh,const int iRs_i, const int iCs_i, const int iRe_i, const int iCe_i);
+bool ImposeRGBValue(const PanImage* panImgSrc, const CImage* imgZoomed, CImage* imgDst, const int iType,const double dROffset, const double dCOffset, const double dScale, const double dScaleThresh,const int iRs_i, const int iCs_i, const int iRe_i, const int iCe_i);
 bool ImposeRect(const CImage* imgSrc, CImage* imgDst, const CRect* rect);
 bool ImposeAlphaChannel(const CImage* imgSrc, CImage* imgDst);
 
@@ -251,7 +251,7 @@ bool ImposeAlphaChannel(const CImage* imgSrc, CImage* imgDst);
 	bool GetImageTypeNum(const CString sIniFilePath, UINT* uiTypeNum);
 	bool GetImageType(const CString sIniFilePath, const int iIndexB0, CString* sType);
 	bool GetFileFormat(const CString sIniFilePath, const CString sType, FileFormat* fileFormat);
-	bool ReadBinaryFile(const CString sFilePath, FileFormatList* fileFormatList, PanImage* imgDst);
+	bool ReadBinaryFile(const CString sFilePath, FileFormatList* fileFormatList, PanImage* panImgDst);
 	bool WriteFileFormat(const CString sIniFilePath, FileFormatList* fileFormatList);
 	//		bool Threshold(const CImage* imgSrc, CImage* imgDst, const BYTE byMin, const BYTE byMax, const BYTE byR, const BYTE byG, const BYTE byB);
 
