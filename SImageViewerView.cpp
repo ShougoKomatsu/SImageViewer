@@ -88,12 +88,24 @@ IMPLEMENT_DYNCREATE(CSImageViewerView, CView)
 
 	void CSImageViewerView::ToggleScrollPin()
 	{
-	if(m_bSynchroScroll == true)
-	{
-		m_bSynchroScroll = false;
-		return;
-	}
-	m_bSynchroScroll = true;
+		if(m_bSynchroScroll == true)
+		{
+			m_bSynchroScroll = false;
+			m_image[m_iImageIndex].scr.m_dDispOriginR_tv=  scr.m_dDispOriginR_tv;
+			m_image[m_iImageIndex].scr.m_dDispOriginC_tv=  scr.m_dDispOriginC_tv;
+			m_image[m_iImageIndex].scr.m_iScaleIndex=  scr.m_iScaleIndex;
+			return;
+		}
+		else
+		{
+
+			scr.m_dDispOriginR_tv=  m_image[m_iImageIndex].scr.m_dDispOriginR_tv;
+			scr.m_dDispOriginC_tv=  m_image[m_iImageIndex].scr.m_dDispOriginC_tv;
+			scr.m_iScaleIndex=  m_image[m_iImageIndex].scr.m_iScaleIndex;
+
+		}
+		m_bSynchroScroll = true;
+
 	}
 
 	BOOL CSImageViewerView::PreCreateWindow(CREATESTRUCT& cs)
