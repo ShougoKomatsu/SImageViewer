@@ -444,6 +444,7 @@ IMPLEMENT_DYNCREATE(CSImageViewerView, CView)
 	{
 		CString sFilePaths;
 		bool bRet = GetOpenFileList(&sFilePaths);
+		if(bRet != true){return;}
 
 		AddImage(sFilePaths);
 	}
@@ -452,6 +453,7 @@ IMPLEMENT_DYNCREATE(CSImageViewerView, CView)
 	{
 		CString sFilePaths;
 		bool bRet = GetOpenFileList(&sFilePaths);
+		if(bRet != true){return;}
 
 		ReadImage(sFilePaths);
 	}
