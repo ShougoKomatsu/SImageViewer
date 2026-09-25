@@ -185,6 +185,7 @@ int CMainFrame::OnCreate(LPCREATESTRUCT lpCreateStruct)
 
 
 	m_bGridAble=false;
+	m_bMultiFile=false;
 
 	m_wndStatusBar.SetIndicators(indicators, _countof(indicators));
 
@@ -754,7 +755,7 @@ void CMainFrame::OnUpdateMenu(CCmdUI* pCmdUI)
 	case ID_MENU_EDIT_RESAMPLE:
 	case ID_TOOLBAR_SCROLL_PIN:
 		{
-			pCmdUI->Enable(m_bFileOpened);
+			pCmdUI->Enable(m_bFileOpened & m_bMultiFile);
 			break;
 		}
 	}

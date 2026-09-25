@@ -16,6 +16,7 @@ protected: // ƒVƒŠƒAƒ‹‰»‚©‚ç‚Ì‚İì¬‚µ‚Ü‚·B
 public:
 	CSImageViewerView* m_pView;
 
+	bool m_bMultiFile;
 	bool m_bGridAble;
 	bool m_bFileOpened;
 	bool m_bSynchroScroll;

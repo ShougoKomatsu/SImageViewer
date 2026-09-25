@@ -349,6 +349,10 @@ IMPLEMENT_DYNCREATE(CSImageViewerView, CView)
 		CMainFrame* pFrame = (CMainFrame*)AfxGetMainWnd();
 		m_iImageIndex = iOldNum;
 		m_iImageMax = iNewImageNum;
+		
+		if(m_iImageMax>=2){pFrame->m_bMultiFile=true; m_bSynchroScroll=true;;}
+		else{pFrame->m_bMultiFile=false; m_bSynchroScroll=false;}
+
 		pFrame->m_bFileOpened = true;
 		pFrame->m_bRegionSelected = true;
 
@@ -385,7 +389,8 @@ IMPLEMENT_DYNCREATE(CSImageViewerView, CView)
 		m_iImageMax = iImageNum;
 		pFrame->m_bFileOpened = true;
 		pFrame->m_bRegionSelected = true;
-		if(m_iImageMax>=2){m_bSynchroScroll=true; Invalidate();}
+		if(m_iImageMax>=2){pFrame->m_bMultiFile=true; m_bSynchroScroll=true;;}
+		else{pFrame->m_bMultiFile=false; m_bSynchroScroll=false;}
 
 		ResetImage(true, true);
 		SetCaption();
