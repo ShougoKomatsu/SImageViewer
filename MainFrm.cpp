@@ -753,6 +753,10 @@ void CMainFrame::OnUpdateMenu(CCmdUI* pCmdUI)
 	case ID_MENU_EDIT_INVERT:
 	case ID_MENU_EDIT_SET_SELECTION:
 	case ID_MENU_EDIT_RESAMPLE:
+		{
+			pCmdUI->Enable(m_bFileOpened);
+			break;
+		}
 	case ID_TOOLBAR_SCROLL_PIN:
 		{
 			pCmdUI->Enable(m_bFileOpened & m_bMultiFile);
