@@ -934,11 +934,11 @@ bool CopyFromClipBoardImg(PanImage* panImgDst)
 
 	GlobalUnlock(hResult);
 
-	bRet = CloseClipboard();
-	if(bRet == FALSE){SAFE_DELETE(byData); return false;}
+	BOOL bbRet = CloseClipboard();
+	if(bbRet == FALSE){SAFE_DELETE(byData); return false;}
 	
-	bRet = ReadCImageFromData(byData, dataSize, panImgDst->SetCImage());
-	if(bRet == FALSE){SAFE_DELETE(byData); return false;}
+	bbRet = ReadCImageFromData(byData, dataSize, panImgDst->SetCImage());
+	if(bbRet == FALSE){SAFE_DELETE(byData); return false;}
 
 	SAFE_DELETE(byData); 
 	panImgDst->SetImageType(IMAGE_TYPE_CIMAGE);
@@ -3936,7 +3936,7 @@ const BYTE g_byFont_4_8[96]={
 					{
 						for(int c=0; c<iWidth; c++)
 						{
-							BYTE byValue = min(255,max(0, (255 * (iImage[r*iWidth+c] - iMin)/double(iMax-iMin))));
+							BYTE byValue = (BYTE)min(255,max(0, (255 * (iImage[r*iWidth+c] - iMin)/double(iMax-iMin))));
 							SetRGBValue(pbyDataDst, r, c, iPitch, s_byVisibleR[byValue], s_byVisibleG[byValue], s_byVisibleB[byValue]);
 						}
 					}
@@ -4128,7 +4128,7 @@ bool ReadBinaryFile(const CString sFilePath, FileFormatList* fileFormatList, Pan
 	BYTE* byData;
 	byData = new BYTE[ullFileSize];
 	memset(byData,0x00,ullFileSize);
-	UINT uiRead = f.Read(byData, ullFileSize);
+	ULONGLONG ullRead = f.Read(byData, ullFileSize);
 	f.Close();
 
 	UINT uiWidth;
@@ -4160,9 +4160,9 @@ bool ReadBinaryFile(const CString sFilePath, FileFormatList* fileFormatList, Pan
 	int iPitch = imgTemp.GetPitch();
 	BYTE* pbyData = (BYTE*)imgTemp.GetBits();
 
-	for(int r=0; r< uiHeight; r++)
+	for(UINT r=0; r< uiHeight; r++)
 	{
-		for(int c=0; c<uiWidth; c++)
+		for(UINT c=0; c<uiWidth; c++)
 		{
 			if(uiDataOffset + r*uiWidth+c>=ullFileSize){break;}
 			pbyData[r*iPitch+c]=byData[uiDataOffset + r*uiWidth+c];
@@ -4213,7 +4213,7 @@ bool ReadBinaryFile(const CString sFilePath, FileFormatList* fileFormatList, Pan
 	bool WriteFileFormat(const CString sIniFilePath, FileFormatList* fileFormatList)
 	{
 		CString sWrite;
-		for(int i=0; i<fileFormatList->uiNum; i++)
+		for(UINT i=0; i<fileFormatList->uiNum; i++)
 		{
 			CString sKey;
 			sKey.Format(_T("Type%d"), i+1);
@@ -4591,8 +4591,8 @@ bool ReadBinaryFile(const CString sFilePath, FileFormatList* fileFormatList, Pan
 		{
 			for(int c=0; c<iWidth; c++)
 			{
-				BYTE byR=dRs+c*dRStep;
-				BYTE byG=dGs+(iHeight-1-r)*dGStep;
+				BYTE byR=(BYTE)max(0, min(255, dRs+c*dRStep));
+				BYTE byG=(BYTE)max(0, min(255, dGs+(iHeight-1-r)*dGStep));
 				SetRGBValue(pbyData, r, c, iPitch, byR, byG, byB);
 			}
 		}
@@ -4622,8 +4622,8 @@ bool ReadBinaryFile(const CString sFilePath, FileFormatList* fileFormatList, Pan
 		{
 			for(int c=0; c<iWidth; c++)
 			{
-				BYTE byG=dGs+c*dGStep;
-				BYTE byB=dBs+(iHeight-1-r)*dBStep;
+				BYTE byG=(BYTE)max(0, min(255, dGs+c*dGStep));
+				BYTE byB=(BYTE)max(0, min(255, dBs+(iHeight-1-r)*dBStep));
 				SetRGBValue(pbyData, r, c, iPitch, byR, byG, byB);
 			}
 		}
@@ -4652,8 +4652,8 @@ bool ReadBinaryFile(const CString sFilePath, FileFormatList* fileFormatList, Pan
 		{
 			for(int c=0; c<iWidth; c++)
 			{
-				BYTE byB=dBs+c*dBStep;
-				BYTE byR=dRs+(iHeight-1-r)*dRStep;
+				BYTE byB=(BYTE)max(0, min(255, dBs+c*dBStep));
+				BYTE byR=(BYTE)max(0, min(255, dRs+(iHeight-1-r)*dRStep));
 				SetRGBValue(pbyData, r, c, iPitch, byR, byG, byB);
 			}
 		}
