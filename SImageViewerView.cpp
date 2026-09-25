@@ -960,7 +960,7 @@ IMPLEMENT_DYNCREATE(CSImageViewerView, CView)
 		UINT uiTypeNum;
 		bool bRet = GetImageTypeNum(m_sIniFilePath, &uiTypeNum);
 		m_fileFomatList.Set(uiTypeNum);
-		for(int i=0; i<uiTypeNum; i++)
+		for(UINT i=0; i<uiTypeNum; i++)
 		{
 			CString sType;
 			bRet = GetImageType(m_sIniFilePath, i, &sType);

@@ -4097,7 +4097,7 @@ const BYTE g_byFont_4_8[96]={
 
 	bool GetImgFormat(const CString sExt, FileFormatList* fileFormatList, FileFormat* fileFormat)
 	{
-		for(int i=0; i<fileFormatList->uiNum; i++)
+		for(UINT i=0; i<fileFormatList->uiNum; i++)
 		{
 			if(fileFormatList->fileFormat[i].sType.CompareNoCase(sExt)==0)
 			{
@@ -4123,12 +4123,13 @@ bool ReadBinaryFile(const CString sFilePath, FileFormatList* fileFormatList, Pan
 	CFile f;
 	f.Open(sFilePath, CFile::modeRead);
 	ULONGLONG ullFileSize = f.SeekToEnd();
+	if(ullFileSize>=UINT_MAX){f.Close(); return false;}
 	f.SeekToBegin();
 
 	BYTE* byData;
 	byData = new BYTE[ullFileSize];
 	memset(byData,0x00,ullFileSize);
-	ULONGLONG ullRead = f.Read(byData, ullFileSize);
+	UINT uiRead = f.Read(byData, (UINT)ullFileSize);
 	f.Close();
 
 	UINT uiWidth;

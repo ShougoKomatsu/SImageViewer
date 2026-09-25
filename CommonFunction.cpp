@@ -213,7 +213,7 @@ bool IsImageFIle(CString sFilePath, FileFormatList* fileFormatList)
 	if(sFilePath.Right(4).CompareNoCase(_T(".ico"))==0){return true;}
 	if(sFilePath.Right(4).CompareNoCase(_T(".exe"))==0){return true;}
 	if(sFilePath.Right(4).CompareNoCase(_T(".dll"))==0){return true;}
-	for(int i=0; i<fileFormatList->uiNum; i++)
+	for(UINT i=0; i<fileFormatList->uiNum; i++)
 	{
 		if(sFilePath.Right(fileFormatList->fileFormat[i].sType.GetLength()).CompareNoCase(fileFormatList->fileFormat[i].sType)==0){return true;}
 	}
@@ -229,7 +229,7 @@ UINT CountImageInOneFile(CString sFilePath, FileFormatList* fileFormatList)
 	if(sFilePath.Right(4).CompareNoCase(_T(".ico"))==0){return 2*CountIconNum(sFilePath); }
 	if(sFilePath.Right(4).CompareNoCase(_T(".exe"))==0){return 2*CountIconNum(sFilePath); }
 	if(sFilePath.Right(4).CompareNoCase(_T(".dll"))==0){return 2*CountIconNum(sFilePath); }
-	for(int i=0; i<fileFormatList->uiNum; i++)
+	for(UINT i=0; i<fileFormatList->uiNum; i++)
 	{
 		if(sFilePath.Right(fileFormatList->fileFormat[i].sType.GetLength()).CompareNoCase(fileFormatList->fileFormat[i].sType)==0){return 1;}
 	}
@@ -336,7 +336,7 @@ void PanImage::ResetProcessImage()
 }
 bool ReadAndAppendImage(CString sFilePath, FileFormatList* fileFormatList, PanImage* panImage, int iImageIndex, int* iImageIndexNew)
 {
-	for(int i=0; i<fileFormatList->uiNum; i++)
+	for(UINT i=0; i<fileFormatList->uiNum; i++)
 	{
 		if(sFilePath.Right(fileFormatList->fileFormat[i].sType.GetLength()).CompareNoCase(fileFormatList->fileFormat[i].sType)==0)
 		{

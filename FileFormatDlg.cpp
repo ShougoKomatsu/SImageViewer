@@ -68,7 +68,7 @@ BOOL CFileFormatDlg::OnInitDialog()
 
 
 	m_ListFileType.ResetContent();
-	for(int i=0; i<m_fileFormatList.uiNum; i++)
+	for(UINT i=0; i<m_fileFormatList.uiNum; i++)
 	{
 		m_ListFileType.AddString(m_fileFormatList.fileFormat[i].sType);
 	}
@@ -82,7 +82,7 @@ BOOL CFileFormatDlg::OnInitDialog()
 
 void CFileFormatDlg::DispSetting(const CString sType)
 {
-	for(int i=0; i<m_fileFormatList.uiNum; i++)
+	for(UINT i=0; i<m_fileFormatList.uiNum; i++)
 	{
 		if(sType.CompareNoCase(m_fileFormatList.fileFormat[i].sType)==0)
 		{
@@ -126,7 +126,7 @@ void CFileFormatDlg::OnBnClickedOk()
 
 	WritePrivateProfileString(_T("Types"), NULL, NULL, m_sIniFilePath);
 
-	for(int i=0; i<m_fileFormatList.uiNum; i++)
+	for(UINT i=0; i<m_fileFormatList.uiNum; i++)
 	{
 		CString sKey;
 		sKey.Format(_T("Type%d"), i+1);
@@ -162,7 +162,7 @@ void CFileFormatDlg::OnBnClickedFileFormatButtonAdd()
 	FileFormatList fileFormatListTemp;
 	fileFormatListTemp.Copy(&m_fileFormatList);
 	m_fileFormatList.Set(fileFormatListTemp.uiNum+1);
-	for(int i=0; i<fileFormatListTemp.uiNum; i++)
+	for(UINT i=0; i<fileFormatListTemp.uiNum; i++)
 	{
 		m_fileFormatList.fileFormat[i].Copy(&(fileFormatListTemp.fileFormat[i]));
 	}
@@ -192,7 +192,7 @@ void CFileFormatDlg::OnBnClickedFileFormatButtonDelete()
 	m_ListFileType.GetText(iSel, sType);
 
 	bool bFound=false;
-	for(int i=0; i<m_fileFormatList.uiNum; i++)
+	for(UINT i=0; i<m_fileFormatList.uiNum; i++)
 	{
 		if(m_fileFormatList.fileFormat[i].sType.CompareNoCase(sType)==0){bFound =true; break;}
 	}
@@ -205,7 +205,7 @@ void CFileFormatDlg::OnBnClickedFileFormatButtonDelete()
 	UpdateData(FALSE);
 
 	int iAddIndex=0;
-	for(int i=0; i<fileFormatListTemp.uiNum; i++)
+	for(UINT i=0; i<fileFormatListTemp.uiNum; i++)
 	{
 		if(fileFormatListTemp.fileFormat[i].sType.CompareNoCase(sType)==0){continue;}
 		m_fileFormatList.fileFormat[iAddIndex].Copy(&(fileFormatListTemp.fileFormat[i]));
@@ -214,7 +214,7 @@ void CFileFormatDlg::OnBnClickedFileFormatButtonDelete()
 	if(m_fileFormatList.uiNum<=0){return;}
 	
 	m_ListFileType.ResetContent();
-	for(int i=0; i<m_fileFormatList.uiNum; i++)
+	for(UINT i=0; i<m_fileFormatList.uiNum; i++)
 	{
 		m_ListFileType.AddString(m_fileFormatList.fileFormat[i].sType);
 	}
@@ -247,7 +247,7 @@ void CFileFormatDlg::OnChangeFileFormatEditWidth()
 	CString sType;
 	m_ListFileType.GetText(iSel, sType);
 
-	for(int i=0; i<m_fileFormatList.uiNum; i++)
+	for(UINT i=0; i<m_fileFormatList.uiNum; i++)
 	{
 		if(sType.CompareNoCase(m_fileFormatList.fileFormat[i].sType)==0)
 		{
@@ -266,7 +266,7 @@ void CFileFormatDlg::OnChangeFileFormatEditHeight()
 	CString sType;
 	m_ListFileType.GetText(iSel, sType);
 
-	for(int i=0; i<m_fileFormatList.uiNum; i++)
+	for(UINT i=0; i<m_fileFormatList.uiNum; i++)
 	{
 		if(sType.CompareNoCase(m_fileFormatList.fileFormat[i].sType)==0)
 		{
@@ -285,7 +285,7 @@ void CFileFormatDlg::OnChangeFileFormatEditWidthInfoOffset()
 	CString sType;
 	m_ListFileType.GetText(iSel, sType);
 
-	for(int i=0; i<m_fileFormatList.uiNum; i++)
+	for(UINT i=0; i<m_fileFormatList.uiNum; i++)
 	{
 		if(sType.CompareNoCase(m_fileFormatList.fileFormat[i].sType)==0)
 		{
@@ -303,7 +303,7 @@ void CFileFormatDlg::OnChangeFileFormatEditHeightInfoOffset()
 	CString sType;
 	m_ListFileType.GetText(iSel, sType);
 
-	for(int i=0; i<m_fileFormatList.uiNum; i++)
+	for(UINT i=0; i<m_fileFormatList.uiNum; i++)
 	{
 		if(sType.CompareNoCase(m_fileFormatList.fileFormat[i].sType)==0)
 		{
@@ -322,7 +322,7 @@ void CFileFormatDlg::OnChangeFileFormatEditDataOffset()
 	CString sType;
 	m_ListFileType.GetText(iSel, sType);
 
-	for(int i=0; i<m_fileFormatList.uiNum; i++)
+	for(UINT i=0; i<m_fileFormatList.uiNum; i++)
 	{
 		if(sType.CompareNoCase(m_fileFormatList.fileFormat[i].sType)==0)
 		{
@@ -341,7 +341,7 @@ void CFileFormatDlg::OnChangeFileFormatEditDataOffsetOffset()
 	CString sType;
 	m_ListFileType.GetText(iSel, sType);
 
-	for(int i=0; i<m_fileFormatList.uiNum; i++)
+	for(UINT i=0; i<m_fileFormatList.uiNum; i++)
 	{
 		if(sType.CompareNoCase(m_fileFormatList.fileFormat[i].sType)==0)
 		{
@@ -360,7 +360,7 @@ void CFileFormatDlg::OnChangeFileFormatEditDataInfoOffset()
 	CString sType;
 	m_ListFileType.GetText(iSel, sType);
 
-	for(int i=0; i<m_fileFormatList.uiNum; i++)
+	for(UINT i=0; i<m_fileFormatList.uiNum; i++)
 	{
 		if(sType.CompareNoCase(m_fileFormatList.fileFormat[i].sType)==0)
 		{
