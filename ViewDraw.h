@@ -2,7 +2,7 @@
 #pragma once
 #include "ImageProc.h"
 #include "resource.h"
-
+#include "math.h"
 #define RECT_CHANGE_MARGIN_PIX (10)
 #define SCALE_VAR_NUM (25)
 extern double g_dScale[SCALE_VAR_NUM];
@@ -73,7 +73,8 @@ private:
 	CRect m_Rect_i;
 	CRect m_Rect_v;
 	
-	int m_iScaleIndex;
+//	int m_iScaleIndex;
+	double m_dScale;
 	double m_dDispOriginR_tv;
 	double m_dDispOriginC_tv;
 	CPoint m_PointStart_v; 
@@ -89,11 +90,34 @@ private:
 	
 
 public:
+	int GetScaleIndex()
+	{
+		bool bFound=false;
+		int iScaleIndex=0;
+		for(int i=0; i<SCALE_VAR_NUM; i++)
+		{
+			if((this->m_dScale*0.9 < g_dScale[i]) && (this->m_dScale*1.1 > g_dScale[i]))
+			{
+				iScaleIndex=i;
+				bFound=true;
+				break;
+			}
+		}
+		if(bFound==false)
+		{
+			for(int i=0; i<SCALE_VAR_NUM-1; i++)
+			{
+				if(this->m_dScale < sqrt(g_dScale[0]*g_dScale[1])){iScaleIndex=0; bFound=true; break;}
+			}
+		}
+		if(bFound==false){iScaleIndex=SCALE_VAR_NUM-1;}
+		return iScaleIndex;
+	}
 	void GetScrollSetting(ScrollSetting* scr)
 	{
 		scr->m_dDispOriginC_tv=this->m_dDispOriginC_tv;
 		scr->m_dDispOriginR_tv=this->m_dDispOriginR_tv;
-		scr->m_iScaleIndex=this->m_iScaleIndex;
+		scr->m_iScaleIndex = GetScaleIndex();
 	}
 	MOUSE_MODE CheckRect(const CPoint* point_v, const CRect* rect_i);
 	MOUSE_MODE CheckLine(const CPoint* point_v, const Line* line_i);
@@ -123,13 +147,15 @@ public:
 	void SetMouseMode(const MOUSE_MODE iMouseMode){m_enumMouseMode=iMouseMode;}
 	const bool GetDragging(){return m_bDragging;}
 	const int GetMouseMode(){return m_enumMouseMode;}
-	const double GetScale(){return g_dScale[m_iScaleIndex];}
+	const double GetScale(){return m_dScale;}
 	void GetSizeIfNoBar(int* iHeightIfNoBar_v, int* iWidthIfNoBar_v, CWnd* wnd, const bool bTopView);
 
 	void SetScroll(															const PanImage* panImg, CWnd* wnd, const bool bTopView);
 
 	void SetScrollPos(int iR_tv, int iC_tv,									const PanImage* panImg, CWnd* wnd, const bool bTopView);
-	const bool ZoomChange(int iR0_i, int iC0_i, int iR1_i, int iC1_i,		const PanImage* panImg, CWnd* wnd, const bool bTopView);
+const bool ZoomChangeAbs(const double dScale_in, const PanImage* panImg, CWnd* wnd, const bool bTopView);
+const bool ZoomChange(int iMousePosR_v, int iMousePosC_v, const double dScale_in, const PanImage* panImg,  CWnd* wnd, const bool bTopView);
+	const bool ZoomChange(int iR0_i, int iC0_i, int iR1_i, int iC1_i,		const bool bStepped, const PanImage* panImg, CWnd* wnd, const bool bTopView);
 	const bool ZoomChange(int iChange,										const PanImage* panImg, CWnd* wnd, const bool bTopView);
 	const bool ZoomChange(int iMousePosR_v, int iMousePosC_v, int iChange,	const PanImage* panImg, CWnd* wnd, const bool bTopView);
 	const bool ZoomChangeAbs(const int iScaleIndex,							const PanImage* panImg, CWnd* wnd, const bool bTopView);
@@ -166,7 +192,7 @@ public:
 		m_bDragging = false;
 		m_Rect_v.SetRectEmpty();
 		m_Rect_i.SetRectEmpty();
-		m_iScaleIndex = 8;
+		m_dScale = 1;
 
 		m_iGrid = ID_TOOLBAR_GRID_NONE;
 		m_bValue = false;

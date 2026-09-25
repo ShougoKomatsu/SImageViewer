@@ -1020,7 +1020,7 @@ IMPLEMENT_DYNCREATE(CSImageViewerView, CView)
 	bool CSImageViewerView::ZoomChange(int iR0_i, int iC0_i, int iR1_i, int iC1_i)
 	{
 		if(m_iImageMax <= 0){return false;}
-		view.ZoomChange(iR0_i, iC0_i, iR1_i, iC1_i, &(m_image[m_iImageIndex]), this, true);
+		view.ZoomChange(iR0_i, iC0_i, iR1_i, iC1_i,true, &(m_image[m_iImageIndex]),  this, true);
 		if(m_bSynchroScroll==true)
 		{
 			view.GetScrollSetting(&scr);
