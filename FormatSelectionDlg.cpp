@@ -54,8 +54,7 @@ BOOL CFormatSelectionDlg::OnInitDialog()
 	m_sBPP.Format(_T("%d"),m_iBPP);
 	
 	((CButton*)GetDlgItem(IDC_SELECT_FORMAT_BMP24))->SetCheck(TRUE);
-
-
+	
 	UpdateData(FALSE);
 	// TODO:  ‚±‚±‚É‰Šú‰»‚ð’Ç‰Á‚µ‚Ä‚­‚¾‚³‚¢
 
