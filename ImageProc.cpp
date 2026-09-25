@@ -3852,7 +3852,7 @@ const BYTE g_byFont_4_8[96]={
 							pbyDataDst[r*iPitch+c]=255;
 							for(int iLUT=0; iLUT<257; iLUT++)
 							{
-								if ((iImage[r*iWidth+c]>=iThreshList[iLUT])&&(iImage[r*iWidth+c]<iThreshList[iLUT+1])){pbyDataDst[r*iPitch+c]=iLUT; break;}
+								if ((iImage[r*iWidth+c]>=iThreshList[iLUT])&&(iImage[r*iWidth+c]<=iThreshList[iLUT+1])){pbyDataDst[r*iPitch+c]=iLUT; break;}
 							}
 
 						}
