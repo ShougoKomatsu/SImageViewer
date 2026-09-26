@@ -1,8 +1,9 @@
 #pragma once
 
 
-#include "CommonFunction.h"
+#include "PictureCtrlEx.h"
 #include "ImageProc.h"
+
 
 // CSetTransparentDlg ダイアログ
 

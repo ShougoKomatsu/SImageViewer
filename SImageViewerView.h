@@ -9,6 +9,7 @@
 #include "ImageProc.h"
 #include "ResampleDlg.h"
 #include "CommonFunction.h"
+#include "ViewDraw.h"
 class CSImageViewerView : public CView
 {
 protected: // ƒVƒŠƒAƒ‹‰»‚©‚ç‚Ì‚İì¬‚µ‚Ü‚·B

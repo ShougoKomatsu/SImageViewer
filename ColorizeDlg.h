@@ -1,6 +1,6 @@
 #pragma once
 
-#include "CommonFunction.h"
+#include "PictureCtrlEx.h"
 #include "ImageProc.h"
 
 // CColorizeDlg ダイアログ

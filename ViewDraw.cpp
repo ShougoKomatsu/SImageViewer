@@ -32,17 +32,38 @@ double g_dScale[SCALE_VAR_NUM] =
 	64.000000,
 };
 
-const double ViewDraw::GetDispOriginR_tv()
+
+
+
+const int ViewDraw::GetScaleIndex()
 {
-	return m_dDispOriginR_tv;
+	bool bFound=false;
+	int iScaleIndex=0;
+	for(int i=0; i<SCALE_VAR_NUM; i++)
+	{
+		if((this->m_dScale*0.9 < g_dScale[i]) && (this->m_dScale*1.1 > g_dScale[i]))
+		{
+			iScaleIndex=i;
+			bFound=true;
+			break;
+		}
+	}
+	if(bFound==false)
+	{
+		for(int i=0; i<SCALE_VAR_NUM-1; i++)
+		{
+			if(this->m_dScale < sqrt(g_dScale[0]*g_dScale[1])){iScaleIndex=0; bFound=true; break;}
+		}
+	}
+	if(bFound==false){iScaleIndex=SCALE_VAR_NUM-1;}
+	return iScaleIndex;
 }
-
-
-const double ViewDraw::GetDispOriginC_tv()
+void ViewDraw::GetScrollSetting(ScrollSetting* scr)
 {
-	return m_dDispOriginC_tv;
+	scr->m_dDispOriginC_tv=this->m_dDispOriginC_tv;
+	scr->m_dDispOriginR_tv=this->m_dDispOriginR_tv;
+	scr->m_iScaleIndex = GetScaleIndex();
 }
-
 
 const bool ViewDraw::ZoomChangeAbs(const int iScaleIndex_in, const PanImage* panImg, CWnd* wnd, const bool bTopView)
 {
@@ -405,15 +426,6 @@ void ViewDraw::OnScroll(int iSB, int nSBCode, int nPos, const PanImage* panImg, 
 }
 
 
-void ViewDraw::SetDispOriginR_tv(const double dIn)
-{
-	m_dDispOriginR_tv=dIn;
-}
-
-void ViewDraw::SetDispOriginC_tv(const double dIn)
-{
-	m_dDispOriginC_tv=dIn;
-}
 
 
 const Line ViewDraw::v_to_i(const Line* line_v)

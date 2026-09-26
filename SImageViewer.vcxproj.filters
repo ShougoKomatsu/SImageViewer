@@ -114,6 +114,9 @@
     <ClInclude Include="ViewDraw.h">
       <Filter>ヘッダー ファイル</Filter>
     </ClInclude>
+    <ClInclude Include="PictureCtrlEx.h">
+      <Filter>ヘッダー ファイル</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="SImageViewer.cpp">
@@ -175,6 +178,9 @@
     </ClCompile>
     <ClCompile Include="SetTransparentDlg.cpp">
       <Filter>ソース ファイル\Dlg</Filter>
+    </ClCompile>
+    <ClCompile Include="PictureCtrlEx.cpp">
+      <Filter>ソース ファイル</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
