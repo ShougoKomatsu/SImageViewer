@@ -90,7 +90,8 @@ private:
 
 
 public:
-	const int GetScaleIndex();
+	bool m_bGridAble;
+	bool m_bRegionSelected;
 	void GetScrollSetting(ScrollSetting* scr);
 	MOUSE_MODE CheckRect(const CPoint* point_v, const CRect* rect_i);
 	MOUSE_MODE CheckLine(const CPoint* point_v, const Line* line_i);
@@ -107,54 +108,55 @@ public:
 
 	const Line v_to_i(const Line* line_v);
 	const Line i_to_v(const Line* line_i);
-
+	const CRect v_to_i(const CRect* rect_v);
+	const CRect i_to_v(const CRect* rect_i);
+	
+	void SetGridEnableDesable();
 	void ToggleGridMode(const int iGrid);
+	const int GetGridMode(){return m_iGrid;}
+
 	void ToggleRGBSeparate();
 	const bool GetRGBSeparateMode(){return m_bRGB_Separate;}
 
 	void ToggleValueMode();
 	const bool GetValueMode(){return m_bValue;}
-	void SetGridEnableDesable();
 
-	const int GetGridMode(){return m_iGrid;}
 	void SetMouseMode(const MOUSE_MODE iMouseMode){m_enumMouseMode=iMouseMode;}
 	const bool GetDragging(){return m_bDragging;}
 	const int GetMouseMode(){return m_enumMouseMode;}
-	const double GetScale(){return m_dScale;}
+
 	void ViewDraw::SetDispOriginR_tv(const double dIn){m_dDispOriginR_tv=dIn;}
 	void ViewDraw::SetDispOriginC_tv(const double dIn){m_dDispOriginC_tv=dIn;}
 	const double GetDispOriginR_tv(){return m_dDispOriginR_tv;}
 	const double GetDispOriginC_tv(){return m_dDispOriginC_tv;}
+	
+	const int GetClientHeight(CWnd* wnd);
+	const int GetClientWidth(CWnd* wnd);
 
-
-	void GetSizeIfNoBar(int* iHeightIfNoBar_v, int* iWidthIfNoBar_v, CWnd* wnd, const bool bTopView);
-
-	void SetScroll(															const PanImage* panImg, CWnd* wnd, const bool bTopView);
-
-	void SetScrollPos(int iR_tv, int iC_tv,									const PanImage* panImg, CWnd* wnd, const bool bTopView);
-	const bool ZoomChangeAbs(const double dScale_in, const PanImage* panImg, CWnd* wnd, const bool bTopView);
-	const bool ZoomChange(int iMousePosR_v, int iMousePosC_v, const double dScale_in, const PanImage* panImg,  CWnd* wnd, const bool bTopView);
-	const bool ZoomChange(int iR0_i, int iC0_i, int iR1_i, int iC1_i,		const bool bStepped, const PanImage* panImg, CWnd* wnd, const bool bTopView);
-	const bool ZoomChange(int iChange,										const PanImage* panImg, CWnd* wnd, const bool bTopView);
-	const bool ZoomChange(int iMousePosR_v, int iMousePosC_v, int iChange,	const PanImage* panImg, CWnd* wnd, const bool bTopView);
-	const bool ZoomChangeAbs(const int iScaleIndex,							const PanImage* panImg, CWnd* wnd, const bool bTopView);
-
-
-	void ZoomReset(															const PanImage* panImg, CWnd* wnd, const bool bTopView);
-
-	void OnMouseMove(UINT nFlags, CPoint point_v, const PanImage* panImg,  CWnd* wnd, const bool bTopView);
-	void OnLButtonDown(UINT nFlags, CPoint point_v,  const PanImage* panImg,  CWnd* wnd, const bool bTopView);
-	void OnLButtonUp(UINT nFlags, CPoint point_v,							const PanImage* panImg, CWnd* wnd, const bool bTopView);
-	void OnScroll(int iSB, int nSBCode, int nPos,							const PanImage* panImg, CWnd* wnd, const bool bTopView);
+	void GetSizeIfNoBar(int* iHeightIfNoBar_v, int* iWidthIfNoBar_v, CWnd* wnd);
+	
+	const int GetScaleIndex();
+	const double GetScale(){return m_dScale;}
+	void SetScroll(																										const PanImage* panImg, CWnd* wnd);
+	void SetScrollPos(const int iR_tv, const int iC_tv,																	const PanImage* panImg, CWnd* wnd);
+	const bool ZoomChangeAbs(const double dScale_in,																	const PanImage* panImg, CWnd* wnd, CPoint* ppoint_v);
+	const bool ZoomChange(const int iMousePosR_v, const int iMousePosC_v, const double dScale_in,						const PanImage* panImg, CWnd* wnd, CPoint* ppoint_v);
+	const bool ZoomChange(const int iR0_i, const int iC0_i, const int iR1_i, const int iC1_i, const bool bStepped,		const PanImage* panImg, CWnd* wnd, CPoint* ppoint_v);
+	const bool ZoomChange(const int iChange,																			const PanImage* panImg, CWnd* wnd, CPoint* ppoint_v);
+	const bool ZoomChange(const int iMousePosR_v, const int iMousePosC_v, const int iChange,							const PanImage* panImg, CWnd* wnd, CPoint* ppoint_v);
+	const bool ZoomChangeAbs(const int iScaleIndex,																		const PanImage* panImg, CWnd* wnd, CPoint* ppoint_v);
+//	void ZoomReset(																										const PanImage* panImg, CWnd* wnd);
+	void OnMouseMove(UINT nFlags, CPoint point_v,																		const PanImage* panImg, CWnd* wnd);
+	void OnLButtonDown(UINT nFlags, CPoint point_v,																		const PanImage* panImg, CWnd* wnd);
+	void OnLButtonUp(UINT nFlags, CPoint point_v, const bool bZoomStepped, 												const PanImage* panImg, CWnd* wnd, CPoint* ppoint_v);
+	void OnScroll(int iSB, int nSBCode, int nPos,																		const PanImage* panImg, CWnd* wnd);
 
 	void SetPointStart_v(const CPoint p_in){m_PointStart_v.SetPoint(p_in.x, p_in.y);}
 
 	const CPoint GetPointStart_v(){return m_PointStart_v;}
 
-	const CRect v_to_i(const CRect* rect_v);
-	const CRect i_to_v(const CRect* rect_i);
 	afx_msg BOOL OnSetCursor(CWnd* pWnd, UINT nHitTest, UINT message);
-	void OnDraw(CWnd* wnd, CDC* pDC, const PanImage* panImg, const bool bTopView);
+	void OnDraw(CWnd* wnd, CDC* pDC, const PanImage* panImg);
 	const CRect GetRect_i(){return m_Rect_i;}
 	const CRect GetRect_v(){return m_Rect_v;}
 	void SetRect_i(const CRect* rect_in){ if(rect_in==NULL){m_Rect_i.SetRectEmpty();}else{m_Rect_i=(*rect_in);}}
@@ -169,6 +171,8 @@ public:
 		m_Rect_v.SetRectEmpty();
 		m_Rect_i.SetRectEmpty();
 		m_dScale = 1;
+		m_bGridAble=false;
+		m_bRegionSelected=false;
 
 		m_iGrid = ID_TOOLBAR_GRID_NONE;
 		m_bValue = false;
@@ -178,18 +182,5 @@ public:
 	ViewDraw()
 	{
 		Init();
-	}
-	int GetClientHeight(CWnd* wnd, const bool bTopView)
-	{
-		CRect rectClient;
-		wnd->GetClientRect(&rectClient);
-		return rectClient.Height();
-	}
-
-	int GetClientWidth(CWnd* wnd, const bool bTopView)
-	{
-		CRect rectClient;
-		wnd->GetClientRect(&rectClient);
-		return rectClient.Width();
 	}
 };

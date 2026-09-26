@@ -120,7 +120,7 @@ CMainFrame::~CMainFrame()
 int CMainFrame::OnCreate(LPCREATESTRUCT lpCreateStruct)
 {
 	m_bFileOpened = false;
-	m_bRegionSelected = false;
+//	m_bRegionSelected = false;
 	if (CFrameWndEx::OnCreate(lpCreateStruct) == -1){return -1;}
 
 	if (m_cfStatus.GetSafeHandle() != nullptr)
@@ -184,7 +184,7 @@ int CMainFrame::OnCreate(LPCREATESTRUCT lpCreateStruct)
 	m_wndStatusBar.SetFont(&m_cfStatus);
 
 
-	m_bGridAble=false;
+	//m_bGridAble=false;
 	m_bMultiFile=false;
 
 	m_wndStatusBar.SetIndicators(indicators, _countof(indicators));
@@ -720,22 +720,25 @@ void CMainFrame::OnUpdateMenu(CCmdUI* pCmdUI)
 		}
 	case ID_EDIT_COPY:
 		{
-			pCmdUI->Enable(m_bRegionSelected);
+			if(m_bFileOpened==true)
+			{
+				pCmdUI->Enable(m_pView->view.m_bRegionSelected);
+			}
 			break;
 		}
 	case ID_TOOLBAR_VALUE:
 		{
-			pCmdUI->Enable(m_bFileOpened & m_bGridAble);
+			pCmdUI->Enable(m_bFileOpened & m_pView->view.m_bGridAble);
 			break;
 		}
 	case ID_TOOLBAR_RGBSEPARATE:
 		{
-			pCmdUI->Enable(m_bFileOpened & m_bGridAble);
+			pCmdUI->Enable(m_bFileOpened & m_pView->view.m_bGridAble);
 			break;
 		}
-	case ID_TOOLBAR_GRID_DOT:{pCmdUI->Enable(m_bFileOpened & m_bGridAble);break;}
-	case ID_TOOLBAR_GRID_LINE:{pCmdUI->Enable(m_bFileOpened & m_bGridAble);break;}
-	case ID_TOOLBAR_GRID_CONNECT:{pCmdUI->Enable(m_bFileOpened & m_bGridAble);break;}
+	case ID_TOOLBAR_GRID_DOT:{pCmdUI->Enable(m_bFileOpened & m_pView->view.m_bGridAble);break;}
+	case ID_TOOLBAR_GRID_LINE:{pCmdUI->Enable(m_bFileOpened & m_pView->view.m_bGridAble);break;}
+	case ID_TOOLBAR_GRID_CONNECT:{pCmdUI->Enable(m_bFileOpened & m_pView->view.m_bGridAble);break;}
 
 	case ID_TOOLBAR_IMAGE_FW:{pCmdUI->Enable(m_pView->m_iImageIndex+1 < m_pView->m_iImageMax);break;}
 	case ID_TOOLBAR_IMAGE_PP:{pCmdUI->Enable(m_pView->m_iImageIndex >= 1);break;}

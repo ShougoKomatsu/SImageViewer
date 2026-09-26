@@ -4,133 +4,6 @@
 #include "MainFrm.h"
 
 
-/*
-int ViewDraw::OnLButtonUp(UINT nFlags, CPoint point_v, CWnd* wnd)
-{
-
-if (m_bDragging == TRUE) 
-{
-ReleaseCapture(); 
-m_bDragging = false; 
-
-CRect rect_i=GetRect_i();
-if(GetPointStart_v() == point_v)
-{
-if(m_enumMouseMode == CHANGE_B){return -1;}
-if(m_enumMouseMode == CHANGE_L){return -1;}
-if(m_enumMouseMode == CHANGE_R){return -1;}
-if(m_enumMouseMode == CHANGE_U){return -1;}
-if(m_enumMouseMode == CHANGE_LB){return -1;}
-if(m_enumMouseMode == CHANGE_LU){return -1;}
-if(m_enumMouseMode == CHANGE_RB){return -1;}
-if(m_enumMouseMode == CHANGE_RU){return -1;}
-
-CRect rect_v;
-rect_v = i_to_v(&rect_i);
-if((point_v.y >= rect_v.top)&&(point_v.y <= rect_v.bottom)&&(point_v.x >= rect_v.left)&&(point_v.x <= rect_v.right) && (m_enumMouseMode == CHANGE_ZOOMUP))
-{
-ZoomChange(rect_i.top, rect_i.left, rect_i.bottom,rect_i.right,wnd);
-return 0;
-}
-
-return 1;
-}
-rect_i = v_to_i(&(GetRect_v()));
-rect_i.left = max(0,rect_i.left);
-rect_i.top = max(0,rect_i.top);
-SetRect_i(&rect_i);
-return 2;
-}
-return 3;
-}
-bool ViewDraw::ZoomChange(int iR0_i, int iC0_i, int iR1_i, int iC1_i, CWnd* wnd)
-{
-int iHeight_v = GetClientHeight(wnd);
-int iWidth_v = GetClientWidth(wnd);
-
-int iNewScaleIndex = m_iScaleIndex;
-for(int i = SCALE_VAR_NUM-1; i >= 0; i--)
-{
-if((iHeight_v>(iR1_i-iR0_i+1)*g_dScale[i]) && (iWidth_v>(iC1_i-iC0_i+1)*g_dScale[i]))
-{
-iNewScaleIndex = i;
-break;
-}
-}
-
-
-m_iScaleIndex = iNewScaleIndex;
-if(m_iScaleIndex >= SCALE_VAR_NUM-1){m_iScaleIndex = SCALE_VAR_NUM-1;}
-if(m_iScaleIndex <= 0){m_iScaleIndex = 0;}
-
-double dNewCenterR_i = (iR0_i + iR1_i)/2.0;
-double dNewCenterC_i = (iC0_i + iC1_i)/2.0;
-
-double dNewCenterR_tv = dNewCenterR_i*g_dScale[m_iScaleIndex];
-double dNewCenterC_tv = dNewCenterC_i*g_dScale[m_iScaleIndex];
-
-
-int iNewScrollR_tv = max(0,int(dNewCenterR_tv-iHeight_v/2.0));
-int iNewScrollC_tv = max(0,int(dNewCenterC_tv-iWidth_v/2.0));
-
-return true; 
-}
-
-bool ViewDraw::ZoomChange(int iChange, const CImage* img, CWnd* wnd)
-{
-if((m_iScaleIndex >= SCALE_VAR_NUM-1)&&(iChange>0)){return false;}
-if((m_iScaleIndex <= 0)&&(iChange<0)){return false;}
-
-int iHeight_v = GetClientHeight(wnd);
-int iWidth_v = GetClientWidth(wnd);
-double dOldDispOriginR_tv = GetDispOriginR_tv();
-double dOldDispOriginC_tv = GetDispOriginC_tv();
-
-int iWidth_i = max(0,img->GetWidth());
-int iHeight_i = max(0,img->GetHeight());
-
-int iOldZoom = m_iScaleIndex;
-double dOldWidth_tv = iWidth_i*g_dScale[iOldZoom];
-double dNewDispOriginC_tv;
-double dNewDispOriginR_tv;
-int iNewZoom = m_iScaleIndex+= iChange;
-double dNewWidth_tv = iWidth_i*g_dScale[iNewZoom];
-double dNewHeight_tv = iHeight_i*g_dScale[iNewZoom];
-
-
-if(dNewWidth_tv>iWidth_v)
-{
-double dOldCenterC_i = (dOldDispOriginC_tv +iWidth_v/2.0)/g_dScale[iOldZoom];
-double dOldEndC_i = (dOldDispOriginC_tv +iWidth_v)/g_dScale[iOldZoom];
-dNewDispOriginC_tv = max(0, min(dOldCenterC_i*g_dScale[iNewZoom] - iWidth_v/2.0, dOldEndC_i*g_dScale[iNewZoom]-iWidth_v));
-}
-else
-{
-dNewDispOriginC_tv = 0;
-}
-
-if(dNewHeight_tv>iHeight_v)
-{
-double dOldCenterR_i = (dOldDispOriginR_tv +iHeight_v/2.0)/g_dScale[iOldZoom];
-double dOldEndR_i = (dOldDispOriginR_tv +iHeight_v)/g_dScale[iOldZoom];
-dNewDispOriginR_tv = max(0, min(dOldCenterR_i*g_dScale[iNewZoom] - iHeight_v/2.0, dOldEndR_i*g_dScale[iNewZoom]-iHeight_v));
-}
-else
-{
-dNewDispOriginR_tv = 0;
-}
-m_iScaleIndex = iNewZoom;
-
-
-SetScrollPos((int)(dNewDispOriginR_tv), (int)(dNewDispOriginC_tv));
-
-if(m_iScaleIndex >= SCALE_VAR_NUM-1){m_iScaleIndex = SCALE_VAR_NUM-1;}
-if(m_iScaleIndex <= 0){m_iScaleIndex = 0;}
-
-return true; 
-}
-*/
-
 bool CopyToClipBoardStr(const CString sValue)
 {
 	BOOL bRet;
@@ -196,6 +69,7 @@ UINT CountImageInOneFile(CString sFilePath, FileFormatList* fileFormatList)
 	}
 	return 0;
 }
+
 bool RecursivelyGetImageFilePaths(CString sFileOrFolderPath, CStringArray* saFilePath, FileFormatList* fileFormatList)
 {
 	if(sFileOrFolderPath.Find(_T("|"))>=0)
@@ -245,14 +119,14 @@ bool RecursivelyGetImageFilePaths(CString sFileOrFolderPath, CStringArray* saFil
 	CFileFind cf;
 	BOOL bWorking = cf.FindFile(searchPath);
 
-	while (bWorking) 
+	while (bWorking == TRUE) 
 	{
 		bWorking = cf.FindNextFile();
 		if (cf.IsDots() == TRUE){continue;}
 
 		CString sFilePath = cf.GetFilePath();
 
-		if (cf.IsDirectory()) 
+		if (cf.IsDirectory() == TRUE) 
 		{
 			bool bRet = RecursivelyGetImageFilePaths(sFilePath, saFilePath, fileFormatList);
 			if(bRet != true){return false;}

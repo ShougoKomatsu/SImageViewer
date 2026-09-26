@@ -17,10 +17,10 @@ public:
 	CSImageViewerView* m_pView;
 
 	bool m_bMultiFile;
-	bool m_bGridAble;
 	bool m_bFileOpened;
 	bool m_bSynchroScroll;
-	bool m_bRegionSelected;
+//	bool m_bGridAble;
+//	bool m_bRegionSelected;
 	CFont m_cfStatus;
 	bool m_bBeingFullScreen;
 	CRect m_rectPreserved;

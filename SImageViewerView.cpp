@@ -173,7 +173,7 @@ IMPLEMENT_DYNCREATE(CSImageViewerView, CView)
 		{
 			rect_i.SetRect(setdlg.m_iC0,setdlg.m_iR0,setdlg.m_iC1,setdlg.m_iR1);
 			CMainFrame* pFrame = (CMainFrame*)AfxGetMainWnd();
-			pFrame->m_bRegionSelected = true;
+			view.m_bRegionSelected = true;
 			Invalidate();
 		}
 	}
@@ -187,7 +187,7 @@ IMPLEMENT_DYNCREATE(CSImageViewerView, CView)
 		if (!pDoc){return;}
 		if(m_iImageMax <= 0){return;}
 
-		view.OnDraw(this, pDC,  &(m_image[m_iImageIndex]), true);
+		view.OnDraw(this, pDC,  &(m_image[m_iImageIndex]));
 
 	}
 
@@ -228,7 +228,7 @@ IMPLEMENT_DYNCREATE(CSImageViewerView, CView)
 	void CSImageViewerView::SetScroll()
 	{
 		if(m_iImageMax <= 0){return;}
-		view.SetScroll(&(m_image[m_iImageIndex]), this, true);
+		view.SetScroll(&(m_image[m_iImageIndex]), this);
 		if(m_bSynchroScroll==true)
 		{
 			view.GetScrollSetting(&scr);
@@ -280,19 +280,25 @@ IMPLEMENT_DYNCREATE(CSImageViewerView, CView)
 
 		if(bZoomReset == true)
 		{
-			view.ZoomReset(&(m_image[m_iImageIndex]), this, true);
-		if(m_bSynchroScroll==true)
-		{
-			view.GetScrollSetting(&scr);
-		}
-		else
+
+			view.SetDispOriginC_tv(0);
+			view.SetDispOriginR_tv(0);
+			CPoint point_v;
+			view.ZoomChangeAbs(1.0, &(m_image[m_iImageIndex]), this, &point_v);
+			DispStatus(point_v);
+			//			view.ZoomReset(&(m_image[m_iImageIndex]), this);
+			if(m_bSynchroScroll==true)
+			{
+				view.GetScrollSetting(&scr);
+			}
+			else
 		{
 			view.GetScrollSetting(&(m_image[m_iImageIndex].scr));
 		}
 		}
 		view.SetMouseMode(CHANGE_NONE);
 		view.SetRect_i(NULL);
-		pFrame->m_bRegionSelected = false;
+		view.m_bRegionSelected = false;
 		Invalidate();
 
 		CString sImageSize;
@@ -354,7 +360,7 @@ IMPLEMENT_DYNCREATE(CSImageViewerView, CView)
 		else{pFrame->m_bMultiFile=false; m_bSynchroScroll=false;}
 
 		pFrame->m_bFileOpened = true;
-		pFrame->m_bRegionSelected = true;
+		view.m_bRegionSelected = true;
 
 		ResetImage(true, false);
 		SetCaption();
@@ -388,7 +394,7 @@ IMPLEMENT_DYNCREATE(CSImageViewerView, CView)
 		m_iImageIndex = 0;
 		m_iImageMax = iImageNum;
 		pFrame->m_bFileOpened = true;
-		pFrame->m_bRegionSelected = true;
+		view.m_bRegionSelected = true;
 		if(m_iImageMax>=2){pFrame->m_bMultiFile=true; m_bSynchroScroll=true;;}
 		else{pFrame->m_bMultiFile=false; m_bSynchroScroll=false;}
 
@@ -508,7 +514,7 @@ IMPLEMENT_DYNCREATE(CSImageViewerView, CView)
 		m_sFilePath.Format(_T("Clipboard"));
 
 		pFrame->m_bFileOpened = true;
-		pFrame->m_bRegionSelected = true;
+		view.m_bRegionSelected = true;
 
 
 
@@ -546,7 +552,7 @@ IMPLEMENT_DYNCREATE(CSImageViewerView, CView)
 		m_sFilePath.Format(_T("Clipboard"));
 
 		pFrame->m_bFileOpened = true;
-		pFrame->m_bRegionSelected = true;
+		view.m_bRegionSelected = true;
 		ResetImage(true, true);
 		SetCaption();
 	}
@@ -556,7 +562,7 @@ IMPLEMENT_DYNCREATE(CSImageViewerView, CView)
 		if(m_iImageMax <= 0){return;}
 		rect_i->SetRect(0, 0, m_image[m_iImageIndex].GetCurrentProcess()->GetWidth()-1,m_image[m_iImageIndex].GetCurrentProcess()->GetHeight()-1);
 		CMainFrame* pFrame = (CMainFrame*)AfxGetMainWnd();
-		pFrame->m_bRegionSelected = true;
+		view.m_bRegionSelected = true;
 	}
 	void CSImageViewerView::OperateTransparent()
 	{
@@ -636,7 +642,7 @@ IMPLEMENT_DYNCREATE(CSImageViewerView, CView)
 			view.SetRect_v(NULL);
 			view.SetRect_i(NULL);
 			CMainFrame* pFrame = (CMainFrame*)AfxGetMainWnd();
-			pFrame->m_bRegionSelected = false;
+			view.m_bRegionSelected = false;
 		}
 
 		ConvertImage(&imgRGB,m_image[m_iImageIndex].ProgressImageProcess());
@@ -660,7 +666,7 @@ IMPLEMENT_DYNCREATE(CSImageViewerView, CView)
 			view.SetRect_v(NULL);
 			view.SetRect_i(NULL);
 			CMainFrame* pFrame = (CMainFrame*)AfxGetMainWnd();
-			pFrame->m_bRegionSelected = false;
+			view.m_bRegionSelected = false;
 		}
 
 		ConvertImage(&imgMeaned,m_image[m_iImageIndex].ProgressImageProcess());
@@ -696,7 +702,7 @@ IMPLEMENT_DYNCREATE(CSImageViewerView, CView)
 				view.SetRect_v(NULL);
 				view.SetRect_i(NULL);
 				CMainFrame* pFrame = (CMainFrame*)AfxGetMainWnd();
-				pFrame->m_bRegionSelected = false;
+				view.m_bRegionSelected = false;
 			}
 			return;
 		}
@@ -716,7 +722,7 @@ IMPLEMENT_DYNCREATE(CSImageViewerView, CView)
 			view.SetRect_v(NULL);
 			view.SetRect_i(NULL);
 			CMainFrame* pFrame = (CMainFrame*)AfxGetMainWnd();
-			pFrame->m_bRegionSelected = false;
+			view.m_bRegionSelected = false;
 		}
 		Invalidate();
 	}
@@ -805,7 +811,7 @@ IMPLEMENT_DYNCREATE(CSImageViewerView, CView)
 				view.SetRect_v(NULL);
 				view.SetRect_i(NULL);
 				CMainFrame* pFrame = (CMainFrame*)AfxGetMainWnd();
-				pFrame->m_bRegionSelected = false;
+				view.m_bRegionSelected = false;
 			}
 			return;
 		}
@@ -819,7 +825,7 @@ IMPLEMENT_DYNCREATE(CSImageViewerView, CView)
 			view.SetRect_v(NULL);
 			view.SetRect_i(NULL);
 			CMainFrame* pFrame = (CMainFrame*)AfxGetMainWnd();
-			pFrame->m_bRegionSelected = false;
+			view.m_bRegionSelected = false;
 		}
 		Invalidate();
 	
@@ -846,7 +852,7 @@ IMPLEMENT_DYNCREATE(CSImageViewerView, CView)
 				view.SetRect_v(NULL);
 				view.SetRect_i(NULL);
 				CMainFrame* pFrame = (CMainFrame*)AfxGetMainWnd();
-				pFrame->m_bRegionSelected = false;
+				view.m_bRegionSelected = false;
 			}
 			return ;
 		}
@@ -866,7 +872,7 @@ IMPLEMENT_DYNCREATE(CSImageViewerView, CView)
 			view.SetRect_v(NULL);
 			view.SetRect_i(NULL);
 			CMainFrame* pFrame = (CMainFrame*)AfxGetMainWnd();
-			pFrame->m_bRegionSelected = false;
+			view.m_bRegionSelected = false;
 		}
 
 		ConvertImage(&imgResult2, m_image[m_iImageIndex].ProgressImageProcess());
@@ -924,7 +930,7 @@ IMPLEMENT_DYNCREATE(CSImageViewerView, CView)
 		*/
 		int iHeightIfNoBar_v;
 		int iWidthIfNoBar_v;
-		view.GetSizeIfNoBar(&iHeightIfNoBar_v, &iWidthIfNoBar_v, this, true);
+		view.GetSizeIfNoBar(&iHeightIfNoBar_v, &iWidthIfNoBar_v, this);
 		//		m_image[m_iImageIndex].m_imageProcessed[m_image[m_iImageIndex].m_iImgProcessIndex].Create(100,100,0);
 		pFrame->AdjustViewClientSize(100, 100,iWidthIfNoBar_v, iHeightIfNoBar_v);
 		/*
@@ -996,27 +1002,29 @@ IMPLEMENT_DYNCREATE(CSImageViewerView, CView)
 			if(iStep>0){m_iImageIndex = min(m_iImageIndex,m_iImageMax-1);}
 		}
 		ResetImage(false, false);
+		CPoint point_v;
 		if(m_bSynchroScroll==true)
 		{
-			view.ZoomChangeAbs(scr.m_iScaleIndex, &(m_image[m_iImageIndex]), this, true);
+			view.ZoomChangeAbs(scr.m_iScaleIndex, &(m_image[m_iImageIndex]), this, &point_v);
 
 			view.SetDispOriginR_tv(scr.m_dDispOriginR_tv);
 			view.SetDispOriginC_tv(scr.m_dDispOriginC_tv);
 
-			view.OnScroll(SB_VERT, -1, 0, &(m_image[m_iImageIndex]), this, true);
-			view.OnScroll(SB_HORZ, -1, 0, &(m_image[m_iImageIndex]), this, true);
+			view.OnScroll(SB_VERT, -1, 0, &(m_image[m_iImageIndex]), this);
+			view.OnScroll(SB_HORZ, -1, 0, &(m_image[m_iImageIndex]), this);
 		}
 		else
 		{
-			view.ZoomChangeAbs(m_image[m_iImageIndex].scr.m_iScaleIndex, &(m_image[m_iImageIndex]),  this, true);
+			view.ZoomChangeAbs(m_image[m_iImageIndex].scr.m_iScaleIndex, &(m_image[m_iImageIndex]),  this, &point_v);
 
 			view.SetDispOriginR_tv(m_image[m_iImageIndex].scr.m_dDispOriginR_tv);
 			view.SetDispOriginC_tv(m_image[m_iImageIndex].scr.m_dDispOriginC_tv);
 
-			view.OnScroll(SB_VERT, -1, 0, &(m_image[m_iImageIndex]), this, true);
-			view.OnScroll(SB_HORZ, -1, 0, &(m_image[m_iImageIndex]), this, true);
+			view.OnScroll(SB_VERT, -1, 0, &(m_image[m_iImageIndex]), this);
+			view.OnScroll(SB_HORZ, -1, 0, &(m_image[m_iImageIndex]), this);
 		}
-
+		
+		DispStatus(point_v);
 		SetCaption();
 		Invalidate();
 		return true;
@@ -1026,7 +1034,11 @@ IMPLEMENT_DYNCREATE(CSImageViewerView, CView)
 	bool CSImageViewerView::ZoomChange(int iR0_i, int iC0_i, int iR1_i, int iC1_i)
 	{
 		if(m_iImageMax <= 0){return false;}
-		view.ZoomChange(iR0_i, iC0_i, iR1_i, iC1_i,true, &(m_image[m_iImageIndex]),  this, true);
+		CPoint point_v;
+		bool bRet = view.ZoomChange(iR0_i, iC0_i, iR1_i, iC1_i,true, &(m_image[m_iImageIndex]),this, &point_v);
+		if(bRet != true){return false;}
+		DispStatus(point_v);
+
 		if(m_bSynchroScroll==true)
 		{
 			view.GetScrollSetting(&scr);
@@ -1041,7 +1053,9 @@ IMPLEMENT_DYNCREATE(CSImageViewerView, CView)
 	bool CSImageViewerView::ZoomChange(int iChange)
 	{
 		if(m_iImageMax <= 0){return false;}
-		view.ZoomChange(iChange, &(m_image[m_iImageIndex]), this, true);
+		CPoint point_v;
+		bool bRet = view.ZoomChange(iChange, &(m_image[m_iImageIndex]), this, &point_v);
+		if(bRet != true){return false;}
 		if(m_bSynchroScroll==true)
 		{
 			view.GetScrollSetting(&scr);
@@ -1056,7 +1070,10 @@ IMPLEMENT_DYNCREATE(CSImageViewerView, CView)
 	bool CSImageViewerView::ZoomChangeAbs(int iChangeAbs)
 	{
 		if(m_iImageMax <= 0){return false;}
-		view.ZoomChangeAbs(iChangeAbs, &(m_image[m_iImageIndex]), this, true);	
+		CPoint point_v;
+		bool bRet = view.ZoomChangeAbs(iChangeAbs, &(m_image[m_iImageIndex]), this, &point_v);	
+		if(bRet != true){return false;}
+		DispStatus(point_v);
 		if(m_bSynchroScroll==true)
 		{
 			view.GetScrollSetting(&scr);
@@ -1071,7 +1088,10 @@ IMPLEMENT_DYNCREATE(CSImageViewerView, CView)
 	bool CSImageViewerView::ZoomChange(int iMousePosR_v, int iMousePosC_v, int iChange)
 	{
 		if(m_iImageMax <= 0){return false;}
-		view.ZoomChange(iMousePosR_v, iMousePosC_v, iChange, &(m_image[m_iImageIndex]), this, true);
+		CPoint point_v;
+		bool bRet = view.ZoomChange(iMousePosR_v, iMousePosC_v, iChange, &(m_image[m_iImageIndex]), this, &point_v);
+		if(bRet != true){return false;}
+		DispStatus(point_v);
 		if(m_bSynchroScroll==true)
 		{
 			view.GetScrollSetting(&scr);
@@ -1281,14 +1301,14 @@ IMPLEMENT_DYNCREATE(CSImageViewerView, CView)
 
 		DispStatus(point_v);
 
-		view.OnMouseMove(nFlags, point_v, &(m_image[m_iImageIndex]), this, true);
+		view.OnMouseMove(nFlags, point_v, &(m_image[m_iImageIndex]), this);
 		CView::OnMouseMove(nFlags, point_v);
 	}
 
 
 	void CSImageViewerView::OnLButtonDown(UINT nFlags, CPoint point_v)
 	{
-		view.OnLButtonDown(nFlags, point_v, &(m_image[m_iImageIndex]), this, true);
+		view.OnLButtonDown(nFlags, point_v, &(m_image[m_iImageIndex]), this);
 		if(m_bSynchroScroll==true)
 		{
 			view.GetScrollSetting(&scr);
@@ -1303,7 +1323,8 @@ IMPLEMENT_DYNCREATE(CSImageViewerView, CView)
 
 	void CSImageViewerView::OnLButtonUp(UINT nFlags, CPoint point_v)
 	{
-		view.OnLButtonUp(nFlags, point_v, &(m_image[m_iImageIndex]), this, true);
+		CPoint point_v_out;
+		view.OnLButtonUp(nFlags, point_v, true, &(m_image[m_iImageIndex]), this, &point_v_out);
 		if(m_bSynchroScroll==true)
 		{
 			view.GetScrollSetting(&scr);
@@ -1508,7 +1529,7 @@ IMPLEMENT_DYNCREATE(CSImageViewerView, CView)
 	void CSImageViewerView::OnScroll(int iSB, int nSBCode, int nPos)
 	{
 		if(m_iImageMax <= 0){return;}
-		view.OnScroll(iSB, nSBCode, nPos, &(m_image[m_iImageIndex]), this, true);
+		view.OnScroll(iSB, nSBCode, nPos, &(m_image[m_iImageIndex]), this);
 		if(m_bSynchroScroll==true)
 		{
 			view.GetScrollSetting(&scr);
@@ -1549,7 +1570,7 @@ IMPLEMENT_DYNCREATE(CSImageViewerView, CView)
 
 		CMainFrame* pFrame = (CMainFrame*)AfxGetMainWnd();
 		bool bFileOpened = pFrame ->m_bFileOpened;
-		bool bSelected = pFrame ->m_bRegionSelected;
+		bool bSelected = view.m_bRegionSelected;
 
 		pPopup->EnableMenuItem(ID_EDIT_COPY, MF_BYCOMMAND | (( bSelected == true) ? MF_ENABLED : MF_DISABLED));
 		pPopup->EnableMenuItem(ID_MENU_EDIT_COPY_AS, MF_BYCOMMAND | (( bSelected == true) ? MF_ENABLED : MF_DISABLED));

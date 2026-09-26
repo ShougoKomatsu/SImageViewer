@@ -16,12 +16,12 @@ protected: // シリアル化からのみ作成します。
 	CSImageViewerView();
 	DECLARE_DYNCREATE(CSImageViewerView)
 
-// 属性
+	// 属性
 public:
 	ViewDraw view;
 	ScrollSetting scr;
 
-		CString m_sIniFilePath;
+	CString m_sIniFilePath;
 
 	FileFormatList m_fileFomatList;
 	void FullDomain(CRect* rect_i);
@@ -32,15 +32,15 @@ public:
 	int m_iImageIndex;
 	int m_iImageMax;
 	bool m_bRefresh;
-		bool m_bSynchroScroll;
+	bool m_bSynchroScroll;
 
 	const bool GetScrollPin(){return m_bSynchroScroll;}
 	bool m_bBeingFullScreen;
-			void ToggleScrollPin();
+	void ToggleScrollPin();
 
 	const CRect v_to_i(const CRect* rect_v){return view.v_to_i(rect_v);}
 	const CRect i_to_v(const CRect* rect_i){return view.i_to_v(rect_i);}
-	
+
 
 	int GetClientHeight();
 	int GetClientWidth();
@@ -91,16 +91,16 @@ public:
 	bool GetColorAtCursor(PanImage* panImg, CPoint point_v, int* iR_img, int* iC_img, ColorValue* colorValue);
 	void OnScroll(int iSB, int nSBCode, int nPos);
 	void DispStatus(CPoint point);
-// 操作
+	// 操作
 public:
 
-// オーバーライド
+	// オーバーライド
 public:
 	virtual void OnDraw(CDC* pDC);  // このビューを描画するためにオーバーライドされます。
 	virtual BOOL PreCreateWindow(CREATESTRUCT& cs);
 protected:
 
-// 実装
+	// 実装
 public:
 	virtual ~CSImageViewerView();
 #ifdef _DEBUG
@@ -110,7 +110,7 @@ public:
 
 protected:
 
-// 生成された、メッセージ割り当て関数
+	// 生成された、メッセージ割り当て関数
 protected:
 	afx_msg void OnFilePrintPreview();
 	afx_msg void OnRButtonUp(UINT nFlags, CPoint point);
@@ -140,6 +140,6 @@ public:
 
 #ifndef _DEBUG  // SImageViewerView.cpp のデバッグ バージョン
 inline CSImageViewerDoc* CSImageViewerView::GetDocument() const
-   { return reinterpret_cast<CSImageViewerDoc*>(m_pDocument); }
+{ return reinterpret_cast<CSImageViewerDoc*>(m_pDocument); }
 #endif
 
