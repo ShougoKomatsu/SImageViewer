@@ -14,7 +14,7 @@ public:
 	double GetDispOriginR_tv(){return view.GetDispOriginR_tv();}
 	double GetDispOriginC_tv(){return view.GetDispOriginC_tv();}
 
-	void Refresh(){OnPaint();Invalidate();}
+	void Refresh(){OnPaint();}
 	CPictureCtrlEx()
 	{
 	}

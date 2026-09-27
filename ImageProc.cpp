@@ -15,11 +15,11 @@ inline void SetRGBAValue(BYTE* pbyData, const int r, const int c, const int iPit
 	pbyData[r*iPitch+4*c+0]=byB;
 	pbyData[r*iPitch+4*c+3]=byA;
 }
-inline void SetRGBValue(BYTE* pbyData, const int r, const int c, const int iPitch, const BYTE byR, const BYTE byG, const BYTE byB)
+inline void SetRGBValue(BYTE* pbyData, const int r, const int c, const int iPitch, const int iColorPitch, const BYTE byR, const BYTE byG, const BYTE byB)
 {
-	pbyData[r*iPitch+3*c+2]=byR;
-	pbyData[r*iPitch+3*c+1]=byG;
-	pbyData[r*iPitch+3*c+0]=byB;
+	pbyData[r*iPitch+iColorPitch*c+2]=byR;
+	pbyData[r*iPitch+iColorPitch*c+1]=byG;
+	pbyData[r*iPitch+iColorPitch*c+0]=byB;
 }
 
 
@@ -231,55 +231,55 @@ bool CopyImage_CImage(const CImage* imgSrc, CImage* imgDst)
 	return true;
 }
 
-inline bool HSVValue(BYTE* pbyData, const int iPitch, const int r, const int c, const UINT uiValue_in, const int uiMax)
+inline bool HSVValue(BYTE* pbyData, const int iPitch, const int iColorPitch, const int r, const int c, const UINT uiValue_in, const int uiMax)
 {
 	int uiValue = uiValue_in;
 
 	if(uiValue<uiMax)
 	{
-		SetRGBValue(pbyData, r, c, iPitch, uiMax-1, uiValue-0, 0);
+		SetRGBValue(pbyData, r, c, iPitch, iColorPitch, uiMax-1, uiValue-0, 0);
 		return true;
 	}
 	uiValue-=uiMax;
 	if(uiValue<uiMax)
 	{
-		SetRGBValue(pbyData, r, c, iPitch, uiMax-1-uiValue, uiMax-1, 0);
+		SetRGBValue(pbyData, r, c, iPitch, iColorPitch, uiMax-1-uiValue, uiMax-1, 0);
 		return true;
 	}
 	uiValue-=uiMax;
 	if(uiValue<uiMax)
 	{
-		SetRGBValue(pbyData, r, c, iPitch, 0, uiMax-1, uiValue);
+		SetRGBValue(pbyData, r, c, iPitch, iColorPitch, 0, uiMax-1, uiValue);
 		return true;
 	}
 
 	uiValue-=uiMax;
 	if(uiValue<uiMax)
 	{
-		SetRGBValue(pbyData, r, c, iPitch, 0, uiMax-1-uiValue, uiMax-1);
+		SetRGBValue(pbyData, r, c, iPitch, iColorPitch, 0, uiMax-1-uiValue, uiMax-1);
 		return true;
 	}
 	uiValue-=uiMax;
 	if(uiValue<uiMax)
 	{
-		SetRGBValue(pbyData, r, c, iPitch, uiValue, 0, uiMax-1);
+		SetRGBValue(pbyData, r, c, iPitch, iColorPitch, uiValue, 0, uiMax-1);
 		return true;
 	}
 	uiValue-=uiMax;
 	if(uiValue<uiMax)
 	{
-		SetRGBValue(pbyData, r, c, iPitch, uiMax-1, 0, uiMax-1-uiValue);
+		SetRGBValue(pbyData, r, c, iPitch, iColorPitch, uiMax-1, 0, uiMax-1-uiValue);
 		return true;
 	}
 	return false;
 }
-inline bool SetHSVValue(BYTE* pbyData, const int iPitch, const int r, const int c, const UINT uiValue, const int iDigit)
+inline bool SetHSVValue(BYTE* pbyData, const int iPitch, const int iColorPitch, const int r, const int c, const UINT uiValue, const int iDigit)
 {
 	bool bRet;
 	UINT uiValue_local=uiValue;
 	for (int i=1;i<=256/iDigit; i++)
 	{
-		bRet = HSVValue(pbyData, iPitch, r, c, uiValue_local, iDigit*i);
+		bRet = HSVValue(pbyData, iPitch, iColorPitch, r, c, uiValue_local, iDigit*i);
 		if(bRet == true){break;}
 		uiValue_local-=iDigit*i*6;
 	}
@@ -3900,7 +3900,7 @@ const BYTE g_byFont_4_8[96]={
 						for(int c=0; c<iWidth; c++)
 						{
 							int uiValue = int(6910 * (iImage[r*iWidth+c] - iMin)/double(iMax-iMin));
-							bool bRet = SetHSVValue(pbyDataDst, iPitch, r, c, uiValue, 32);
+							bool bRet = SetHSVValue(pbyDataDst, iPitch, 3, r, c, uiValue, 32);
 						}
 					}
 					return true;
@@ -3937,7 +3937,7 @@ const BYTE g_byFont_4_8[96]={
 						for(int c=0; c<iWidth; c++)
 						{
 							BYTE byValue = (BYTE)min(255,max(0, (255 * (iImage[r*iWidth+c] - iMin)/double(iMax-iMin))));
-							SetRGBValue(pbyDataDst, r, c, iPitch, s_byVisibleR[byValue], s_byVisibleG[byValue], s_byVisibleB[byValue]);
+							SetRGBValue(pbyDataDst, r, c, iPitch, 3, s_byVisibleR[byValue], s_byVisibleG[byValue], s_byVisibleB[byValue]);
 						}
 					}
 					return true;
@@ -3957,10 +3957,28 @@ const BYTE g_byFont_4_8[96]={
 			int iWidth = imgSrc->GetWidth();
 			int iHeight = imgSrc->GetHeight();
 			if(imgDst->IsNull()==false){imgDst->Destroy();}
-			imgDst->Create(iWidth, iHeight, 24);
 
-			BYTE* pbyDataDst = (BYTE*)imgDst->GetBits();
-			int iPitch = imgDst->GetPitch();
+			imgDst->Create(iWidth, iHeight, max(24, imgSrc->GetBPP()));
+
+			int iBPP = imgDst->GetBPP();
+			int iColorPitch = (iBPP==24 ? 3 : 4);
+			BYTE* pbyData_src = (BYTE*)imgSrc->GetBits();
+			BYTE* pbyData_dst = (BYTE*)imgDst->GetBits();
+			int iPitch_src = imgSrc->GetPitch();
+			int iPitch_dst = imgDst->GetPitch();
+
+			if(imgSrc->GetBPP()==32)
+			{
+				for(int r=0; r<iHeight; r++)
+				{
+					for(int c=0; c<iWidth; c++)
+					{
+						pbyData_dst[r*iPitch_dst+c*iColorPitch + 3]=pbyData_src[r*iPitch_src+c*iColorPitch + 3];
+					}
+				}
+			}
+
+
 			ImgRGB imgRGB;
 			_ConvertImage(imgSrc, &imgRGB);
 			for(int r=0; r<iHeight; r++)
@@ -3968,7 +3986,7 @@ const BYTE g_byFont_4_8[96]={
 				for(int c=0; c<iWidth; c++)
 				{
 					BYTE byValue = imgRGB.byImgR[r*iWidth+c];
-					SetRGBValue(pbyDataDst, r, c, iPitch, s_byVisibleR[byValue], s_byVisibleG[byValue], s_byVisibleB[byValue]);
+					SetRGBValue(pbyData_dst, r, c, iPitch_dst, iColorPitch, s_byVisibleR[byValue], s_byVisibleG[byValue], s_byVisibleB[byValue]);
 				}
 			}
 			return true;
@@ -4594,7 +4612,7 @@ bool ReadBinaryFile(const CString sFilePath, FileFormatList* fileFormatList, Pan
 			{
 				BYTE byR=(BYTE)max(0, min(255, dRs+c*dRStep));
 				BYTE byG=(BYTE)max(0, min(255, dGs+(iHeight-1-r)*dGStep));
-				SetRGBValue(pbyData, r, c, iPitch, byR, byG, byB);
+				SetRGBValue(pbyData, r, c, iPitch, 3, byR, byG, byB);
 			}
 		}
 		return;
@@ -4625,7 +4643,7 @@ bool ReadBinaryFile(const CString sFilePath, FileFormatList* fileFormatList, Pan
 			{
 				BYTE byG=(BYTE)max(0, min(255, dGs+c*dGStep));
 				BYTE byB=(BYTE)max(0, min(255, dBs+(iHeight-1-r)*dBStep));
-				SetRGBValue(pbyData, r, c, iPitch, byR, byG, byB);
+				SetRGBValue(pbyData, r, c, iPitch, 3, byR, byG, byB);
 			}
 		}
 		return;
@@ -4655,7 +4673,7 @@ bool ReadBinaryFile(const CString sFilePath, FileFormatList* fileFormatList, Pan
 			{
 				BYTE byB=(BYTE)max(0, min(255, dBs+c*dBStep));
 				BYTE byR=(BYTE)max(0, min(255, dRs+(iHeight-1-r)*dRStep));
-				SetRGBValue(pbyData, r, c, iPitch, byR, byG, byB);
+				SetRGBValue(pbyData, r, c, iPitch, 3, byR, byG, byB);
 			}
 		}
 		return;

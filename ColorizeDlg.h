@@ -44,4 +44,5 @@ public:
 	afx_msg void OnBnClickedColorizeRadioThreshold();
 	afx_msg void OnSelchangeColorizeCombo();
 	afx_msg void OnBnClickedColorizeRadioRainbow();
+	afx_msg void OnTimer(UINT_PTR nIDEvent);
 };

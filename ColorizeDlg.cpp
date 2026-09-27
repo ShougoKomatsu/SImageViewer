@@ -47,6 +47,7 @@ BEGIN_MESSAGE_MAP(CColorizeDlg, CDialogEx)
 	ON_CBN_SELCHANGE(IDC_COLORIZE_COMBO_10, &CColorizeDlg::OnSelchangeColorizeCombo)
 	ON_CBN_SELCHANGE(IDC_COLORIZE_COMBO_11, &CColorizeDlg::OnSelchangeColorizeCombo)
 	ON_BN_CLICKED(IDC_COLORIZE_RADIO_RAINBOW, &CColorizeDlg::OnBnClickedColorizeRadioRainbow)
+	ON_WM_TIMER()
 END_MESSAGE_MAP()
 
 
@@ -152,6 +153,8 @@ BOOL CColorizeDlg::OnInitDialog()
 	((CButton*)(GetDlgItem(IDC_COLORIZE_CHECK_CONNECTION)))->SetCheck(FALSE);
 	((CButton*)(GetDlgItem(IDC_COLORIZE_RADIO_CONNECTION4)))->SetCheck(TRUE);
 	((CButton*)(GetDlgItem(IDC_COLORIZE_RADIO_CONNECTION8)))->SetCheck(FALSE);
+
+
 	((CComboBox*)(GetDlgItem(IDC_COLORIZE_COMBO_00)))->AddString(_T("R"));
 	((CComboBox*)(GetDlgItem(IDC_COLORIZE_COMBO_01)))->AddString(_T("R"));
 	((CComboBox*)(GetDlgItem(IDC_COLORIZE_COMBO_10)))->AddString(_T("R"));
@@ -187,6 +190,7 @@ BOOL CColorizeDlg::OnInitDialog()
 	m_pictureAfter.m_image.Set(IMAGE_TYPE_CIMAGE, NULL, NULL, 0, 0, &m_image, VALUE_IMAGE_CLIP_0_TO_255, _T("temp"));
     m_pictureAfter.Refresh();
 
+	SetTimer(102, 50, 0);
 	UpdateData(FALSE);
 
 	return TRUE;  // return TRUE unless you set the focus to a control
@@ -268,3 +272,15 @@ void CColorizeDlg::OnSelchangeColorizeCombo()
 	OperateDemosaic();
 }
 
+
+
+void CColorizeDlg::OnTimer(UINT_PTR nIDEvent)
+{
+	if(nIDEvent==102)
+	{
+		m_pictureBefore.Refresh();
+		m_pictureAfter.Refresh();
+	}
+
+	CDialogEx::OnTimer(nIDEvent);
+}
