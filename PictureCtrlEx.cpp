@@ -25,8 +25,8 @@ void CPictureCtrlEx::OnMouseMove(UINT nFlags, CPoint point)
 static int iIDLast=0;
 void CPictureCtrlEx::OnPaint()
 {
-//	if(iID==iIDLast){return;}
-//	iIDLast=iID;
+	//	if(iID==iIDLast){return;}
+	//	iIDLast=iID;
 	CPaintDC dc(this);
 	CDC* pDC = this->GetDC();
 
@@ -44,13 +44,13 @@ void CPictureCtrlEx::OnPaint()
 	view.GetScrollSetting(&(m_image.scr));
 	view.OnDraw(this, pDC, &m_image);
 }
-	void CPictureCtrlEx::Refresh()
-	{
-		OnPaint();
-		Invalidate();
-	}
+void CPictureCtrlEx::Refresh()
+{
+	OnPaint();
+	Invalidate();
+}
 
-	BOOL CPictureCtrlEx::PreTranslateMessage(MSG* pMsg)
-	{
-		return CStatic::PreTranslateMessage(pMsg);
-	}
+BOOL CPictureCtrlEx::PreTranslateMessage(MSG* pMsg)
+{
+	return CStatic::PreTranslateMessage(pMsg);
+}
