@@ -249,6 +249,7 @@ void CColorizeDlg::OnBnClickedColorizeRadioDemosaic()
 	EnableDemosaic(true);
 	EnableThreshold(false);
 	OperateDemosaic();
+
 }
 
 
