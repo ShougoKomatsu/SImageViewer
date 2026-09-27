@@ -232,8 +232,8 @@ const bool ViewDraw::ZoomChange(const int iR0_i, const int iC0_i, const int iR1_
 	double dNewCenterC_tv = dNewCenterC_i*m_dScale;
 
 	
-	double dNewDispOriginC_tv = max(0, dNewCenterR_tv-iHeight_v/2.0);
-	double dNewDispOriginR_tv = max(0, dNewCenterC_tv-iWidth_v/2.0);
+	double dNewDispOriginR_tv = max(0, dNewCenterR_tv-iHeight_v/2.0);
+	double dNewDispOriginC_tv = max(0, dNewCenterC_tv-iWidth_v/2.0);
 
 
 
