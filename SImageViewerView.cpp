@@ -818,8 +818,11 @@ IMPLEMENT_DYNCREATE(CSImageViewerView, CView)
 		
 		ImgRGB imgRGB;
 		_ConvertImage(&(dlgModify.m_imageColorized), &imgRGB);
-		
-		ConvertImage(&imgRGB, m_image[m_iImageIndex].ProgressImageProcess());
+		CImage imgResult2;
+bool bRet = ImposeImage(m_image[m_iImageIndex].GetCurrentProcess(), &(dlgModify.m_imageColorized), rect_i.top, rect_i.left,&imgResult2);
+CopyImage_CImage(&imgResult2, m_image[m_iImageIndex].ProgressImageProcess());
+
+	//	ConvertImage(&imgRGB, m_image[m_iImageIndex].ProgressImageProcess());
 		if(bAutoFull == true)
 		{
 			view.SetRect_v(NULL);

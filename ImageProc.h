@@ -290,3 +290,5 @@ bool ImposeAlphaChannel(const CImage* imgSrc, CImage* imgDst);
 
 
 bool ImposeLine(const CImage* imgSrc, CImage* imgDst, const double dR0, const double dC0, const double dR1, const double dC1);
+
+bool ImposeImage(const CImage* imgSrcBase, const CImage* imgSrcImposed, const int iROffset, const int iCOffset, CImage* imgDst);

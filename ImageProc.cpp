@@ -4678,3 +4678,40 @@ bool ReadBinaryFile(const CString sFilePath, FileFormatList* fileFormatList, Pan
 		}
 		return;
 	}
+	
+bool ImposeImage(const CImage* imgSrcBase, const CImage* imgSrcImposed, const int iROffset, const int iCOffset, CImage* imgDst)
+{
+	if(imgDst->IsNull() != true){imgDst->Destroy();}
+
+	imgDst->Create(imgSrcBase->GetWidth(), imgSrcBase->GetHeight(), (max(imgSrcBase->GetBPP(), imgSrcImposed->GetBPP()) == 32 ? 32: 24));
+
+	if(imgSrcBase->GetBPP()==imgDst->GetBPP())
+	{
+		CopyImage_CImage(imgSrcBase, imgDst);
+	}
+	else
+	{
+	ImgRGB imgRGB;
+	_ConvertImage(imgSrcBase, &imgRGB);
+	ConvertImage(&imgRGB, imgDst);
+	}
+	BYTE* byData_dst=(BYTE*)imgDst->GetBits();
+	int iBPP=imgDst->GetBPP();
+	int iPitch_dst=imgDst->GetPitch();
+	int iColorPitch = (imgDst->GetBPP()==24 ? 3 : 4);
+
+	for(int r=0; r<imgSrcImposed->GetHeight(); r++)
+	{
+		for(int c=0; c<imgSrcImposed->GetWidth(); c++)
+		{
+			COLORREF col = imgDst->GetPixel(c, r);
+			BYTE byR=GetRValue(col);
+			BYTE byG=GetRValue(col);
+			BYTE byB=GetRValue(col);
+
+
+			SetRGBValue(byData_dst, r+iROffset, c+iCOffset,iPitch_dst,iColorPitch, byR, byG, byB);
+		}
+	}
+	return true;
+}
