@@ -4720,3 +4720,46 @@ bool ReadBinaryFile(const CString sFilePath, FileFormatList* fileFormatList, Pan
 		}
 		return true;
 	}
+	bool ImposeImage(const CImage* imgSrcBase, const ImgRGB* imgSrcImposed, const int iROffset, const int iCOffset, CImage* imgDst)
+	{
+		if(imgDst->IsNull() != true){imgDst->Destroy();}
+
+		imgDst->Create(imgSrcBase->GetWidth(), imgSrcBase->GetHeight(), (max(imgSrcBase->GetBPP(),24) == 32 ? 32: 24));
+
+		if(imgSrcBase->GetBPP()==imgDst->GetBPP())
+		{
+			CopyImage_CImage(imgSrcBase, imgDst);
+		}
+		else
+		{
+			ImgRGB imgRGB;
+			_ConvertImage(imgSrcBase, &imgRGB);
+			ConvertImage(&imgRGB, imgDst);
+		}
+		BYTE* byData_dst=(BYTE*)imgDst->GetBits();
+		int iBPP=imgDst->GetBPP();
+		int iPitch_dst=imgDst->GetPitch();
+		int iColorPitch = (imgDst->GetBPP()==24 ? 3 : 4);
+
+		int iWidth_dst =imgDst->GetWidth();
+		int iHeight_dst =imgDst->GetHeight();
+		if((imgSrcImposed->iChannel==CHANNEL_3_8RGB) || (imgSrcImposed->iChannel==CHANNEL_4_8RGBA))
+		{
+			for(int r=0; r<imgSrcImposed->iHeight; r++)
+			{
+				if(r+iROffset<0){return false;}
+				if(r+iROffset>=iHeight_dst){return false;}
+				for(int c=0; c<imgSrcImposed->iWidth; c++)
+				{
+					if(c+iROffset<0){return false;}
+					if(c+iROffset>=iWidth_dst){return false;}
+
+					BYTE byR=imgSrcImposed->byImgR[r*imgSrcImposed->iWidth+c];
+					BYTE byG=imgSrcImposed->byImgG[r*imgSrcImposed->iWidth+c];
+					BYTE byB=imgSrcImposed->byImgB[r*imgSrcImposed->iWidth+c];
+					SetRGBValue(byData_dst, r+iROffset, c+iCOffset,iPitch_dst,iColorPitch, byR, byG, byB);
+				}
+			}
+		}
+		return true;
+	}

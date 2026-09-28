@@ -816,8 +816,8 @@ IMPLEMENT_DYNCREATE(CSImageViewerView, CView)
 			return;
 		}
 
-		ImgRGB imgRGB;
-		_ConvertImage(&(dlgModify.m_imageColorized), &imgRGB);
+	//	ImgRGB imgRGB;
+	//	_ConvertImage(&(dlgModify.m_imageColorized), &imgRGB);
 		CImage imgResult2;
 		bool bRet = ImposeImage(m_image[m_iImageIndex].GetCurrentProcess(), &(dlgModify.m_imageColorized), rect_i.top, rect_i.left,&imgResult2);
 		CopyImage_CImage(&imgResult2, m_image[m_iImageIndex].ProgressImageProcess());
