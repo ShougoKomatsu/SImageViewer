@@ -78,6 +78,7 @@ BOOL CPasteAsDlg::OnInitDialog()
 		((CButton*)GetDlgItem(IDC_PASTE_AS_RADIO_EQUALIZE_0TO256))->EnableWindow(TRUE);
 		((CButton*)GetDlgItem(IDC_PASTE_AS_RADIO_HUE_CYCLIC_RESCALE0TO6910))->EnableWindow(TRUE);
 		((CButton*)GetDlgItem(IDC_PASTE_AS_RADIO_RAINBOW))->EnableWindow(TRUE);
+		((CButton*)GetDlgItem(IDC_PASTE_AS_RADIO_CLIP_0TO255))->SetCheck(TRUE);
 	}
 	else
 	{
@@ -91,3 +92,4 @@ BOOL CPasteAsDlg::OnInitDialog()
 	return TRUE;  // return TRUE unless you set the focus to a control
 	// 例外 : OCX プロパティ ページは必ず FALSE を返します。
 }
+
