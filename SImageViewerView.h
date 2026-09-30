@@ -55,7 +55,7 @@ public:
 	void ResetImage(bool bZoomReset, bool bProcessReset);
 	void AdjustViewClientSize(int desiredClientWidth, int desiredClientHeight);
 	bool ReadImage(CString sFilePath);
-	bool AddImage(CString sFilePath);
+	bool AddReadImage(CString sFilePath);
 	bool ZoomChange(int iChange);
 	bool OnImagePPFW(const int iStep);
 	bool ZoomChange(int iMousePosR_v, int iMousePosC_v,int iChange);
@@ -79,6 +79,7 @@ public:
 	void ExitFullScreen();
 	void SetToolFormat();
 	void OperateFileNameChange();
+	void OperateCopyCorrelMapToClipboard();
 	void OperateCopyHistGramToClipboard();
 	void OperateResample();
 	void OperateColorize();

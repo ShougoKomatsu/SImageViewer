@@ -57,6 +57,7 @@ IMPLEMENT_DYNCREATE(CSImageViewerView, CView)
 		ON_COMMAND(ID_MENU_EDIT_RESAMPLE, &CSImageViewerView::OperateResample)
 		ON_COMMAND(ID_MENU_TOOL_FILEFORMAT, &CSImageViewerView::SetToolFormat)
 		ON_COMMAND(ID_MENU_DATA_HISTGRAM, &CSImageViewerView::OperateCopyHistGramToClipboard)
+		ON_COMMAND(ID_MENU_DATA_CORRELATION, &CSImageViewerView::OperateCopyCorrelMapToClipboard)
 
 		ON_COMMAND(ID_MENU_TOOL_OPTION, &CSImageViewerView::SetToolOption)
 		ON_WM_SIZE()
@@ -320,7 +321,7 @@ IMPLEMENT_DYNCREATE(CSImageViewerView, CView)
 		}
 		pFrame->SendMessage(WM_COMMAND, ID_DISP_STATUS_BPP);
 	}
-	bool CSImageViewerView::AddImage(CString sFilePath)
+	bool CSImageViewerView::AddReadImage(CString sFilePath)
 	{
 		CStringArray saFilePath;
 		bool bRet = RecursivelyGetImageFilePaths(sFilePath, &saFilePath, &m_fileFomatList);
@@ -461,7 +462,7 @@ IMPLEMENT_DYNCREATE(CSImageViewerView, CView)
 		bool bRet = GetOpenFileList(&sFilePaths);
 		if(bRet != true){return;}
 
-		AddImage(sFilePaths);
+		AddReadImage(sFilePaths);
 	}
 
 	void CSImageViewerView::OnFileOpen()
@@ -582,6 +583,84 @@ IMPLEMENT_DYNCREATE(CSImageViewerView, CView)
 		CopyImage_CImage(&imgClipped, &dlg.m_image);
 		INT_PTR iRet = dlg.DoModal();
 	}
+	
+	void Intensity(ImgRGB* imgIn, double* dMean)
+	{
+		ULONGLONG ullSum = 0;
+		int iHeight = imgIn->iHeight;
+		int iWidth = imgIn->iWidth;
+		if(imgIn->iChannel == CHANNEL_1_8)
+		{
+			for(int r=0; r<imgIn->iHeight; r++)
+			{
+				for(int c=0; c<iWidth; c++)
+				{
+					ullSum+=imgIn->byImg[r*iWidth+c];
+				}
+			}
+		}
+		if(imgIn->iChannel == CHANNEL_3_8RGB)
+		{
+			for(int r=0; r<imgIn->iHeight; r++)
+			{
+				for(int c=0; c<iWidth; c++)
+				{
+					ullSum+=imgIn->byImgR[r*iWidth+c];
+				}
+			}
+		}
+
+		*dMean=ullSum/(iWidth*iHeight*1.0);
+	}
+
+
+	void CSImageViewerView::OperateCopyCorrelMapToClipboard()
+	{
+		if(m_iImageMax < 2){return;}
+		bool bMono = _IsImageMonochrome(m_image[0].GetCurrentProcess());
+		if(bMono==false){return;}
+		int iWidth = m_image[0].GetCurrentProcess()->GetWidth();
+		int iHeight = m_image[0].GetCurrentProcess()->GetHeight();
+
+		for(int i=1; i<m_iImageMax; i++)
+		{
+			bMono = _IsImageMonochrome(m_image[i].GetCurrentProcess());
+			int iWidth_target = m_image[i].GetCurrentProcess()->GetWidth();
+			if(iWidth != iWidth_target){return;}
+			int iHeight_target = m_image[i].GetCurrentProcess()->GetHeight();
+			if(iHeight != iHeight_target){return;}
+		}
+
+		CString sCor;
+		for(int i=0; i<m_iImageMax; i++)
+		{
+			for(int j=0; j<m_iImageMax; j++)
+			{
+				ImgRGB imgI;
+				ImgRGB imgJ;
+				ImgRGB imgResult1;
+				ImgRGB imgResult2;
+				m_image[i].ConvertImage(&imgI);
+				m_image[j].ConvertImage(&imgJ);
+
+				SubImage(&imgI, &imgJ, &imgResult1, 1, 0);
+				SubImage(&imgJ, &imgI, &imgResult2, 1, 0);
+
+				ImgRGB imgResult3;
+				AddImage(&imgResult1, &imgResult2, &imgResult3);
+
+				CString sTemp;
+				double dMean;
+				Intensity(&imgResult3, &dMean);
+				sTemp.Format(_T("%e%s"), dMean,(j!=(m_iImageMax-1)? _T("\t"): _T("\n")));
+				sCor+=sTemp;
+			}
+		}
+
+		sCor.Delete(sCor.GetLength()-1);
+		CopyToClipBoardStr(sCor);
+	}
+
 	void CSImageViewerView::OperateCopyHistGramToClipboard()
 	{
 		if(m_iImageMax <= 0){return;}
