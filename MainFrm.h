@@ -14,8 +14,10 @@ protected: // ƒVƒŠƒAƒ‹‰»‚©‚ç‚Ì‚İì¬‚µ‚Ü‚·B
 	
 	// ‘®«
 public:
+//	void SetProgressBar(const int iPosPercent);
+//	void CreateProgressBar();
+//	CProgressCtrl m_wndProgress;
 	CSImageViewerView* m_pView;
-
 	bool m_bMultiFile;
 	bool m_bFileOpened;
 	bool m_bSynchroScroll;

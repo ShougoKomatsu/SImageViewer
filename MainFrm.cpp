@@ -1,5 +1,5 @@
-
-// MainFrm.cpp : CMainFrame ƒNƒ‰ƒX‚ÌÀ‘•
+ï»¿
+// MainFrm.cpp : CMainFrame ã‚¯ãƒ©ã‚¹ã®å®Ÿè£…
 //
 
 #include "stdafx.h"
@@ -88,9 +88,10 @@ static UINT indicators[] =
 	ID_STATUS_RGB_PROCESSED,
 	ID_STATUS_SELECTION,
 	ID_SEPARATOR,
+	ID_INDICATOR_PROGRESS,
 };
 
-// CMainFrame ƒRƒ“ƒXƒgƒ‰ƒNƒVƒ‡ƒ“/ƒfƒXƒgƒ‰ƒNƒVƒ‡ƒ“
+// CMainFrame ã‚³ãƒ³ã‚¹ãƒˆãƒ©ã‚¯ã‚·ãƒ§ãƒ³/ãƒ‡ã‚¹ãƒˆãƒ©ã‚¯ã‚·ãƒ§ãƒ³
 void CMainFrame::OnDispStatusSize()
 {
 	m_wndStatusBar.SetPaneText(0, m_sStatusSize);
@@ -112,13 +113,33 @@ void CMainFrame::OnDispStatusMousePos()
 }
 CMainFrame::CMainFrame()
 {
-	// TODO: ƒƒ“ƒo[‰Šú‰»ƒR[ƒh‚ğ‚±‚±‚É’Ç‰Á‚µ‚Ä‚­‚¾‚³‚¢B
+	// TODO: ãƒ¡ãƒ³ãƒãƒ¼åˆæœŸåŒ–ã‚³ãƒ¼ãƒ‰ã‚’ã“ã“ã«è¿½åŠ ã—ã¦ãã ã•ã„ã€‚
 	theApp.m_nAppLook = theApp.GetInt(_T("ApplicationLook"), ID_VIEW_APPLOOK_WIN_2000);
 }
 
 CMainFrame::~CMainFrame()
 {
 }
+/*
+void CMainFrame::CreateProgressBar()
+{
+	CRect rc;
+	m_wndStatusBar.GetItemRect(7, &rc);
+	m_wndProgress.Create(
+		WS_CHILD | WS_VISIBLE,
+		rc,
+		&m_wndStatusBar,
+		1000);
+	m_wndProgress.SetRange(0, 100);
+}
+void CMainFrame::SetProgressBar(const int iPosPercent)
+{
+	CRect rc;
+	m_wndStatusBar.GetItemRect(7, &rc);
+	m_wndProgress.MoveWindow(rc);
+	m_wndProgress.SetPos(iPosPercent);
+}
+*/
 int CMainFrame::OnCreate(LPCREATESTRUCT lpCreateStruct)
 {
 	m_bFileOpened = false;
@@ -130,7 +151,7 @@ int CMainFrame::OnCreate(LPCREATESTRUCT lpCreateStruct)
 		m_cfStatus.DeleteObject();
 	}
 	LOGFONT lf = {};
-	lf.lfHeight = -18;                     // ‚‚³i•‰’l‚Å˜_—’PˆÊj
+	lf.lfHeight = -18;                     // é«˜ã•ï¼ˆè² å€¤ã§è«–ç†å˜ä½ï¼‰
 	lf.lfWeight = FW_NORMAL;
 	lf.lfCharSet = DEFAULT_CHARSET;
 	_tcscpy_s(lf.lfFaceName, _T("MS Gothic"));
@@ -140,25 +161,25 @@ int CMainFrame::OnCreate(LPCREATESTRUCT lpCreateStruct)
 
 
 	BOOL bNameValid;
-	// ŒÅ’è’l‚ÉŠî‚Ã‚¢‚ÄƒrƒWƒ…ƒAƒ‹ ƒ}ƒl[ƒWƒƒ[‚Æ visual ƒXƒ^ƒCƒ‹‚ğİ’è‚µ‚Ü‚·
+	// å›ºå®šå€¤ã«åŸºã¥ã„ã¦ãƒ“ã‚¸ãƒ¥ã‚¢ãƒ« ãƒãƒãƒ¼ã‚¸ãƒ£ãƒ¼ã¨ visual ã‚¹ã‚¿ã‚¤ãƒ«ã‚’è¨­å®šã—ã¾ã™
 	OnApplicationLook(theApp.m_nAppLook);
 
 	if (!m_wndMenuBar.Create(this))
 	{
-		TRACE0("ƒƒjƒ…[ ƒo[‚ğì¬‚Å‚«‚Ü‚¹‚ñ‚Å‚µ‚½\n");
+		TRACE0("ãƒ¡ãƒ‹ãƒ¥ãƒ¼ ãƒãƒ¼ã‚’ä½œæˆã§ãã¾ã›ã‚“ã§ã—ãŸ\n");
 		return -1;
 	}
 	//	m_wndMenuBar.SetPaneStyle(CBRS_FLOATING);
 
 	m_wndMenuBar.SetPaneStyle(m_wndMenuBar.GetPaneStyle() | ~CBRS_SIZE_DYNAMIC | CBRS_TOOLTIPS | ~CBRS_FLYBY);
 
-	// ƒAƒNƒeƒBƒu‚É‚È‚Á‚½‚Æ‚«ƒƒjƒ…[ ƒo[‚ÉƒtƒH[ƒJƒX‚ğˆÚ“®‚µ‚È‚¢
+	// ã‚¢ã‚¯ãƒ†ã‚£ãƒ–ã«ãªã£ãŸã¨ããƒ¡ãƒ‹ãƒ¥ãƒ¼ ãƒãƒ¼ã«ãƒ•ã‚©ãƒ¼ã‚«ã‚¹ã‚’ç§»å‹•ã—ãªã„
 	CMFCPopupMenu::SetForceMenuFocus(FALSE);
 
 	if (!m_wndToolBar.CreateEx(this, TBSTYLE_FLAT, WS_CHILD | WS_VISIBLE | CBRS_TOP | CBRS_GRIPPER | CBRS_TOOLTIPS | CBRS_FLYBY | CBRS_SIZE_DYNAMIC) ||
 		!m_wndToolBar.LoadToolBar(theApp.m_bHiColorIcons ? IDR_MAINFRAME_256 : IDR_MAINFRAME))
 	{
-		TRACE0("ƒc[ƒ‹ ƒo[‚Ìì¬‚É¸”s‚µ‚Ü‚µ‚½B\n");
+		TRACE0("ãƒ„ãƒ¼ãƒ« ãƒãƒ¼ã®ä½œæˆã«å¤±æ•—ã—ã¾ã—ãŸã€‚\n");
 		return -1;
 	}
 	//	m_wndToolBar.SetPaneStyle(m_wndToolBar.GetPaneStyle() |  ~CBRS_FLYBY);
@@ -175,12 +196,12 @@ int CMainFrame::OnCreate(LPCREATESTRUCT lpCreateStruct)
 	m_wndToolBar.EnableCustomizeButton(TRUE, ID_VIEW_CUSTOMIZE, strCustomize);
 
 
-	// ƒ†[ƒU[’è‹`‚Ìƒc[ƒ‹ ƒo[‚Ì‘€ì‚ğ‹–‰Â‚µ‚Ü‚·:
+	// ãƒ¦ãƒ¼ã‚¶ãƒ¼å®šç¾©ã®ãƒ„ãƒ¼ãƒ« ãƒãƒ¼ã®æ“ä½œã‚’è¨±å¯ã—ã¾ã™:
 	//	InitUserToolbars(NULL, uiFirstUserToolBarId, uiLastUserToolBarId);
 
 	if (!m_wndStatusBar.Create(this))
 	{
-		TRACE0("ƒXƒe[ƒ^ƒX ƒo[‚Ìì¬‚É¸”s‚µ‚Ü‚µ‚½B\n");
+		TRACE0("ã‚¹ãƒ†ãƒ¼ã‚¿ã‚¹ ãƒãƒ¼ã®ä½œæˆã«å¤±æ•—ã—ã¾ã—ãŸã€‚\n");
 		return -1;
 	}
 	m_wndStatusBar.SetFont(&m_cfStatus);
@@ -199,8 +220,10 @@ int CMainFrame::OnCreate(LPCREATESTRUCT lpCreateStruct)
 	m_wndStatusBar.SetPaneInfo(4, ID_STATUS_RGB_ORIGINAL, SBPS_POPOUT, 140);
 	m_wndStatusBar.SetPaneInfo(5, ID_STATUS_RGB_PROCESSED, SBPS_POPOUT, 140);
 	m_wndStatusBar.SetPaneInfo(6, ID_STATUS_SELECTION, SBPS_POPOUT, 350);
+//	m_wndStatusBar.SetPaneInfo(7,ID_INDICATOR_PROGRESS,SBPS_NORMAL,200);
 	m_wndStatusBar.SetPaneInfo(7, ID_SEPARATOR, SBPS_STRETCH|SBPS_NOBORDERS, 0);
 
+//	CreateProgressBar();
 	for(int i=0; i<=6; i++)
 	{
 		m_wndStatusBar.SetPaneTextColor(i, RGB(0,0,0));
@@ -208,35 +231,35 @@ int CMainFrame::OnCreate(LPCREATESTRUCT lpCreateStruct)
 	}
 
 
-	// TODO: ƒc[ƒ‹ ƒo[‚¨‚æ‚Ñƒƒjƒ…[ ƒo[‚ğƒhƒbƒLƒ“ƒO‰Â”\‚É‚µ‚È‚¢ê‡‚ÍA‚±‚Ì 5 ‚Â‚Ìs‚ğíœ‚µ‚Ü‚·
+	// TODO: ãƒ„ãƒ¼ãƒ« ãƒãƒ¼ãŠã‚ˆã³ãƒ¡ãƒ‹ãƒ¥ãƒ¼ ãƒãƒ¼ã‚’ãƒ‰ãƒƒã‚­ãƒ³ã‚°å¯èƒ½ã«ã—ãªã„å ´åˆã¯ã€ã“ã® 5 ã¤ã®è¡Œã‚’å‰Šé™¤ã—ã¾ã™
 	//	m_wndMenuBar.EnableDocking(CBRS_ALIGN_ANY);
 	//	m_wndToolBar.EnableDocking(CBRS_ALIGN_ANY);
 	EnableDocking(CBRS_ALIGN_ANY);
 	DockPane(&m_wndMenuBar);
 	DockPane(&m_wndToolBar);
 	DragAcceptFiles(TRUE);
-	// Visual Studio 2005 ƒXƒ^ƒCƒ‹‚ÌƒhƒbƒLƒ“ƒO ƒEƒBƒ“ƒhƒE“®ì‚ğ—LŒø‚É‚µ‚Ü‚·
+	// Visual Studio 2005 ã‚¹ã‚¿ã‚¤ãƒ«ã®ãƒ‰ãƒƒã‚­ãƒ³ã‚° ã‚¦ã‚£ãƒ³ãƒ‰ã‚¦å‹•ä½œã‚’æœ‰åŠ¹ã«ã—ã¾ã™
 	CDockingManager::SetDockingMode(DT_SMART);
-	// Visual Studio 2005 ƒXƒ^ƒCƒ‹‚ÌƒhƒbƒLƒ“ƒO ƒEƒBƒ“ƒhƒE‚Ì©“®”ñ•\¦“®ì‚ğ—LŒø‚É‚µ‚Ü‚·
+	// Visual Studio 2005 ã‚¹ã‚¿ã‚¤ãƒ«ã®ãƒ‰ãƒƒã‚­ãƒ³ã‚° ã‚¦ã‚£ãƒ³ãƒ‰ã‚¦ã®è‡ªå‹•éè¡¨ç¤ºå‹•ä½œã‚’æœ‰åŠ¹ã«ã—ã¾ã™
 	EnableAutoHidePanes(CBRS_ALIGN_ANY);
 
-	// ƒc[ƒ‹ ƒo[‚ÆƒhƒbƒLƒ“ƒO ƒEƒBƒ“ƒhƒE ƒƒjƒ…[‚Ì”z’u•ÏX‚ğ—LŒø‚É‚µ‚Ü‚·
+	// ãƒ„ãƒ¼ãƒ« ãƒãƒ¼ã¨ãƒ‰ãƒƒã‚­ãƒ³ã‚° ã‚¦ã‚£ãƒ³ãƒ‰ã‚¦ ãƒ¡ãƒ‹ãƒ¥ãƒ¼ã®é…ç½®å¤‰æ›´ã‚’æœ‰åŠ¹ã«ã—ã¾ã™
 	EnablePaneMenu(TRUE, ID_VIEW_CUSTOMIZE, strCustomize, ID_VIEW_TOOLBAR);
 
-	// ƒc[ƒ‹ ƒo[‚ÌƒNƒCƒbƒN (Alt ƒL[‚ğ‰Ÿ‚µ‚È‚ª‚çƒhƒ‰ƒbƒO) ƒJƒXƒ^ƒ}ƒCƒY‚ğ—LŒø‚É‚µ‚Ü‚·
+	// ãƒ„ãƒ¼ãƒ« ãƒãƒ¼ã®ã‚¯ã‚¤ãƒƒã‚¯ (Alt ã‚­ãƒ¼ã‚’æŠ¼ã—ãªãŒã‚‰ãƒ‰ãƒ©ãƒƒã‚°) ã‚«ã‚¹ã‚¿ãƒã‚¤ã‚ºã‚’æœ‰åŠ¹ã«ã—ã¾ã™
 	CMFCToolBar::EnableQuickCustomization();
 
 	if (CMFCToolBar::GetUserImages() == NULL)
 	{
-		// ƒ†[ƒU[’è‹`‚Ìƒc[ƒ‹ ƒo[ ƒCƒ[ƒW‚ğ“Ç‚İ‚İ‚Ü‚·
+		// ãƒ¦ãƒ¼ã‚¶ãƒ¼å®šç¾©ã®ãƒ„ãƒ¼ãƒ« ãƒãƒ¼ ã‚¤ãƒ¡ãƒ¼ã‚¸ã‚’èª­ã¿è¾¼ã¿ã¾ã™
 		if (m_UserImages.Load(_T(".\\UserImages.bmp")))
 		{
 			CMFCToolBar::SetUserImages(&m_UserImages);
 		}
 	}
 
-	// ƒƒjƒ…[‚Ìƒp[ƒ\ƒiƒ‹‰» (Å‹ßg—p‚³‚ê‚½ƒRƒ}ƒ“ƒh) ‚ğ—LŒø‚É‚µ‚Ü‚·
-	// TODO: ƒ†[ƒU[ŒÅ—L‚ÌŠî–{ƒRƒ}ƒ“ƒh‚ğ’è‹`‚µAŠeƒƒjƒ…[‚ğƒNƒŠƒbƒN‚µ‚½‚Æ‚«‚ÉŠî–{ƒRƒ}ƒ“ƒh‚ª 1 ‚ÂˆÈã•\¦‚³‚ê‚é‚æ‚¤‚É‚µ‚Ü‚·B
+	// ãƒ¡ãƒ‹ãƒ¥ãƒ¼ã®ãƒ‘ãƒ¼ã‚½ãƒŠãƒ«åŒ– (æœ€è¿‘ä½¿ç”¨ã•ã‚ŒãŸã‚³ãƒãƒ³ãƒ‰) ã‚’æœ‰åŠ¹ã«ã—ã¾ã™
+	// TODO: ãƒ¦ãƒ¼ã‚¶ãƒ¼å›ºæœ‰ã®åŸºæœ¬ã‚³ãƒãƒ³ãƒ‰ã‚’å®šç¾©ã—ã€å„ãƒ¡ãƒ‹ãƒ¥ãƒ¼ã‚’ã‚¯ãƒªãƒƒã‚¯ã—ãŸã¨ãã«åŸºæœ¬ã‚³ãƒãƒ³ãƒ‰ãŒ 1 ã¤ä»¥ä¸Šè¡¨ç¤ºã•ã‚Œã‚‹ã‚ˆã†ã«ã—ã¾ã™ã€‚
 	CList<UINT, UINT> lstBasicCommands;
 
 	lstBasicCommands.AddTail(ID_FILE_NEW);
@@ -297,8 +320,8 @@ BOOL CMainFrame::PreCreateWindow(CREATESTRUCT& cs)
 {
 	if( !CFrameWndEx::PreCreateWindow(cs) )
 		return FALSE;
-	// TODO: ‚±‚ÌˆÊ’u‚Å CREATESTRUCT cs ‚ğC³‚µ‚Ä Window ƒNƒ‰ƒX‚Ü‚½‚ÍƒXƒ^ƒCƒ‹‚ğ
-	//  C³‚µ‚Ä‚­‚¾‚³‚¢B
+	// TODO: ã“ã®ä½ç½®ã§ CREATESTRUCT cs ã‚’ä¿®æ­£ã—ã¦ Window ã‚¯ãƒ©ã‚¹ã¾ãŸã¯ã‚¹ã‚¿ã‚¤ãƒ«ã‚’
+	//  ä¿®æ­£ã—ã¦ãã ã•ã„ã€‚
 
 	return TRUE;
 }
@@ -306,7 +329,7 @@ void CMainFrame::SetStatusMessage(CString sMes)
 {
 	m_wndStatusBar.SetPaneText(0, sMes);
 }
-// CMainFrame f’f
+// CMainFrame è¨ºæ–­
 
 #ifdef _DEBUG
 void CMainFrame::AssertValid() const
@@ -321,11 +344,11 @@ void CMainFrame::Dump(CDumpContext& dc) const
 #endif //_DEBUG
 
 
-// CMainFrame ƒƒbƒZ[ƒW ƒnƒ“ƒhƒ‰[
+// CMainFrame ãƒ¡ãƒƒã‚»ãƒ¼ã‚¸ ãƒãƒ³ãƒ‰ãƒ©ãƒ¼
 
 void CMainFrame::OnViewCustomize()
 {
-	CMFCToolBarsCustomizeDialog* pDlgCust = new CMFCToolBarsCustomizeDialog(this, TRUE /* ƒƒjƒ…[‚ğƒXƒLƒƒƒ“‚µ‚Ü‚·*/);
+	CMFCToolBarsCustomizeDialog* pDlgCust = new CMFCToolBarsCustomizeDialog(this, TRUE /* ãƒ¡ãƒ‹ãƒ¥ãƒ¼ã‚’ã‚¹ã‚­ãƒ£ãƒ³ã—ã¾ã™*/);
 	pDlgCust->EnableUserDefinedToolbars();
 	pDlgCust->Create();
 }
@@ -429,7 +452,7 @@ void CMainFrame::OnUpdateApplicationLook(CCmdUI* pCmdUI)
 
 BOOL CMainFrame::LoadFrame(UINT nIDResource, DWORD dwDefaultStyle, CWnd* pParentWnd, CCreateContext* pContext) 
 {
-	// Šî–{ƒNƒ‰ƒX‚ªÀÛ‚Ì“®ì‚ğs‚¢‚Ü‚·B
+	// åŸºæœ¬ã‚¯ãƒ©ã‚¹ãŒå®Ÿéš›ã®å‹•ä½œã‚’è¡Œã„ã¾ã™ã€‚
 
 	if (!CFrameWndEx::LoadFrame(nIDResource, dwDefaultStyle, pParentWnd, pContext))
 	{
@@ -437,7 +460,7 @@ BOOL CMainFrame::LoadFrame(UINT nIDResource, DWORD dwDefaultStyle, CWnd* pParent
 	}
 
 
-	// ‚·‚×‚Ä‚Ìƒ†[ƒU[’è‹`ƒc[ƒ‹ ƒo[‚Ìƒ{ƒ^ƒ“‚ÌƒJƒXƒ^ƒ}ƒCƒY‚ğ—LŒø‚É‚µ‚Ü‚·
+	// ã™ã¹ã¦ã®ãƒ¦ãƒ¼ã‚¶ãƒ¼å®šç¾©ãƒ„ãƒ¼ãƒ« ãƒãƒ¼ã®ãƒœã‚¿ãƒ³ã®ã‚«ã‚¹ã‚¿ãƒã‚¤ã‚ºã‚’æœ‰åŠ¹ã«ã—ã¾ã™
 	BOOL bNameValid;
 	CString strCustomize;
 	bNameValid = strCustomize.LoadString(IDS_TOOLBAR_CUSTOMIZE);

@@ -386,15 +386,22 @@ IMPLEMENT_DYNCREATE(CSImageViewerView, CView)
 		int iImageNum = CountImages(sFilePath, &m_fileFomatList);
 
 		m_image = new PanImage[iImageNum];
+		
+		CMainFrame* pFrame = (CMainFrame*)AfxGetMainWnd();
 
 		int iImageIndex = 0;
 		for(int i = 0; i<saFilePath.GetCount(); i++)
 		{
 			bRet = ReadAndAppendImage(saFilePath.GetAt(i), &m_fileFomatList, &m_image[iImageIndex], iImageIndex, &iImageIndex);
-			if(bRet != true){return false;}
+//			pFrame->SetProgressBar(int(i/iImageNum*1.0));
+//			Invalidate();
+			if(bRet != true){
+				//pFrame->SetProgressBar(0);
+				return false;}
 		}
 
-		CMainFrame* pFrame = (CMainFrame*)AfxGetMainWnd();
+//			pFrame->SetProgressBar(0);
+		
 		m_iImageIndex = 0;
 		m_iImageMax = iImageNum;
 		pFrame->m_bFileOpened = true;
