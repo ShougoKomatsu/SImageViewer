@@ -1593,8 +1593,8 @@ IMPLEMENT_DYNCREATE(CSImageViewerView, CView)
 					return TRUE; 
 				}
 
-				if(pMsg->wParam == VK_LEFT){OnImagePPFW(-1);Invalidate();return TRUE;}
-				if(pMsg->wParam == VK_RIGHT){OnImagePPFW(+1);Invalidate();return TRUE;}
+				if(pMsg->wParam == VK_UP){OnImagePPFW(-1);Invalidate();return TRUE;}
+				if(pMsg->wParam == VK_DOWN){OnImagePPFW(+1);Invalidate();return TRUE;}
 				if(pMsg->wParam == VK_PRIOR){OnImagePPFW(-10);Invalidate();return TRUE;}
 				if(pMsg->wParam == VK_NEXT){OnImagePPFW(+10);Invalidate();return TRUE;}
 				if(pMsg->wParam == VK_HOME){OnImagePPFW(INT_MIN);Invalidate();return TRUE;}
