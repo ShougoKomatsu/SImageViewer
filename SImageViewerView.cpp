@@ -591,7 +591,7 @@ IMPLEMENT_DYNCREATE(CSImageViewerView, CView)
 		int iWidth = imgIn->iWidth;
 		if(imgIn->iChannel == CHANNEL_1_8)
 		{
-			for(int r=0; r<imgIn->iHeight; r++)
+			for(int r=0; r<iHeight; r++)
 			{
 				for(int c=0; c<iWidth; c++)
 				{
@@ -601,7 +601,7 @@ IMPLEMENT_DYNCREATE(CSImageViewerView, CView)
 		}
 		if(imgIn->iChannel == CHANNEL_3_8RGB)
 		{
-			for(int r=0; r<imgIn->iHeight; r++)
+			for(int r=0; r<iHeight; r++)
 			{
 				for(int c=0; c<iWidth; c++)
 				{
