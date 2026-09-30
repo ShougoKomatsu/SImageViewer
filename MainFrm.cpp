@@ -266,6 +266,7 @@ int CMainFrame::OnCreate(LPCREATESTRUCT lpCreateStruct)
 	lstBasicCommands.AddTail(ID_MENU_EDIT_RESAMPLE);
 
 	lstBasicCommands.AddTail(ID_MENU_TOOL_FILEFORMAT);
+	lstBasicCommands.AddTail(ID_MENU_TOOL_OPTION);
 
 	/*
 	lstBasicCommands.AddTail(ID_VIEW_APPLOOK_OFF_2003);

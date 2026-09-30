@@ -56,6 +56,7 @@ IMPLEMENT_DYNCREATE(CSImageViewerView, CView)
 		ON_COMMAND(ID_MENU_EDIT_EQU_HIST, &CSImageViewerView::OperateEquHistImage)
 		ON_COMMAND(ID_MENU_EDIT_RESAMPLE, &CSImageViewerView::OperateResample)
 		ON_COMMAND(ID_MENU_TOOL_FILEFORMAT, &CSImageViewerView::SetToolFormat)
+		ON_COMMAND(ID_MENU_TOOL_OPTION, &CSImageViewerView::SetToolOption)
 		ON_WM_SIZE()
 		ON_WM_MOUSEMOVE()
 		ON_WM_LBUTTONDOWN()
@@ -975,9 +976,21 @@ IMPLEMENT_DYNCREATE(CSImageViewerView, CView)
 			bRet = GetImageType(m_sIniFilePath, i, &sType);
 			bRet = GetFileFormat(m_sIniFilePath, sType, &(m_fileFomatList.fileFormat[i]));
 		}
-
+		ReadSetting(m_sIniFilePath);
 		pFrame->m_pView = this;
 		SetTimer(TIMER_INIT, 100, 0);
+	}
+	
+	void CSImageViewerView::ReadSetting(const CString sIniFilePath)
+	{
+		const UINT uiBufSize=128;
+		TCHAR tchData[uiBufSize];
+		GetPrivateProfileString(_T("Setting"), _T("EscByEsc"), _T("1"), tchData, uiBufSize, sIniFilePath);
+		m_bExitByEsc = ((_ttoi(tchData) == 0) ? 0 : 1);
+	}
+	void CSImageViewerView::SaveSetting(const CString sIniFilePath)
+	{
+		WritePrivateProfileString(_T("Setting"), _T("EscByEsc"), ((m_bExitByEsc == 0) ? _T("0") : _T("1")), sIniFilePath);
 	}
 
 	int CSImageViewerView::GetClientHeight()
@@ -1311,6 +1324,9 @@ IMPLEMENT_DYNCREATE(CSImageViewerView, CView)
 
 	void CSImageViewerView::OnLButtonDown(UINT nFlags, CPoint point_v)
 	{
+		if(m_iImageMax <= 0){return;}
+		if(m_image[m_iImageIndex].GetCurrentProcess()->IsNull() == true){return;}
+
 		view.OnLButtonDown(nFlags, point_v, &(m_image[m_iImageIndex]), this);
 		if(m_bSynchroScroll==true)
 		{
@@ -1326,6 +1342,9 @@ IMPLEMENT_DYNCREATE(CSImageViewerView, CView)
 
 	void CSImageViewerView::OnLButtonUp(UINT nFlags, CPoint point_v)
 	{
+		if(m_iImageMax <= 0){return;}
+		if(m_image[m_iImageIndex].GetCurrentProcess()->IsNull() == true){return;}
+
 		CPoint point_v_out;
 		view.OnLButtonUp(nFlags, point_v, true, &(m_image[m_iImageIndex]), this, &point_v_out);
 		if(m_bSynchroScroll==true)
@@ -1485,7 +1504,7 @@ IMPLEMENT_DYNCREATE(CSImageViewerView, CView)
 			if(pMsg->wParam == 'R'){OperateRotaateImage(ROTATE_CW90);return TRUE;}
 
 			if(pMsg->wParam == VK_RETURN) { if(m_bBeingFullScreen == true){ ExitFullScreen(); return TRUE;} EnterFullScreen(); return TRUE; } 
-			if(pMsg->wParam == VK_ESCAPE) { if(m_bBeingFullScreen == true){ ExitFullScreen(); return TRUE;} ::PostQuitMessage( 0 );}
+			if(pMsg->wParam == VK_ESCAPE) {if(m_bBeingFullScreen == true) {ExitFullScreen(); return TRUE;}if(m_bExitByEsc==false){return TRUE;}::PostQuitMessage( 0 );}
 
 			if(pMsg->wParam == VK_ADD){ZoomChange(1);return TRUE;}
 			if(pMsg->wParam == VK_SUBTRACT){ZoomChange(-1);return TRUE;}
@@ -1592,4 +1611,16 @@ IMPLEMENT_DYNCREATE(CSImageViewerView, CView)
 		pPopup->EnableMenuItem(ID_MENU_EDIT_SET_SELECTION, MF_BYCOMMAND | (( bFileOpened == true) ? MF_ENABLED : MF_DISABLED));
 
 		pPopup->TrackPopupMenu(TPM_LEFTALIGN | TPM_RIGHTBUTTON, point.x, point.y, this);
+	}
+#include "SettingDlg.h"
+	void CSImageViewerView::SetToolOption()
+	{
+		CSettingDlg dlg;
+		dlg.m_bExitByEsc=m_bExitByEsc;
+		INT_PTR iRet = dlg.DoModal();
+		if(iRet != IDOK){return;}
+
+		
+		m_bExitByEsc=dlg.m_bExitByEsc;
+		SaveSetting(m_sIniFilePath);
 	}

@@ -206,6 +206,7 @@
     <ClInclude Include="ResampleDlg.h" />
     <ClInclude Include="Resource.h" />
     <ClInclude Include="SetSelectionDlg.h" />
+    <ClInclude Include="SettingDlg.h" />
     <ClInclude Include="SetTransparentDlg.h" />
     <ClInclude Include="SImageViewer.h" />
     <ClInclude Include="SImageViewerDoc.h" />
@@ -230,6 +231,7 @@
     <ClCompile Include="PictureCtrlEx.cpp" />
     <ClCompile Include="ResampleDlg.cpp" />
     <ClCompile Include="SetSelectionDlg.cpp" />
+    <ClCompile Include="SettingDlg.cpp" />
     <ClCompile Include="SetTransparentDlg.cpp" />
     <ClCompile Include="SImageViewer.cpp" />
     <ClCompile Include="SImageViewerDoc.cpp" />

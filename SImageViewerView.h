@@ -18,6 +18,9 @@ protected: // ƒVƒŠƒAƒ‹‰»‚©‚ç‚Ì‚İì¬‚µ‚Ü‚·B
 
 	// ‘®«
 public:
+	void ReadSetting(const CString sIniFilePath);
+	void SaveSetting(const CString sIniFilePath);
+	bool m_bExitByEsc;
 	ViewDraw view;
 	ScrollSetting scr;
 
@@ -71,7 +74,7 @@ public:
 		return scr.m_dDispOriginC_tv;
 	}
 
-
+	void SetToolOption();
 	void EnterFullScreen();
 	void ExitFullScreen();
 	void SetToolFormat();
