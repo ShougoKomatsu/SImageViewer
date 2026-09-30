@@ -58,6 +58,7 @@ BEGIN_MESSAGE_MAP(CMainFrame, CFrameWndEx)
 	ON_UPDATE_COMMAND_UI(ID_MENU_EDIT_INVERT, &CMainFrame::OnUpdateMenu)
 	ON_UPDATE_COMMAND_UI(ID_MENU_DATA_HISTGRAM, &CMainFrame::OnUpdateMenu)
 	ON_UPDATE_COMMAND_UI(ID_MENU_DATA_CORRELATION, &CMainFrame::OnUpdateMenu)
+	ON_UPDATE_COMMAND_UI(ID_MENU_DATA_FILELIST, &CMainFrame::OnUpdateMenu)
 
 	ON_COMMAND(ID_TOOLBAR_GRID_DOT, &CMainFrame::OnButtonGridDot)
 	ON_COMMAND(ID_TOOLBAR_GRID_LINE, &CMainFrame::OnButtonGridLine)
@@ -291,6 +292,7 @@ int CMainFrame::OnCreate(LPCREATESTRUCT lpCreateStruct)
 	lstBasicCommands.AddTail(ID_MENU_EDIT_RESAMPLE);
 	lstBasicCommands.AddTail(ID_MENU_DATA_HISTGRAM);
 	lstBasicCommands.AddTail(ID_MENU_DATA_CORRELATION);
+	lstBasicCommands.AddTail(ID_MENU_DATA_FILELIST);
 
 	lstBasicCommands.AddTail(ID_MENU_TOOL_FILEFORMAT);
 	lstBasicCommands.AddTail(ID_MENU_TOOL_OPTION);
@@ -786,6 +788,7 @@ void CMainFrame::OnUpdateMenu(CCmdUI* pCmdUI)
 	case ID_MENU_EDIT_RESAMPLE:
 	case ID_MENU_DATA_HISTGRAM:
 	case ID_MENU_DATA_CORRELATION:
+	case ID_MENU_DATA_FILELIST:
 		{
 			pCmdUI->Enable(m_bFileOpened);
 			break;

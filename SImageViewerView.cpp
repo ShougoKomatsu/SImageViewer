@@ -58,6 +58,7 @@ IMPLEMENT_DYNCREATE(CSImageViewerView, CView)
 		ON_COMMAND(ID_MENU_TOOL_FILEFORMAT, &CSImageViewerView::SetToolFormat)
 		ON_COMMAND(ID_MENU_DATA_HISTGRAM, &CSImageViewerView::OperateCopyHistGramToClipboard)
 		ON_COMMAND(ID_MENU_DATA_CORRELATION, &CSImageViewerView::OperateCopyCorrelMapToClipboard)
+		ON_COMMAND(ID_MENU_DATA_FILELIST, &CSImageViewerView::OperateCopyFileListToClipboard)
 
 		ON_COMMAND(ID_MENU_TOOL_OPTION, &CSImageViewerView::SetToolOption)
 		ON_WM_SIZE()
@@ -620,7 +621,30 @@ IMPLEMENT_DYNCREATE(CSImageViewerView, CView)
 		*dMean=ullSum/(iWidth*iHeight*1.0);
 	}
 
+	void CSImageViewerView::OperateCopyFileListToClipboard()
+	{
+		CString sData;
+		for(int i=0; i<m_iImageMax; i++)
+		{
+			CString sTemp;
+			CString sDataPath;
+			sDataPath.Format(_T("%s"),  m_image[i].GetDataSource());
+			int iPlace = sDataPath.ReverseFind('\\');
+			if(iPlace >=0)
+			{
+				sTemp.Format(_T("%d\t%s\t%s\n"), i+1, sDataPath, sDataPath.Mid(iPlace+1));
+			}
+			else
+			{
+				sTemp.Format(_T("%d\t%s\n"), i+1, sDataPath);
+			}
+			sData+=sTemp;
+		}
 
+		sData.Delete(sData.GetLength()-1);
+		CopyToClipBoardStr(sData);
+
+	}
 	void CSImageViewerView::OperateCopyCorrelMapToClipboard()
 	{
 		if(m_iImageMax < 2){return;}

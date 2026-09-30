@@ -79,6 +79,7 @@ public:
 	void ExitFullScreen();
 	void SetToolFormat();
 	void OperateFileNameChange();
+	void OperateCopyFileListToClipboard();
 	void OperateCopyCorrelMapToClipboard();
 	void OperateCopyHistGramToClipboard();
 	void OperateResample();
