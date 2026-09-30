@@ -553,16 +553,18 @@ IMPLEMENT_DYNCREATE(CSImageViewerView, CView)
 
 	void CSImageViewerView::OnEditPaste()
 	{
-		CMainFrame* pFrame = (CMainFrame*)AfxGetMainWnd();
+		PanImage imgTemp;
+		BOOL bRet = CopyFromClipBoardImg(&imgTemp);
+		if(bRet != true){return;}
+
 		SAFE_DELETE(m_image);
 		m_iImageIndex = 0;
 		m_iImageMax = 1;
 		m_image = new PanImage[m_iImageMax];
-		BOOL bRet = CopyFromClipBoardImg(&(m_image[m_iImageIndex]));
-
-		if(bRet != TRUE){return;}
+		m_image[m_iImageIndex].CopyImage(&imgTemp);
 		m_sFilePath.Format(_T("Clipboard"));
-
+		
+		CMainFrame* pFrame = (CMainFrame*)AfxGetMainWnd();
 		pFrame->m_bFileOpened = true;
 		view.m_bRegionSelected = true;
 		ResetImage(true, true);
