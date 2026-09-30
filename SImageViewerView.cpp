@@ -56,6 +56,8 @@ IMPLEMENT_DYNCREATE(CSImageViewerView, CView)
 		ON_COMMAND(ID_MENU_EDIT_EQU_HIST, &CSImageViewerView::OperateEquHistImage)
 		ON_COMMAND(ID_MENU_EDIT_RESAMPLE, &CSImageViewerView::OperateResample)
 		ON_COMMAND(ID_MENU_TOOL_FILEFORMAT, &CSImageViewerView::SetToolFormat)
+		ON_COMMAND(ID_MENU_DATA_HISTGRAM, &CSImageViewerView::OperateCopyHistGramToClipboard)
+
 		ON_COMMAND(ID_MENU_TOOL_OPTION, &CSImageViewerView::SetToolOption)
 		ON_WM_SIZE()
 		ON_WM_MOUSEMOVE()
@@ -1394,7 +1396,7 @@ IMPLEMENT_DYNCREATE(CSImageViewerView, CView)
 	}
 
 
-
+	
 	BOOL CSImageViewerView::PreTranslateMessage(MSG* pMsg)
 	{
 		if(pMsg->message == WM_MOUSEWHEEL)
@@ -1450,11 +1452,11 @@ IMPLEMENT_DYNCREATE(CSImageViewerView, CView)
 			}
 			if(GetKeyState(VK_CONTROL)<0)
 			{	
-				if(pMsg->wParam == 'H')
-				{
-					OperateCopyHistGramToClipboard();
-					return TRUE; 
-				}
+			//	if(pMsg->wParam == 'H')
+			//	{
+			//		OperateCopyHistGramToClipboard();
+			//		return TRUE; 
+			//	}
 				if(pMsg->wParam == 'A')
 				{
 					CRect rect_i;
