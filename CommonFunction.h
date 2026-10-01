@@ -10,8 +10,8 @@ bool CopyFromClipBoardStr(CString* sData);
 bool isNearTheBoarder(double d, double dBoarder, double dMargin);
 bool isInTheRange(double d, double dMin, double dMax);
 bool CopyToClipBoardStr(const CString sValue);
-int CountImages(CString sFileOrFolderPath, FileFormatList* fileFormatList);
-bool RecursivelyGetImageFilePaths(CString sFileOrFolderPath, CStringArray* saFilePath, FileFormatList* fileFormatList);
+int CountImages(const CString sFileOrFolderPath, const int iDepth, FileFormatList* fileFormatList);
+bool RecursivelyGetImageFilePaths(const CString sFileOrFolderPath, const int iDepth, CStringArray* saFilePath, FileFormatList* fileFormatList);
 bool ReadAndAppendImage(CString sFilePath, FileFormatList* fileFormatList, PanImage* panImage, int iImageIndex, int* iImageIndexNew);
 bool GetOpenFileList(CString* sFilePaths);
 

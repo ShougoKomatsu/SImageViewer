@@ -325,9 +325,9 @@ IMPLEMENT_DYNCREATE(CSImageViewerView, CView)
 	bool CSImageViewerView::AddReadImage(CString sFilePath)
 	{
 		CStringArray saFilePath;
-		bool bRet = RecursivelyGetImageFilePaths(sFilePath, &saFilePath, &m_fileFomatList);
+		bool bRet = RecursivelyGetImageFilePaths(sFilePath, -1, &saFilePath, &m_fileFomatList);
 		if(bRet != true){return false;}
-		int iImageNum = CountImages(sFilePath, &m_fileFomatList);
+		int iImageNum = CountImages(sFilePath, -1, &m_fileFomatList);
 
 		int iOldNum = m_iImageMax;
 		PanImage* imgTemp = NULL;
@@ -382,9 +382,9 @@ IMPLEMENT_DYNCREATE(CSImageViewerView, CView)
 		SAFE_DELETE(m_image);
 		m_sFilePath.Format(_T("%s"), sFilePath);
 		CStringArray saFilePath;
-		bool bRet = RecursivelyGetImageFilePaths(sFilePath, &saFilePath, &m_fileFomatList);
+		bool bRet = RecursivelyGetImageFilePaths(sFilePath, -1, &saFilePath, &m_fileFomatList);
 		if((bRet != true) && saFilePath.GetCount()<0){return false;}
-		int iImageNum = CountImages(sFilePath, &m_fileFomatList);
+		int iImageNum = CountImages(sFilePath, -1, &m_fileFomatList);
 
 		m_image = new PanImage[iImageNum];
 		
@@ -554,7 +554,7 @@ IMPLEMENT_DYNCREATE(CSImageViewerView, CView)
 	void CSImageViewerView::OnEditPaste()
 	{
 		PanImage imgTemp;
-		BOOL bRet = CopyFromClipBoardImg(&imgTemp);
+		bool bRet = CopyFromClipBoardImg(&imgTemp);
 		if(bRet != true){return;}
 
 		SAFE_DELETE(m_image);

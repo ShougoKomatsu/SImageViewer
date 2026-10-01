@@ -89,7 +89,7 @@ static UINT indicators[] =
 	ID_STATUS_RGB_PROCESSED,
 	ID_STATUS_SELECTION,
 	ID_SEPARATOR,
-	ID_INDICATOR_PROGRESS,
+	ID_STATUS_PROGRESS,
 };
 
 // CMainFrame コンストラクション/デストラクション
@@ -221,7 +221,7 @@ int CMainFrame::OnCreate(LPCREATESTRUCT lpCreateStruct)
 	m_wndStatusBar.SetPaneInfo(4, ID_STATUS_RGB_ORIGINAL, SBPS_POPOUT, 140);
 	m_wndStatusBar.SetPaneInfo(5, ID_STATUS_RGB_PROCESSED, SBPS_POPOUT, 140);
 	m_wndStatusBar.SetPaneInfo(6, ID_STATUS_SELECTION, SBPS_POPOUT, 350);
-//	m_wndStatusBar.SetPaneInfo(7,ID_INDICATOR_PROGRESS,SBPS_NORMAL,200);
+//	m_wndStatusBar.SetPaneInfo(7,ID_STATUS_PROGRESS,SBPS_NORMAL,200);
 	m_wndStatusBar.SetPaneInfo(7, ID_SEPARATOR, SBPS_STRETCH|SBPS_NOBORDERS, 0);
 
 //	CreateProgressBar();

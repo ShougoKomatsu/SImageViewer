@@ -70,8 +70,17 @@ UINT CountImageInOneFile(CString sFilePath, FileFormatList* fileFormatList)
 	return 0;
 }
 
-bool RecursivelyGetImageFilePaths(CString sFileOrFolderPath, CStringArray* saFilePath, FileFormatList* fileFormatList)
+bool GetDirectory(const CString sFilePath, CString* sFileDir)
 {
+	int iPlace = sFilePath.ReverseFind('\\');
+	if(iPlace<0){return false;}
+	sFileDir->Format(_T("%s"),sFilePath.Left(iPlace)); 
+	return true;
+}
+
+bool RecursivelyGetImageFilePaths(const CString sFileOrFolderPath, const int iDepth, CStringArray* saFilePath, FileFormatList* fileFormatList)
+{
+	if(iDepth==0){return false;}
 	if(sFileOrFolderPath.Find(_T("|"))>=0)
 	{
 		CStringArray saFilePathTemp;
@@ -90,7 +99,7 @@ bool RecursivelyGetImageFilePaths(CString sFileOrFolderPath, CStringArray* saFil
 		}
 		for(int i=0; i<saFilePathTemp.GetCount(); i++)
 		{
-			bool bRet = RecursivelyGetImageFilePaths(saFilePathTemp.GetAt(i), saFilePath, fileFormatList);
+			bool bRet = RecursivelyGetImageFilePaths(saFilePathTemp.GetAt(i), iDepth-1, saFilePath, fileFormatList);
 			if(bRet != true){return false;}
 		}
 		return true;
@@ -128,7 +137,7 @@ bool RecursivelyGetImageFilePaths(CString sFileOrFolderPath, CStringArray* saFil
 
 		if (cf.IsDirectory() == TRUE) 
 		{
-			bool bRet = RecursivelyGetImageFilePaths(sFilePath, saFilePath, fileFormatList);
+			bool bRet = RecursivelyGetImageFilePaths(sFilePath, iDepth-1, saFilePath, fileFormatList);
 			if(bRet != true){return false;}
 		}
 		else 
@@ -142,11 +151,12 @@ bool RecursivelyGetImageFilePaths(CString sFileOrFolderPath, CStringArray* saFil
 	return true;
 }
 
-int CountImages(CString sFileOrFolderPath, FileFormatList* fileFormatList)
+int CountImages(const CString sFileOrFolderPath, const int iDepth, FileFormatList* fileFormatList)
 {
+	if(iDepth==0){return false;}
 	CStringArray saFilePath;
 	saFilePath.RemoveAll();
-	bool bRet = RecursivelyGetImageFilePaths(sFileOrFolderPath, &saFilePath, fileFormatList);
+	bool bRet = RecursivelyGetImageFilePaths(sFileOrFolderPath, iDepth, &saFilePath, fileFormatList);
 	if(bRet != true){return 0;}
 
 	int iFileNum = (int)saFilePath.GetCount();
