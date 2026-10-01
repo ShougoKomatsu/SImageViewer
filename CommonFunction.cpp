@@ -146,7 +146,7 @@ bool RecursivelyGetImageFilePaths(const CString sFileOrFolderPath, const int iDe
 		}
 		else 
 		{
-			if(IsImageFIle(sFilePath, fileFormatList) != true){continue;}
+			if(IsImageFIle(sFilePath, fileFormatList) == IMAGE_FILE_TYPE_UNDEFINED){continue;}
 			saFilePath->Add(sFilePath);
 		}
 	}

@@ -373,12 +373,12 @@ IMPLEMENT_DYNCREATE(CSImageViewerView, CView)
 
 	}
 
-	void CSImageViewerView::ListUpSameDirImages()
+	void CSImageViewerView::ListUpSameDirImages(const CString sBaseFilePath)
 	{
 		if(m_iImageMax <= 0){return;}
 
 		CString sFileDir;
-		bool bRet = GetDirectory(m_sFilePath, &sFileDir);
+		bool bRet = GetDirectory(sBaseFilePath, &sFileDir);
 	
 		bRet = RecursivelyGetImageFilePaths(sFileDir,2,&m_saFilePaths, &m_fileFomatList);
 		if(bRet != true){return;}
@@ -1138,10 +1138,10 @@ IMPLEMENT_DYNCREATE(CSImageViewerView, CView)
 		return rectClient.Width();
 	}
 	
-	bool CSImageViewerView::OnImagePPFWRing(const int iStep)
+	bool CSImageViewerView::OnImagePPFWFlexible(const int iStep)
 	{
 		m_saFilePaths.RemoveAll();
-		ListUpSameDirImages();
+		ListUpSameDirImages(m_sFilePath);
 
 		int iMax = m_saFilePaths.GetCount();
 		if(iMax<=0){return false;}
@@ -1172,7 +1172,7 @@ IMPLEMENT_DYNCREATE(CSImageViewerView, CView)
 	}
 	bool CSImageViewerView::OnImagePPFW(const int iStep)
 	{
-		return OnImagePPFWRing(iStep);
+	//	return OnImagePPFWFlexible(iStep);
 		
 		if(iStep==INT_MAX){m_iImageIndex=m_iImageMax-1;}
 		else if(iStep==INT_MIN){m_iImageIndex=0;}

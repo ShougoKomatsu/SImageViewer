@@ -26,7 +26,7 @@ public:
 	ViewDraw view;
 	ScrollSetting scr;
 
-	void ListUpSameDirImages();
+	void ListUpSameDirImages(const CString sBaseFile);
 	CStringArray m_saFilePaths;
 	CString m_sIniFilePath;
 
@@ -64,7 +64,7 @@ public:
 	bool ReadImage(CString sFilePath);
 	bool AddReadImage(CString sFilePath);
 	bool ZoomChange(int iChange);
-	bool OnImagePPFWRing(const int iStep);
+	bool OnImagePPFWFlexible(const int iStep);
 	bool OnImagePPFW(const int iStep);
 	bool ZoomChange(int iMousePosR_v, int iMousePosC_v,int iChange);
 	bool ZoomChange(int iR0_i, int iC0_i, int iR1_i, int iC1_i);
