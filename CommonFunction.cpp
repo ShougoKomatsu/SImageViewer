@@ -39,20 +39,20 @@ bool CopyToClipBoardStr(const CString sValue)
 
 
 
-bool IsImageFIle(CString sFilePath, FileFormatList* fileFormatList)
+TYPE_IMAGE_FILE IsImageFIle(CString sFilePath, FileFormatList* fileFormatList)
 {
-	if(sFilePath.Right(4).CompareNoCase(_T(".bmp"))==0){return true;}
-	if(sFilePath.Right(4).CompareNoCase(_T(".png"))==0){return true;}
-	if(sFilePath.Right(4).CompareNoCase(_T(".jpg"))==0){return true;}
-	if(sFilePath.Right(4).CompareNoCase(_T(".ico"))==0){return true;}
-	if(sFilePath.Right(4).CompareNoCase(_T(".exe"))==0){return true;}
-	if(sFilePath.Right(4).CompareNoCase(_T(".dll"))==0){return true;}
+	if(sFilePath.Right(4).CompareNoCase(_T(".bmp"))==0){return IMAGE_FILE_TYPE_SINGLE;}
+	if(sFilePath.Right(4).CompareNoCase(_T(".png"))==0){return IMAGE_FILE_TYPE_SINGLE;}
+	if(sFilePath.Right(4).CompareNoCase(_T(".jpg"))==0){return IMAGE_FILE_TYPE_SINGLE;}
+	if(sFilePath.Right(4).CompareNoCase(_T(".ico"))==0){return IMAGE_FILE_TYPE_MULTI;}
+	if(sFilePath.Right(4).CompareNoCase(_T(".exe"))==0){return IMAGE_FILE_TYPE_MULTI;}
+	if(sFilePath.Right(4).CompareNoCase(_T(".dll"))==0){return IMAGE_FILE_TYPE_MULTI;}
 	for(UINT i=0; i<fileFormatList->uiNum; i++)
 	{
-		if(sFilePath.Right(fileFormatList->fileFormat[i].sType.GetLength()).CompareNoCase(fileFormatList->fileFormat[i].sType)==0){return true;}
+		if(sFilePath.Right(fileFormatList->fileFormat[i].sType.GetLength()).CompareNoCase(fileFormatList->fileFormat[i].sType)==0){return IMAGE_FILE_TYPE_SINGLE;}
 	}
 
-	return false;
+	return IMAGE_FILE_TYPE_UNDEFINED;
 }
 
 UINT CountImageInOneFile(CString sFilePath, FileFormatList* fileFormatList)
@@ -110,7 +110,11 @@ bool RecursivelyGetImageFilePaths(const CString sFileOrFolderPath, const int iDe
 
 	if ((dwAttribute & FILE_ATTRIBUTE_DIRECTORY) == 0) 
 	{
-		if(IsImageFIle(sFileOrFolderPath, fileFormatList)==true)
+		if(IsImageFIle(sFileOrFolderPath, fileFormatList)==IMAGE_FILE_TYPE_SINGLE)
+		{
+			saFilePath->Add(sFileOrFolderPath);
+		}
+		if(IsImageFIle(sFileOrFolderPath, fileFormatList)==IMAGE_FILE_TYPE_MULTI)
 		{
 			saFilePath->Add(sFileOrFolderPath);
 		}
@@ -208,7 +212,7 @@ bool ReadAndAppendImage(CString sFilePath, FileFormatList* fileFormatList, PanIm
 	*iImageIndexNew = iImageIndex+1;
 	return true;
 }
-bool ReadAndAppendSingllImage(CString sFilePath, FileFormatList* fileFormatList, PanImage* panImage, int iImageIndex)
+bool ReadAndAppendSingllImage(CString sFilePath, FileFormatList* fileFormatList, PanImage* panImage, int iTargetImageIndex)
 {
 	for(UINT i=0; i<fileFormatList->uiNum; i++)
 	{
@@ -223,7 +227,7 @@ bool ReadAndAppendSingllImage(CString sFilePath, FileFormatList* fileFormatList,
 	{
 
 		UINT uiIconNum = CountIconNum(sFilePath);
-		bool bRet = LoadICOFileBig(sFilePath,panImage,1);
+		bool bRet = LoadICOFileSingle(sFilePath,panImage,1);
 		if(bRet != true){return false;}
 		return true;
 	}

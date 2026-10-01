@@ -3610,38 +3610,50 @@ const BYTE g_byFont_4_8[96]={
 		return true;
 	}
 	
-	bool LoadICOFileBig(const CString sFilePath, PanImage* imgs, const UINT uiNum)
+	bool LoadICOFileSingle(const CString sFilePath, PanImage* imgs, const int iTargetImageIndex)
 	{
 		HICON* hLargeIcons=NULL;
-		HICON hDummy;
-		hLargeIcons = new HICON[uiNum];
+		HICON* hSmallIcons=NULL;
+		hLargeIcons = new HICON[iTargetImageIndex];
+		hSmallIcons = new HICON[iTargetImageIndex];
 
-		UINT uiExtracted = ExtractIconEx(sFilePath, 0, hLargeIcons, &hDummy, uiNum);
-		if (uiExtracted == 0){SAFE_DELETE(hLargeIcons); return false;}
+		UINT uiExtracted = ExtractIconEx(sFilePath, 0, hLargeIcons, hSmallIcons, iTargetImageIndex);
+		if (uiExtracted == 0){SAFE_DELETE(hLargeIcons); SAFE_DELETE(hSmallIcons); return false;}
 
 		HDC hScreenDC = ::GetDC(NULL);
 		if (hScreenDC == NULL)
 		{
-			for (UINT ui=0; ui<uiNum; ui++)
+			for (UINT ui=0; ui<iTargetImageIndex; ui++)
 			{
 				if (hLargeIcons[ui] != NULL){::DestroyIcon(hLargeIcons[ui]);}
+				if (hSmallIcons[ui] != NULL){::DestroyIcon(hSmallIcons[ui]);}
 			}
 			SAFE_DELETE(hLargeIcons);
+			SAFE_DELETE(hSmallIcons);
 			return false;
 		}
-
-		for (UINT ui = 0; ui < uiExtracted; ui++)
+		if((iTargetImageIndex%2)==0)
 		{
 			CImage imgTemp;
-			bool bRet = ConvertIconToImg(hScreenDC, hLargeIcons[ui], &imgTemp);
-			CString sDataSource;
-			sDataSource.Format(_T("%s: Large%d"), sFilePath, ui);
-			imgs[ui].Set(IMAGE_TYPE_CIMAGE,NULL,NULL,0,0,&imgTemp,VALUE_IMAGE_RESCALE_0_TO_255, sDataSource);
-			::DestroyIcon(hLargeIcons[ui]);
-			imgs[ui].ResetProcessImage();
+				bool bRet = ConvertIconToImg(hScreenDC, hLargeIcons[iTargetImageIndex/2], &imgTemp);
+				CString sDataSource;
+				sDataSource.Format(_T("%s: Large%d"), sFilePath, iTargetImageIndex);
+				imgs->Set(IMAGE_TYPE_CIMAGE,NULL,NULL,0,0,&imgTemp,VALUE_IMAGE_RESCALE_0_TO_255, sDataSource);
+
+				::DestroyIcon(hLargeIcons[iTargetImageIndex]);
+		}
+		else
+		{
+			CImage imgTemp;
+				bool bRet = ConvertIconToImg(hScreenDC, hSmallIcons[iTargetImageIndex/2], &imgTemp);
+				CString sDataSource;
+				sDataSource.Format(_T("%s: Small%d"), sFilePath, iTargetImageIndex);
+				imgs->Set(IMAGE_TYPE_CIMAGE,NULL,NULL,0,0,&imgTemp,VALUE_IMAGE_RESCALE_0_TO_255, sDataSource);
+				::DestroyIcon(hSmallIcons[iTargetImageIndex]);
 		}
 
 		SAFE_DELETE(hLargeIcons);
+		SAFE_DELETE(hSmallIcons);
 		::ReleaseDC(NULL, hScreenDC);
 		return true;
 

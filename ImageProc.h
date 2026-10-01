@@ -293,4 +293,4 @@ bool ImposeLine(const CImage* imgSrc, CImage* imgDst, const double dR0, const do
 
 bool ImposeImage(const CImage* imgSrcBase, const CImage* imgSrcImposed, const int iROffset, const int iCOffset, CImage* imgDst);
 	bool ImposeImage(const CImage* imgSrcBase, const ImgRGB* imgSrcImposed, const int iROffset, const int iCOffset, CImage* imgDst);
-	bool LoadICOFileBig(const CString sFilePath, PanImage* imgs, const UINT uiNum);
+	bool LoadICOFileSingle(const CString sFilePath, PanImage* imgs, const int iTargetImageIndex);

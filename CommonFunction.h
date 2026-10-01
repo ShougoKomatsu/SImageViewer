@@ -30,3 +30,11 @@ inline void SwapInt(int *a, int *b)
 bool GetDirectory(const CString sFilePath, CString* sFileDir);
 
 bool ReadAndAppendSingllImage(CString sFilePath, FileFormatList* fileFormatList, PanImage* panImage, int iImageIndex);
+
+enum TYPE_IMAGE_FILE
+{
+	IMAGE_FILE_TYPE_UNDEFINED = 0,
+	IMAGE_FILE_TYPE_SINGLE = 1,
+	IMAGE_FILE_TYPE_MULTI = 2,
+};
+TYPE_IMAGE_FILE GetTypeOfImageFIle(CString sFilePath, FileFormatList* fileFormatList);
