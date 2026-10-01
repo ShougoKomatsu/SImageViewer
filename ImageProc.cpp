@@ -3609,7 +3609,43 @@ const BYTE g_byFont_4_8[96]={
 		::DeleteObject(ii.hbmMask);
 		return true;
 	}
+	
+	bool LoadICOFileBig(const CString sFilePath, PanImage* imgs, const UINT uiNum)
+	{
+		HICON* hLargeIcons=NULL;
+		HICON hDummy;
+		hLargeIcons = new HICON[uiNum];
 
+		UINT uiExtracted = ExtractIconEx(sFilePath, 0, hLargeIcons, &hDummy, uiNum);
+		if (uiExtracted == 0){SAFE_DELETE(hLargeIcons); return false;}
+
+		HDC hScreenDC = ::GetDC(NULL);
+		if (hScreenDC == NULL)
+		{
+			for (UINT ui=0; ui<uiNum; ui++)
+			{
+				if (hLargeIcons[ui] != NULL){::DestroyIcon(hLargeIcons[ui]);}
+			}
+			SAFE_DELETE(hLargeIcons);
+			return false;
+		}
+
+		for (UINT ui = 0; ui < uiExtracted; ui++)
+		{
+			CImage imgTemp;
+			bool bRet = ConvertIconToImg(hScreenDC, hLargeIcons[ui], &imgTemp);
+			CString sDataSource;
+			sDataSource.Format(_T("%s: Large%d"), sFilePath, ui);
+			imgs[ui].Set(IMAGE_TYPE_CIMAGE,NULL,NULL,0,0,&imgTemp,VALUE_IMAGE_RESCALE_0_TO_255, sDataSource);
+			::DestroyIcon(hLargeIcons[ui]);
+			imgs[ui].ResetProcessImage();
+		}
+
+		SAFE_DELETE(hLargeIcons);
+		::ReleaseDC(NULL, hScreenDC);
+		return true;
+
+	}
 	bool LoadICOFile(const CString sFilePath, PanImage* imgs, const UINT uiNum)
 	{
 		HICON* hLargeIcons=NULL;

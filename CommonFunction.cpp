@@ -138,7 +138,7 @@ bool RecursivelyGetImageFilePaths(const CString sFileOrFolderPath, const int iDe
 		if (cf.IsDirectory() == TRUE) 
 		{
 			bool bRet = RecursivelyGetImageFilePaths(sFilePath, iDepth-1, saFilePath, fileFormatList);
-			if(bRet != true){return false;}
+			if(bRet != true){continue;}
 		}
 		else 
 		{
@@ -206,6 +206,33 @@ bool ReadAndAppendImage(CString sFilePath, FileFormatList* fileFormatList, PanIm
 	panImage->Set(IMAGE_TYPE_CIMAGE, NULL, NULL, 0, 0, &img, VALUE_IMAGE_UNDEFINED, sFilePath);
 
 	*iImageIndexNew = iImageIndex+1;
+	return true;
+}
+bool ReadAndAppendSingllImage(CString sFilePath, FileFormatList* fileFormatList, PanImage* panImage, int iImageIndex)
+{
+	for(UINT i=0; i<fileFormatList->uiNum; i++)
+	{
+		if(sFilePath.Right(fileFormatList->fileFormat[i].sType.GetLength()).CompareNoCase(fileFormatList->fileFormat[i].sType)==0)
+		{
+			return ReadBinaryFile(sFilePath, fileFormatList, panImage);
+		}
+	}
+	if(((sFilePath.Right(4)).CompareNoCase(_T(".ico"))==0)
+		||((sFilePath.Right(4)).CompareNoCase(_T(".exe"))==0)
+		||((sFilePath.Right(4)).CompareNoCase(_T(".dll"))==0))
+	{
+
+		UINT uiIconNum = CountIconNum(sFilePath);
+		bool bRet = LoadICOFileBig(sFilePath,panImage,1);
+		if(bRet != true){return false;}
+		return true;
+	}
+	CImage img;
+	HRESULT hResult = img.Load(sFilePath);
+	if(hResult != S_OK){return false;}
+
+	panImage->Set(IMAGE_TYPE_CIMAGE, NULL, NULL, 0, 0, &img, VALUE_IMAGE_UNDEFINED, sFilePath);
+
 	return true;
 }
 

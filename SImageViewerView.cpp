@@ -377,7 +377,10 @@ IMPLEMENT_DYNCREATE(CSImageViewerView, CView)
 	{
 		if(m_iImageMax <= 0){return;}
 
-		bool bRet = RecursivelyGetImageFilePaths(m_image[m_iImageIndex].GetDataSource(),1,&m_saFilePaths, &m_fileFomatList);
+		CString sFileDir;
+		bool bRet = GetDirectory(m_image[m_iImageIndex].GetDataSource(), &sFileDir);
+	
+		bRet = RecursivelyGetImageFilePaths(sFileDir,2,&m_saFilePaths, &m_fileFomatList);
 		if(bRet != true){return;}
 
 		m_iTempIndex = 0;
@@ -1137,7 +1140,10 @@ IMPLEMENT_DYNCREATE(CSImageViewerView, CView)
 	
 	bool CSImageViewerView::OnImagePPFWRing(const int iStep)
 	{
+		ListUpSameDirImages();
+
 		int iMax = m_saFilePaths.GetCount();
+		if(iMax<=0){return false;}
 
 		int iBefore = m_iTempIndex;
 		if(iStep==INT_MAX){m_iTempIndex=iMax-1;}
@@ -1153,16 +1159,19 @@ IMPLEMENT_DYNCREATE(CSImageViewerView, CView)
 		int iDif = m_iTempIndex-iBefore;
 		if(abs(iDif)>=IMAGE_BUF_NUM)
 		{
-			bool bRet = ReadAndAppendImage(m_saFilePaths.GetAt(m_iTempIndex), &m_fileFomatList, &m_image[0], iImageIndex, &iImageIndex);
+			bool bRet = ReadAndAppendSingllImage(m_saFilePaths.GetAt(m_iTempIndex), &m_fileFomatList, &m_image[0], 0);
 		}
 		else
 		{
 		}
 		m_iImageIndex = 0;
-
+		m_iImageMax= 1;
+		return true;
 	}
 	bool CSImageViewerView::OnImagePPFW(const int iStep)
 	{
+	//	return OnImagePPFWRing(iStep);
+		
 		if(iStep==INT_MAX){m_iImageIndex=m_iImageMax-1;}
 		else if(iStep==INT_MIN){m_iImageIndex=0;}
 		else

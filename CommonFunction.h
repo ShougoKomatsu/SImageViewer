@@ -27,3 +27,6 @@ inline void SwapInt(int *a, int *b)
 	*b = iTemp;
 }
 
+bool GetDirectory(const CString sFilePath, CString* sFileDir);
+
+bool ReadAndAppendSingllImage(CString sFilePath, FileFormatList* fileFormatList, PanImage* panImage, int iImageIndex);
