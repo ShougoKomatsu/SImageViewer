@@ -373,6 +373,20 @@ IMPLEMENT_DYNCREATE(CSImageViewerView, CView)
 
 	}
 
+	void CSImageViewerView::ListUpSameDirImages()
+	{
+		if(m_iImageMax <= 0){return;}
+
+		bool bRet = RecursivelyGetImageFilePaths(m_image[m_iImageIndex].GetDataSource(),1,&m_saFilePaths, &m_fileFomatList);
+		if(bRet != true){return;}
+
+		m_iTempIndex = 0;
+		for(int i=0; i<m_saFilePaths.GetCount(); i++)
+		{
+			if(m_saFilePaths.GetAt(i).CompareNoCase(m_image[m_iImageIndex].GetDataSource())==0){m_iTempIndex=i; return;}
+		}
+	}
+
 	bool CSImageViewerView::ReadImage(CString sFilePath)
 	{
 		for(int i = 0; i<m_iImageMax; i++)
@@ -1120,7 +1134,33 @@ IMPLEMENT_DYNCREATE(CSImageViewerView, CView)
 		GetClientRect(&rectClient);
 		return rectClient.Width();
 	}
+	
+	bool CSImageViewerView::OnImagePPFWRing(const int iStep)
+	{
+		int iMax = m_saFilePaths.GetCount();
 
+		int iBefore = m_iTempIndex;
+		if(iStep==INT_MAX){m_iTempIndex=iMax-1;}
+		else if(iStep==INT_MIN){m_iTempIndex=0;}
+		else
+		{
+			m_iTempIndex+=iStep;
+			if(iStep<0){m_iTempIndex = max(m_iTempIndex,0);}
+			if(iStep>0){m_iTempIndex = min(m_iTempIndex,iMax-1);}
+		}
+
+		int iImageIndex;
+		int iDif = m_iTempIndex-iBefore;
+		if(abs(iDif)>=IMAGE_BUF_NUM)
+		{
+			bool bRet = ReadAndAppendImage(m_saFilePaths.GetAt(m_iTempIndex), &m_fileFomatList, &m_image[0], iImageIndex, &iImageIndex);
+		}
+		else
+		{
+		}
+		m_iImageIndex = 0;
+
+	}
 	bool CSImageViewerView::OnImagePPFW(const int iStep)
 	{
 		if(iStep==INT_MAX){m_iImageIndex=m_iImageMax-1;}

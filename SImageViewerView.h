@@ -10,6 +10,8 @@
 #include "ResampleDlg.h"
 #include "CommonFunction.h"
 #include "ViewDraw.h"
+
+#define IMAGE_BUF_NUM (1)
 class CSImageViewerView : public CView
 {
 protected: // ÉVÉäÉAÉãâªÇ©ÇÁÇÃÇ›çÏê¨ÇµÇ‹Ç∑ÅB
@@ -24,11 +26,16 @@ public:
 	ViewDraw view;
 	ScrollSetting scr;
 
+	void ListUpSameDirImages();
+	CStringArray m_saFilePaths;
 	CString m_sIniFilePath;
 
 	FileFormatList m_fileFomatList;
 	void FullDomain(CRect* rect_i);
+	int m_iTempIndex;
 	CString m_sFilePath;
+	int iFileIndex[IMAGE_BUF_NUM];
+	PanImage m_imageRing[IMAGE_BUF_NUM];
 
 	CImage m_imageZoomed;
 	PanImage * m_image;
@@ -57,6 +64,7 @@ public:
 	bool ReadImage(CString sFilePath);
 	bool AddReadImage(CString sFilePath);
 	bool ZoomChange(int iChange);
+	bool OnImagePPFWRing(const int iStep);
 	bool OnImagePPFW(const int iStep);
 	bool ZoomChange(int iMousePosR_v, int iMousePosC_v,int iChange);
 	bool ZoomChange(int iR0_i, int iC0_i, int iR1_i, int iC1_i);
