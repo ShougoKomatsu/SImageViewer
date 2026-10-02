@@ -382,7 +382,7 @@ ListUpSameDirImages(m_sFilePath);}
 		CString sFileDir;
 		bool bRet = GetDirectory(sBaseFilePath, &sFileDir);
 	
-		bRet = RecursivelyGetImageFilePaths(sFileDir,2,&m_saFilePaths, &m_fileFomatList);
+		bRet = RecursivelyGetImageFilePaths(sFileDir,1,&m_saFilePaths, &m_fileFomatList);
 		if(bRet != true){return;}
 
 		m_iTempIndex = 0;
@@ -1158,19 +1158,10 @@ ListUpSameDirImages(m_sFilePath);}
 			if(iStep>0){m_iTempIndex = min(m_iTempIndex,iMax-1);}
 		}
 
-		int iDif = m_iTempIndex-iBefore;
-		if(iDif==0)
-		{
-			return false;
-		}
+		if(m_iTempIndex==iBefore){return false;}
 
-		if(abs(iDif)>=IMAGE_BUF_NUM)
-		{
-			bool bRet = ReadAndAppendSingllImage(m_saFilePaths.GetAt(m_iTempIndex), &m_fileFomatList, &m_image[0], 0);
-		}
-		else
-		{
-		}
+		bool bRet = ReadAndAppendSingllImage(m_saFilePaths.GetAt(m_iTempIndex), &m_fileFomatList, &m_image[0], 0);
+
 		m_iImageIndex = 0;
 		m_iImageMax= 1;
 		SetCaption();
