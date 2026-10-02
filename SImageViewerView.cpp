@@ -321,6 +321,8 @@ IMPLEMENT_DYNCREATE(CSImageViewerView, CView)
 		default:{return;}
 		}
 		pFrame->SendMessage(WM_COMMAND, ID_DISP_STATUS_BPP);
+		if(m_iImageMax==1){		m_saFilePaths.RemoveAll();
+ListUpSameDirImages(m_sFilePath);}
 	}
 	bool CSImageViewerView::AddReadImage(CString sFilePath)
 	{
@@ -1140,9 +1142,9 @@ IMPLEMENT_DYNCREATE(CSImageViewerView, CView)
 	
 	bool CSImageViewerView::OnImagePPFWFlexible(const int iStep)
 	{
-		m_saFilePaths.RemoveAll();
-		ListUpSameDirImages(m_sFilePath);
+		if(m_iImageMax>=2){return false;}
 
+		
 		int iMax = m_saFilePaths.GetCount();
 		if(iMax<=0){return false;}
 
@@ -1156,7 +1158,6 @@ IMPLEMENT_DYNCREATE(CSImageViewerView, CView)
 			if(iStep>0){m_iTempIndex = min(m_iTempIndex,iMax-1);}
 		}
 
-		int iImageIndex;
 		int iDif = m_iTempIndex-iBefore;
 		if(iDif==0){return false;}
 		if(abs(iDif)>=IMAGE_BUF_NUM)
@@ -1650,6 +1651,12 @@ IMPLEMENT_DYNCREATE(CSImageViewerView, CView)
 				if(pMsg->wParam == VK_NEXT){OnImagePPFW(+10);Invalidate();return TRUE;}
 				if(pMsg->wParam == VK_HOME){OnImagePPFW(INT_MIN);Invalidate();return TRUE;}
 				if(pMsg->wParam == VK_END){OnImagePPFW(INT_MAX);Invalidate();return TRUE;}
+				if(pMsg->wParam == VK_LEFT){
+					OnImagePPFWFlexible(-1);
+				Invalidate();return TRUE;}
+				if(pMsg->wParam == VK_RIGHT){
+					OnImagePPFWFlexible(+1);
+					Invalidate();return TRUE;}
 			}
 
 			if(GetKeyState(VK_SHIFT)<0)
