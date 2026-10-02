@@ -243,7 +243,23 @@ IMPLEMENT_DYNCREATE(CSImageViewerView, CView)
 			view.GetScrollSetting(&(m_image[m_iImageIndex].scr));
 		}
 	}
-
+		void CSImageViewerView::ZoomReset()
+		{
+			view.SetDispOriginC_tv(0);
+			view.SetDispOriginR_tv(0);
+			CPoint point_v;
+			view.ZoomChangeAbs(1.0, &(m_image[m_iImageIndex]), this, &point_v);
+			DispStatus(point_v);
+			//			view.ZoomReset(&(m_image[m_iImageIndex]), this);
+			if(m_bSynchroScroll==true)
+			{
+				view.GetScrollSetting(&scr);
+			}
+			else
+			{
+				view.GetScrollSetting(&(m_image[m_iImageIndex].scr));
+			}
+		}
 
 	void CSImageViewerView::ResetImage(bool bZoomReset, bool bProcessReset)
 	{
@@ -285,21 +301,7 @@ IMPLEMENT_DYNCREATE(CSImageViewerView, CView)
 
 		if(bZoomReset == true)
 		{
-
-			view.SetDispOriginC_tv(0);
-			view.SetDispOriginR_tv(0);
-			CPoint point_v;
-			view.ZoomChangeAbs(1.0, &(m_image[m_iImageIndex]), this, &point_v);
-			DispStatus(point_v);
-			//			view.ZoomReset(&(m_image[m_iImageIndex]), this);
-			if(m_bSynchroScroll==true)
-			{
-				view.GetScrollSetting(&scr);
-			}
-			else
-		{
-			view.GetScrollSetting(&(m_image[m_iImageIndex].scr));
-		}
+			ZoomReset();
 		}
 		view.SetMouseMode(CHANGE_NONE);
 		view.SetRect_i(NULL);
@@ -321,8 +323,7 @@ IMPLEMENT_DYNCREATE(CSImageViewerView, CView)
 		default:{return;}
 		}
 		pFrame->SendMessage(WM_COMMAND, ID_DISP_STATUS_BPP);
-		if(m_iImageMax==1){		m_saFilePaths.RemoveAll();
-ListUpSameDirImages(m_sFilePath);}
+		if(m_iImageMax==1){		m_saFilePaths.RemoveAll();ListUpSameDirImages(m_sFilePath);}
 	}
 	bool CSImageViewerView::AddReadImage(CString sFilePath)
 	{
@@ -1164,6 +1165,7 @@ ListUpSameDirImages(m_sFilePath);}
 
 		m_iImageIndex = 0;
 		m_iImageMax= 1;
+		ZoomReset();
 		SetCaption();
 		return true;
 	}

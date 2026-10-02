@@ -45,7 +45,8 @@ public:
 	const bool GetScrollPin(){return m_bSynchroScroll;}
 	bool m_bBeingFullScreen;
 	void ToggleScrollPin();
-
+	
+		void ZoomReset();
 	const CRect v_to_i(const CRect* rect_v){return view.v_to_i(rect_v);}
 	const CRect i_to_v(const CRect* rect_i){return view.i_to_v(rect_i);}
 
