@@ -557,7 +557,7 @@ ListUpSameDirImages(m_sFilePath);}
 		CString sCaption;
 		if(m_iImageMax==1)
 		{
-			sCaption.Format(_T("%s - SImageViewer"), m_image[m_iImageIndex].GetDataSource());
+			sCaption.Format(_T("< %d / %d >%s - SImageViewer"), m_iTempIndex+1, m_saFilePaths.GetCount(), m_image[m_iImageIndex].GetDataSource());
 		}
 		else if(m_iImageMax>1)
 		{
