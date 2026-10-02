@@ -34,8 +34,6 @@ public:
 	void FullDomain(CRect* rect_i);
 	int m_iTempIndex;
 	CString m_sFilePath;
-	int iFileIndex[IMAGE_BUF_NUM];
-	PanImage m_imageRing[IMAGE_BUF_NUM];
 
 	CImage m_imageZoomed;
 	PanImage * m_image;

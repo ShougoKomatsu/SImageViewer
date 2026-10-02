@@ -1159,7 +1159,11 @@ ListUpSameDirImages(m_sFilePath);}
 		}
 
 		int iDif = m_iTempIndex-iBefore;
-		if(iDif==0){return false;}
+		if(iDif==0)
+		{
+			return false;
+		}
+
 		if(abs(iDif)>=IMAGE_BUF_NUM)
 		{
 			bool bRet = ReadAndAppendSingllImage(m_saFilePaths.GetAt(m_iTempIndex), &m_fileFomatList, &m_image[0], 0);
@@ -1169,6 +1173,7 @@ ListUpSameDirImages(m_sFilePath);}
 		}
 		m_iImageIndex = 0;
 		m_iImageMax= 1;
+		SetCaption();
 		return true;
 	}
 	bool CSImageViewerView::OnImagePPFW(const int iStep)
