@@ -97,6 +97,8 @@ class PanImage
 {
 public:
 	ScrollSetting scr;
+	int GetUnDoAvailableCount(){return m_iUnDoAvailableCount;}
+	int GetReDoAvailableCount(){return m_iReDoAvailableCount;}
 
 	CImage* ProgressImageProcess();
 	const CImage* GetCurrentProcess() const;

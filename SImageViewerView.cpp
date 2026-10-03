@@ -55,6 +55,10 @@ IMPLEMENT_DYNCREATE(CSImageViewerView, CView)
 		ON_COMMAND(ID_MENU_EDIT_INVERT, &CSImageViewerView::OperateInvert)
 		ON_COMMAND(ID_MENU_EDIT_EQU_HIST, &CSImageViewerView::OperateEquHistImage)
 		ON_COMMAND(ID_MENU_EDIT_RESAMPLE, &CSImageViewerView::OperateResample)
+		ON_COMMAND(ID_MENU_EDIT_REDO, &CSImageViewerView::OperateReDo)
+		ON_COMMAND(ID_EDIT_UNDO, &CSImageViewerView::OperateUnDo)
+
+
 		ON_COMMAND(ID_MENU_TOOL_FILEFORMAT, &CSImageViewerView::SetToolFormat)
 		ON_COMMAND(ID_MENU_DATA_HISTGRAM, &CSImageViewerView::OperateCopyHistGramToClipboard)
 		ON_COMMAND(ID_MENU_DATA_CORRELATION, &CSImageViewerView::OperateCopyCorrelMapToClipboard)
@@ -1630,22 +1634,6 @@ IMPLEMENT_DYNCREATE(CSImageViewerView, CView)
 					view.SetRect_i(&rect_i);
 					return TRUE; 
 				}
-				if(pMsg->wParam == 'Z')
-				{
-					bool bRet = m_image[m_iImageIndex].UnDo();
-					if(bRet != true){return FALSE;}
-
-					Invalidate();
-					return TRUE; 
-				}
-				if(pMsg->wParam == 'Y')
-				{
-					bool bRet = m_image[m_iImageIndex].ReDo();
-					if(bRet != true){return FALSE;}
-
-					Invalidate();
-					return TRUE; 
-				}
 
 				if(pMsg->wParam == VK_UP){OnImagePPFW(-1);Invalidate();return TRUE;}
 				if(pMsg->wParam == VK_DOWN){OnImagePPFW(+1);Invalidate();return TRUE;}
@@ -1694,7 +1682,18 @@ IMPLEMENT_DYNCREATE(CSImageViewerView, CView)
 
 		return CView::PreTranslateMessage(pMsg);
 	}
-
+	void CSImageViewerView::OperateUnDo()
+	{
+			bool bRet = m_image[m_iImageIndex].UnDo();
+			if(bRet != true){return;}
+			Invalidate();
+	}
+	void CSImageViewerView::OperateReDo()
+	{
+			bool bRet = m_image[m_iImageIndex].ReDo();
+			if(bRet != true){return;}
+			Invalidate();
+	}
 	void CSImageViewerView::OperateFileNameChange()
 	{
 		if(m_iImageMax<=0){return;}

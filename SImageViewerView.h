@@ -99,6 +99,8 @@ public:
 	void OperateInvert();	
 	void SetGridEnableDesable(){view.SetGridEnableDesable();}
 	void OperateTransparent();
+	void OperateUnDo();
+	void OperateReDo();
 	bool GetColorAtCursor(const CImage* img, CPoint point_v, int* iR_img, int* iC_img, ColorValue* colorValue);
 	bool GetColorAtCursor(PanImage* panImg, CPoint point_v, int* iR_img, int* iC_img, ColorValue* colorValue);
 	void OnScroll(int iSB, int nSBCode, int nPos);

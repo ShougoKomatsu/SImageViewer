@@ -31,6 +31,10 @@ BEGIN_MESSAGE_MAP(CMainFrame, CFrameWndEx)
 	ON_COMMAND(ID_DISP_STATUS_ZOOM, &CMainFrame::OnDispStatusZoom)
 	ON_COMMAND(ID_DISP_STATUS_MOUSE_POS, &CMainFrame::OnDispStatusMousePos)
 	ON_UPDATE_COMMAND_UI(AFX_IDP_COMMAND_FAILURE, &CMainFrame::OnUpdateAfxIdpCommandFailure)
+
+	ON_UPDATE_COMMAND_UI(ID_EDIT_UNDO, &CMainFrame::OnUpdateMenu)
+	ON_UPDATE_COMMAND_UI(ID_MENU_EDIT_REDO, &CMainFrame::OnUpdateMenu)
+
 	ON_UPDATE_COMMAND_UI(ID_MENU_EDIT_EQU_HIST, &CMainFrame::OnUpdateMenu)
 	ON_UPDATE_COMMAND_UI(ID_MENU_EDIT_COPY_AS, &CMainFrame::OnUpdateMenu)
 	ON_UPDATE_COMMAND_UI(ID_MENU_EDIT_PASTE_AS, &CMainFrame::OnUpdateMenu)
@@ -271,6 +275,7 @@ int CMainFrame::OnCreate(LPCREATESTRUCT lpCreateStruct)
 	lstBasicCommands.AddTail(ID_APP_EXIT);
 	lstBasicCommands.AddTail(ID_EDIT_PASTE);
 	lstBasicCommands.AddTail(ID_EDIT_UNDO);
+	lstBasicCommands.AddTail(ID_MENU_EDIT_REDO);
 	lstBasicCommands.AddTail(ID_APP_ABOUT);
 	lstBasicCommands.AddTail(ID_VIEW_STATUS_BAR);
 	lstBasicCommands.AddTail(ID_VIEW_TOOLBAR);
@@ -798,8 +803,21 @@ void CMainFrame::OnUpdateMenu(CCmdUI* pCmdUI)
 			pCmdUI->Enable(m_bFileOpened & m_bMultiFile);
 			break;
 		}
-	}
+	case ID_EDIT_UNDO:
+	case ID_MENU_EDIT_REDO:
+		{
+			if(m_pView->m_iImageMax<=0)
+			{
+				pCmdUI->Enable(false); 
+				break;
+			}
 
+			if(pCmdUI->m_nID == ID_MENU_EDIT_REDO){pCmdUI->Enable(m_pView->m_image[m_pView->m_iImageIndex].GetReDoAvailableCount()>0);}
+			if(pCmdUI->m_nID == ID_EDIT_UNDO){pCmdUI->Enable(m_pView->m_image[m_pView->m_iImageIndex].GetUnDoAvailableCount()>0);}
+
+			break;
+		}
+	}
 	if(pCmdUI->m_nID== ID_TOOLBAR_VALUE)
 	{
 		pCmdUI->SetCheck(m_pView->view.GetValueMode() == true);
