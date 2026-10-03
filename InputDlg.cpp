@@ -26,6 +26,7 @@ void CInputDlg::DoDataExchange(CDataExchange* pDX)
 {
 	CDialogEx::DoDataExchange(pDX);
 	DDX_Text(pDX, IDC_INPUT_EDIT_INPUT, m_sEditInput);
+    DDX_Control(pDX, IDC_INPUT_EDIT_INPUT, m_editInput);
 }
 
 
@@ -39,10 +40,7 @@ END_MESSAGE_MAP()
 BOOL CInputDlg::OnInitDialog()
 {
 	CDialogEx::OnInitDialog();
-
-	GetDlgItem(IDC_INPUT_EDIT_INPUT)->SetFocus();
-	((CEdit*)GetDlgItem(IDC_INPUT_EDIT_INPUT))->SetSel(0, -1);
-	UpdateData(FALSE);
+	m_editInput.SelectAll();
 	return TRUE;  // return TRUE unless you set the focus to a control
 	// 例外 : OCX プロパティ ページは必ず FALSE を返します。
 }

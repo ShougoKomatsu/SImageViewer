@@ -1638,11 +1638,6 @@ IMPLEMENT_DYNCREATE(CSImageViewerView, CView)
 		{	
 			if(GetKeyState(VK_CONTROL)<0)
 			{	
-			//	if(pMsg->wParam == 'H')
-			//	{
-			//		OnCopyHistGramToClipboard();
-			//		return TRUE; 
-			//	}
 
 				if(pMsg->wParam == VK_UP){OperateImagePPFW(-1);Invalidate();return TRUE;}
 				if(pMsg->wParam == VK_DOWN){OperateImagePPFW(+1);Invalidate();return TRUE;}
@@ -1656,8 +1651,6 @@ IMPLEMENT_DYNCREATE(CSImageViewerView, CView)
 
 			if(GetKeyState(VK_SHIFT)<0)
 			{
-				//			if(pMsg->wParam == 'U'){OnEquHistImage();return TRUE;}
-				//		if(pMsg->wParam == 'G'){OnBrightnessContrastGamma();return TRUE;}
 			}	
 
 

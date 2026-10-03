@@ -35,6 +35,10 @@ void CSetSelectionDlg::DoDataExchange(CDataExchange* pDX)
 	DDX_Text(pDX, IDC_SET_SELECTION_EDIT_LEFT, m_sEditLeft);
 	DDX_Text(pDX, IDC_SET_SELECTION_EDIT_RIGHT, m_sEditRight);
 	DDX_Text(pDX, IDC_SET_SELECTION_EDIT_BOTTOM, m_sEditBottom);
+    DDX_Control(pDX, IDC_SET_SELECTION_EDIT_TOP, m_editTop);
+    DDX_Control(pDX, IDC_SET_SELECTION_EDIT_LEFT, m_editLeft);
+    DDX_Control(pDX, IDC_SET_SELECTION_EDIT_RIGHT, m_editRight);
+    DDX_Control(pDX, IDC_SET_SELECTION_EDIT_BOTTOM, m_editBottom);
 }
 
 

@@ -1,5 +1,6 @@
 #pragma once
 
+#include "EditEx.h"
 
 // CSetSelectionDlg ダイアログ
 
@@ -14,7 +15,10 @@ public:
 	int m_iR1;
 	int m_iC0;
 	int m_iC1;
-
+	CEditEx m_editTop;
+	CEditEx m_editLeft;
+	CEditEx m_editRight;
+	CEditEx m_editBottom;
 // ダイアログ データ
 	enum { IDD = IDD_DLG_SET_SELECTION };
 

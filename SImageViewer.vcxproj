@@ -194,6 +194,7 @@
     <ClInclude Include="ColorizeDlg.h" />
     <ClInclude Include="CommonFunction.h" />
     <ClInclude Include="CopyAsDlg.h" />
+    <ClInclude Include="EditEx.h" />
     <ClInclude Include="ExtractChannelDlg.h" />
     <ClInclude Include="FileFormatDlg.h" />
     <ClInclude Include="FormatSelectionDlg.h" />
@@ -220,6 +221,7 @@
     <ClCompile Include="ColorizeDlg.cpp" />
     <ClCompile Include="CommonFunction.cpp" />
     <ClCompile Include="CopyAsDlg.cpp" />
+    <ClCompile Include="EditEx.cpp" />
     <ClCompile Include="ExtractChannelDlg.cpp" />
     <ClCompile Include="FileFormatDlg.cpp" />
     <ClCompile Include="FormatSelectionDlg.cpp" />

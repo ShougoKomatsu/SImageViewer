@@ -1,12 +1,14 @@
 #pragma once
 
-
+#include "CommonFunction.h"
+#include "EditEx.h"
 // CInputDlg ダイアログ
 
 class CInputDlg : public CDialogEx
 {
 	DECLARE_DYNAMIC(CInputDlg)
 
+	CEditEx m_editInput;
 public:
 	CInputDlg(CWnd* pParent = NULL);   // 標準コンストラクター
 	virtual ~CInputDlg();
