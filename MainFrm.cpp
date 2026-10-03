@@ -763,13 +763,13 @@ void CMainFrame::OnButtonGridConnect()
 
 void CMainFrame::OnImageFW()
 {
-	m_pView->OnImagePPFW(+1);
+	m_pView->OperateImagePPFW(+1);
 	Invalidate();
 }
 
 void CMainFrame::OnImagePP()
 {
-	m_pView->OnImagePPFW(-1);
+	m_pView->OperateImagePPFW(-1);
 	Invalidate();
 }
 

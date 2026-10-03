@@ -48,38 +48,38 @@ IMPLEMENT_DYNCREATE(CSImageViewerView, CView)
 		ON_COMMAND(ID_MENU_EDIT_SELECT_ALL, &CSImageViewerView::OnSelectAll)
 		ON_COMMAND(ID_MENU_EDIT_COPY_AS, &CSImageViewerView::OnCopyAs)
 		ON_COMMAND(ID_MENU_EDIT_PASTE_AS, &CSImageViewerView::OnPasteAs)
-		ON_COMMAND(ID_MENU_EDIT_CONVERT_COLOR_SPACE, &CSImageViewerView::OperateConvertColorSpace)
-		ON_COMMAND(ID_MENU_EDIT_CHANGE_COLOR_DEPTH, &CSImageViewerView::OperateChangeColorDepth)
-		ON_COMMAND(ID_MENU_EDIT_COLOR_CORRECTON, &CSImageViewerView::OperateBrightnessContrastGamma)
-		ON_COMMAND(ID_MENU_EDIT_COLORIZE, &CSImageViewerView::OperateColorize)
-		ON_COMMAND(ID_MENU_EDIT_TRANSPARENT, &CSImageViewerView::OperateTransparent)
-		ON_COMMAND(ID_MENU_EDIT_INVERT, &CSImageViewerView::OperateInvert)
-		ON_COMMAND(ID_MENU_EDIT_EQU_HIST, &CSImageViewerView::OperateEquHistImage)
-		ON_COMMAND(ID_MENU_EDIT_RESAMPLE, &CSImageViewerView::OperateResample)
-		ON_COMMAND(ID_MENU_EDIT_REDO, &CSImageViewerView::OperateReDo)
-		ON_COMMAND(ID_EDIT_UNDO, &CSImageViewerView::OperateUnDo)
+		ON_COMMAND(ID_MENU_EDIT_CONVERT_COLOR_SPACE, &CSImageViewerView::OnConvertColorSpace)
+		ON_COMMAND(ID_MENU_EDIT_CHANGE_COLOR_DEPTH, &CSImageViewerView::OnChangeColorDepth)
+		ON_COMMAND(ID_MENU_EDIT_COLOR_CORRECTON, &CSImageViewerView::OnBrightnessContrastGamma)
+		ON_COMMAND(ID_MENU_EDIT_COLORIZE, &CSImageViewerView::OnColorize)
+		ON_COMMAND(ID_MENU_EDIT_TRANSPARENT, &CSImageViewerView::OnTransparent)
+		ON_COMMAND(ID_MENU_EDIT_INVERT, &CSImageViewerView::OnInvert)
+		ON_COMMAND(ID_MENU_EDIT_EQU_HIST, &CSImageViewerView::OnEquHistImage)
+		ON_COMMAND(ID_MENU_EDIT_RESAMPLE, &CSImageViewerView::OnResample)
+		ON_COMMAND(ID_MENU_EDIT_REDO, &CSImageViewerView::OnReDo)
+		ON_COMMAND(ID_EDIT_UNDO, &CSImageViewerView::OnUnDo)
 		
-		ON_COMMAND(ID_MENU_VIEW_FW, &CSImageViewerView::OperateFW)
-		ON_COMMAND(ID_MENU_VIEW_PP, &CSImageViewerView::OperatePP)
-		ON_COMMAND(ID_MENU_VIEW_FW10, &CSImageViewerView::OperateFW10)
-		ON_COMMAND(ID_MENU_VIEW_PP10, &CSImageViewerView::OperatePP10)
-		ON_COMMAND(ID_MENU_VIEW_FW_LAST, &CSImageViewerView::OperateFWLast)
-		ON_COMMAND(ID_MENU_VIEW_PP_FIRST, &CSImageViewerView::OperatePPFirst)
-		ON_COMMAND(ID_MENU_VIEW_FLEXIBLE_FW, &CSImageViewerView::OperateFWFlexible)
-		ON_COMMAND(ID_MENU_VIEW_FLEXIBLE_PP, &CSImageViewerView::OperatePPFlexible)
+		ON_COMMAND(ID_MENU_VIEW_FW, &CSImageViewerView::OnFW)
+		ON_COMMAND(ID_MENU_VIEW_PP, &CSImageViewerView::OnPP)
+		ON_COMMAND(ID_MENU_VIEW_FW10, &CSImageViewerView::OnFW10)
+		ON_COMMAND(ID_MENU_VIEW_PP10, &CSImageViewerView::OnPP10)
+		ON_COMMAND(ID_MENU_VIEW_FW_LAST, &CSImageViewerView::OnFWLast)
+		ON_COMMAND(ID_MENU_VIEW_PP_FIRST, &CSImageViewerView::OnPPFirst)
+		ON_COMMAND(ID_MENU_VIEW_FLEXIBLE_FW, &CSImageViewerView::OnFWFlexible)
+		ON_COMMAND(ID_MENU_VIEW_FLEXIBLE_PP, &CSImageViewerView::OnPPFlexible)
 
 		ON_COMMAND(ID_MENU_TOOL_FILEFORMAT, &CSImageViewerView::SetToolFormat)
-		ON_COMMAND(ID_MENU_DATA_HISTGRAM, &CSImageViewerView::OperateCopyHistGramToClipboard)
-		ON_COMMAND(ID_MENU_DATA_CORRELATION, &CSImageViewerView::OperateCopyCorrelMapToClipboard)
-		ON_COMMAND(ID_MENU_DATA_FILELIST, &CSImageViewerView::OperateCopyFileListToClipboard)
+		ON_COMMAND(ID_MENU_DATA_HISTGRAM, &CSImageViewerView::OnCopyHistGramToClipboard)
+		ON_COMMAND(ID_MENU_DATA_CORRELATION, &CSImageViewerView::OnCopyCorrelMapToClipboard)
+		ON_COMMAND(ID_MENU_DATA_FILELIST, &CSImageViewerView::OnCopyFileListToClipboard)
 		
-		ON_COMMAND(ID_MENU_EDIT_RENAME, &CSImageViewerView::OperateRename)
-		ON_COMMAND(ID_MENU_EDIT_CW90, &CSImageViewerView::OperateRotateCW90)
-		ON_COMMAND(ID_MENU_EDIT_RESET, &CSImageViewerView::OperateReSet)
-		ON_COMMAND(ID_MENU_EDIT_FLIP_UD, &CSImageViewerView::OperateFlipUD)
-		ON_COMMAND(ID_MENU_EDIT_FLIP_LR, &CSImageViewerView::OperateFlipLR)
+		ON_COMMAND(ID_MENU_EDIT_RENAME, &CSImageViewerView::OnRename)
+		ON_COMMAND(ID_MENU_EDIT_CW90, &CSImageViewerView::OnRotateCW90)
+		ON_COMMAND(ID_MENU_EDIT_RESET, &CSImageViewerView::OnReSet)
+		ON_COMMAND(ID_MENU_EDIT_FLIP_UD, &CSImageViewerView::OnFlipUD)
+		ON_COMMAND(ID_MENU_EDIT_FLIP_LR, &CSImageViewerView::OnFlipLR)
 
-		ON_COMMAND(ID_MENU_TOOL_OPTION, &CSImageViewerView::SetToolOption)
+		ON_COMMAND(ID_MENU_TOOL_OPTION, &CSImageViewerView::OnSetToolOption)
 		ON_WM_SIZE()
 		ON_WM_MOUSEMOVE()
 		ON_WM_LBUTTONDOWN()
@@ -618,7 +618,7 @@ IMPLEMENT_DYNCREATE(CSImageViewerView, CView)
 		CMainFrame* pFrame = (CMainFrame*)AfxGetMainWnd();
 		view.m_bRegionSelected = true;
 	}
-	void CSImageViewerView::OperateTransparent()
+	void CSImageViewerView::OnTransparent()
 	{
 		if(m_iImageMax <= 0){return;}
 		if(_IsImageMonochrome(m_image[m_iImageIndex].GetCurrentProcess())==false){AfxMessageBox(_T("This image is not monochrome.")); return;}
@@ -663,7 +663,7 @@ IMPLEMENT_DYNCREATE(CSImageViewerView, CView)
 		*dMean=ullSum/(iWidth*iHeight*1.0);
 	}
 
-	void CSImageViewerView::OperateCopyFileListToClipboard()
+	void CSImageViewerView::OnCopyFileListToClipboard()
 	{
 		CString sData;
 		for(int i=0; i<m_iImageMax; i++)
@@ -687,7 +687,7 @@ IMPLEMENT_DYNCREATE(CSImageViewerView, CView)
 		CopyToClipBoardStr(sData);
 
 	}
-	void CSImageViewerView::OperateCopyCorrelMapToClipboard()
+	void CSImageViewerView::OnCopyCorrelMapToClipboard()
 	{
 		if(m_iImageMax < 2){return;}
 		bool bMono = _IsImageMonochrome(m_image[0].GetCurrentProcess());
@@ -734,7 +734,7 @@ IMPLEMENT_DYNCREATE(CSImageViewerView, CView)
 		CopyToClipBoardStr(sCor);
 	}
 
-	void CSImageViewerView::OperateCopyHistGramToClipboard()
+	void CSImageViewerView::OnCopyHistGramToClipboard()
 	{
 		if(m_iImageMax <= 0){return;}
 		CString sHist;
@@ -781,7 +781,7 @@ IMPLEMENT_DYNCREATE(CSImageViewerView, CView)
 	}
 
 	
-	void CSImageViewerView::OperateInvert()
+	void CSImageViewerView::OnInvert()
 	{
 		if(m_iImageMax <= 0){return;}
 		bool bAutoFull = false;
@@ -805,7 +805,7 @@ IMPLEMENT_DYNCREATE(CSImageViewerView, CView)
 		Invalidate();
 	}
 
-	void CSImageViewerView::OperateEquHistImage()
+	void CSImageViewerView::OnEquHistImage()
 	{
 		if(m_iImageMax <= 0){return;}
 		bool bAutoFull = false;
@@ -839,7 +839,7 @@ IMPLEMENT_DYNCREATE(CSImageViewerView, CView)
 		m_fileFomatList.Copy(&dlg.m_fileFormatList);
 	}
 
-	void CSImageViewerView::OperateResample()
+	void CSImageViewerView::OnResample()
 	{
 		if(m_iImageMax <= 0){return;}
 		bool bAutoFull = false;
@@ -881,7 +881,7 @@ IMPLEMENT_DYNCREATE(CSImageViewerView, CView)
 		}
 		Invalidate();
 	}
-	void CSImageViewerView::OperateChangeColorDepth()
+	void CSImageViewerView::OnChangeColorDepth()
 	{
 		if(m_iImageMax <= 0){return;}
 		CChangeColorDepthDlg colorDepthDlg;
@@ -913,7 +913,7 @@ IMPLEMENT_DYNCREATE(CSImageViewerView, CView)
 		Invalidate();
 	}
 
-	void CSImageViewerView::OperateConvertColorSpace()
+	void CSImageViewerView::OnConvertColorSpace()
 	{
 		if(m_iImageMax <= 0){return;}
 		ENUM_COLOR color;
@@ -945,7 +945,7 @@ IMPLEMENT_DYNCREATE(CSImageViewerView, CView)
 		Invalidate();
 	}
 
-	void CSImageViewerView::OperateColorize()
+	void CSImageViewerView::OnColorize()
 	{
 		if(m_iImageMax <= 0){return;}
 		if(_IsImageMonochrome(m_image[m_iImageIndex].GetCurrentProcess())==false){AfxMessageBox(_T("This image is not monochrome.")); return;}
@@ -988,7 +988,7 @@ IMPLEMENT_DYNCREATE(CSImageViewerView, CView)
 		Invalidate();
 
 	}
-	void CSImageViewerView::OperateBrightnessContrastGamma()
+	void CSImageViewerView::OnBrightnessContrastGamma()
 	{
 		if(m_iImageMax <= 0){return;}
 		bool bAutoFull = false;
@@ -1164,7 +1164,7 @@ IMPLEMENT_DYNCREATE(CSImageViewerView, CView)
 		return rectClient.Width();
 	}
 	
-	bool CSImageViewerView::OnImagePPFWFlexible(const int iStep)
+	bool CSImageViewerView::OperateImagePPFWFlexible(const int iStep)
 	{
 		if(m_iImageMax>=2){return false;}
 
@@ -1192,9 +1192,9 @@ IMPLEMENT_DYNCREATE(CSImageViewerView, CView)
 		SetCaption();
 		return true;
 	}
-	bool CSImageViewerView::OnImagePPFW(const int iStep)
+	bool CSImageViewerView::OperateImagePPFW(const int iStep)
 	{
-	//	return OnImagePPFWFlexible(iStep);
+	//	return OperateImagePPFWFlexible(iStep);
 		
 		if(iStep==INT_MAX){m_iImageIndex=m_iImageMax-1;}
 		else if(iStep==INT_MIN){m_iImageIndex=0;}
@@ -1640,24 +1640,24 @@ IMPLEMENT_DYNCREATE(CSImageViewerView, CView)
 			{	
 			//	if(pMsg->wParam == 'H')
 			//	{
-			//		OperateCopyHistGramToClipboard();
+			//		OnCopyHistGramToClipboard();
 			//		return TRUE; 
 			//	}
 
-				if(pMsg->wParam == VK_UP){OnImagePPFW(-1);Invalidate();return TRUE;}
-				if(pMsg->wParam == VK_DOWN){OnImagePPFW(+1);Invalidate();return TRUE;}
-				if(pMsg->wParam == VK_PRIOR){OnImagePPFW(-10);Invalidate();return TRUE;}
-				if(pMsg->wParam == VK_NEXT){OnImagePPFW(+10);Invalidate();return TRUE;}
-				if(pMsg->wParam == VK_HOME){OnImagePPFW(INT_MIN);Invalidate();return TRUE;}
-				if(pMsg->wParam == VK_END){OnImagePPFW(INT_MAX);Invalidate();return TRUE;}
-				if(pMsg->wParam == VK_LEFT){	OnImagePPFWFlexible(-1);return TRUE;}
-				if(pMsg->wParam == VK_RIGHT){OnImagePPFWFlexible(+1);return TRUE;}
+				if(pMsg->wParam == VK_UP){OperateImagePPFW(-1);Invalidate();return TRUE;}
+				if(pMsg->wParam == VK_DOWN){OperateImagePPFW(+1);Invalidate();return TRUE;}
+				if(pMsg->wParam == VK_PRIOR){OperateImagePPFW(-10);Invalidate();return TRUE;}
+				if(pMsg->wParam == VK_NEXT){OperateImagePPFW(+10);Invalidate();return TRUE;}
+				if(pMsg->wParam == VK_HOME){OperateImagePPFW(INT_MIN);Invalidate();return TRUE;}
+				if(pMsg->wParam == VK_END){OperateImagePPFW(INT_MAX);Invalidate();return TRUE;}
+				if(pMsg->wParam == VK_LEFT){OperateImagePPFWFlexible(-1);return TRUE;}
+				if(pMsg->wParam == VK_RIGHT){OperateImagePPFWFlexible(+1);return TRUE;}
 			}
 
 			if(GetKeyState(VK_SHIFT)<0)
 			{
-				//			if(pMsg->wParam == 'U'){OperateEquHistImage();return TRUE;}
-				//		if(pMsg->wParam == 'G'){OperateBrightnessContrastGamma();return TRUE;}
+				//			if(pMsg->wParam == 'U'){OnEquHistImage();return TRUE;}
+				//		if(pMsg->wParam == 'G'){OnBrightnessContrastGamma();return TRUE;}
 			}	
 
 
@@ -1679,7 +1679,7 @@ IMPLEMENT_DYNCREATE(CSImageViewerView, CView)
 		return CView::PreTranslateMessage(pMsg);
 	}
 
-	void CSImageViewerView::OperateReSet()
+	void CSImageViewerView::OnReSet()
 	{
 		if(m_sFilePath.Compare(_T("Clipboard")) != 0)
 		{
@@ -1689,19 +1689,19 @@ IMPLEMENT_DYNCREATE(CSImageViewerView, CView)
 		ResetImage(true, true);
 	};
 
-	void CSImageViewerView::OperateUnDo()
+	void CSImageViewerView::OnUnDo()
 	{
 		bool bRet = m_image[m_iImageIndex].UnDo();
 		if(bRet != true){return;}
 		Invalidate();
 	}
-	void CSImageViewerView::OperateReDo()
+	void CSImageViewerView::OnReDo()
 	{
 			bool bRet = m_image[m_iImageIndex].ReDo();
 			if(bRet != true){return;}
 			Invalidate();
 	}
-	void CSImageViewerView::OperateFileNameChange()
+	void CSImageViewerView::OnRename()
 	{
 		if(m_iImageMax<=0){return;}
 
@@ -1793,7 +1793,7 @@ IMPLEMENT_DYNCREATE(CSImageViewerView, CView)
 		pPopup->TrackPopupMenu(TPM_LEFTALIGN | TPM_RIGHTBUTTON, point.x, point.y, this);
 	}
 #include "SettingDlg.h"
-	void CSImageViewerView::SetToolOption()
+	void CSImageViewerView::OnSetToolOption()
 	{
 		CSettingDlg dlg;
 		dlg.m_bExitByEsc=m_bExitByEsc;

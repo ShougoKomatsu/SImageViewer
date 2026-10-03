@@ -20,6 +20,13 @@ protected: // ÉVÉäÉAÉãâªÇ©ÇÁÇÃÇ›çÏê¨ÇµÇ‹Ç∑ÅB
 
 	// ëÆê´
 public:
+
+	
+	void OperateRotaateImage(enumRotate rotate);
+	bool OperateImagePPFWFlexible(const int iStep);
+	bool OperateImagePPFW(const int iStep);
+
+
 	void ReadSetting(const CString sIniFilePath);
 	void SaveSetting(const CString sIniFilePath);
 	bool m_bExitByEsc;
@@ -63,8 +70,6 @@ public:
 	bool ReadImage(CString sFilePath);
 	bool AddReadImage(CString sFilePath);
 	bool ZoomChange(int iChange);
-	bool OnImagePPFWFlexible(const int iStep);
-	bool OnImagePPFW(const int iStep);
 	bool ZoomChange(int iMousePosR_v, int iMousePosC_v,int iChange);
 	bool ZoomChange(int iR0_i, int iC0_i, int iR1_i, int iC1_i);
 	bool ZoomChangeAbs(int iChangeAbs);
@@ -81,41 +86,39 @@ public:
 		return scr.m_dDispOriginC_tv;
 	}
 	void OnSelectAll();
-	void OperateReSet();
-	void OperateRename(){OperateFileNameChange();}
-	void OperateRotateCW90(){OperateRotaateImage(ROTATE_CW90);}
-	void OperateFlipUD(){OperateRotaateImage(FLIP_UD);}
-	void OperateFlipLR(){OperateRotaateImage(FLIP_LR);}
+	void OnReSet();
+	void OnRename();
+	void OnRotateCW90(){OperateRotaateImage(ROTATE_CW90);}
+	void OnFlipUD(){OperateRotaateImage(FLIP_UD);}
+	void OnFlipLR(){OperateRotaateImage(FLIP_LR);}
 
-	void OperateFW(){OnImagePPFW(1);}
-	void OperatePP(){OnImagePPFW(-1);}
-	void OperateFW10(){OnImagePPFW(+10);}
-	void OperatePP10(){OnImagePPFW(-10);}
-	void OperateFWLast(){OnImagePPFW(INT_MAX);}
-	void OperatePPFirst(){OnImagePPFW(INT_MIN);}
-	void OperateFWFlexible(){OnImagePPFWFlexible(1);}
-	void OperatePPFlexible(){OnImagePPFWFlexible(-1);}
+	void OnFW(){OperateImagePPFW(1);}
+	void OnPP(){OperateImagePPFW(-1);}
+	void OnFW10(){OperateImagePPFW(+10);}
+	void OnPP10(){OperateImagePPFW(-10);}
+	void OnFWLast(){OperateImagePPFW(INT_MAX);}
+	void OnPPFirst(){OperateImagePPFW(INT_MIN);}
+	void OnFWFlexible(){OperateImagePPFWFlexible(1);}
+	void OnPPFlexible(){OperateImagePPFWFlexible(-1);}
 
-	void SetToolOption();
+	void OnSetToolOption();
 	void EnterFullScreen();
 	void ExitFullScreen();
 	void SetToolFormat();
-	void OperateFileNameChange();
-	void OperateCopyFileListToClipboard();
-	void OperateCopyCorrelMapToClipboard();
-	void OperateCopyHistGramToClipboard();
-	void OperateResample();
-	void OperateColorize();
-	void OperateBrightnessContrastGamma();
-	void OperateRotaateImage(enumRotate rotate);
-	void OperateEquHistImage();
-	void OperateConvertColorSpace();
-	void OperateChangeColorDepth();
-	void OperateInvert();	
+	void OnCopyFileListToClipboard();
+	void OnCopyCorrelMapToClipboard();
+	void OnCopyHistGramToClipboard();
+	void OnResample();
+	void OnColorize();
+	void OnBrightnessContrastGamma();
+	void OnEquHistImage();
+	void OnConvertColorSpace();
+	void OnChangeColorDepth();
+	void OnInvert();	
 	void SetGridEnableDesable(){view.SetGridEnableDesable();}
-	void OperateTransparent();
-	void OperateUnDo();
-	void OperateReDo();
+	void OnTransparent();
+	void OnUnDo();
+	void OnReDo();
 	bool GetColorAtCursor(const CImage* img, CPoint point_v, int* iR_img, int* iC_img, ColorValue* colorValue);
 	bool GetColorAtCursor(PanImage* panImg, CPoint point_v, int* iR_img, int* iC_img, ColorValue* colorValue);
 	void OnScroll(int iSB, int nSBCode, int nPos);
