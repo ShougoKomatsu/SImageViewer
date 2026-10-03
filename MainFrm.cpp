@@ -293,7 +293,6 @@ int CMainFrame::OnCreate(LPCREATESTRUCT lpCreateStruct)
 	lstBasicCommands.AddTail(ID_FILE_SAVE_AS);
 	lstBasicCommands.AddTail(ID_EDIT_COPY);
 
-	lstBasicCommands.AddTail(ID_EDIT_CUT);
 	lstBasicCommands.AddTail(ID_MENU_EDIT_EQU_HIST);
 	lstBasicCommands.AddTail(ID_MENU_EDIT_SET_SELECTION);
 	lstBasicCommands.AddTail(ID_MENU_EDIT_COPY_AS);
