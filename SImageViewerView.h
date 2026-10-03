@@ -80,6 +80,12 @@ public:
 		if(m_iImageMax<=0){return 0;} 
 		return scr.m_dDispOriginC_tv;
 	}
+	void OperateReSet();
+	void OperateRename(){OperateFileNameChange();}
+	void OperateRotateCW90(){OperateRotaateImage(ROTATE_CW90);}
+	void OperateFlipUD(){OperateRotaateImage(FLIP_UD);}
+	void OperateFlipLR(){OperateRotaateImage(FLIP_LR);}
+
 	void OperateFW(){OnImagePPFW(1);}
 	void OperatePP(){OnImagePPFW(-1);}
 	void OperateFW10(){OnImagePPFW(+10);}

@@ -64,6 +64,12 @@ BEGIN_MESSAGE_MAP(CMainFrame, CFrameWndEx)
 	ON_UPDATE_COMMAND_UI(ID_MENU_DATA_CORRELATION, &CMainFrame::OnUpdateMenu)
 
 	ON_UPDATE_COMMAND_UI(ID_MENU_DATA_FILELIST, &CMainFrame::OnUpdateMenu)
+	
+	ON_UPDATE_COMMAND_UI(ID_MENU_EDIT_RENAME, &CMainFrame::OnUpdateMenu)
+	ON_UPDATE_COMMAND_UI(ID_MENU_EDIT_CW90, &CMainFrame::OnUpdateMenu)
+	ON_UPDATE_COMMAND_UI(ID_MENU_EDIT_RESET, &CMainFrame::OnUpdateMenu)
+	ON_UPDATE_COMMAND_UI(ID_MENU_EDIT_FLIP_UD, &CMainFrame::OnUpdateMenu)
+	ON_UPDATE_COMMAND_UI(ID_MENU_EDIT_FLIP_LR, &CMainFrame::OnUpdateMenu)
 
 	ON_UPDATE_COMMAND_UI(ID_MENU_VIEW_FW, &CMainFrame::OnUpdateMenu)
 	ON_UPDATE_COMMAND_UI(ID_MENU_VIEW_PP, &CMainFrame::OnUpdateMenu)
@@ -292,6 +298,12 @@ int CMainFrame::OnCreate(LPCREATESTRUCT lpCreateStruct)
 
 	lstBasicCommands.AddTail(ID_FILE_SAVE_AS);
 	lstBasicCommands.AddTail(ID_EDIT_COPY);
+	
+	lstBasicCommands.AddTail(ID_MENU_EDIT_RENAME);
+	lstBasicCommands.AddTail(ID_MENU_EDIT_CW90);
+	lstBasicCommands.AddTail(ID_MENU_EDIT_RESET);
+	lstBasicCommands.AddTail(ID_MENU_EDIT_FLIP_UD);
+	lstBasicCommands.AddTail(ID_MENU_EDIT_FLIP_LR);
 
 	lstBasicCommands.AddTail(ID_MENU_EDIT_EQU_HIST);
 	lstBasicCommands.AddTail(ID_MENU_EDIT_SET_SELECTION);
@@ -811,6 +823,11 @@ void CMainFrame::OnUpdateMenu(CCmdUI* pCmdUI)
 	case ID_MENU_DATA_HISTGRAM:
 	case ID_MENU_DATA_CORRELATION:
 	case ID_MENU_DATA_FILELIST:
+	case ID_MENU_EDIT_RENAME:
+	case ID_MENU_EDIT_CW90:
+	case ID_MENU_EDIT_RESET:
+	case ID_MENU_EDIT_FLIP_UD:
+	case ID_MENU_EDIT_FLIP_LR:
 		{
 			pCmdUI->Enable(m_bFileOpened);
 			break;

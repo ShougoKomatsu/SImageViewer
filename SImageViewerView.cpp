@@ -71,6 +71,12 @@ IMPLEMENT_DYNCREATE(CSImageViewerView, CView)
 		ON_COMMAND(ID_MENU_DATA_HISTGRAM, &CSImageViewerView::OperateCopyHistGramToClipboard)
 		ON_COMMAND(ID_MENU_DATA_CORRELATION, &CSImageViewerView::OperateCopyCorrelMapToClipboard)
 		ON_COMMAND(ID_MENU_DATA_FILELIST, &CSImageViewerView::OperateCopyFileListToClipboard)
+		
+		ON_COMMAND(ID_MENU_EDIT_RENAME, &CSImageViewerView::OperateRename)
+		ON_COMMAND(ID_MENU_EDIT_CW90, &CSImageViewerView::OperateRotateCW90)
+		ON_COMMAND(ID_MENU_EDIT_RESET, &CSImageViewerView::OperateReSet)
+		ON_COMMAND(ID_MENU_EDIT_FLIP_UD, &CSImageViewerView::OperateFlipUD)
+		ON_COMMAND(ID_MENU_EDIT_FLIP_LR, &CSImageViewerView::OperateFlipLR)
 
 		ON_COMMAND(ID_MENU_TOOL_OPTION, &CSImageViewerView::SetToolOption)
 		ON_WM_SIZE()
@@ -1623,11 +1629,6 @@ IMPLEMENT_DYNCREATE(CSImageViewerView, CView)
 
 		if (pMsg->message == WM_KEYDOWN)
 		{	
-			if(pMsg->wParam == VK_F2)
-			{
-				OperateFileNameChange();
-				return TRUE; 
-			}
 			if(GetKeyState(VK_CONTROL)<0)
 			{	
 			//	if(pMsg->wParam == 'H')
@@ -1659,15 +1660,6 @@ IMPLEMENT_DYNCREATE(CSImageViewerView, CView)
 				//		if(pMsg->wParam == 'G'){OperateBrightnessContrastGamma();return TRUE;}
 			}	
 
-			if(pMsg->wParam == VK_F5)
-			{
-				if(m_sFilePath.Compare(_T("Clipboard")) != 0)
-				{
-					return ReadImage(m_sFilePath);
-				}
-				ResetImage(true, true);
-			}
-			if(pMsg->wParam == 'R'){OperateRotaateImage(ROTATE_CW90);return TRUE;}
 
 			if(pMsg->wParam == VK_RETURN) { if(m_bBeingFullScreen == true){ ExitFullScreen(); return TRUE;} EnterFullScreen(); return TRUE; } 
 			if(pMsg->wParam == VK_ESCAPE) {if(m_bBeingFullScreen == true) {ExitFullScreen(); return TRUE;}if(m_bExitByEsc==false){return TRUE;}::PostQuitMessage( 0 );}
@@ -1686,6 +1678,16 @@ IMPLEMENT_DYNCREATE(CSImageViewerView, CView)
 
 		return CView::PreTranslateMessage(pMsg);
 	}
+	
+	void CSImageViewerView::OperateReSet()
+		{				if(m_sFilePath.Compare(_T("Clipboard")) != 0)
+				{
+					 ReadImage(m_sFilePath);
+					 return;
+				}
+				ResetImage(true, true);
+	};
+
 	void CSImageViewerView::OperateUnDo()
 	{
 			bool bRet = m_image[m_iImageIndex].UnDo();
