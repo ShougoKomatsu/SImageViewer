@@ -62,7 +62,17 @@ BEGIN_MESSAGE_MAP(CMainFrame, CFrameWndEx)
 	ON_UPDATE_COMMAND_UI(ID_MENU_EDIT_INVERT, &CMainFrame::OnUpdateMenu)
 	ON_UPDATE_COMMAND_UI(ID_MENU_DATA_HISTGRAM, &CMainFrame::OnUpdateMenu)
 	ON_UPDATE_COMMAND_UI(ID_MENU_DATA_CORRELATION, &CMainFrame::OnUpdateMenu)
+
 	ON_UPDATE_COMMAND_UI(ID_MENU_DATA_FILELIST, &CMainFrame::OnUpdateMenu)
+
+	ON_UPDATE_COMMAND_UI(ID_MENU_VIEW_FW, &CMainFrame::OnUpdateMenu)
+	ON_UPDATE_COMMAND_UI(ID_MENU_VIEW_PP, &CMainFrame::OnUpdateMenu)
+	ON_UPDATE_COMMAND_UI(ID_MENU_VIEW_FW10, &CMainFrame::OnUpdateMenu)
+	ON_UPDATE_COMMAND_UI(ID_MENU_VIEW_PP10, &CMainFrame::OnUpdateMenu)
+	ON_UPDATE_COMMAND_UI(ID_MENU_VIEW_FW_LAST, &CMainFrame::OnUpdateMenu)
+	ON_UPDATE_COMMAND_UI(ID_MENU_VIEW_PP_FIRST, &CMainFrame::OnUpdateMenu)
+	ON_UPDATE_COMMAND_UI(ID_MENU_VIEW_FLEXIBLE_FW, &CMainFrame::OnUpdateMenu)
+	ON_UPDATE_COMMAND_UI(ID_MENU_VIEW_FLEXIBLE_PP, &CMainFrame::OnUpdateMenu)
 
 	ON_COMMAND(ID_TOOLBAR_GRID_DOT, &CMainFrame::OnButtonGridDot)
 	ON_COMMAND(ID_TOOLBAR_GRID_LINE, &CMainFrame::OnButtonGridLine)
@@ -301,7 +311,15 @@ int CMainFrame::OnCreate(LPCREATESTRUCT lpCreateStruct)
 
 	lstBasicCommands.AddTail(ID_MENU_TOOL_FILEFORMAT);
 	lstBasicCommands.AddTail(ID_MENU_TOOL_OPTION);
-
+	
+	lstBasicCommands.AddTail(ID_MENU_VIEW_FW);
+	lstBasicCommands.AddTail(ID_MENU_VIEW_PP);
+	lstBasicCommands.AddTail(ID_MENU_VIEW_FW10);
+	lstBasicCommands.AddTail(ID_MENU_VIEW_PP10);
+	lstBasicCommands.AddTail(ID_MENU_VIEW_FW_LAST);
+	lstBasicCommands.AddTail(ID_MENU_VIEW_PP_FIRST);
+	lstBasicCommands.AddTail(ID_MENU_VIEW_FLEXIBLE_FW);
+	lstBasicCommands.AddTail(ID_MENU_VIEW_FLEXIBLE_PP);
 	/*
 	lstBasicCommands.AddTail(ID_VIEW_APPLOOK_OFF_2003);
 	lstBasicCommands.AddTail(ID_VIEW_APPLOOK_VS_2005);
@@ -798,6 +816,18 @@ void CMainFrame::OnUpdateMenu(CCmdUI* pCmdUI)
 			pCmdUI->Enable(m_bFileOpened);
 			break;
 		}
+	case ID_MENU_VIEW_FLEXIBLE_FW:
+	case ID_MENU_VIEW_FLEXIBLE_PP:
+		{
+			pCmdUI->Enable(m_bFileOpened & (!m_bMultiFile));
+			break;
+		}
+	case ID_MENU_VIEW_FW:
+	case ID_MENU_VIEW_PP:
+	case ID_MENU_VIEW_FW10:
+	case ID_MENU_VIEW_PP10:
+	case ID_MENU_VIEW_FW_LAST:
+	case ID_MENU_VIEW_PP_FIRST:
 	case ID_TOOLBAR_SCROLL_PIN:
 		{
 			pCmdUI->Enable(m_bFileOpened & m_bMultiFile);

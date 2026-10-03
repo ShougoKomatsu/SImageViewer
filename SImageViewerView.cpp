@@ -57,7 +57,15 @@ IMPLEMENT_DYNCREATE(CSImageViewerView, CView)
 		ON_COMMAND(ID_MENU_EDIT_RESAMPLE, &CSImageViewerView::OperateResample)
 		ON_COMMAND(ID_MENU_EDIT_REDO, &CSImageViewerView::OperateReDo)
 		ON_COMMAND(ID_EDIT_UNDO, &CSImageViewerView::OperateUnDo)
-
+		
+		ON_COMMAND(ID_MENU_VIEW_FW, &CSImageViewerView::OperateFW)
+		ON_COMMAND(ID_MENU_VIEW_PP, &CSImageViewerView::OperatePP)
+		ON_COMMAND(ID_MENU_VIEW_FW10, &CSImageViewerView::OperateFW10)
+		ON_COMMAND(ID_MENU_VIEW_PP10, &CSImageViewerView::OperatePP10)
+		ON_COMMAND(ID_MENU_VIEW_FW_LAST, &CSImageViewerView::OperateFWLast)
+		ON_COMMAND(ID_MENU_VIEW_PP_FIRST, &CSImageViewerView::OperatePPFirst)
+		ON_COMMAND(ID_MENU_VIEW_FLEXIBLE_FW, &CSImageViewerView::OperateFWFlexible)
+		ON_COMMAND(ID_MENU_VIEW_FLEXIBLE_PP, &CSImageViewerView::OperatePPFlexible)
 
 		ON_COMMAND(ID_MENU_TOOL_FILEFORMAT, &CSImageViewerView::SetToolFormat)
 		ON_COMMAND(ID_MENU_DATA_HISTGRAM, &CSImageViewerView::OperateCopyHistGramToClipboard)

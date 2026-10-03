@@ -80,6 +80,14 @@ public:
 		if(m_iImageMax<=0){return 0;} 
 		return scr.m_dDispOriginC_tv;
 	}
+	void OperateFW(){OnImagePPFW(1);}
+	void OperatePP(){OnImagePPFW(-1);}
+	void OperateFW10(){OnImagePPFW(+10);}
+	void OperatePP10(){OnImagePPFW(-10);}
+	void OperateFWLast(){OnImagePPFW(INT_MAX);}
+	void OperatePPFirst(){OnImagePPFW(INT_MIN);}
+	void OperateFWFlexible(){OnImagePPFWFlexible(1);}
+	void OperatePPFlexible(){OnImagePPFWFlexible(-1);}
 
 	void SetToolOption();
 	void EnterFullScreen();
