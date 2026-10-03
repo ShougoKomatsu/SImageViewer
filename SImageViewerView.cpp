@@ -382,10 +382,10 @@ IMPLEMENT_DYNCREATE(CSImageViewerView, CView)
 
 		CString sFileDir;
 		bool bRet = GetDirectory(sBaseFilePath, &sFileDir);
-	
-		bRet = RecursivelyGetImageFilePaths(sFileDir,1,&m_saFilePaths, &m_fileFomatList);
-		if(bRet != true){return;}
-
+		CStringArray saFilePathsTemp;
+		bRet = RecursivelyGetImageFilePaths(sFileDir,1,&saFilePathsTemp, &m_fileFomatList);
+		if((bRet != true) && saFilePathsTemp.GetCount()<0){return;}
+		SortStrings(&saFilePathsTemp, &m_saFilePaths);
 		m_iTempIndex = 0;
 		for(int i=0; i<m_saFilePaths.GetCount(); i++)
 		{
@@ -401,19 +401,20 @@ IMPLEMENT_DYNCREATE(CSImageViewerView, CView)
 		}
 		SAFE_DELETE(m_image);
 		m_sFilePath.Format(_T("%s"), sFilePath);
-		CStringArray saFilePath;
-		bool bRet = RecursivelyGetImageFilePaths(sFilePath, -1, &saFilePath, &m_fileFomatList);
-		if((bRet != true) && saFilePath.GetCount()<0){return false;}
+		CStringArray saFilePathsTemp;
+		bool bRet = RecursivelyGetImageFilePaths(sFilePath, -1, &saFilePathsTemp, &m_fileFomatList);
+		if((bRet != true) && saFilePathsTemp.GetCount()<0){return false;}
+		SortStrings(&saFilePathsTemp, &m_saFilePaths);
 		int iImageNum = CountImages(sFilePath, -1, &m_fileFomatList);
 
 		m_image = new PanImage[iImageNum];
-		
+
 		CMainFrame* pFrame = (CMainFrame*)AfxGetMainWnd();
 
 		int iImageIndex = 0;
-		for(int i = 0; i<saFilePath.GetCount(); i++)
+		for(int i = 0; i<saFilePathsTemp.GetCount(); i++)
 		{
-			bRet = ReadAndAppendImage(saFilePath.GetAt(i), &m_fileFomatList, &m_image[iImageIndex], iImageIndex, &iImageIndex);
+			bRet = ReadAndAppendImage(saFilePathsTemp.GetAt(i), &m_fileFomatList, &m_image[iImageIndex], iImageIndex, &iImageIndex);
 //			pFrame->SetProgressBar(int(i/iImageNum*1.0));
 //			Invalidate();
 			if(bRet != true){
@@ -1033,6 +1034,9 @@ IMPLEMENT_DYNCREATE(CSImageViewerView, CView)
 
 	void CSImageViewerView::OnInitialUpdate()
 	{
+
+
+
 		CView::OnInitialUpdate();
 		CMainFrame* pFrame = DYNAMIC_DOWNCAST(CMainFrame, GetParentFrame());
 		pFrame->m_sStatusSize.Format(_T("W 0 x H 0"));

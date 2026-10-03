@@ -38,3 +38,4 @@ enum TYPE_IMAGE_FILE
 	IMAGE_FILE_TYPE_MULTI = 2,
 };
 TYPE_IMAGE_FILE GetTypeOfImageFIle(CString sFilePath, FileFormatList* fileFormatList);
+bool SortStrings(const CStringArray* saInput, CStringArray* saOutput);

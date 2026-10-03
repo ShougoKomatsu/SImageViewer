@@ -212,6 +212,44 @@ bool ReadAndAppendImage(CString sFilePath, FileFormatList* fileFormatList, PanIm
 	*iImageIndexNew = iImageIndex+1;
 	return true;
 }
+
+bool SortStrings(const CStringArray* saInput, CStringArray* saOutput)
+{
+	if(saInput==NULL){return false;}
+	if(saOutput==NULL){return false;}
+	if(saInput->GetCount()<=0){saOutput->RemoveAll(); return false;}
+
+	CStringArray* psaOutput;
+	CStringArray saTemp;
+	if(saInput==saOutput){psaOutput=&saTemp;}
+	else{psaOutput = saOutput;}
+
+	psaOutput->RemoveAll();
+	psaOutput->Add(saInput->GetAt(0));
+	for(int iSrc=1; iSrc<saInput->GetCount(); iSrc++)
+	{
+		CString sSrc(saInput->GetAt(iSrc));
+		bool bInserted=false;
+		for(int iDst=0; iDst<psaOutput->GetCount(); iDst++)
+		{
+			CString sTest(psaOutput->GetAt(iDst));
+			int iRet = CompareString(LOCALE_SYSTEM_DEFAULT, SORT_DIGITSASNUMBERS, sTest, sTest.GetLength(), sSrc,  sSrc.GetLength());
+			if(iRet==CSTR_GREATER_THAN)
+			{
+				bInserted=true;
+				psaOutput->InsertAt(iDst, sSrc);
+				break;
+			}
+		}
+		if(bInserted==false){psaOutput->Add(sSrc);}
+	}
+
+	if(saInput==saOutput){saOutput->Copy(saTemp);}
+
+	return true;
+}
+
+
 bool ReadAndAppendSingllImage(CString sFilePath, FileFormatList* fileFormatList, PanImage* panImage, int iTargetImageIndex)
 {
 	for(UINT i=0; i<fileFormatList->uiNum; i++)
