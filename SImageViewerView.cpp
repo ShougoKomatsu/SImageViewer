@@ -45,6 +45,7 @@ IMPLEMENT_DYNCREATE(CSImageViewerView, CView)
 		ON_COMMAND(ID_EDIT_COPY, &CSImageViewerView::OnEditCopy)
 		ON_COMMAND(ID_EDIT_PASTE, &CSImageViewerView::OnEditPaste)
 		ON_COMMAND(ID_MENU_EDIT_SET_SELECTION, &CSImageViewerView::OnSetSelection)
+		ON_COMMAND(ID_MENU_EDIT_SELECT_ALL, &CSImageViewerView::OnSelectAll)
 		ON_COMMAND(ID_MENU_EDIT_COPY_AS, &CSImageViewerView::OnCopyAs)
 		ON_COMMAND(ID_MENU_EDIT_PASTE_AS, &CSImageViewerView::OnPasteAs)
 		ON_COMMAND(ID_MENU_EDIT_CONVERT_COLOR_SPACE, &CSImageViewerView::OperateConvertColorSpace)
@@ -1579,8 +1580,14 @@ IMPLEMENT_DYNCREATE(CSImageViewerView, CView)
 		return CView::OnSetCursor(pWnd, nHitTest, message);
 	}
 
+	void CSImageViewerView::OnSelectAll()
+	{
+		CRect rect_i;
+		FullDomain(&rect_i);
+		view.SetRect_i(&rect_i);
+		Invalidate();
+	}
 
-	
 	BOOL CSImageViewerView::PreTranslateMessage(MSG* pMsg)
 	{
 		if(pMsg->message == WM_MOUSEWHEEL)
@@ -1636,13 +1643,6 @@ IMPLEMENT_DYNCREATE(CSImageViewerView, CView)
 			//		OperateCopyHistGramToClipboard();
 			//		return TRUE; 
 			//	}
-				if(pMsg->wParam == 'A')
-				{
-					CRect rect_i;
-					FullDomain(&rect_i);
-					view.SetRect_i(&rect_i);
-					return TRUE; 
-				}
 
 				if(pMsg->wParam == VK_UP){OnImagePPFW(-1);Invalidate();return TRUE;}
 				if(pMsg->wParam == VK_DOWN){OnImagePPFW(+1);Invalidate();return TRUE;}
@@ -1678,21 +1678,22 @@ IMPLEMENT_DYNCREATE(CSImageViewerView, CView)
 
 		return CView::PreTranslateMessage(pMsg);
 	}
-	
+
 	void CSImageViewerView::OperateReSet()
-		{				if(m_sFilePath.Compare(_T("Clipboard")) != 0)
-				{
-					 ReadImage(m_sFilePath);
-					 return;
-				}
-				ResetImage(true, true);
+	{
+		if(m_sFilePath.Compare(_T("Clipboard")) != 0)
+		{
+			ReadImage(m_sFilePath);
+			return;
+		}
+		ResetImage(true, true);
 	};
 
 	void CSImageViewerView::OperateUnDo()
 	{
-			bool bRet = m_image[m_iImageIndex].UnDo();
-			if(bRet != true){return;}
-			Invalidate();
+		bool bRet = m_image[m_iImageIndex].UnDo();
+		if(bRet != true){return;}
+		Invalidate();
 	}
 	void CSImageViewerView::OperateReDo()
 	{

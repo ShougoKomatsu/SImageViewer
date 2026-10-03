@@ -80,6 +80,7 @@ public:
 		if(m_iImageMax<=0){return 0;} 
 		return scr.m_dDispOriginC_tv;
 	}
+	void OnSelectAll();
 	void OperateReSet();
 	void OperateRename(){OperateFileNameChange();}
 	void OperateRotateCW90(){OperateRotaateImage(ROTATE_CW90);}
