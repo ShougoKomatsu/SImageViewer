@@ -26,6 +26,8 @@
 #include "InputDlg.h"
 #include "ColorizeDlg.h"
 #include "SetTransparentDlg.h"
+#include "FullScreenDlg.h"
+
 #ifdef _DEBUG
 #define new DEBUG_NEW
 #endif
@@ -1050,12 +1052,8 @@ IMPLEMENT_DYNCREATE(CSImageViewerView, CView)
 		SetScroll();
 		Invalidate();
 	}
-
 	void CSImageViewerView::OnInitialUpdate()
 	{
-
-
-
 		CView::OnInitialUpdate();
 		CMainFrame* pFrame = DYNAMIC_DOWNCAST(CMainFrame, GetParentFrame());
 		pFrame->m_sStatusSize.Format(_T("W 0 x H 0"));
@@ -1116,7 +1114,6 @@ IMPLEMENT_DYNCREATE(CSImageViewerView, CView)
 		}
 		}*/
 
-		m_bBeingFullScreen = false;
 
 		TCHAR tszExePath[MAX_PATH];
 		::GetModuleFileName(NULL, tszExePath, MAX_PATH);
@@ -1142,12 +1139,12 @@ IMPLEMENT_DYNCREATE(CSImageViewerView, CView)
 	{
 		const UINT uiBufSize=128;
 		TCHAR tchData[uiBufSize];
-		GetPrivateProfileString(_T("Setting"), _T("EscByEsc"), _T("1"), tchData, uiBufSize, sIniFilePath);
+		GetPrivateProfileString(_T("Setting"), _T("ExitByEsc"), _T("1"), tchData, uiBufSize, sIniFilePath);
 		m_bExitByEsc = ((_ttoi(tchData) == 0) ? 0 : 1);
 	}
 	void CSImageViewerView::SaveSetting(const CString sIniFilePath)
 	{
-		WritePrivateProfileString(_T("Setting"), _T("EscByEsc"), ((m_bExitByEsc == 0) ? _T("0") : _T("1")), sIniFilePath);
+		WritePrivateProfileString(_T("Setting"), _T("ExitByEsc"), ((m_bExitByEsc == 0) ? _T("0") : _T("1")), sIniFilePath);
 	}
 
 	int CSImageViewerView::GetClientHeight()
@@ -1310,21 +1307,10 @@ IMPLEMENT_DYNCREATE(CSImageViewerView, CView)
 
 	void CSImageViewerView::EnterFullScreen()
 	{
-		CMainFrame* pFrame = (CMainFrame*)AfxGetMainWnd();
-		if (pFrame == NULL) {return;}
-		pFrame->EnterFullScreen();
-		m_bBeingFullScreen = true;
-
+		
+		CFullScreenDlg dlg(this);
+		dlg.DoModal();
 	}
-
-	void CSImageViewerView::ExitFullScreen()
-	{
-		CMainFrame* pFrame = (CMainFrame*)AfxGetMainWnd();
-		if (pFrame == NULL) {return;}
-		pFrame->ExitFullScreen();
-		m_bBeingFullScreen = false;
-	}
-
 
 
 	bool CSImageViewerView::GetColorAtCursor(PanImage* panImg, CPoint point_v, int* iR_img, int* iC_img, ColorValue* colorValue)
@@ -1654,8 +1640,8 @@ IMPLEMENT_DYNCREATE(CSImageViewerView, CView)
 			}	
 
 
-			if(pMsg->wParam == VK_RETURN) { if(m_bBeingFullScreen == true){ ExitFullScreen(); return TRUE;} EnterFullScreen(); return TRUE; } 
-			if(pMsg->wParam == VK_ESCAPE) {if(m_bBeingFullScreen == true) {ExitFullScreen(); return TRUE;}if(m_bExitByEsc==false){return TRUE;}::PostQuitMessage( 0 );}
+			if(pMsg->wParam == VK_RETURN) {EnterFullScreen(); return TRUE; } 
+			if(pMsg->wParam == VK_ESCAPE) {if(m_bExitByEsc==false){return TRUE;}::PostQuitMessage( 0 );}
 
 			if(pMsg->wParam == VK_ADD){ZoomChange(1);return TRUE;}
 			if(pMsg->wParam == VK_SUBTRACT){ZoomChange(-1);return TRUE;}

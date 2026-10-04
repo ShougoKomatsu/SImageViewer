@@ -24,7 +24,6 @@ public:
 //	bool m_bGridAble;
 //	bool m_bRegionSelected;
 	CFont m_cfStatus;
-	bool m_bBeingFullScreen;
 	CRect m_rectPreserved;
 	DWORD m_dwStylePreserved;
 	DWORD m_dwExStylePreserved ;
@@ -38,8 +37,6 @@ public:
 	// ëÄçÏ
 public:
 	void ShowNormal();
-	void EnterFullScreen();
-	void ExitFullScreen();
 	void AdjustViewClientSize(int desiredClientWidth, int desiredClientHeight,int iNowWidth, int iNowHeight);
 
 	void LaunchNewInstance(CStringArray* saFilePath);

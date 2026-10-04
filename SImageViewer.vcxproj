@@ -198,6 +198,7 @@
     <ClInclude Include="ExtractChannelDlg.h" />
     <ClInclude Include="FileFormatDlg.h" />
     <ClInclude Include="FormatSelectionDlg.h" />
+    <ClInclude Include="FullScreenDlg.h" />
     <ClInclude Include="ImageModifyDlg.h" />
     <ClInclude Include="ImageProc.h" />
     <ClInclude Include="InputDlg.h" />
@@ -225,6 +226,7 @@
     <ClCompile Include="ExtractChannelDlg.cpp" />
     <ClCompile Include="FileFormatDlg.cpp" />
     <ClCompile Include="FormatSelectionDlg.cpp" />
+    <ClCompile Include="FullScreenDlg.cpp" />
     <ClCompile Include="ImageModifyDlg.cpp" />
     <ClCompile Include="ImageProc.cpp" />
     <ClCompile Include="InputDlg.cpp" />

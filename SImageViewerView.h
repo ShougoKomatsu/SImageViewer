@@ -50,7 +50,6 @@ public:
 	bool m_bSynchroScroll;
 
 	const bool GetScrollPin(){return m_bSynchroScroll;}
-	bool m_bBeingFullScreen;
 	void ToggleScrollPin();
 	
 		void ZoomReset();
@@ -103,7 +102,6 @@ public:
 
 	void OnSetToolOption();
 	void EnterFullScreen();
-	void ExitFullScreen();
 	void SetToolFormat();
 	void OnCopyFileListToClipboard();
 	void OnCopyCorrelMapToClipboard();
