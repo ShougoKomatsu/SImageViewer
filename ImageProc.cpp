@@ -1017,7 +1017,418 @@ bool _ConvertImage(const CImage* imgSrc, ImgRGB* imgRGB)
 	SAFE_DELETE(srcTable);
 	return true;
 }
-bool Resize(const CImage* imgSrc, CImage* imgDst, const int iWidth_dst, const int iHeight_dst, const RESAMPLE rsample)
+
+void ReSizeNearest(const ImgRGB* imgRGBSrc, const int iR0, const int iC0, const int iR1, const int iC1, ImgRGB* imgRGBDst)
+{
+	int iR0_local=min(iR0, iR1);
+	int iR1_local=max(iR0, iR1);
+	int iC0_local=min(iC0, iC1);
+	int iC1_local=max(iC0, iC1);
+
+	int iHeight_src = (min(imgRGBSrc->iHeight-1 ,iR1_local) - max(0,iR0_local))+1;
+	int iWidth_src = (min(imgRGBSrc->iWidth-1 ,iC1_local) - max(0,iC0_local))+1;
+
+
+	int iHeight_dst = imgRGBDst->iHeight;
+	int iWidth_dst = imgRGBDst->iWidth;
+	for(int r=0; r<iHeight_dst; r++)
+	{
+		for(int c=0; c<iWidth_dst; c++)
+		{
+			double dR_src = iR0_local + r * (iHeight_src-1)/(double(iHeight_dst-1));
+			double dC_src = iC0_local + c * (iWidth_src-1)/(double(iWidth_dst-1));
+			int iPosDsc = r*iWidth_dst+c;
+			int iPosSrc = (int(dR_src+0.5))*imgRGBSrc->iWidth+(int(dC_src+0.5));
+			imgRGBDst->byImgR[iPosDsc ]=imgRGBSrc->byImgR[iPosSrc];
+			imgRGBDst->byImgG[iPosDsc ]=imgRGBSrc->byImgG[iPosSrc];
+			imgRGBDst->byImgB[iPosDsc ]=imgRGBSrc->byImgB[iPosSrc];
+		}
+	}
+}
+
+inline double GetVolume(const BYTE* imgRGBSrc, const int iWidth, const int iHeight, const double dR_src, const double dC_src)
+{
+	double dR_local=min(iHeight-1, dR_src);
+	double dC_local=min(iWidth-1, dC_src);
+
+	double dR_frac;
+	if(dR_local==iHeight-1){dR_local=iHeight-2;dR_frac=1;}
+	else{dR_frac = dR_local-int(dR_local);}
+
+	double dC_frac;	
+	if(dC_local==iWidth-1){dC_local=iWidth-2;dC_frac=1;}
+	else{dC_frac = dC_local-int(dC_local);}
+
+
+	int iPosSrc1 = (int(dR_local))*iWidth + int(dC_local);
+	int iPosSrc2 = (int(dR_local))*iWidth + int(dC_local)+1;
+	int iPosSrc3 = (int(dR_local)+1)*iWidth + int(dC_local);
+	int iPosSrc4 = (int(dR_local)+1)*iWidth + int(dC_local)+1;
+
+	double dValue1 = imgRGBSrc[iPosSrc1] * (1-dC_frac) + imgRGBSrc[iPosSrc2] * (dC_frac);
+	double dValue2 = imgRGBSrc[iPosSrc3] * (1-dC_frac) + imgRGBSrc[iPosSrc4] * (dC_frac);
+	return (dValue1*(1-dR_frac)+dValue2*(dR_frac))*((1-dR_frac)*(1-dC_frac));
+}
+inline double GetArea(const int iWidth, const int iHeight, const double dR_src, const double dC_src)
+{
+	double dR_local=min(iHeight-1, dR_src);
+	double dC_local=min(iWidth-1, dC_src);
+
+	double dR_frac;
+	if(dR_local==iHeight-1){dR_local=iHeight-2;dR_frac=1;}
+	else{dR_frac = dR_local-int(dR_local);}
+
+	double dC_frac;	
+	if(dC_local==iWidth-1){dC_local=iWidth-2;dC_frac=1;}
+	else{dC_frac = dC_local-int(dC_local);}
+
+	return (1-dR_frac)*(1-dC_frac);
+}
+
+inline double GetVolume(const BYTE* imgRGBSrc, const int iWidth, const int iHeight, const double dR_src, const int iC_src)
+{
+	double dR_local=min(iHeight-1, dR_src);
+
+	double dR_frac;
+	if(dR_local==iHeight-1){dR_local=iHeight-2;dR_frac=1;}
+	else{dR_frac = dR_local-int(dR_local);}
+	
+	int iPosSrc1 = (int(dR_local))*iWidth +iC_src;
+	int iPosSrc3 = (int(dR_local)+1)*iWidth + iC_src;
+
+	return (imgRGBSrc[iPosSrc1]*(1-dR_frac)+imgRGBSrc[iPosSrc3]*(dR_frac))*((1-(dR_local-int(dR_local))));
+}
+
+inline double GetArea(const int iWidth, const int iHeight, const double dR_src, const int iC_src)
+{
+	double dR_local=min(iHeight-1, dR_src);
+
+	double dR_frac;
+	if(dR_local==iHeight-1){dR_local=iHeight-2;dR_frac=1;}
+	else{dR_frac = dR_local-int(dR_local);}
+
+	return (1-(dR_local-int(dR_local)));
+}
+
+inline double GetValue(const BYTE* imgRGBSrc, const int iWidth, const int iHeight, const int iR_src, const double dC_src)
+{
+	double dC_local=min(iWidth-1, dC_src);
+
+	double dC_frac;	
+	if(dC_local==iWidth-1){dC_local=iWidth-2;dC_frac=1;}
+	else{dC_frac = dC_local-int(dC_local);}
+
+	int iPosSrc1 = iR_src*iWidth + int(dC_local);
+	int iPosSrc2 = iR_src*iWidth + int(dC_local)+1;
+
+	return (imgRGBSrc[iPosSrc1] * (1-dC_frac) + imgRGBSrc[iPosSrc2] * (dC_frac))*((1-(dC_src-int(dC_src))));
+}
+
+inline double GetArea(const int iWidth, const int iHeight, const int iR_src, const double dC_src)
+{
+	double dC_local=min(iWidth-1, dC_src);
+	
+	double dC_frac;	
+	if(dC_local==iWidth-1){dC_local=iWidth-2;dC_frac=1;}
+	else{dC_frac = dC_local-int(dC_local);}
+
+	return (1-(dC_src-int(dC_src)));
+}
+
+inline double AverageAround(const BYTE* byDataSrc, const int iWidth, const int iHeight, double dR, double dC, double dWidthHalf, double dHeightHalf)
+{
+	double dFracR=dR-int(dR);
+	double dFracC=dC-int(dC);
+	double dFracR0 = dHeightHalf-int(dHeightHalf) - dFracR;
+	double dFracC0 = dWidthHalf-int(dWidthHalf) - dFracC;
+	double dFracR1 = dHeightHalf-int(dHeightHalf)+ dFracR;
+	double dFracC1 = dWidthHalf-int(dWidthHalf)+ dFracC;
+
+	double dR0 = max(0, dR-dHeightHalf);
+	double dC0 = max(0, dC-dWidthHalf);
+
+	double dR1 = min(iHeight-1, dR+dHeightHalf);
+	double dC1 = min(iWidth-1, dC+dWidthHalf);
+
+	int iR0 = int(dR0);
+	int iC0 = int(dC0);
+
+	int iR1=(int)ceil((double)dR1);
+	int iC1=(int)ceil((double)dC1);
+
+	double dVolumeCorner=GetVolume(byDataSrc, iWidth, iHeight, (double)dR0, (double)dC0)
+		+GetVolume(byDataSrc, iWidth, iHeight, (double)dR0, (double)dC1)
+		+GetVolume(byDataSrc, iWidth, iHeight, (double)dR1, (double)dC0)
+		+GetVolume(byDataSrc, iWidth, iHeight, (double)dR1, (double)dC1);
+
+	
+	double dAreaCorner = GetArea(iWidth, iHeight,(double)dR0, (double)dC0)
+		+GetArea(iWidth, iHeight,(double)dR0, (double)dC1)
+		+GetArea(iWidth, iHeight,(double)dR1, (double)dC0)
+		+GetArea(iWidth, iHeight,(double)dR1, (double)dC1);
+	
+	double dVolumeLeft=0;
+	double dVolumeRight=0;
+	double dVolumeTop=0;
+	double dVolumeBottom=0;
+
+	double dAreaLeft=0;
+	double dAreaRight=0;
+	double dAreaTop=0;
+	double dAreaBottom=0;
+	for(int r=iR0+1; r<= iR1-1; r++)
+	{
+		dVolumeLeft+=GetVolume(byDataSrc, iWidth, iHeight, r, (double)dC0);
+		dAreaLeft+=GetArea(iWidth, iHeight,r, (double)dC0);
+
+		dVolumeRight+=GetVolume(byDataSrc,iWidth, iHeight,  r, (double)dC1);
+		dAreaRight+=GetArea(iWidth, iHeight,r, (double)dC1);
+	}
+	for(int c=iC0+1; c<= iC1-1; c++)
+	{
+		dVolumeTop+=GetVolume(byDataSrc,iWidth, iHeight,  (double)dR0, c);
+		dAreaTop+=GetArea(iWidth, iHeight,(double)dR0, c);
+
+		dVolumeBottom+=GetVolume(byDataSrc,iWidth, iHeight,  (double)dR1, c);
+		dAreaBottom+=GetArea(iWidth, iHeight,(double)dR1, c);
+	}
+
+	ULONGLONG ullValueCenter=0;
+	UINT uiAreaCenter=0;
+	for(int r=iR0+1; r<= iR1-1; r++)
+	{
+		for(int c=iC0+1; c<= iC1-1; c++)
+		{
+			int iPosSrc1 = r*iWidth + c;
+			ullValueCenter+=byDataSrc[iPosSrc1];
+			uiAreaCenter++;
+		}
+	}
+	return (dVolumeCorner+dVolumeLeft+dVolumeRight+dVolumeTop+dVolumeBottom+ullValueCenter)/(dAreaCorner+dAreaLeft+dAreaRight+dAreaTop+dAreaBottom+uiAreaCenter);
+}
+
+void test(const ImgRGB* imgRGBSrc, const int iR0, const int iC0, const int iR1, const int iC1, ImgRGB* imgRGBDst)
+{
+	int iR0_local=min(iR0, iR1);
+	int iR1_local=max(iR0, iR1);
+	int iC0_local=min(iC0, iC1);
+	int iC1_local=max(iC0, iC1);
+
+	int iHeight_src = (min(imgRGBSrc->iHeight-1 ,iR1_local) - max(0,iR0_local))+1;
+	int iWidth_src = (min(imgRGBSrc->iWidth-1 ,iC1_local) - max(0,iC0_local))+1;
+	
+	int iHeight_dst = imgRGBDst->iHeight;
+	int iWidth_dst = imgRGBDst->iWidth;
+	double dScaleR_sPd = iHeight_src/(iHeight_dst*1.0);
+	double dScaleC_sPd = iHeight_src/(iHeight_dst*1.0);
+
+	double dWidthHalf = dScaleC_sPd/2.0;
+	double dHeightHalf = dScaleR_sPd/2.0;
+	for(int r=0; r<iHeight_dst; r++)
+	{
+		for(int c=0; c<iWidth_dst; c++)
+		{
+			if((r==10) && (c==8))
+			{
+				r=r;
+			}
+			int iPosDsc = r*iWidth_dst+c;
+			double dR_src = iR0_local + r * (iHeight_src-1)/(double(iHeight_dst-1));
+			double dC_src = iC0_local + c * (iWidth_src-1)/(double(iWidth_dst-1));
+			imgRGBDst->byImgR[iPosDsc ]=AverageAround(imgRGBSrc->byImgR, imgRGBSrc->iWidth, imgRGBSrc->iHeight, dR_src, dC_src, dWidthHalf, dHeightHalf);
+			imgRGBDst->byImgG[iPosDsc ]=AverageAround(imgRGBSrc->byImgG, imgRGBSrc->iWidth, imgRGBSrc->iHeight, dR_src, dC_src, dWidthHalf, dHeightHalf);
+			imgRGBDst->byImgB[iPosDsc ]=AverageAround(imgRGBSrc->byImgB, imgRGBSrc->iWidth, imgRGBSrc->iHeight, dR_src, dC_src, dWidthHalf, dHeightHalf);
+		}
+	}
+}
+
+
+void Resample(const ImgRGB* imgRGBSrc, const int iR0, const int iC0, const int iR1, const int iC1, const int iResamplePitch, ImgRGB* imgRGBDst)
+{
+	int iR0_local=min(iR0, iR1);
+	int iR1_local=max(iR0, iR1);
+	int iC0_local=min(iC0, iC1);
+	int iC1_local=max(iC0, iC1);
+
+	int iHeight_src = (min(imgRGBSrc->iHeight-1 ,iR1_local) - max(0,iR0_local))+1;
+	int iWidth_src = (min(imgRGBSrc->iWidth-1 ,iC1_local) - max(0,iC0_local))+1;
+	
+	int iHeight_dst = imgRGBDst->iHeight;
+	int iWidth_dst = imgRGBDst->iWidth;
+	double dScaleR_sPd = iHeight_src/(iHeight_dst*1.0);
+	double dScaleC_sPd = iHeight_src/(iHeight_dst*1.0);
+
+	for(int r=0; r<iHeight_dst; r++)
+	{
+		for(int c=0; c<iWidth_dst; c++)
+		{
+			int iR0_resample=int(iResamplePitch*r*dScaleR_sPd);
+			int iR1_resample=int(iResamplePitch*min(imgRGBSrc->iHeight, (r+1)*dScaleR_sPd));
+
+			int iC0_resample=int(iResamplePitch*c*dScaleC_sPd);
+			int iC1_resample=int(iResamplePitch*min(imgRGBSrc->iWidth, (c+1)*dScaleC_sPd));
+			ULONGLONG ullR=0;
+			ULONGLONG ullG=0;
+			ULONGLONG ullB=0;
+			UINT uiArera=0;
+			for(int rr=iR0_resample; rr<iR1_resample; rr++)
+			{
+				for(int cc=iC0_resample; cc<iC1_resample; cc++)
+				{
+					ullR+=imgRGBSrc->byImgR[(rr/iResamplePitch)*imgRGBSrc->iWidth+(cc/iResamplePitch)];
+					ullG+=imgRGBSrc->byImgG[(rr/iResamplePitch)*imgRGBSrc->iWidth+(cc/iResamplePitch)];
+					ullB+=imgRGBSrc->byImgB[(rr/iResamplePitch)*imgRGBSrc->iWidth+(cc/iResamplePitch)];
+					uiArera++;
+				}
+			}
+			imgRGBDst->byImgR[r*imgRGBDst->iWidth+c]=ullR/(uiArera);
+			imgRGBDst->byImgG[r*imgRGBDst->iWidth+c]=ullG/(uiArera);
+			imgRGBDst->byImgB[r*imgRGBDst->iWidth+c]=ullB/(uiArera);
+		}
+	}
+}
+
+
+
+
+void ReSizeBiLinear(const ImgRGB* imgRGBSrc, const int iR0, const int iC0, const int iR1, const int iC1, ImgRGB* imgRGBDst)
+{
+	int iR0_local=min(iR0, iR1);
+	int iR1_local=max(iR0, iR1);
+	int iC0_local=min(iC0, iC1);
+	int iC1_local=max(iC0, iC1);
+
+	int iHeight_src = (min(imgRGBSrc->iHeight-1 ,iR1_local) - max(0,iR0_local))+1;
+	int iWidth_src = (min(imgRGBSrc->iWidth-1 ,iC1_local) - max(0,iC0_local))+1;
+
+	int iHeight_dst = imgRGBDst->iHeight;
+	int iWidth_dst = imgRGBDst->iWidth;
+	//if((iHeight_dst<=iHeight_src) && (iWidth_dst<=iWidth_src))
+	if(0)
+	{
+		for(int r=0; r<iHeight_dst; r++)
+		{
+			for(int c=0; c<iWidth_dst; c++)
+			{
+				double dR_src = iR0_local + r * (iHeight_src-1)/(double(iHeight_dst-1));
+				double dC_src = iC0_local + c * (iWidth_src-1)/(double(iWidth_dst-1));
+
+				double dR_frac = dR_src-int(dR_src);
+				double dC_frac = dC_src-int(dC_src);
+
+				if(dR_src>=imgRGBSrc->iHeight-1){dR_src = imgRGBSrc->iHeight-2; dR_frac=1;}
+				if(dC_src>=imgRGBSrc->iWidth-1){dC_src = imgRGBSrc->iWidth-2; dC_frac=1;}
+
+				if(dR_src<=0){dR_src = 0; dR_frac=0;}
+				if(dC_src<=0){dC_src = 0; dC_frac=0;}
+
+				int iPosDsc = r*iWidth_dst+c;
+				int iPosSrc1 = (int(dR_src))*imgRGBSrc->iWidth + int(dC_src);
+				int iPosSrc2 = (int(dR_src))*imgRGBSrc->iWidth + int(dC_src)+1;
+				int iPosSrc3 = (int(dR_src)+1)*imgRGBSrc->iWidth + int(dC_src);
+				int iPosSrc4 = (int(dR_src)+1)*imgRGBSrc->iWidth + int(dC_src)+1;
+
+				double dValue1 = imgRGBSrc->byImgR[iPosSrc1] * (1-dC_frac) + imgRGBSrc->byImgR[iPosSrc2] * (dC_frac);
+				double dValue2 = imgRGBSrc->byImgR[iPosSrc3] * (1-dC_frac) + imgRGBSrc->byImgR[iPosSrc4] * (dC_frac);
+				double dValue = dValue1*(1-dR_frac)+dValue2*(dR_frac);
+				imgRGBDst->byImgR[iPosDsc ]=(BYTE)dValue;
+
+				dValue1 = imgRGBSrc->byImgG[iPosSrc1] * (1-dC_frac) + imgRGBSrc->byImgG[iPosSrc2] * (dC_frac);
+				dValue2 = imgRGBSrc->byImgG[iPosSrc3] * (1-dC_frac) + imgRGBSrc->byImgG[iPosSrc4] * (dC_frac);
+				dValue = dValue1*(1-dR_frac)+dValue2*(dR_frac);
+				imgRGBDst->byImgG[iPosDsc ]=(BYTE)dValue;
+
+				dValue1 = imgRGBSrc->byImgB[iPosSrc1] * (1-dC_frac) + imgRGBSrc->byImgB[iPosSrc2] * (dC_frac);
+				dValue2 = imgRGBSrc->byImgB[iPosSrc3] * (1-dC_frac) + imgRGBSrc->byImgB[iPosSrc4] * (dC_frac);
+				dValue = dValue1*(1-dR_frac)+dValue2*(dR_frac);
+				imgRGBDst->byImgB[iPosDsc ]=(BYTE)dValue;
+			}
+		}
+		return;
+	}
+	else
+	{
+		double* dSumR;
+		double* dSumG;
+		double* dSumB;
+		dSumR = new double [iHeight_dst*iWidth_dst];
+		dSumG = new double [iHeight_dst*iWidth_dst];
+		dSumB = new double [iHeight_dst*iWidth_dst];
+		
+		double* dArea;
+		dArea = new double [iHeight_dst*iWidth_dst];
+		for(int r=0; r<iHeight_dst; r++)
+		{
+			for(int c=0; c<iWidth_dst; c++)
+			{
+				dSumR[r*iWidth_dst+c]=0;
+				dSumG[r*iWidth_dst+c]=0;
+				dSumB[r*iWidth_dst+c]=0;
+				dArea[r*iWidth_dst+c]=0;
+			}
+		}
+		for(int r=iR0_local; r<iR1_local; r++)
+		{
+			for(int c=iC0_local; c<iC1_local; c++)
+			{
+				double dR_dst = r * (iHeight_dst-1)/(double)(iHeight_src-1);
+				double dC_dst = c * (iWidth_dst-1)/(double)(iWidth_src-1);
+
+				double dR_frac = dR_dst-int(dR_dst);
+				double dC_frac = dC_dst-int(dC_dst);
+				
+				dSumR[int(dR_dst)*iWidth_dst+int(dC_dst)] += imgRGBSrc->byImgR[r*iWidth_src+c] * (1-dR_frac)*(1-dC_frac);
+				dSumG[int(dR_dst)*iWidth_dst+int(dC_dst)] += imgRGBSrc->byImgG[r*iWidth_src+c] * (1-dR_frac)*(1-dC_frac);
+				dSumB[int(dR_dst)*iWidth_dst+int(dC_dst)] += imgRGBSrc->byImgB[r*iWidth_src+c] * (1-dR_frac)*(1-dC_frac);
+				dArea[int(dR_dst)*iWidth_dst+int(dC_dst)] +=									(1-dR_frac)*(1-dC_frac);
+				
+				dSumR[int(dR_dst)*iWidth_dst+int(dC_dst)+1] += imgRGBSrc->byImgR[r*iWidth_src+c] * (1-dR_frac)*(dC_frac);
+				dSumG[int(dR_dst)*iWidth_dst+int(dC_dst)+1] += imgRGBSrc->byImgG[r*iWidth_src+c] * (1-dR_frac)*(dC_frac);
+				dSumB[int(dR_dst)*iWidth_dst+int(dC_dst)+1] += imgRGBSrc->byImgB[r*iWidth_src+c] * (1-dR_frac)*(dC_frac);
+				dArea[int(dR_dst)*iWidth_dst+int(dC_dst)+1] +=										(1-dR_frac)*(dC_frac);
+				
+				dSumR[int(dR_dst+1)*iWidth_dst+int(dC_dst)] += imgRGBSrc->byImgR[r*iWidth_src+c] * (dR_frac)*(1-dC_frac);
+				dSumG[int(dR_dst+1)*iWidth_dst+int(dC_dst)] += imgRGBSrc->byImgG[r*iWidth_src+c] * (dR_frac)*(1-dC_frac);
+				dSumB[int(dR_dst+1)*iWidth_dst+int(dC_dst)] += imgRGBSrc->byImgB[r*iWidth_src+c] * (dR_frac)*(1-dC_frac);
+				dArea[int(dR_dst+1)*iWidth_dst+int(dC_dst)] +=										(dR_frac)*(1-dC_frac);
+				
+				dSumR[int(dR_dst+1)*iWidth_dst+int(dC_dst+1)] += imgRGBSrc->byImgR[r*iWidth_src+c] * (dR_frac)*(dC_frac);
+				dSumG[int(dR_dst+1)*iWidth_dst+int(dC_dst+1)] += imgRGBSrc->byImgG[r*iWidth_src+c] * (dR_frac)*(dC_frac);
+				dSumB[int(dR_dst+1)*iWidth_dst+int(dC_dst+1)] += imgRGBSrc->byImgB[r*iWidth_src+c] * (dR_frac)*(dC_frac);
+				dArea[int(dR_dst+1)*iWidth_dst+int(dC_dst+1)] +=										(dR_frac)*(dC_frac);
+			}
+		}
+		for(int r=0; r<iHeight_dst; r++)
+		{
+			for(int c=0; c<iWidth_dst; c++)
+			{
+				if(dArea[r*iWidth_dst+c]==0)
+				{
+					int iR_src = int(r * (iHeight_src-1)/(double)(iHeight_dst-1));
+					int iC_src = int(c * (iWidth_src-1)/(double)(iWidth_dst-1));
+
+					imgRGBDst->byImgR[r*iWidth_dst+c ]=imgRGBSrc->byImgR[iR_src*iWidth_src+iC_src];
+					imgRGBDst->byImgG[r*iWidth_dst+c ]=imgRGBSrc->byImgR[iR_src*iWidth_src+iC_src];
+					imgRGBDst->byImgB[r*iWidth_dst+c ]=imgRGBSrc->byImgR[iR_src*iWidth_src+iC_src];
+				}
+				else
+				{
+					imgRGBDst->byImgR[r*iWidth_dst+c ]=(BYTE)(int)(dSumR[r*iWidth_dst+c]/dArea[r*iWidth_dst+c]);
+					imgRGBDst->byImgG[r*iWidth_dst+c ]=(BYTE)(int)(dSumG[r*iWidth_dst+c]/dArea[r*iWidth_dst+c]);
+					imgRGBDst->byImgB[r*iWidth_dst+c ]=(BYTE)(int)(dSumB[r*iWidth_dst+c]/dArea[r*iWidth_dst+c]);
+				}
+			}
+		}
+		SAFE_DELETE(dSumR);
+		SAFE_DELETE(dSumG);
+		SAFE_DELETE(dSumB);
+		SAFE_DELETE(dArea);
+	}
+
+}
+
+
+bool Resize(const CImage* imgSrc, const int iR0_src, const int iC0_src, const int iR1_src, const int iC1_src, CImage* imgDst, const int iWidth_dst, const int iHeight_dst, const RESAMPLE rsample)
 {
 	if(imgSrc->IsNull() == true){return false;}
 	ImgRGB imgRGBSrc;
@@ -1032,57 +1443,13 @@ bool Resize(const CImage* imgSrc, CImage* imgDst, const int iWidth_dst, const in
 	{
 	case RESIZE_NEAREST:
 		{
-			for(int r=0; r<imgRGBDst.iHeight; r++)
-			{
-				for(int c=0; c<imgRGBDst.iWidth; c++)
-				{
-					double dR_src = r * (iHeight_src-1)/(double(iHeight_dst-1));
-					double dC_src = c * (iWidth_src-1)/(double(iWidth_dst-1));
-					int iPosDsc = r*imgRGBDst.iWidth+c;
-					int iPosSrc = (int(dR_src+0.5))*imgRGBSrc.iWidth+(int(dC_src+0.5));
-					imgRGBDst.byImgR[iPosDsc ]=imgRGBSrc.byImgR[iPosSrc];
-					imgRGBDst.byImgG[iPosDsc ]=imgRGBSrc.byImgG[iPosSrc];
-					imgRGBDst.byImgB[iPosDsc ]=imgRGBSrc.byImgB[iPosSrc];
-
-				}
-			}
+			ReSizeNearest(&imgRGBSrc, iR0_src, iC0_src, iR1_src, iC1_src, &imgRGBDst);
 			break;
 		}
 
 	case RESIZE_BILINEAR:
 		{
-			for(int r=0; r<imgRGBDst.iHeight; r++)
-			{
-				for(int c=0; c<imgRGBDst.iWidth; c++)
-				{
-					double dR_src = r * (iHeight_src-1)/(double(iHeight_dst-1));
-					double dC_src = c * (iWidth_src-1)/(double(iWidth_dst-1));
-					double dR_frac = dR_src-int(dR_src);
-					double dC_frac = dC_src-int(dC_src);
-
-
-					int iPosDsc = r*imgRGBDst.iWidth+c;
-					int iPosSrc1 = (int(dR_src))*imgRGBSrc.iWidth+(int(dC_src));
-					int iPosSrc2 = (int(dR_src))*imgRGBSrc.iWidth+(int(dC_src)+1);
-					int iPosSrc3 = (int(dR_src)+1)*imgRGBSrc.iWidth+(int(dC_src));
-					int iPosSrc4 = (int(dR_src)+1)*imgRGBSrc.iWidth+(int(dC_src)+1);
-
-					double dValue1 = imgRGBSrc.byImgR[iPosSrc1] * (1-dC_frac) + imgRGBSrc.byImgR[iPosSrc2] * (dC_frac);
-					double dValue2 = imgRGBSrc.byImgR[iPosSrc3] * (1-dC_frac) + imgRGBSrc.byImgR[iPosSrc4] * (dC_frac);
-					double dValue = dValue1*(1-dR_frac)+dValue2*(dR_frac);
-					imgRGBDst.byImgR[iPosDsc ]=(BYTE)dValue;
-
-					dValue1 = imgRGBSrc.byImgG[iPosSrc1] * (1-dC_frac) + imgRGBSrc.byImgG[iPosSrc2] * (dC_frac);
-					dValue2 = imgRGBSrc.byImgG[iPosSrc3] * (1-dC_frac) + imgRGBSrc.byImgG[iPosSrc4] * (dC_frac);
-					dValue = dValue1*(1-dR_frac)+dValue2*(dR_frac);
-					imgRGBDst.byImgG[iPosDsc ]=(BYTE)dValue;
-
-					dValue1 = imgRGBSrc.byImgB[iPosSrc1] * (1-dC_frac) + imgRGBSrc.byImgB[iPosSrc2] * (dC_frac);
-					dValue2 = imgRGBSrc.byImgB[iPosSrc3] * (1-dC_frac) + imgRGBSrc.byImgB[iPosSrc4] * (dC_frac);
-					dValue = dValue1*(1-dR_frac)+dValue2*(dR_frac);
-					imgRGBDst.byImgB[iPosDsc ]=(BYTE)dValue;
-				}
-			}
+			ReSizeBiLinear(&imgRGBSrc, iR0_src, iC0_src, iR1_src, iC1_src, &imgRGBDst);
 			break;
 		}
 	}
@@ -2318,8 +2685,9 @@ const BYTE g_byFont_4_8[96]={
 		return true;
 	}
 	
-	bool ZoomImage(const CImage* imgSrc, CImage* imgDst, const double dR0_Src, const double dC0_Src, const double dScale, const int iWidth_Dst, const int iHeight_Dst, const bool bRGBSeparated)
+	bool ZoomImage(const CImage* imgSrc, CImage* imgDst, const double dR0_Src, const double dC0_Src, const double dScale, const int iWidth_Dst, const int iHeight_Dst, const bool bRGBSeparated, const BYTE byBG_R, const BYTE byBG_G, const BYTE byBG_B)
 	{
+
 
 		int iWidthSrc = imgSrc->GetWidth();
 		int iHeightSrc = imgSrc->GetHeight();
@@ -2345,7 +2713,7 @@ const BYTE g_byFont_4_8[96]={
 				{
 					for(int c=0; c<iWidth_Dst; c++)
 					{
-						SetRGBAValue(pbyDataDst, r, c, iPitch_dst, 127, 127, 127, 255);
+						SetRGBAValue(pbyDataDst, r, c, iPitch_dst, byBG_R, byBG_G, byBG_B, 255);
 					}
 					continue;
 				}
@@ -2355,7 +2723,7 @@ const BYTE g_byFont_4_8[96]={
 					int ic_Src=int(c/dScale+dC0_Src);
 					if((ic_Src<0)||(ic_Src>=iWidthSrc))
 					{
-						SetRGBAValue(pbyDataDst, r, c, iPitch_dst, 127, 127, 127, 255);
+						SetRGBAValue(pbyDataDst, r, c, iPitch_dst, byBG_R, byBG_G, byBG_B, 255);
 						continue;
 					}
 
@@ -2415,7 +2783,7 @@ const BYTE g_byFont_4_8[96]={
 			{
 				for(int c=0; c<iWidth_Dst; c++)
 				{
-					SetRGBAValue(pbyDataDst, r, c, iPitch_dst, 127, 127, 127, 255);
+					SetRGBAValue(pbyDataDst, r, c, iPitch_dst, byBG_R, byBG_G, byBG_B, 255);
 				}
 				continue;
 			}
@@ -2425,7 +2793,7 @@ const BYTE g_byFont_4_8[96]={
 				int ic_Src=int(c/dScale+dC0_Src);
 				if((ic_Src<0)||(ic_Src>=iWidthSrc))
 				{
-					SetRGBAValue(pbyDataDst, r, c, iPitch_dst, 127, 127, 127, 255);
+					SetRGBAValue(pbyDataDst, r, c, iPitch_dst, byBG_R, byBG_G, byBG_B, 255);
 					continue;
 				}
 

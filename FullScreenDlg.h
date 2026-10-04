@@ -8,6 +8,8 @@ class CFullScreenDlg : public CDialogEx
 	DECLARE_DYNAMIC(CFullScreenDlg)
 
 public:
+	int m_iWidth;
+	int m_iHeight;
 	void ImageRefresh();
 	CSImageViewerView* m_pView;
 	CPictureCtrlEx m_picture;

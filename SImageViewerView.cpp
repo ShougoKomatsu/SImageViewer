@@ -868,7 +868,7 @@ IMPLEMENT_DYNCREATE(CSImageViewerView, CView)
 		CopyImage_CImage(m_image[m_iImageIndex].GetCurrentProcess(), &imgSrc);
 		if((dlg.m_resample == RESIZE_NEAREST) || (dlg.m_resample == RESIZE_BILINEAR))
 		{
-			Resize(&imgSrc, m_image[m_iImageIndex].ProgressImageProcess(), dlg.m_iWidth,dlg.m_iHeight,dlg.m_resample);
+			Resize(&imgSrc, 0, 0, imgSrc.GetHeight()-1, imgSrc.GetWidth()-1, m_image[m_iImageIndex].ProgressImageProcess(), dlg.m_iWidth,dlg.m_iHeight,dlg.m_resample);
 		}
 		else
 		{

@@ -40,3 +40,5 @@ enum TYPE_IMAGE_FILE
 TYPE_IMAGE_FILE GetTypeOfImageFIle(CString sFilePath, FileFormatList* fileFormatList);
 bool SortStrings(const CStringArray* saInput, CStringArray* saOutput);
 
+
+void Resample(const ImgRGB* imgRGBSrc, const int iR0, const int iC0, const int iR1, const int iC1, const int iResamplePitch, ImgRGB* imgRGBDst);

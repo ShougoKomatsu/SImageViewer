@@ -51,8 +51,10 @@ BOOL CFullScreenDlg::OnInitDialog()
 		mi.rcMonitor.bottom - mi.rcMonitor.top,
 		SWP_FRAMECHANGED | SWP_SHOWWINDOW
 		);
+	m_picture.SetBGColor(0, 0, 0);
 
-	
+	m_iWidth = mi.rcMonitor.right - mi.rcMonitor.left;
+	m_iWidth = mi.rcMonitor.bottom - mi.rcMonitor.top;
 
 	GetDlgItem(IDC_FULLSCREEN_DISP)->MoveWindow(&(mi.rcMonitor));
 	ImageRefresh();
@@ -62,7 +64,16 @@ BOOL CFullScreenDlg::OnInitDialog()
 void CFullScreenDlg::ImageRefresh()
 {
 	if(m_pView==NULL){return;}
-	m_picture.m_image.Set(IMAGE_TYPE_CIMAGE, NULL, NULL, 0, 0, m_pView->m_image[m_pView->m_iImageIndex].GetCurrentProcess (), VALUE_IMAGE_CLIP_0_TO_255, _T("temp"));
+	
+	CImage cimage;
+	int iHeight_src = m_pView->m_image[m_pView->m_iImageIndex].GetCurrentProcess()->GetHeight();
+	int iWidth_src = m_pView->m_image[m_pView->m_iImageIndex].GetCurrentProcess()->GetWidth();
+
+	double dScale_dPs = max(m_iHeight/(iHeight_src*1.0), m_iWidth/(iWidth_src*1.0));
+
+	Resize(m_pView->m_image[m_pView->m_iImageIndex].GetCurrentProcess(),0, 0, iHeight_src-1, iWidth_src-1, &cimage, iWidth_src*dScale_dPs, iHeight_src*dScale_dPs, RESIZE_BILINEAR);
+
+	m_picture.m_image.Set(IMAGE_TYPE_CIMAGE, NULL, NULL, 0, 0, &cimage, VALUE_IMAGE_CLIP_0_TO_255, _T("temp"));
 	m_picture.Refresh();
 }
 

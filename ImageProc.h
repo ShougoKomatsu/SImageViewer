@@ -182,14 +182,14 @@ bool CopyFromClipBoardImg(PanImage* panImg);
 bool CopyImage_CImage(const CImage* imgSrc, CImage* imgDst);
 bool ClipImage(const CImage* imgOriginal, CImage* imgClipped, const int iR0, const int iC0, const int iR1, const int iC1);
 
-bool ZoomImage(const CImage* imgSrc, CImage* imgDst, const double dR0_Src, const double dC0_Src, const double dScale, const int iWidth_Dst, const int iHeight_Dst, const bool bRGBSeparated);
+bool ZoomImage(const CImage* imgSrc, CImage* imgDst, const double dR0_Src, const double dC0_Src, const double dScale, const int iWidth_Dst, const int iHeight_Dst, const bool bRGBSeparated, const BYTE byBG_R, const BYTE byBG_G, const BYTE byBG_B);
 
 bool ExtractChannel(const CImage* imgSrc, CImage* imgDst, const ENUM_COLOR enumColor);
 
 bool CountColorNum(const CImage* imgSrc, int* iColorNum_out, UINT* uiMap_out);
 bool MakeColorTable(const CImage* cImage, RGBQUAD* rgbqTable_out, ULONGLONG* ullFrequency_out, int iLength, int* iUsedColors_out, bool* bGrayScale_out);
 
-bool Resize(const CImage* imgSrc, CImage* imgDst, const int iWidth_dst, const int iHeight_dst, const RESAMPLE resample);
+bool Resize(const CImage* imgSrc, const int iR0_src, const int iC0_src, const int iR1_src, const int iC1_src, CImage* imgDst, const int iWidth_dst, const int iHeight_dst, const RESAMPLE resample);
 bool Resample(const CImage* imgSrc, CImage* imgDst, const RESAMPLE resample);
 bool MakeReservedChannelZero(const CImage* imgSrc, CImage* imgDst);
 bool SetColorTable(CImage* img, const RGBQUAD* rgbTable, int iLength);

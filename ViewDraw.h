@@ -87,9 +87,17 @@ private:
 	bool m_bValue;
 	bool m_bRGB_Separate;
 	//	bool m_bSynchroScroll;
-
+	BYTE m_byBG_R;
+	BYTE m_byBG_G;
+	BYTE m_byBG_B;
 
 public:
+	void SetBGColor(const BYTE byR, const BYTE byG, const BYTE byB)
+	{
+		m_byBG_R = byR;
+		m_byBG_G = byG;
+		m_byBG_B = byB;
+	}
 	bool m_bGridAble;
 	bool m_bRegionSelected;
 	void GetScrollSetting(ScrollSetting* scr);
@@ -163,6 +171,10 @@ public:
 	void SetRect_v(const CRect* rect_in){ if(rect_in==NULL){m_Rect_v.SetRectEmpty();}else{m_Rect_v=(*rect_in);}}
 	void Init()
 	{
+	m_byBG_R=127;
+	m_byBG_G=127;
+	m_byBG_B=127;
+
 		m_dDispOriginR_tv=0;
 		m_dDispOriginC_tv=0;
 		m_bCBar = false;
