@@ -182,7 +182,7 @@ bool CopyFromClipBoardImg(PanImage* panImg);
 bool CopyImage_CImage(const CImage* imgSrc, CImage* imgDst);
 bool ClipImage(const CImage* imgOriginal, CImage* imgClipped, const int iR0, const int iC0, const int iR1, const int iC1);
 
-bool ZoomImage(const CImage* imgSrc, CImage* imgDst, const double dR0_Src, const double dC0_Src, const double dScale, const int iWidth_Dst, const int iHeight_Dst, const bool bRGBSeparated, const BYTE byBG_R, const BYTE byBG_G, const BYTE byBG_B);
+bool ZoomImage(const CImage* imgSrc, CImage* imgDst, const double dR0_Src, const double dC0_Src, const double dScale, const int iWidth_Dst, const int iHeight_Dst, const bool bRGBSeparated, const BYTE byBG_R, const BYTE byBG_G, const BYTE byBG_B, const bool bCentered);
 
 bool ExtractChannel(const CImage* imgSrc, CImage* imgDst, const ENUM_COLOR enumColor);
 

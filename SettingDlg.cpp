@@ -40,6 +40,7 @@ BOOL CSettingDlg::OnInitDialog()
 	CDialogEx::OnInitDialog();
 
 	((CButton*)(GetDlgItem(IDC_SETTING_CHECK_EXIT_BY_ESC)))->SetCheck(m_bExitByEsc);
+	((CButton*)(GetDlgItem(IDC_SETTING_CHECK_CENTERIZE_FULLSCREEN)))->SetCheck(m_bCenteredWhenFullScreen);
 
 	return TRUE;  // return TRUE unless you set the focus to a control
 	// 例外 : OCX プロパティ ページは必ず FALSE を返します。
@@ -49,6 +50,7 @@ BOOL CSettingDlg::OnInitDialog()
 void CSettingDlg::OnBnClickedOk()
 {
 	m_bExitByEsc=(((CButton*)(GetDlgItem(IDC_SETTING_CHECK_EXIT_BY_ESC)))->GetCheck() == TRUE) ? true : false;
+	m_bCenteredWhenFullScreen=(((CButton*)(GetDlgItem(IDC_SETTING_CHECK_CENTERIZE_FULLSCREEN)))->GetCheck() == TRUE) ? true : false;
 	// TODO: ここにコントロール通知ハンドラー コードを追加します。
 	CDialogEx::OnOK();
 }

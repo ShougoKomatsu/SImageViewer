@@ -1084,8 +1084,14 @@ void ReSizeBiLinear(const ImgRGB* imgRGBSrc, const int iR0, const int iC0, const
 	{
 		for(int c=iC0_local; c<iC1_local; c++)
 		{
-			double dR_dst = (r+0.5) * (iHeight_dst)/(double)(iHeight_roi);
-			double dC_dst = (c+0.5) * (iWidth_dst)/(double)(iWidth_roi);
+			double dR_dst;
+			if(iHeight_dst==iHeight_roi){dR_dst=r;}
+			else{dR_dst = (r+0.5) * (iHeight_dst)/(double)(iHeight_roi);};
+
+			double dC_dst;
+			if(iWidth_dst==iWidth_roi){dC_dst=c;}
+			else{dC_dst = (c+0.5) * (iWidth_dst)/(double)(iWidth_roi);}
+
 			if(dR_dst<0){continue;}
 			if(dC_dst<0){continue;}
 			if(dR_dst>=iHeight_dst-1){continue;}
@@ -2400,22 +2406,50 @@ const BYTE g_byFont_4_8[96]={
 		return true;
 	}
 	
-	bool ZoomImage(const CImage* imgSrc, CImage* imgDst, const double dR0_Src, const double dC0_Src, const double dScale, const int iWidth_Dst, const int iHeight_Dst, const bool bRGBSeparated, const BYTE byBG_R, const BYTE byBG_G, const BYTE byBG_B)
+	bool ZoomImage(const CImage* imgSrc, CImage* imgDst, const double dR0_Src, const double dC0_Src, const double dScale, const int iWidth_Dst, const int iHeight_Dst, const bool bRGBSeparated, const BYTE byBG_R, const BYTE byBG_G, const BYTE byBG_B, const bool bCentered)
 	{
-
 
 		int iWidthSrc = imgSrc->GetWidth();
 		int iHeightSrc = imgSrc->GetHeight();
 
 		if(imgDst->IsNull() != true){imgDst->Destroy();}
 		imgDst->Create(iWidth_Dst, iHeight_Dst,32);
+		
+		int iROffset=0;
+		int iCOffset=0;
+		if(bCentered==true)
+		{
+			int iWidth_src_scaled = (iWidthSrc-dC0_Src)*dScale;
+			int iHeight_src_scaled = (iHeightSrc-dR0_Src)*dScale;
 
+			if(iWidth_src_scaled>=iWidth_Dst){iCOffset=0;}
+			else
+			{
+				iCOffset = (iWidth_Dst-iWidth_src_scaled)/2;
+			}
+
+			if((iHeight_src_scaled-dR0_Src)>=iHeight_Dst){iROffset=0;}
+			else
+			{
+				iROffset = (iHeight_Dst-iHeight_src_scaled)/2;
+			}
+		}
 		BYTE* pbyDataSrc = (BYTE*)imgSrc->GetBits();
 		int iPitch_src=imgSrc->GetPitch();
 		BYTE* pbyDataDst = (BYTE*)imgDst->GetBits();
 		int iPitch_dst=imgDst->GetPitch();
 
 		int iBPP = imgSrc->GetBPP();
+		for(int r=0; r<iHeight_Dst; r++)
+		{
+			for(int c=0; c<iWidth_Dst; c++)
+			{
+				pbyDataDst[r*iPitch_dst+c*4+2]=byBG_R;
+				pbyDataDst[r*iPitch_dst+c*4+1]=byBG_G;
+				pbyDataDst[r*iPitch_dst+c*4+0]=byBG_B;
+				pbyDataDst[r*iPitch_dst+c*4+3]=255;
+			}
+		}
 
 		if((iBPP==24) || (iBPP==32))
 		{
@@ -2424,57 +2458,46 @@ const BYTE g_byFont_4_8[96]={
 			{
 				int ir_Src=int(r/dScale+dR0_Src);
 
-				if((ir_Src<0)||(ir_Src>=iHeightSrc))
-				{
-					for(int c=0; c<iWidth_Dst; c++)
-					{
-						SetRGBAValue(pbyDataDst, r, c, iPitch_dst, byBG_R, byBG_G, byBG_B, 255);
-					}
-					continue;
-				}
+				if((ir_Src<0)||(ir_Src>=iHeightSrc)){continue;}
 
 				for(int c=0; c<iWidth_Dst; c++)
 				{
 					int ic_Src=int(c/dScale+dC0_Src);
-					if((ic_Src<0)||(ic_Src>=iWidthSrc))
-					{
-						SetRGBAValue(pbyDataDst, r, c, iPitch_dst, byBG_R, byBG_G, byBG_B, 255);
-						continue;
-					}
+					if((ic_Src<0)||(ic_Src>=iWidthSrc)){continue;}
 
 					if(bRGBSeparated == false)
 					{
-						pbyDataDst[r*iPitch_dst+c*4+2]=pbyDataSrc[ir_Src*iPitch_src+ic_Src*iColorPitch+2];
-						pbyDataDst[r*iPitch_dst+c*4+1]=pbyDataSrc[ir_Src*iPitch_src+ic_Src*iColorPitch+1];
-						pbyDataDst[r*iPitch_dst+c*4+0]=pbyDataSrc[ir_Src*iPitch_src+ic_Src*iColorPitch+0];
-						if(iBPP==32){pbyDataDst[r*iPitch_dst+c*4+3]=pbyDataSrc[ir_Src*iPitch_src+ic_Src*iColorPitch+3];}
-						else{pbyDataDst[r*iPitch_dst+c*4+3]=255;}
+						pbyDataDst[(r+iROffset)*iPitch_dst+(c+iCOffset)*4+2]=pbyDataSrc[ir_Src*iPitch_src+ic_Src*iColorPitch+2];
+						pbyDataDst[(r+iROffset)*iPitch_dst+(c+iCOffset)*4+1]=pbyDataSrc[ir_Src*iPitch_src+ic_Src*iColorPitch+1];
+						pbyDataDst[(r+iROffset)*iPitch_dst+(c+iCOffset)*4+0]=pbyDataSrc[ir_Src*iPitch_src+ic_Src*iColorPitch+0];
+						if(iBPP==32){pbyDataDst[(r+iROffset)*iPitch_dst+(c+iCOffset)*4+3]=pbyDataSrc[ir_Src*iPitch_src+ic_Src*iColorPitch+3];}
+						else{pbyDataDst[(r+iROffset)*iPitch_dst+(c+iCOffset)*4+3]=255;}
 						continue;
 					}
 
 					double dFlac = c/dScale+dC0_Src - int(c/dScale+dC0_Src);
 					if(dFlac<1/3.0)
 					{
-						pbyDataDst[r*iPitch_dst+c*4+2]=pbyDataSrc[ir_Src*iPitch_src+ic_Src*iColorPitch+2];
-						pbyDataDst[r*iPitch_dst+c*4+1]=0;
-						pbyDataDst[r*iPitch_dst+c*4+0]=0;
-						if(iBPP==32){pbyDataDst[r*iPitch_dst+c*4+3]=pbyDataSrc[ir_Src*iPitch_src+ic_Src*iColorPitch+3];}
+						pbyDataDst[(r+iROffset)*iPitch_dst+(c+iCOffset)*4+2]=pbyDataSrc[ir_Src*iPitch_src+ic_Src*iColorPitch+2];
+						pbyDataDst[(r+iROffset)*iPitch_dst+(c+iCOffset)*4+1]=0;
+						pbyDataDst[(r+iROffset)*iPitch_dst+(c+iCOffset)*4+0]=0;
+						if(iBPP==32){pbyDataDst[(r+iROffset)*iPitch_dst+(c+iCOffset)*4+3]=pbyDataSrc[ir_Src*iPitch_src+ic_Src*iColorPitch+3];}
 					}
 					else if(dFlac<2/3.0)
 					{
-						pbyDataDst[r*iPitch_dst+c*4+2]=0;
-						pbyDataDst[r*iPitch_dst+c*4+1]=pbyDataSrc[ir_Src*iPitch_src+ic_Src*iColorPitch+1];
-						pbyDataDst[r*iPitch_dst+c*4+0]=0;
-						if(iBPP==32){pbyDataDst[r*iPitch_dst+c*4+3]=pbyDataSrc[ir_Src*iPitch_src+ic_Src*iColorPitch+3];}
+						pbyDataDst[(r+iROffset)*iPitch_dst+(c+iCOffset)*4+2]=0;
+						pbyDataDst[(r+iROffset)*iPitch_dst+(c+iCOffset)*4+1]=pbyDataSrc[ir_Src*iPitch_src+ic_Src*iColorPitch+1];
+						pbyDataDst[(r+iROffset)*iPitch_dst+(c+iCOffset)*4+0]=0;
+						if(iBPP==32){pbyDataDst[(r+iROffset)*iPitch_dst+(c+iCOffset)*4+3]=pbyDataSrc[ir_Src*iPitch_src+ic_Src*iColorPitch+3];}
 					}
 					else
 					{
-						pbyDataDst[r*iPitch_dst+c*4+2]=0;
-						pbyDataDst[r*iPitch_dst+c*4+1]=0;
-						pbyDataDst[r*iPitch_dst+c*4+0]=pbyDataSrc[ir_Src*iPitch_src+ic_Src*iColorPitch+0];
-						if(iBPP==32){pbyDataDst[r*iPitch_dst+c*4+3]=pbyDataSrc[ir_Src*iPitch_src+ic_Src*iColorPitch+3];}
+						pbyDataDst[(r+iROffset)*iPitch_dst+(c+iCOffset)*4+2]=0;
+						pbyDataDst[(r+iROffset)*iPitch_dst+(c+iCOffset)*4+1]=0;
+						pbyDataDst[(r+iROffset)*iPitch_dst+(c+iCOffset)*4+0]=pbyDataSrc[ir_Src*iPitch_src+ic_Src*iColorPitch+0];
+						if(iBPP==32){pbyDataDst[(r+iROffset)*iPitch_dst+(c+iCOffset)*4+3]=pbyDataSrc[ir_Src*iPitch_src+ic_Src*iColorPitch+3];}
 					}
-					if(iBPP==24){pbyDataDst[r*iPitch_dst+c*4+3]=255;}
+					if(iBPP==24){pbyDataDst[(r+iROffset)*iPitch_dst+(c+iCOffset)*4+3]=255;}
 				}
 			}
 			return true;
@@ -2496,10 +2519,6 @@ const BYTE g_byFont_4_8[96]={
 
 			if((ir_Src<0)||(ir_Src>=iHeightSrc))
 			{
-				for(int c=0; c<iWidth_Dst; c++)
-				{
-					SetRGBAValue(pbyDataDst, r, c, iPitch_dst, byBG_R, byBG_G, byBG_B, 255);
-				}
 				continue;
 			}
 
@@ -2508,7 +2527,6 @@ const BYTE g_byFont_4_8[96]={
 				int ic_Src=int(c/dScale+dC0_Src);
 				if((ic_Src<0)||(ic_Src>=iWidthSrc))
 				{
-					SetRGBAValue(pbyDataDst, r, c, iPitch_dst, byBG_R, byBG_G, byBG_B, 255);
 					continue;
 				}
 
@@ -2523,32 +2541,32 @@ const BYTE g_byFont_4_8[96]={
 					double dFlac = c/dScale+dC0_Src - int(c/dScale+dC0_Src);
 					if(dFlac<1/3.0)
 					{
-						pbyDataDst[r*iPitch_dst+c*4+2]=srcTable[byIndex].rgbRed;
-						pbyDataDst[r*iPitch_dst+c*4+1]=0;
-						pbyDataDst[r*iPitch_dst+c*4+0]=0;
-						pbyDataDst[r*iPitch_dst+c*4+3]=((bAlpha == true) ? srcTable[byIndex].rgbReserved : 255);
+						pbyDataDst[(r+iROffset)*iPitch_dst+(c+iCOffset)*4+2]=srcTable[byIndex].rgbRed;
+						pbyDataDst[(r+iROffset)*iPitch_dst+(c+iCOffset)*4+1]=0;
+						pbyDataDst[(r+iROffset)*iPitch_dst+(c+iCOffset)*4+0]=0;
+						pbyDataDst[(r+iROffset)*iPitch_dst+(c+iCOffset)*4+3]=((bAlpha == true) ? srcTable[byIndex].rgbReserved : 255);
 					}
 					else if(dFlac<2/3.0)
 					{
-						pbyDataDst[r*iPitch_dst+c*4+2]=0;
-						pbyDataDst[r*iPitch_dst+c*4+1]=srcTable[byIndex].rgbGreen;
-						pbyDataDst[r*iPitch_dst+c*4+0]=0;
-						pbyDataDst[r*iPitch_dst+c*4+3]=((bAlpha == true) ? srcTable[byIndex].rgbReserved : 255);
+						pbyDataDst[(r+iROffset)*iPitch_dst+(c+iCOffset)*4+2]=0;
+						pbyDataDst[(r+iROffset)*iPitch_dst+(c+iCOffset)*4+1]=srcTable[byIndex].rgbGreen;
+						pbyDataDst[(r+iROffset)*iPitch_dst+(c+iCOffset)*4+0]=0;
+						pbyDataDst[(r+iROffset)*iPitch_dst+(c+iCOffset)*4+3]=((bAlpha == true) ? srcTable[byIndex].rgbReserved : 255);
 					}
 					else
 					{
-						pbyDataDst[r*iPitch_dst+c*4+2]=0;
-						pbyDataDst[r*iPitch_dst+c*4+1]=0;
-						pbyDataDst[r*iPitch_dst+c*4+0]=srcTable[byIndex].rgbBlue;
-						pbyDataDst[r*iPitch_dst+c*4+3]=((bAlpha == true) ? srcTable[byIndex].rgbReserved : 255);
+						pbyDataDst[(r+iROffset)*iPitch_dst+(c+iCOffset)*4+2]=0;
+						pbyDataDst[(r+iROffset)*iPitch_dst+(c+iCOffset)*4+1]=0;
+						pbyDataDst[(r+iROffset)*iPitch_dst+(c+iCOffset)*4+0]=srcTable[byIndex].rgbBlue;
+						pbyDataDst[(r+iROffset)*iPitch_dst+(c+iCOffset)*4+3]=((bAlpha == true) ? srcTable[byIndex].rgbReserved : 255);
 					}
 				}
 				else
 				{
-					pbyDataDst[r*iPitch_dst+c*4+2]=srcTable[byIndex].rgbRed;
-					pbyDataDst[r*iPitch_dst+c*4+1]=srcTable[byIndex].rgbGreen;
-					pbyDataDst[r*iPitch_dst+c*4+0]=srcTable[byIndex].rgbBlue;
-					pbyDataDst[r*iPitch_dst+c*4+3]=((bAlpha == true) ? srcTable[byIndex].rgbReserved : 255);
+					pbyDataDst[(r+iROffset)*iPitch_dst+(c+iCOffset)*4+2]=srcTable[byIndex].rgbRed;
+					pbyDataDst[(r+iROffset)*iPitch_dst+(c+iCOffset)*4+1]=srcTable[byIndex].rgbGreen;
+					pbyDataDst[(r+iROffset)*iPitch_dst+(c+iCOffset)*4+0]=srcTable[byIndex].rgbBlue;
+					pbyDataDst[(r+iROffset)*iPitch_dst+(c+iCOffset)*4+3]=((bAlpha == true) ? srcTable[byIndex].rgbReserved : 255);
 				}
 			}
 		}

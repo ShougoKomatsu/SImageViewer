@@ -21,7 +21,7 @@ protected: // ƒVƒŠƒAƒ‹‰»‚©‚ç‚Ì‚İì¬‚µ‚Ü‚·B
 	// ‘®«
 public:
 
-	
+	bool m_bCenteredWhenFullScreen;
 	void OperateRotaateImage(enumRotate rotate);
 	bool OperateImagePPFWFlexible(const int iStep);
 	bool OperateImagePPFW(const int iStep);

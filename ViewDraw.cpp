@@ -711,9 +711,9 @@ void ViewDraw::OnDraw(CWnd* wnd, CDC* pDC, const PanImage* panImg)
 	int iCMax = img->GetWidth()-1;
 
 
-	ZoomImage(img,&imgZoomed,dR0_i,dC0_i,m_dScale,iWidth_v,iHeight_v,m_bRGB_Separate, m_byBG_R, m_byBG_G, m_byBG_B);
+	ZoomImage(img,&imgZoomed,dR0_i,dC0_i,m_dScale,iWidth_v,iHeight_v,m_bRGB_Separate, m_byBG_R, m_byBG_G, m_byBG_B, m_bCentered);
 	CImage imgValue;
-	ZoomImage(img,&imgValue,dR0_i,dC0_i,m_dScale,iWidth_v,iHeight_v,false, m_byBG_R, m_byBG_G, m_byBG_B);
+	ZoomImage(img,&imgValue,dR0_i,dC0_i,m_dScale,iWidth_v,iHeight_v,false, m_byBG_R, m_byBG_G, m_byBG_B, m_bCentered);
 
 	int iGrid = 0;
 	switch(m_iGrid)

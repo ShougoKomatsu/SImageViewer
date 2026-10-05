@@ -12,6 +12,7 @@ public:
 	int iID;
 	
 	void SetBGColor(const BYTE byR, const BYTE byG, const BYTE byB){view.SetBGColor(byR, byG, byB);}
+	void SetCentered(const bool bCentered){view.SetCentered(bCentered);}
 	double GetDispOriginR_tv(){return view.GetDispOriginR_tv();}
 	double GetDispOriginC_tv(){return view.GetDispOriginC_tv();}
 

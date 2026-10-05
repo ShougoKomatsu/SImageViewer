@@ -10,6 +10,7 @@ class CFullScreenDlg : public CDialogEx
 public:
 	int m_iWidth;
 	int m_iHeight;
+	bool m_bCentered;
 	void ImageRefresh();
 	CSImageViewerView* m_pView;
 	CPictureCtrlEx m_picture;

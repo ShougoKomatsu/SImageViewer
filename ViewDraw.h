@@ -70,6 +70,7 @@ struct Line
 class ViewDraw
 {
 private:
+	bool m_bCentered;
 	CRect m_Rect_i;
 	CRect m_Rect_v;
 
@@ -92,6 +93,7 @@ private:
 	BYTE m_byBG_B;
 
 public:
+	void SetCentered(const bool bTF){m_bCentered=bTF;}
 	void SetBGColor(const BYTE byR, const BYTE byG, const BYTE byB)
 	{
 		m_byBG_R = byR;
@@ -174,6 +176,7 @@ public:
 	m_byBG_R=127;
 	m_byBG_G=127;
 	m_byBG_B=127;
+		m_bCentered=false;
 
 		m_dDispOriginR_tv=0;
 		m_dDispOriginC_tv=0;

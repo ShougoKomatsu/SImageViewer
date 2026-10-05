@@ -15,6 +15,7 @@ CFullScreenDlg::CFullScreenDlg(CWnd* pParent /*=NULL*/)
 	: CDialogEx(CFullScreenDlg::IDD, pParent)
 {
 	m_pView=(CSImageViewerView*)pParent;
+	m_bCentered=false;
 }
 
 CFullScreenDlg::~CFullScreenDlg()
@@ -53,8 +54,10 @@ BOOL CFullScreenDlg::OnInitDialog()
 		);
 	m_picture.SetBGColor(0, 0, 0);
 
+	m_picture.SetCentered(m_bCentered);
+
 	m_iWidth = mi.rcMonitor.right - mi.rcMonitor.left;
-	m_iWidth = mi.rcMonitor.bottom - mi.rcMonitor.top;
+	m_iHeight = mi.rcMonitor.bottom - mi.rcMonitor.top;
 
 	GetDlgItem(IDC_FULLSCREEN_DISP)->MoveWindow(&(mi.rcMonitor));
 	ImageRefresh();

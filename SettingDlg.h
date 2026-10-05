@@ -11,6 +11,7 @@ public:
 	CSettingDlg(CWnd* pParent = NULL);   // 標準コンストラクター
 	virtual ~CSettingDlg();
 	bool m_bExitByEsc;
+	bool m_bCenteredWhenFullScreen;
 // ダイアログ データ
 	enum { IDD = IDD_DLG_SETTING };
 
