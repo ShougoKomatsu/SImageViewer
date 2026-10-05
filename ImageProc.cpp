@@ -1125,8 +1125,8 @@ void ReSizeBiLinear(const ImgRGB* imgRGBSrc, const int iR0, const int iC0, const
 				int iC_src = int(c * (iWidth_roi)/(double)(iWidth_dst));
 
 				imgRGBDst->byImgR[r*iWidth_dst+c ]=imgRGBSrc->byImgR[iR_src*iWidth_src+iC_src];
-				imgRGBDst->byImgG[r*iWidth_dst+c ]=imgRGBSrc->byImgR[iR_src*iWidth_src+iC_src];
-				imgRGBDst->byImgB[r*iWidth_dst+c ]=imgRGBSrc->byImgR[iR_src*iWidth_src+iC_src];
+				imgRGBDst->byImgG[r*iWidth_dst+c ]=imgRGBSrc->byImgG[iR_src*iWidth_src+iC_src];
+				imgRGBDst->byImgB[r*iWidth_dst+c ]=imgRGBSrc->byImgB[iR_src*iWidth_src+iC_src];
 			}
 			else
 			{
