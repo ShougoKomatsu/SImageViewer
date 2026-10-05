@@ -1188,6 +1188,7 @@ IMPLEMENT_DYNCREATE(CSImageViewerView, CView)
 		ResetImage(true, true);
 		CPoint point_v;
 		GetCursorPos(&point_v);
+		ScreenToClient(&point_v);
 		DispStatus(point_v);
 		ZoomReset();
 		SetCaption();
@@ -1723,6 +1724,11 @@ IMPLEMENT_DYNCREATE(CSImageViewerView, CView)
 		{
 			view.GetScrollSetting(&(m_image[m_iImageIndex].scr));
 		}
+		
+		CPoint point_v;
+		GetCursorPos(&point_v);
+		ScreenToClient(&point_v);
+		DispStatus(point_v);
 	}
 
 
