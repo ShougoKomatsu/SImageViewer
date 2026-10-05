@@ -1143,11 +1143,14 @@ IMPLEMENT_DYNCREATE(CSImageViewerView, CView)
 		m_bExitByEsc = ((_ttoi(tchData) == 0) ? 0 : 1);
 		GetPrivateProfileString(_T("Setting"), _T("CenteredWhenFullScreen"), _T("0"), tchData, uiBufSize, sIniFilePath);
 		m_bCenteredWhenFullScreen = ((_ttoi(tchData) == 0) ? 0 : 1);
+		GetPrivateProfileString(_T("Setting"), _T("PPFWwithoutCtrlWhenFullScreen"), _T("0"), tchData, uiBufSize, sIniFilePath);
+		m_bPPFWwithoutCtrlWhenFullScreen = ((_ttoi(tchData) == 0) ? 0 : 1);
 	}
 	void CSImageViewerView::SaveSetting(const CString sIniFilePath)
 	{
 		WritePrivateProfileString(_T("Setting"), _T("ExitByEsc"), ((m_bExitByEsc == false) ? _T("0") : _T("1")), sIniFilePath);
 		WritePrivateProfileString(_T("Setting"), _T("CenteredWhenFullScreen"), ((m_bCenteredWhenFullScreen == false) ? _T("0") : _T("1")), sIniFilePath);
+		WritePrivateProfileString(_T("Setting"), _T("PPFWwithoutCtrlWhenFullScreen"), ((m_bPPFWwithoutCtrlWhenFullScreen == false) ? _T("0") : _T("1")), sIniFilePath);
 	}
 
 	int CSImageViewerView::GetClientHeight()
@@ -1318,6 +1321,7 @@ IMPLEMENT_DYNCREATE(CSImageViewerView, CView)
 		
 		CFullScreenDlg dlg(this);
 		dlg.m_bCentered=m_bCenteredWhenFullScreen;
+		dlg.m_bPPFWwithoutCtrlWhenFullScreen=m_bPPFWwithoutCtrlWhenFullScreen;
 		dlg.DoModal();
 	}
 
@@ -1791,6 +1795,7 @@ IMPLEMENT_DYNCREATE(CSImageViewerView, CView)
 		CSettingDlg dlg;
 		dlg.m_bExitByEsc=m_bExitByEsc;
 		dlg.m_bCenteredWhenFullScreen=m_bCenteredWhenFullScreen;
+		dlg.m_bPPFWwithoutCtrlWhenFullScreen=m_bPPFWwithoutCtrlWhenFullScreen;
 
 		INT_PTR iRet = dlg.DoModal();
 		if(iRet != IDOK){return;}
@@ -1798,5 +1803,6 @@ IMPLEMENT_DYNCREATE(CSImageViewerView, CView)
 		
 		m_bExitByEsc=dlg.m_bExitByEsc;
 		m_bCenteredWhenFullScreen=dlg.m_bCenteredWhenFullScreen;
+		m_bPPFWwithoutCtrlWhenFullScreen=dlg.m_bPPFWwithoutCtrlWhenFullScreen;
 		SaveSetting(m_sIniFilePath);
 	}

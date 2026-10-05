@@ -84,7 +84,8 @@ BOOL CFullScreenDlg::PreTranslateMessage(MSG* pMsg)
 {
 	if (pMsg->message == WM_KEYDOWN)
 	{	
-		if(GetKeyState(VK_CONTROL)<0)
+		if(((m_bPPFWwithoutCtrlWhenFullScreen==true)&&(GetKeyState(VK_CONTROL)>=0))
+			||((m_bPPFWwithoutCtrlWhenFullScreen==false)&&(GetKeyState(VK_CONTROL)<0)))
 		{	
 
 			if(pMsg->wParam == VK_UP){m_pView->OperateImagePPFW(-1);ImageRefresh();return TRUE;}
