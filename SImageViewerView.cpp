@@ -1185,6 +1185,10 @@ IMPLEMENT_DYNCREATE(CSImageViewerView, CView)
 
 		m_iImageIndex = 0;
 		m_iImageMax= 1;
+		ResetImage(true, true);
+		CPoint point_v;
+		GetCursorPos(&point_v);
+		DispStatus(point_v);
 		ZoomReset();
 		SetCaption();
 		return true;
