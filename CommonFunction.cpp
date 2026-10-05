@@ -198,7 +198,7 @@ bool ReadAndAppendImage(CString sFilePath, FileFormatList* fileFormatList, PanIm
 	{
 
 		UINT uiIconNum = CountIconNum(sFilePath);
-		bool bRet = LoadICOFile(sFilePath,panImage,uiIconNum);
+		bool bRet = LoadICOFile(sFilePath,&(panImage[iImageIndex]),uiIconNum);
 		if(bRet != true){return false;}
 		*iImageIndexNew = iImageIndex+uiIconNum;
 		return true;

@@ -3750,6 +3750,8 @@ const BYTE g_byFont_4_8[96]={
 
 		UINT uiExtracted = ExtractIconEx(sFilePath, 0, hLargeIcons, hSmallIcons, uiNum);
 		if (uiExtracted == 0){SAFE_DELETE(hLargeIcons); SAFE_DELETE(hSmallIcons); return false;}
+		if (uiExtracted != 2*uiNum){SAFE_DELETE(hLargeIcons); SAFE_DELETE(hSmallIcons); return false;}
+
 
 		HDC hScreenDC = ::GetDC(NULL);
 		if (hScreenDC == NULL)
@@ -3764,7 +3766,7 @@ const BYTE g_byFont_4_8[96]={
 			return false;
 		}
 
-		for (UINT ui = 0; ui < uiExtracted; ui++)
+		for (UINT ui = 0; ui < uiNum; ui++)
 		{
 			CImage imgTemp;
 			bool bRet = ConvertIconToImg(hScreenDC, hLargeIcons[ui], &imgTemp);
@@ -3775,7 +3777,7 @@ const BYTE g_byFont_4_8[96]={
 			imgs[ui].ResetProcessImage();
 		}
 
-		for (UINT ui = 0; ui < uiExtracted; ui++)
+		for (UINT ui = 0; ui < uiNum; ui++)
 		{
 			CImage imgTemp;
 			bool bRet = ConvertIconToImg(hScreenDC, hSmallIcons[ui], &imgTemp);
