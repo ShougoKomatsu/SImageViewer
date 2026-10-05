@@ -1371,9 +1371,12 @@ void ReSizeBiLinear(const ImgRGB* imgRGBSrc, const int iR0, const int iC0, const
 		{
 			for(int c=iC0_local; c<iC1_local; c++)
 			{
-				double dR_dst = r * (iHeight_dst-1)/(double)(iHeight_src-1);
-				double dC_dst = c * (iWidth_dst-1)/(double)(iWidth_src-1);
-
+				double dR_dst = (r+0.5) * (iHeight_dst)/(double)(iHeight_src);
+				double dC_dst = (c+0.5) * (iWidth_dst)/(double)(iWidth_src);
+				if(dR_dst<0){continue;}
+				if(dC_dst<0){continue;}
+				if(dR_dst>=iHeight_dst-1){continue;}
+				if(dC_dst>=iWidth_dst-1){continue;}
 				double dR_frac = dR_dst-int(dR_dst);
 				double dC_frac = dC_dst-int(dC_dst);
 				
@@ -1404,8 +1407,13 @@ void ReSizeBiLinear(const ImgRGB* imgRGBSrc, const int iR0, const int iC0, const
 			{
 				if(dArea[r*iWidth_dst+c]==0)
 				{
-					int iR_src = int(r * (iHeight_src-1)/(double)(iHeight_dst-1));
-					int iC_src = int(c * (iWidth_src-1)/(double)(iWidth_dst-1));
+					int iR_src = int(r * (iHeight_src)/(double)(iHeight_dst));
+					int iC_src = int(c * (iWidth_src)/(double)(iWidth_dst));
+
+					if(iR_src<0){continue;}
+					if(iC_src <0){continue;}
+					if(iR_src>=iHeight_dst-1){continue;}
+					if(iC_src >=iWidth_dst-1){continue;}
 
 					imgRGBDst->byImgR[r*iWidth_dst+c ]=imgRGBSrc->byImgR[iR_src*iWidth_src+iC_src];
 					imgRGBDst->byImgG[r*iWidth_dst+c ]=imgRGBSrc->byImgR[iR_src*iWidth_src+iC_src];
