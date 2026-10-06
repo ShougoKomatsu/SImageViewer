@@ -64,6 +64,9 @@ BEGIN_MESSAGE_MAP(CMainFrame, CFrameWndEx)
 	ON_UPDATE_COMMAND_UI(ID_MENU_DATA_HISTGRAM, &CMainFrame::OnUpdateMenu)
 	ON_UPDATE_COMMAND_UI(ID_MENU_DATA_CORRELATION, &CMainFrame::OnUpdateMenu)
 
+	ON_UPDATE_COMMAND_UI(ID_MENU_DATA_AVERAGE, &CMainFrame::OnUpdateMenu)
+	ON_UPDATE_COMMAND_UI(ID_MENU_DATA_DEVIATION, &CMainFrame::OnUpdateMenu)
+
 	ON_UPDATE_COMMAND_UI(ID_MENU_DATA_FILELIST, &CMainFrame::OnUpdateMenu)
 	
 	ON_UPDATE_COMMAND_UI(ID_MENU_EDIT_RENAME, &CMainFrame::OnUpdateMenu)
@@ -320,6 +323,10 @@ int CMainFrame::OnCreate(LPCREATESTRUCT lpCreateStruct)
 	lstBasicCommands.AddTail(ID_MENU_EDIT_RESAMPLE);
 	lstBasicCommands.AddTail(ID_MENU_DATA_HISTGRAM);
 	lstBasicCommands.AddTail(ID_MENU_DATA_CORRELATION);
+
+	lstBasicCommands.AddTail(ID_MENU_DATA_AVERAGE);
+	lstBasicCommands.AddTail(ID_MENU_DATA_DEVIATION);
+
 	lstBasicCommands.AddTail(ID_MENU_DATA_FILELIST);
 
 	lstBasicCommands.AddTail(ID_MENU_TOOL_FILEFORMAT);
@@ -731,6 +738,8 @@ void CMainFrame::OnUpdateMenu(CCmdUI* pCmdUI)
 	case ID_MENU_EDIT_RESAMPLE:
 	case ID_MENU_DATA_HISTGRAM:
 	case ID_MENU_DATA_CORRELATION:
+	case ID_MENU_DATA_AVERAGE:
+	case ID_MENU_DATA_DEVIATION:
 	case ID_MENU_DATA_FILELIST:
 	case ID_MENU_EDIT_RENAME:
 	case ID_MENU_EDIT_CW90:

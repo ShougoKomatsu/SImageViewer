@@ -73,6 +73,8 @@ IMPLEMENT_DYNCREATE(CSImageViewerView, CView)
 		ON_COMMAND(ID_MENU_TOOL_FILEFORMAT, &CSImageViewerView::SetToolFormat)
 		ON_COMMAND(ID_MENU_DATA_HISTGRAM, &CSImageViewerView::OnCopyHistGramToClipboard)
 		ON_COMMAND(ID_MENU_DATA_CORRELATION, &CSImageViewerView::OnCopyCorrelMapToClipboard)
+		ON_COMMAND(ID_MENU_DATA_AVERAGE, &CSImageViewerView::OnCopyAverageToClipboard)
+		ON_COMMAND(ID_MENU_DATA_DEVIATION, &CSImageViewerView::OnCopyDeviationToClipboard)
 		ON_COMMAND(ID_MENU_DATA_FILELIST, &CSImageViewerView::OnCopyFileListToClipboard)
 		
 		ON_COMMAND(ID_MENU_EDIT_RENAME, &CSImageViewerView::OnRename)
@@ -689,21 +691,147 @@ IMPLEMENT_DYNCREATE(CSImageViewerView, CView)
 		CopyToClipBoardStr(sData);
 		AfxMessageBox(_T("ファイルリストをクリップボードにコピーしました"));
 	}
+
+	void CSImageViewerView::OnCopyDeviationToClipboard()
+	{
+	}
+	void CSImageViewerView::OnCopyAverageToClipboard()
+	{
+		if(m_iImageMax < 2){AfxMessageBox(_T("複数画像が読み込まれていません")); return;}
+		bool bMono = _IsImageMonochrome(m_image[0].GetCurrentProcess());
+		int iWidth = m_image[0].GetCurrentProcess()->GetWidth();
+		int iHeight = m_image[0].GetCurrentProcess()->GetHeight();
+
+		for(int i=1; i<m_iImageMax; i++)
+		{
+			if(bMono==true){bMono = _IsImageMonochrome(m_image[i].GetCurrentProcess());}
+			int iWidth_target = m_image[i].GetCurrentProcess()->GetWidth();
+			if(iWidth != iWidth_target){AfxMessageBox(_T("画像の大きさがそろっていません"));return;}
+			int iHeight_target = m_image[i].GetCurrentProcess()->GetHeight();
+			if(iHeight != iHeight_target){AfxMessageBox(_T("画像の大きさがそろっていません"));return;}
+		}
+
+		ULONGLONG* ullSumR;
+		ULONGLONG* ullSumG;
+		ULONGLONG* ullSumB;
+		ullSumR = new ULONGLONG[iWidth*iHeight];
+		ullSumG = new ULONGLONG[iWidth*iHeight];
+		ullSumB = new ULONGLONG[iWidth*iHeight];
+
+		if(bMono==true)
+		{
+						for(int r=0; r<iHeight; r++)
+				{
+					for(int c=0; c<iWidth; c++)
+					{
+						ullSumR[r*iWidth+c]+=0;
+					}
+						}
+
+						for(int i=0; i<m_iImageMax; i++)
+						{
+							ImgRGB imgRGB;
+							m_image[i].ConvertImage(&imgRGB);
+							for(int r=0; r<iHeight; r++)
+							{
+								for(int c=0; c<iWidth; c++)
+								{
+									ullSumR[r*iWidth+c]+=imgRGB.byImgR[r*iWidth+c];
+								}
+							}
+						}
+		}
+		else
+		{
+			for(int r=0; r<iHeight; r++)
+			{
+				for(int c=0; c<iWidth; c++)
+				{
+					ullSumR[r*iWidth+c]+=0;
+					ullSumG[r*iWidth+c]+=0;
+					ullSumB[r*iWidth+c]+=0;
+				}
+			}
+			for(int i=0; i<m_iImageMax; i++)
+			{
+				ImgRGB imgRGB;
+				m_image[i].ConvertImage(&imgRGB);
+				for(int r=0; r<iHeight; r++)
+				{
+					for(int c=0; c<iWidth; c++)
+					{
+						ullSumR[r*iWidth+c]+=imgRGB.byImgR[r*iWidth+c];
+						ullSumG[r*iWidth+c]+=imgRGB.byImgG[r*iWidth+c];
+						ullSumB[r*iWidth+c]+=imgRGB.byImgB[r*iWidth+c];
+					}
+				}
+			}
+		}
+
+		CString sAverage;
+		for(int r=0; r<iHeight; r++)
+		{
+			if(bMono==true)
+			{
+				for(int c=0; c<iWidth; c++)
+				{
+					CString sTemp;
+
+					double Average = ullSumR[r*iWidth+c]/(m_iImageMax*1.0);
+					sTemp.Format(_T("%e%s"), Average,(c != (iWidth-1)? _T("\t"): _T("\n")));
+					sAverage+=sTemp;
+				}
+			}
+			else
+			{
+				for(int c=0; c<iWidth; c++)
+				{
+					CString sTemp;
+					double Average = ullSumR[r*iWidth+c]/(m_iImageMax*1.0);
+					sTemp.Format(_T("%e\t"), Average);
+					sAverage+=sTemp;
+				}
+					sAverage+=_T("\t");
+				for(int c=0; c<iWidth; c++)
+				{
+					CString sTemp;
+					double Average = ullSumG[r*iWidth+c]/(m_iImageMax*1.0);
+					sTemp.Format(_T("%e\t"), Average);
+					sAverage+=sTemp;
+				}
+					sAverage+=_T("\t");
+				for(int c=0; c<iWidth; c++)
+				{
+					CString sTemp;
+					double Average = ullSumB[r*iWidth+c]/(m_iImageMax*1.0);
+					sTemp.Format(_T("%e%s"), Average,(c != (iWidth-1)? _T("\t"): _T("\n")));
+					sAverage+=sTemp;
+				}
+			}
+		}
+
+		sAverage.Delete(sAverage.GetLength()-1);
+		CopyToClipBoardStr(sAverage);
+		AfxMessageBox(_T("平均値をクリップボードにコピーしました"));
+	}
+
+
 	void CSImageViewerView::OnCopyCorrelMapToClipboard()
 	{
-		if(m_iImageMax < 2){return;}
+		if(m_iImageMax < 2){AfxMessageBox(_T("複数画像が読み込まれていません")); return;}
 		bool bMono = _IsImageMonochrome(m_image[0].GetCurrentProcess());
-		if(bMono==false){return;}
+		if(bMono==false){AfxMessageBox(_T("モノクロではない画像が混ざっています"));return;}
 		int iWidth = m_image[0].GetCurrentProcess()->GetWidth();
 		int iHeight = m_image[0].GetCurrentProcess()->GetHeight();
 
 		for(int i=1; i<m_iImageMax; i++)
 		{
 			bMono = _IsImageMonochrome(m_image[i].GetCurrentProcess());
+			if(bMono==false){AfxMessageBox(_T("モノクロではない画像が混ざっています"));return;}
 			int iWidth_target = m_image[i].GetCurrentProcess()->GetWidth();
-			if(iWidth != iWidth_target){return;}
+			if(iWidth != iWidth_target){AfxMessageBox(_T("画像の大きさがそろっていません"));return;}
 			int iHeight_target = m_image[i].GetCurrentProcess()->GetHeight();
-			if(iHeight != iHeight_target){return;}
+			if(iHeight != iHeight_target){AfxMessageBox(_T("画像の大きさがそろっていません"));return;}
 		}
 
 		CString sCor;
