@@ -1042,6 +1042,11 @@ void ReSizeNearest(const ImgRGB* imgRGBSrc, const int iR0, const int iC0, const 
 			imgRGBDst->byImgR[iPosDsc ]=imgRGBSrc->byImgR[iPosSrc];
 			imgRGBDst->byImgG[iPosDsc ]=imgRGBSrc->byImgG[iPosSrc];
 			imgRGBDst->byImgB[iPosDsc ]=imgRGBSrc->byImgB[iPosSrc];
+
+			if(imgRGBSrc->iChannel == CHANNEL_4_8RGBA)
+			{
+			imgRGBDst->byImgA[iPosDsc ]=imgRGBSrc->byImgA[iPosSrc];
+			}
 		}
 	}
 }
@@ -1063,9 +1068,11 @@ void ReSizeBiLinear(const ImgRGB* imgRGBSrc, const int iR0, const int iC0, const
 	double* dSumR;
 	double* dSumG;
 	double* dSumB;
+	double* dSumA;
 	dSumR = new double [iHeight_dst*iWidth_dst];
 	dSumG = new double [iHeight_dst*iWidth_dst];
 	dSumB = new double [iHeight_dst*iWidth_dst];
+	dSumA = new double [iHeight_dst*iWidth_dst];
 
 	double* dArea;
 	dArea = new double [iHeight_dst*iWidth_dst];
@@ -1076,6 +1083,7 @@ void ReSizeBiLinear(const ImgRGB* imgRGBSrc, const int iR0, const int iC0, const
 			dSumR[r*iWidth_dst+c]=0;
 			dSumG[r*iWidth_dst+c]=0;
 			dSumB[r*iWidth_dst+c]=0;
+			dSumA[r*iWidth_dst+c]=0;
 			dArea[r*iWidth_dst+c]=0;
 		}
 	}
@@ -1118,6 +1126,14 @@ void ReSizeBiLinear(const ImgRGB* imgRGBSrc, const int iR0, const int iC0, const
 			dSumG[int(dR_dst+1)*iWidth_dst+int(dC_dst+1)] += imgRGBSrc->byImgG[r*iWidth_src+c] * (dR_frac)*(dC_frac);
 			dSumB[int(dR_dst+1)*iWidth_dst+int(dC_dst+1)] += imgRGBSrc->byImgB[r*iWidth_src+c] * (dR_frac)*(dC_frac);
 			dArea[int(dR_dst+1)*iWidth_dst+int(dC_dst+1)] +=										(dR_frac)*(dC_frac);
+
+			if(imgRGBSrc->iChannel == CHANNEL_4_8RGBA)
+			{
+			dSumA[int(dR_dst)*iWidth_dst+int(dC_dst)] += imgRGBSrc->byImgA[r*iWidth_src+c] * (1-dR_frac)*(1-dC_frac);
+			dSumA[int(dR_dst)*iWidth_dst+int(dC_dst)+1] += imgRGBSrc->byImgA[r*iWidth_src+c] * (1-dR_frac)*(dC_frac);
+			dSumA[int(dR_dst+1)*iWidth_dst+int(dC_dst)] += imgRGBSrc->byImgA[r*iWidth_src+c] * (dR_frac)*(1-dC_frac);
+			dSumA[int(dR_dst+1)*iWidth_dst+int(dC_dst+1)] += imgRGBSrc->byImgA[r*iWidth_src+c] * (dR_frac)*(dC_frac);
+			}
 		}
 	}
 
@@ -1133,18 +1149,28 @@ void ReSizeBiLinear(const ImgRGB* imgRGBSrc, const int iR0, const int iC0, const
 				imgRGBDst->byImgR[r*iWidth_dst+c ]=imgRGBSrc->byImgR[iR_src*iWidth_src+iC_src];
 				imgRGBDst->byImgG[r*iWidth_dst+c ]=imgRGBSrc->byImgG[iR_src*iWidth_src+iC_src];
 				imgRGBDst->byImgB[r*iWidth_dst+c ]=imgRGBSrc->byImgB[iR_src*iWidth_src+iC_src];
+				
+			if(imgRGBSrc->iChannel == CHANNEL_4_8RGBA)
+			{
+				imgRGBDst->byImgA[r*iWidth_dst+c ]=imgRGBSrc->byImgA[iR_src*iWidth_src+iC_src];
+			}
 			}
 			else
 			{
 				imgRGBDst->byImgR[r*iWidth_dst+c ]=(BYTE)(int)(dSumR[r*iWidth_dst+c]/dArea[r*iWidth_dst+c]);
 				imgRGBDst->byImgG[r*iWidth_dst+c ]=(BYTE)(int)(dSumG[r*iWidth_dst+c]/dArea[r*iWidth_dst+c]);
 				imgRGBDst->byImgB[r*iWidth_dst+c ]=(BYTE)(int)(dSumB[r*iWidth_dst+c]/dArea[r*iWidth_dst+c]);
+			if(imgRGBSrc->iChannel == CHANNEL_4_8RGBA)
+			{
+				imgRGBDst->byImgA[r*iWidth_dst+c ]=(BYTE)(int)(dSumA[r*iWidth_dst+c]/dArea[r*iWidth_dst+c]);
+			}
 			}
 		}
 	}
 	SAFE_DELETE(dSumR);
 	SAFE_DELETE(dSumG);
 	SAFE_DELETE(dSumB);
+	SAFE_DELETE(dSumA);
 	SAFE_DELETE(dArea);
 }
 
@@ -1156,7 +1182,7 @@ bool Resize(const CImage* imgSrc, const int iR0_src, const int iC0_src, const in
 	ImgRGB imgRGBDst;
 	int iBPP=imgSrc->GetBPP();
 	_ConvertImage(imgSrc, &imgRGBSrc);
-	imgRGBDst.Set(iWidth_dst, iHeight_dst, CHANNEL_3_8RGB);
+	imgRGBDst.Set(iWidth_dst, iHeight_dst, ((max(imgSrc->GetBPP(),24)==24 )? CHANNEL_3_8RGB :CHANNEL_4_8RGBA) );
 	int iWidth_src = imgSrc->GetWidth();
 	int iHeight_src = imgSrc->GetHeight();
 
