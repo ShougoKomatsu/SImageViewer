@@ -687,7 +687,7 @@ IMPLEMENT_DYNCREATE(CSImageViewerView, CView)
 
 		sData.Delete(sData.GetLength()-1);
 		CopyToClipBoardStr(sData);
-
+		AfxMessageBox(_T("ファイルリストをクリップボードにコピーしました"));
 	}
 	void CSImageViewerView::OnCopyCorrelMapToClipboard()
 	{
@@ -734,6 +734,7 @@ IMPLEMENT_DYNCREATE(CSImageViewerView, CView)
 
 		sCor.Delete(sCor.GetLength()-1);
 		CopyToClipBoardStr(sCor);
+		AfxMessageBox(_T("相関マップをクリップボードにコピーしました"));
 	}
 
 	void CSImageViewerView::OnCopyHistGramToClipboard()
@@ -780,6 +781,7 @@ IMPLEMENT_DYNCREATE(CSImageViewerView, CView)
 
 		sHist.Delete(sHist.GetLength()-1);
 		CopyToClipBoardStr(sHist);
+		AfxMessageBox(_T("ヒストグラムをクリップボードにコピーしました"));
 	}
 
 	
