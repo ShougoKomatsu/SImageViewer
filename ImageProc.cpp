@@ -3304,18 +3304,18 @@ const BYTE g_byFont_4_8[96]={
 			ullCount[iMinDistanceClass]+=ullFrequency[i];
 		}
 
-		double dDeviationMax=0;
+		double dVarianceMax=0;
 		for(int iClass=0; iClass<iClassNum; iClass++)
 		{
-			double dDeviation=ullSumDistSq[iClass]/(1.0*ullCount[iClass]);
-			if(dDeviation>dDeviationMax){dDeviationMax=dDeviation;*iMaxDeviationClass=iClass;}
+			double dVariance=ullSumDistSq[iClass]/(1.0*ullCount[iClass]);
+			if(dVariance>dVarianceMax){dVarianceMax=dVariance;*iMaxDeviationClass=iClass;}
 		}
 		SAFE_DELETE(ullSumDistSq);
 		SAFE_DELETE(ullCount);
 		return true;
 	}
 
-	bool CalcDeviationForEachClass(const RGBQUAD* rgbqTable, const ULONGLONG* ullFrequency, int* iClasses, const int iLength, const RGBQUAD* rgbqTable_classed, const int iClassNum, double* dDeviations, int* iMaxDeviationClass)
+	bool CalcDeviationForEachClass(const RGBQUAD* rgbqTable, const ULONGLONG* ullFrequency, int* iClasses, const int iLength, const RGBQUAD* rgbqTable_classed, const int iClassNum, double* dVariances, int* iMaxDeviationClass)
 	{
 		ULONGLONG* ullSumDistSq;
 		ULONGLONG* ullCount;
@@ -3341,12 +3341,12 @@ const BYTE g_byFont_4_8[96]={
 			ullCount[iMinDistanceClass]+=ullFrequency[i];
 		}
 
-		double dDeviationMax=0;
+		double dVarianceMax=0;
 		for(int iClass=0; iClass<iClassNum; iClass++)
 		{
-			if(ullCount[iClass]==0){dDeviations[iClass]=-1; continue;}
-			dDeviations[iClass]=ullSumDistSq[iClass]/(1.0*ullCount[iClass]);
-			if(dDeviations[iClass]>dDeviationMax){dDeviationMax=dDeviations[iClass];*iMaxDeviationClass=iClass;}
+			if(ullCount[iClass]==0){dVariances[iClass]=-1; continue;}
+			dVariances[iClass]=ullSumDistSq[iClass]/(1.0*ullCount[iClass]);
+			if(dVariances[iClass]>dVarianceMax){dVarianceMax=dVariances[iClass];*iMaxDeviationClass=iClass;}
 		}
 		SAFE_DELETE(ullSumDistSq);
 		SAFE_DELETE(ullCount);

@@ -60,7 +60,7 @@ IMPLEMENT_DYNCREATE(CSImageViewerView, CView)
 		ON_COMMAND(ID_MENU_EDIT_RESAMPLE, &CSImageViewerView::OnResample)
 		ON_COMMAND(ID_MENU_EDIT_REDO, &CSImageViewerView::OnReDo)
 		ON_COMMAND(ID_EDIT_UNDO, &CSImageViewerView::OnUnDo)
-		
+
 		ON_COMMAND(ID_MENU_VIEW_FW, &CSImageViewerView::OnFW)
 		ON_COMMAND(ID_MENU_VIEW_PP, &CSImageViewerView::OnPP)
 		ON_COMMAND(ID_MENU_VIEW_FW10, &CSImageViewerView::OnFW10)
@@ -74,9 +74,9 @@ IMPLEMENT_DYNCREATE(CSImageViewerView, CView)
 		ON_COMMAND(ID_MENU_DATA_HISTGRAM, &CSImageViewerView::OnCopyHistGramToClipboard)
 		ON_COMMAND(ID_MENU_DATA_CORRELATION, &CSImageViewerView::OnCopyCorrelMapToClipboard)
 		ON_COMMAND(ID_MENU_DATA_AVERAGE, &CSImageViewerView::OnCopyAverageToClipboard)
-		ON_COMMAND(ID_MENU_DATA_DEVIATION, &CSImageViewerView::OnCopyDeviationToClipboard)
+		ON_COMMAND(ID_MENU_DATA_VARIANCE, &CSImageViewerView::OnCopyVarianceToClipboard)
 		ON_COMMAND(ID_MENU_DATA_FILELIST, &CSImageViewerView::OnCopyFileListToClipboard)
-		
+
 		ON_COMMAND(ID_MENU_EDIT_RENAME, &CSImageViewerView::OnRename)
 		ON_COMMAND(ID_MENU_EDIT_CW90, &CSImageViewerView::OnRotateCW90)
 		ON_COMMAND(ID_MENU_EDIT_RESET, &CSImageViewerView::OnReSet)
@@ -266,23 +266,23 @@ IMPLEMENT_DYNCREATE(CSImageViewerView, CView)
 			view.GetScrollSetting(&(m_image[m_iImageIndex].scr));
 		}
 	}
-		void CSImageViewerView::ZoomReset()
+	void CSImageViewerView::ZoomReset()
+	{
+		view.SetDispOriginC_tv(0);
+		view.SetDispOriginR_tv(0);
+		CPoint point_v;
+		view.ZoomChangeAbs(1.0, &(m_image[m_iImageIndex]), this, &point_v);
+		DispStatus(point_v);
+		//			view.ZoomReset(&(m_image[m_iImageIndex]), this);
+		if(m_bSynchroScroll==true)
 		{
-			view.SetDispOriginC_tv(0);
-			view.SetDispOriginR_tv(0);
-			CPoint point_v;
-			view.ZoomChangeAbs(1.0, &(m_image[m_iImageIndex]), this, &point_v);
-			DispStatus(point_v);
-			//			view.ZoomReset(&(m_image[m_iImageIndex]), this);
-			if(m_bSynchroScroll==true)
-			{
-				view.GetScrollSetting(&scr);
-			}
-			else
-			{
-				view.GetScrollSetting(&(m_image[m_iImageIndex].scr));
-			}
+			view.GetScrollSetting(&scr);
 		}
+		else
+		{
+			view.GetScrollSetting(&(m_image[m_iImageIndex].scr));
+		}
+	}
 
 	void CSImageViewerView::ResetImage(bool bZoomReset, bool bProcessReset)
 	{
@@ -386,7 +386,7 @@ IMPLEMENT_DYNCREATE(CSImageViewerView, CView)
 		CMainFrame* pFrame = (CMainFrame*)AfxGetMainWnd();
 		m_iImageIndex = iOldNum;
 		m_iImageMax = iNewImageNum;
-		
+
 		if(m_iImageMax>=2){pFrame->m_bMultiFile=true; m_bSynchroScroll=true;;}
 		else{pFrame->m_bMultiFile=false; m_bSynchroScroll=false;}
 
@@ -438,15 +438,15 @@ IMPLEMENT_DYNCREATE(CSImageViewerView, CView)
 		for(int i = 0; i<saFilePathsTemp.GetCount(); i++)
 		{
 			bRet = ReadAndAppendImage(saFilePathsTemp.GetAt(i), &m_fileFomatList, &m_image[iImageIndex], iImageIndex, &iImageIndex);
-//			pFrame->SetProgressBar(int(i/iImageNum*1.0));
-//			Invalidate();
+			//			pFrame->SetProgressBar(int(i/iImageNum*1.0));
+			//			Invalidate();
 			if(bRet != true){
 				//pFrame->SetProgressBar(0);
 				return false;}
 		}
 
-//			pFrame->SetProgressBar(0);
-		
+		//			pFrame->SetProgressBar(0);
+
 		m_iImageIndex = 0;
 		m_iImageMax = iImageNum;
 		pFrame->m_bFileOpened = true;
@@ -607,7 +607,7 @@ IMPLEMENT_DYNCREATE(CSImageViewerView, CView)
 		m_image = new PanImage[m_iImageMax];
 		m_image[m_iImageIndex].CopyImage(&imgTemp);
 		m_sFilePath.Format(_T("Clipboard"));
-		
+
 		CMainFrame* pFrame = (CMainFrame*)AfxGetMainWnd();
 		pFrame->m_bFileOpened = true;
 		view.m_bRegionSelected = true;
@@ -629,7 +629,7 @@ IMPLEMENT_DYNCREATE(CSImageViewerView, CView)
 		bool bAutoFull = false;
 		CRect rect_i=view.GetRect_i();
 		if(rect_i.IsRectNull() == TRUE){bAutoFull = true;FullDomain(&rect_i);}
-		
+
 		CSetTransparentDlg dlg;
 
 		CImage imgClipped;
@@ -637,7 +637,7 @@ IMPLEMENT_DYNCREATE(CSImageViewerView, CView)
 		CopyImage_CImage(&imgClipped, &dlg.m_image);
 		INT_PTR iRet = dlg.DoModal();
 	}
-	
+
 	void Intensity(ImgRGB* imgIn, double* dMean)
 	{
 		ULONGLONG ullSum = 0;
@@ -692,24 +692,205 @@ IMPLEMENT_DYNCREATE(CSImageViewerView, CView)
 		AfxMessageBox(_T("ファイルリストをクリップボードにコピーしました"));
 	}
 
-	void CSImageViewerView::OnCopyDeviationToClipboard()
+	int CheckAllImagesAreSameFormat(const PanImage* image, const int iImageMax, int* iWidth, int* iHeight, bool* bMono)
 	{
+		if(iImageMax < 2){return -1;}
+		bool bMono_l = _IsImageMonochrome(image[0].GetCurrentProcess());
+		int iWidth_l = image[0].GetCurrentProcess()->GetWidth();
+		int iHeight_l = image[0].GetCurrentProcess()->GetHeight();
+
+		for(int i=1; i<iImageMax; i++)
+		{
+			if(bMono_l==true){bMono_l = _IsImageMonochrome(image[i].GetCurrentProcess());}
+			int iWidth_target = image[i].GetCurrentProcess()->GetWidth();
+			if(iWidth_l != iWidth_target){return -2;}
+			int iHeight_target = image[i].GetCurrentProcess()->GetHeight();
+			if(iHeight_l != iHeight_target){return -2;}
+		}
+		*iWidth = iWidth_l;
+		*iHeight = iHeight_l;
+		*bMono = bMono_l;
+		return 0;
 	}
+
+	void CSImageViewerView::OnCopyVarianceToClipboard()
+	{
+		bool bMono;
+		int iWidth;
+		int iHeight;
+		int iRet = CheckAllImagesAreSameFormat(m_image, m_iImageMax, &iWidth, &iHeight, &bMono);
+		if(iRet==-1){AfxMessageBox(_T("複数画像が読み込まれていません")); return;}
+		if(iRet==-2){AfxMessageBox(_T("画像の大きさがそろっていません")); return;}
+		if(iRet<0){return;}
+
+		const int iImageNum=m_iImageMax;
+		ULONGLONG* ullSumR;
+		ULONGLONG* ullSumG;
+		ULONGLONG* ullSumB;
+		ullSumR = new ULONGLONG[iWidth*iHeight];
+		ullSumG = new ULONGLONG[iWidth*iHeight];
+		ullSumB = new ULONGLONG[iWidth*iHeight];
+
+		for(int r=0; r<iHeight; r++)
+		{
+			for(int c=0; c<iWidth; c++)
+			{
+				ullSumR[r*iWidth+c]+=0;
+				ullSumG[r*iWidth+c]+=0;
+				ullSumB[r*iWidth+c]+=0;
+			}
+		}
+
+		if(bMono==true)
+		{
+
+			for(int i=0; i<iImageNum; i++)
+			{
+				ImgRGB imgRGB;
+				m_image[i].ConvertImage(&imgRGB);
+				for(int r=0; r<iHeight; r++)
+				{
+					for(int c=0; c<iWidth; c++)
+					{
+						ullSumR[r*iWidth+c]+=imgRGB.byImgR[r*iWidth+c];
+					}
+				}
+			}
+		}
+		else
+		{
+			for(int i=0; i<iImageNum; i++)
+			{
+				ImgRGB imgRGB;
+				m_image[i].ConvertImage(&imgRGB);
+				for(int r=0; r<iHeight; r++)
+				{
+					for(int c=0; c<iWidth; c++)
+					{
+						ullSumR[r*iWidth+c]+=imgRGB.byImgR[r*iWidth+c];
+						ullSumG[r*iWidth+c]+=imgRGB.byImgG[r*iWidth+c];
+						ullSumB[r*iWidth+c]+=imgRGB.byImgB[r*iWidth+c];
+					}
+				}
+			}
+		}
+
+
+		ULONGLONG* ullTotalR;
+		ULONGLONG* ullTotalG;
+		ULONGLONG* ullTotalB;
+
+		ullTotalR = new ULONGLONG[iWidth*iHeight];
+		ullTotalG = new ULONGLONG[iWidth*iHeight];
+		ullTotalB = new ULONGLONG[iWidth*iHeight];
+
+		for(int r=0; r<iHeight; r++)
+		{
+			for(int c=0; c<iWidth; c++)
+			{
+				ullTotalR[r*iWidth+c] =0;
+				ullTotalG[r*iWidth+c] =0;
+				ullTotalB[r*iWidth+c] =0;
+			}
+		}
+
+		if(bMono==true)
+		{
+			for(int i=0; i<iImageNum; i++)
+			{
+				ImgRGB imgRGB;
+				m_image[i].ConvertImage(&imgRGB);
+				for(int r=0; r<iHeight; r++)
+				{
+					for(int c=0; c<iWidth; c++)
+					{
+						ullTotalR[r*iWidth+c] += (imgRGB.byImgR[r*iWidth+c]*iImageNum -  ullSumR[r*iWidth+c])*(imgRGB.byImgR[r*iWidth+c]*iImageNum -  ullSumR[r*iWidth+c]);
+					}
+				}
+			}
+		}
+		else
+		{
+			for(int i=0; i<iImageNum; i++)
+			{
+				ImgRGB imgRGB;
+				m_image[i].ConvertImage(&imgRGB);
+				for(int r=0; r<iHeight; r++)
+				{
+					for(int c=0; c<iWidth; c++)
+					{
+						ullTotalR[r*iWidth+c] += (imgRGB.byImgR[r*iWidth+c]*iImageNum -  ullSumR[r*iWidth+c])*(imgRGB.byImgR[r*iWidth+c]*iImageNum -  ullSumR[r*iWidth+c]);
+						ullTotalG[r*iWidth+c] += (imgRGB.byImgG[r*iWidth+c]*iImageNum -  ullSumG[r*iWidth+c])*(imgRGB.byImgG[r*iWidth+c]*iImageNum -  ullSumG[r*iWidth+c]);
+						ullTotalB[r*iWidth+c] += (imgRGB.byImgB[r*iWidth+c]*iImageNum -  ullSumB[r*iWidth+c])*(imgRGB.byImgB[r*iWidth+c]*iImageNum -  ullSumB[r*iWidth+c]);
+					}
+				}
+			}
+		}
+		SAFE_DELETE(ullSumR);
+		SAFE_DELETE(ullSumG);
+		SAFE_DELETE(ullSumB);
+
+		CString sVariance;
+		for(int r=0; r<iHeight; r++)
+		{
+			if(bMono==true)
+			{
+				for(int c=0; c<iWidth; c++)
+				{
+					CString sTemp;
+					double dVariance = ullTotalR[r*iWidth+c]/(iImageNum*iImageNum*iImageNum*1.0);
+					sTemp.Format(_T("%e%s"), dVariance,(c != (iWidth-1)? _T("\t"): _T("\n")));
+					sVariance+=sTemp;
+				}
+			}
+			else
+			{
+				for(int c=0; c<iWidth; c++)
+				{
+					CString sTemp;
+					double dVariance = ullTotalR[r*iWidth+c]/(iImageNum*iImageNum*iImageNum*1.0);
+					sTemp.Format(_T("%e\t"), sVariance);
+					sVariance+=sTemp;
+				}
+				sVariance+=_T("\t");
+				for(int c=0; c<iWidth; c++)
+				{
+					CString sTemp;
+					double dVariance = ullTotalG[r*iWidth+c]/(iImageNum*iImageNum*iImageNum*1.0);
+					sTemp.Format(_T("%e\t"), sVariance);
+					sVariance+=sTemp;
+				}
+				sVariance+=_T("\t");
+				for(int c=0; c<iWidth; c++)
+				{
+					CString sTemp;
+					double dVariance = ullTotalB[r*iWidth+c]/(iImageNum*iImageNum*iImageNum*1.0);
+					sTemp.Format(_T("%e%s"), sVariance,(c != (iWidth-1)? _T("\t"): _T("\n")));
+					sVariance+=sTemp;
+				}
+			}
+		}
+
+
+		SAFE_DELETE(ullTotalR);
+		SAFE_DELETE(ullTotalG);
+		SAFE_DELETE(ullTotalB);
+
+		sVariance.Delete(sVariance.GetLength()-1);
+		CopyToClipBoardStr(sVariance);
+		AfxMessageBox(_T("分散値をクリップボードにコピーしました"));
+	}
+
+
 	void CSImageViewerView::OnCopyAverageToClipboard()
 	{
-		if(m_iImageMax < 2){AfxMessageBox(_T("複数画像が読み込まれていません")); return;}
-		bool bMono = _IsImageMonochrome(m_image[0].GetCurrentProcess());
-		int iWidth = m_image[0].GetCurrentProcess()->GetWidth();
-		int iHeight = m_image[0].GetCurrentProcess()->GetHeight();
-
-		for(int i=1; i<m_iImageMax; i++)
-		{
-			if(bMono==true){bMono = _IsImageMonochrome(m_image[i].GetCurrentProcess());}
-			int iWidth_target = m_image[i].GetCurrentProcess()->GetWidth();
-			if(iWidth != iWidth_target){AfxMessageBox(_T("画像の大きさがそろっていません"));return;}
-			int iHeight_target = m_image[i].GetCurrentProcess()->GetHeight();
-			if(iHeight != iHeight_target){AfxMessageBox(_T("画像の大きさがそろっていません"));return;}
-		}
+		bool bMono;
+		int iWidth;
+		int iHeight;
+		int iRet = CheckAllImagesAreSameFormat(m_image, m_iImageMax, &iWidth, &iHeight, &bMono);
+		if(iRet==-1){AfxMessageBox(_T("複数画像が読み込まれていません")); return;}
+		if(iRet==-2){AfxMessageBox(_T("画像の大きさがそろっていません")); return;}
+		if(iRet<0){return;}
 
 		ULONGLONG* ullSumR;
 		ULONGLONG* ullSumG;
@@ -720,26 +901,26 @@ IMPLEMENT_DYNCREATE(CSImageViewerView, CView)
 
 		if(bMono==true)
 		{
-						for(int r=0; r<iHeight; r++)
+			for(int r=0; r<iHeight; r++)
+			{
+				for(int c=0; c<iWidth; c++)
+				{
+					ullSumR[r*iWidth+c]+=0;
+				}
+			}
+
+			for(int i=0; i<m_iImageMax; i++)
+			{
+				ImgRGB imgRGB;
+				m_image[i].ConvertImage(&imgRGB);
+				for(int r=0; r<iHeight; r++)
 				{
 					for(int c=0; c<iWidth; c++)
 					{
-						ullSumR[r*iWidth+c]+=0;
+						ullSumR[r*iWidth+c]+=imgRGB.byImgR[r*iWidth+c];
 					}
-						}
-
-						for(int i=0; i<m_iImageMax; i++)
-						{
-							ImgRGB imgRGB;
-							m_image[i].ConvertImage(&imgRGB);
-							for(int r=0; r<iHeight; r++)
-							{
-								for(int c=0; c<iWidth; c++)
-								{
-									ullSumR[r*iWidth+c]+=imgRGB.byImgR[r*iWidth+c];
-								}
-							}
-						}
+				}
+			}
 		}
 		else
 		{
@@ -791,7 +972,7 @@ IMPLEMENT_DYNCREATE(CSImageViewerView, CView)
 					sTemp.Format(_T("%e\t"), Average);
 					sAverage+=sTemp;
 				}
-					sAverage+=_T("\t");
+				sAverage+=_T("\t");
 				for(int c=0; c<iWidth; c++)
 				{
 					CString sTemp;
@@ -799,7 +980,7 @@ IMPLEMENT_DYNCREATE(CSImageViewerView, CView)
 					sTemp.Format(_T("%e\t"), Average);
 					sAverage+=sTemp;
 				}
-					sAverage+=_T("\t");
+				sAverage+=_T("\t");
 				for(int c=0; c<iWidth; c++)
 				{
 					CString sTemp;
@@ -821,21 +1002,14 @@ IMPLEMENT_DYNCREATE(CSImageViewerView, CView)
 
 	void CSImageViewerView::OnCopyCorrelMapToClipboard()
 	{
-		if(m_iImageMax < 2){AfxMessageBox(_T("複数画像が読み込まれていません")); return;}
-		bool bMono = _IsImageMonochrome(m_image[0].GetCurrentProcess());
-		if(bMono==false){AfxMessageBox(_T("モノクロではない画像が混ざっています"));return;}
-		int iWidth = m_image[0].GetCurrentProcess()->GetWidth();
-		int iHeight = m_image[0].GetCurrentProcess()->GetHeight();
+		bool bMono;
+		int iWidth;
+		int iHeight;
+		int iRet = CheckAllImagesAreSameFormat(m_image, m_iImageMax, &iWidth, &iHeight, &bMono);
+		if(iRet==-1){AfxMessageBox(_T("複数画像が読み込まれていません")); return;}
+		if(iRet==-2){AfxMessageBox(_T("画像の大きさがそろっていません"));return;}
 
-		for(int i=1; i<m_iImageMax; i++)
-		{
-			bMono = _IsImageMonochrome(m_image[i].GetCurrentProcess());
-			if(bMono==false){AfxMessageBox(_T("モノクロではない画像が混ざっています"));return;}
-			int iWidth_target = m_image[i].GetCurrentProcess()->GetWidth();
-			if(iWidth != iWidth_target){AfxMessageBox(_T("画像の大きさがそろっていません"));return;}
-			int iHeight_target = m_image[i].GetCurrentProcess()->GetHeight();
-			if(iHeight != iHeight_target){AfxMessageBox(_T("画像の大きさがそろっていません"));return;}
-		}
+		if(bMono==false){AfxMessageBox(_T("モノクロではない画像が混ざっています"));return;}
 
 		CString sCor;
 		for(int i=0; i<m_iImageMax; i++)
@@ -915,7 +1089,7 @@ IMPLEMENT_DYNCREATE(CSImageViewerView, CView)
 		AfxMessageBox(_T("ヒストグラムをクリップボードにコピーしました"));
 	}
 
-	
+
 	void CSImageViewerView::OnInvert()
 	{
 		if(m_iImageMax <= 0){return;}
@@ -1106,8 +1280,8 @@ IMPLEMENT_DYNCREATE(CSImageViewerView, CView)
 			return;
 		}
 
-	//	ImgRGB imgRGB;
-	//	_ConvertImage(&(dlgModify.m_imageColorized), &imgRGB);
+		//	ImgRGB imgRGB;
+		//	_ConvertImage(&(dlgModify.m_imageColorized), &imgRGB);
 		CImage imgResult2;
 		bool bRet = ImposeImage(m_image[m_iImageIndex].GetCurrentProcess(), &(dlgModify.m_imageColorized), rect_i.top, rect_i.left,&imgResult2);
 		CopyImage_CImage(&imgResult2, m_image[m_iImageIndex].ProgressImageProcess());
@@ -1267,7 +1441,7 @@ IMPLEMENT_DYNCREATE(CSImageViewerView, CView)
 		pFrame->m_pView = this;
 		SetTimer(TIMER_INIT, 100, 0);
 	}
-	
+
 	void CSImageViewerView::ReadSetting(const CString sIniFilePath)
 	{
 		const UINT uiBufSize=128;
@@ -1299,12 +1473,12 @@ IMPLEMENT_DYNCREATE(CSImageViewerView, CView)
 		GetClientRect(&rectClient);
 		return rectClient.Width();
 	}
-	
+
 	bool CSImageViewerView::OperateImagePPFWFlexible(const int iStep)
 	{
 		if(m_iImageMax>=2){return false;}
 
-		
+
 		int iMax = m_saFilePaths.GetCount();
 		if(iMax<=0){return false;}
 
@@ -1335,8 +1509,8 @@ IMPLEMENT_DYNCREATE(CSImageViewerView, CView)
 	}
 	bool CSImageViewerView::OperateImagePPFW(const int iStep)
 	{
-	//	return OperateImagePPFWFlexible(iStep);
-		
+		//	return OperateImagePPFWFlexible(iStep);
+
 		if(iStep==INT_MAX){m_iImageIndex=m_iImageMax-1;}
 		else if(iStep==INT_MIN){m_iImageIndex=0;}
 		else
@@ -1367,7 +1541,7 @@ IMPLEMENT_DYNCREATE(CSImageViewerView, CView)
 			view.OnScroll(SB_VERT, -1, 0, &(m_image[m_iImageIndex]), this);
 			view.OnScroll(SB_HORZ, -1, 0, &(m_image[m_iImageIndex]), this);
 		}
-		
+
 		DispStatus(point_v);
 		SetCaption();
 		Invalidate();
@@ -1410,7 +1584,7 @@ IMPLEMENT_DYNCREATE(CSImageViewerView, CView)
 		}
 		return true; 
 	}
-	
+
 	bool CSImageViewerView::ZoomChangeAbs(int iChangeAbs)
 	{
 		if(m_iImageMax <= 0){return false;}
@@ -1451,7 +1625,7 @@ IMPLEMENT_DYNCREATE(CSImageViewerView, CView)
 
 	void CSImageViewerView::EnterFullScreen()
 	{
-		
+
 		CFullScreenDlg dlg(this);
 		dlg.m_bCentered=m_bCenteredWhenFullScreen;
 		dlg.m_bPPFWwithoutCtrlWhenFullScreen=m_bPPFWwithoutCtrlWhenFullScreen;
@@ -1596,7 +1770,7 @@ IMPLEMENT_DYNCREATE(CSImageViewerView, CView)
 		{
 			pFrame->m_sStatusMousePos.Format(_T("(%d, %d)"),iC_img, iR_img);
 		}
-		
+
 		CRect rect_i=view.GetRect_i();
 		if(view.GetDragging() == true)
 		{
@@ -1687,8 +1861,8 @@ IMPLEMENT_DYNCREATE(CSImageViewerView, CView)
 			CMainFrame* pFrame = (CMainFrame*)AfxGetMainWnd();
 			if (pFrame == NULL) {return;}
 			pFrame->ShowNormal();
-	//		m_sFilePath.Format(_T("C:\\Users\\PC9\\Desktop\\test"));
-		if(m_sFilePath.GetLength()>0)
+			//		m_sFilePath.Format(_T("C:\\Users\\PC9\\Desktop\\test"));
+			if(m_sFilePath.GetLength()>0)
 			{
 				ReadImage(m_sFilePath);
 			}
@@ -1822,9 +1996,9 @@ IMPLEMENT_DYNCREATE(CSImageViewerView, CView)
 	}
 	void CSImageViewerView::OnReDo()
 	{
-			bool bRet = m_image[m_iImageIndex].ReDo();
-			if(bRet != true){return;}
-			Invalidate();
+		bool bRet = m_image[m_iImageIndex].ReDo();
+		if(bRet != true){return;}
+		Invalidate();
 	}
 	void CSImageViewerView::OnRename()
 	{
@@ -1865,7 +2039,7 @@ IMPLEMENT_DYNCREATE(CSImageViewerView, CView)
 		{
 			view.GetScrollSetting(&(m_image[m_iImageIndex].scr));
 		}
-		
+
 		CPoint point_v;
 		GetCursorPos(&point_v);
 		ScreenToClient(&point_v);
@@ -1933,7 +2107,7 @@ IMPLEMENT_DYNCREATE(CSImageViewerView, CView)
 		INT_PTR iRet = dlg.DoModal();
 		if(iRet != IDOK){return;}
 
-		
+
 		m_bExitByEsc=dlg.m_bExitByEsc;
 		m_bCenteredWhenFullScreen=dlg.m_bCenteredWhenFullScreen;
 		m_bPPFWwithoutCtrlWhenFullScreen=dlg.m_bPPFWwithoutCtrlWhenFullScreen;

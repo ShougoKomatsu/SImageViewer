@@ -104,7 +104,7 @@ public:
 	void EnterFullScreen();
 	void SetToolFormat();
 	void OnCopyAverageToClipboard();
-	void OnCopyDeviationToClipboard();
+	void OnCopyVarianceToClipboard();
 
 	void OnCopyFileListToClipboard();
 	void OnCopyCorrelMapToClipboard();
