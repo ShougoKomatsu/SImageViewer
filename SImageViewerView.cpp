@@ -849,7 +849,7 @@ IMPLEMENT_DYNCREATE(CSImageViewerView, CView)
 				{
 					CString sTemp;
 					double dVariance = ullTotalR[r*iWidth+c]/(iImageNum*iImageNum*iImageNum*1.0);
-					sTemp.Format(_T("%e\t"), sVariance);
+					sTemp.Format(_T("%e\t"), dVariance);
 					sVariance+=sTemp;
 				}
 				sVariance+=_T("\t");
@@ -857,7 +857,7 @@ IMPLEMENT_DYNCREATE(CSImageViewerView, CView)
 				{
 					CString sTemp;
 					double dVariance = ullTotalG[r*iWidth+c]/(iImageNum*iImageNum*iImageNum*1.0);
-					sTemp.Format(_T("%e\t"), sVariance);
+					sTemp.Format(_T("%e\t"), dVariance);
 					sVariance+=sTemp;
 				}
 				sVariance+=_T("\t");
@@ -865,7 +865,7 @@ IMPLEMENT_DYNCREATE(CSImageViewerView, CView)
 				{
 					CString sTemp;
 					double dVariance = ullTotalB[r*iWidth+c]/(iImageNum*iImageNum*iImageNum*1.0);
-					sTemp.Format(_T("%e%s"), sVariance,(c != (iWidth-1)? _T("\t"): _T("\n")));
+					sTemp.Format(_T("%e%s"), dVariance,(c != (iWidth-1)? _T("\t"): _T("\n")));
 					sVariance+=sTemp;
 				}
 			}
