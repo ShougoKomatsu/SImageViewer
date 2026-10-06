@@ -905,7 +905,7 @@ IMPLEMENT_DYNCREATE(CSImageViewerView, CView)
 			{
 				for(int c=0; c<iWidth; c++)
 				{
-					ullSumR[r*iWidth+c]+=0;
+					ullSumR[r*iWidth+c]=0;
 				}
 			}
 
@@ -928,9 +928,9 @@ IMPLEMENT_DYNCREATE(CSImageViewerView, CView)
 			{
 				for(int c=0; c<iWidth; c++)
 				{
-					ullSumR[r*iWidth+c]+=0;
-					ullSumG[r*iWidth+c]+=0;
-					ullSumB[r*iWidth+c]+=0;
+					ullSumR[r*iWidth+c]=0;
+					ullSumG[r*iWidth+c]=0;
+					ullSumB[r*iWidth+c]=0;
 				}
 			}
 			for(int i=0; i<m_iImageMax; i++)
