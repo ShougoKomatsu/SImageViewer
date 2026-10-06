@@ -723,6 +723,13 @@ IMPLEMENT_DYNCREATE(CSImageViewerView, CView)
 		if(iRet==-2){AfxMessageBox(_T("‰æ‘œ‚Ì‘å‚«‚³‚ª‚»‚ë‚Á‚Ä‚¢‚Ü‚¹‚ñ")); return;}
 		if(iRet<0){return;}
 
+		CInputDlg dlg;
+		dlg.m_sEditInput.Format(_T("1"));
+		dlg.DoModal();
+
+		int iSize = _ttoi(dlg.m_sEditInput);
+		if(iSize<1){ return;}
+		int iSizeHalf = (iSize-1)/2;
 		const int iImageNum=m_iImageMax;
 		ULONGLONG* ullSumR;
 		ULONGLONG* ullSumG;
@@ -743,7 +750,6 @@ IMPLEMENT_DYNCREATE(CSImageViewerView, CView)
 
 		if(bMono==true)
 		{
-
 			for(int i=0; i<iImageNum; i++)
 			{
 				ImgRGB imgRGB;
@@ -779,10 +785,12 @@ IMPLEMENT_DYNCREATE(CSImageViewerView, CView)
 		ULONGLONG* ullTotalR;
 		ULONGLONG* ullTotalG;
 		ULONGLONG* ullTotalB;
+		ULONGLONG* ullArea;
 
 		ullTotalR = new ULONGLONG[iWidth*iHeight];
 		ullTotalG = new ULONGLONG[iWidth*iHeight];
 		ullTotalB = new ULONGLONG[iWidth*iHeight];
+		ullArea = new ULONGLONG[iWidth*iHeight];
 
 		for(int r=0; r<iHeight; r++)
 		{
@@ -791,6 +799,7 @@ IMPLEMENT_DYNCREATE(CSImageViewerView, CView)
 				ullTotalR[r*iWidth+c] =0;
 				ullTotalG[r*iWidth+c] =0;
 				ullTotalB[r*iWidth+c] =0;
+				ullArea[r*iWidth+c] =0;
 			}
 		}
 
@@ -800,11 +809,34 @@ IMPLEMENT_DYNCREATE(CSImageViewerView, CView)
 			{
 				ImgRGB imgRGB;
 				m_image[i].ConvertImage(&imgRGB);
-				for(int r=0; r<iHeight; r++)
+
+
+				if(iSizeHalf==0)
 				{
-					for(int c=0; c<iWidth; c++)
+					for(int r=0; r<iHeight; r++)
 					{
-						ullTotalR[r*iWidth+c] += (imgRGB.byImgR[r*iWidth+c]*iImageNum -  ullSumR[r*iWidth+c])*(imgRGB.byImgR[r*iWidth+c]*iImageNum -  ullSumR[r*iWidth+c]);
+						for(int c=0; c<iWidth; c++)
+						{
+							ullTotalR[r*iWidth+c] += (imgRGB.byImgR[r*iWidth+c]*iImageNum -  ullSumR[r*iWidth+c])*(imgRGB.byImgR[r*iWidth+c]*iImageNum -  ullSumR[r*iWidth+c]);
+
+						}
+					}
+				}
+				else
+				{
+					for(int r=0; r<iHeight; r++)
+					{
+						for(int c=0; c<iWidth; c++)
+						{
+							for(int dr=((r<iSizeHalf) ? -r : -iSizeHalf); dr<=((r+iSizeHalf>iHeight-1) ? iHeight-1 - r : iSizeHalf); dr++)
+							{
+								for(int dc=((c<iSizeHalf) ? -c : -iSizeHalf); dc<=((c+iSizeHalf>iWidth-1) ? iWidth-1 - c : iSizeHalf); dc++)
+								{
+									ullTotalR[r*iWidth+c] += (imgRGB.byImgR[(r+dr)*iWidth+(c+dc)]*iImageNum -  ullSumR[r*iWidth+c])*(imgRGB.byImgR[(r+dr)*iWidth+(c+dc)]*iImageNum -  ullSumR[r*iWidth+c]);
+									ullArea[r*iWidth+c]++;
+								}
+							}
+						}
 					}
 				}
 			}
@@ -815,13 +847,35 @@ IMPLEMENT_DYNCREATE(CSImageViewerView, CView)
 			{
 				ImgRGB imgRGB;
 				m_image[i].ConvertImage(&imgRGB);
-				for(int r=0; r<iHeight; r++)
+				if(iSizeHalf==0)
 				{
-					for(int c=0; c<iWidth; c++)
+					for(int r=0; r<iHeight; r++)
 					{
-						ullTotalR[r*iWidth+c] += (imgRGB.byImgR[r*iWidth+c]*iImageNum -  ullSumR[r*iWidth+c])*(imgRGB.byImgR[r*iWidth+c]*iImageNum -  ullSumR[r*iWidth+c]);
-						ullTotalG[r*iWidth+c] += (imgRGB.byImgG[r*iWidth+c]*iImageNum -  ullSumG[r*iWidth+c])*(imgRGB.byImgG[r*iWidth+c]*iImageNum -  ullSumG[r*iWidth+c]);
-						ullTotalB[r*iWidth+c] += (imgRGB.byImgB[r*iWidth+c]*iImageNum -  ullSumB[r*iWidth+c])*(imgRGB.byImgB[r*iWidth+c]*iImageNum -  ullSumB[r*iWidth+c]);
+						for(int c=0; c<iWidth; c++)
+						{
+							ullTotalR[r*iWidth+c] += (imgRGB.byImgR[r*iWidth+c]*iImageNum -  ullSumR[r*iWidth+c])*(imgRGB.byImgR[r*iWidth+c]*iImageNum -  ullSumR[r*iWidth+c]);
+							ullTotalG[r*iWidth+c] += (imgRGB.byImgG[r*iWidth+c]*iImageNum -  ullSumG[r*iWidth+c])*(imgRGB.byImgG[r*iWidth+c]*iImageNum -  ullSumG[r*iWidth+c]);
+							ullTotalB[r*iWidth+c] += (imgRGB.byImgB[r*iWidth+c]*iImageNum -  ullSumB[r*iWidth+c])*(imgRGB.byImgB[r*iWidth+c]*iImageNum -  ullSumB[r*iWidth+c]);
+						}
+					}
+				}
+				else
+				{
+					for(int r=0; r<iHeight; r++)
+					{
+						for(int c=0; c<iWidth; c++)
+						{
+							for(int dr=((r<iSizeHalf) ? -r : -iSizeHalf); dr<=((r+iSizeHalf>iHeight-1) ? iHeight-1 - r : iSizeHalf); dr++)
+							{
+								for(int dc=((c<iSizeHalf) ? -c : -iSizeHalf); dc<=((c+iSizeHalf>iWidth-1) ? iWidth-1 - c : iSizeHalf); dc++)
+								{
+									ullTotalR[r*iWidth+c] += (imgRGB.byImgR[(r+dr)*iWidth+(c+dc)]*iImageNum -  ullSumR[r*iWidth+c])*(imgRGB.byImgR[(r+dr)*iWidth+(c+dc)]*iImageNum -  ullSumR[r*iWidth+c]);
+									ullTotalG[r*iWidth+c] += (imgRGB.byImgG[(r+dr)*iWidth+(c+dc)]*iImageNum -  ullSumG[r*iWidth+c])*(imgRGB.byImgG[(r+dr)*iWidth+(c+dc)]*iImageNum -  ullSumG[r*iWidth+c]);
+									ullTotalB[r*iWidth+c] += (imgRGB.byImgB[(r+dr)*iWidth+(c+dc)]*iImageNum -  ullSumB[r*iWidth+c])*(imgRGB.byImgB[(r+dr)*iWidth+(c+dc)]*iImageNum -  ullSumB[r*iWidth+c]);
+									ullArea[r*iWidth+c]++;
+								}
+							}
+						}
 					}
 				}
 			}
@@ -835,42 +889,84 @@ IMPLEMENT_DYNCREATE(CSImageViewerView, CView)
 		{
 			if(bMono==true)
 			{
-				for(int c=0; c<iWidth; c++)
+				if(iSizeHalf==0)
 				{
-					CString sTemp;
-					double dVariance = ullTotalR[r*iWidth+c]/(iImageNum*iImageNum*iImageNum*1.0);
-					sTemp.Format(_T("%e%s"), dVariance,(c != (iWidth-1)? _T("\t"): _T("\n")));
-					sVariance+=sTemp;
+					double dNum3=iImageNum*iImageNum*iImageNum*1.0;
+					for(int c=0; c<iWidth; c++)
+					{
+						CString sTemp;
+						sTemp.Format(_T("%e%s"), ullTotalR[r*iWidth+c]/(dNum3),(c != (iWidth-1)? _T("\t"): _T("\n")));
+						sVariance+=sTemp;
+					}
+				}
+				else
+				{
+					for(int c=0; c<iWidth; c++)
+					{
+						CString sTemp;
+						double dNum3=ullArea[r*iWidth+c]*ullArea[r*iWidth+c]*ullArea[r*iWidth+c]*1.0;
+						sTemp.Format(_T("%e%s"), ullTotalR[r*iWidth+c]/(dNum3),(c != (iWidth-1)? _T("\t"): _T("\n")));
+						sVariance+=sTemp;
+					}
 				}
 			}
 			else
 			{
-				for(int c=0; c<iWidth; c++)
+				if(iSizeHalf==0)
 				{
-					CString sTemp;
-					double dVariance = ullTotalR[r*iWidth+c]/(iImageNum*iImageNum*iImageNum*1.0);
-					sTemp.Format(_T("%e\t"), dVariance);
-					sVariance+=sTemp;
+					double dNum3=iImageNum*iImageNum*iImageNum*1.0;
+					for(int c=0; c<iWidth; c++)
+					{
+						CString sTemp;
+						sTemp.Format(_T("%e\t"), ullTotalR[r*iWidth+c]/(dNum3));
+						sVariance+=sTemp;
+					}
+					sVariance+=_T("\t");
+					for(int c=0; c<iWidth; c++)
+					{
+						CString sTemp;
+						sTemp.Format(_T("%e\t"), ullTotalG[r*iWidth+c]/(dNum3));
+						sVariance+=sTemp;
+					}
+					sVariance+=_T("\t");
+					for(int c=0; c<iWidth; c++)
+					{
+						CString sTemp;
+						sTemp.Format(_T("%e%s"), ullTotalB[r*iWidth+c]/(dNum3),(c != (iWidth-1)? _T("\t"): _T("\n")));
+						sVariance+=sTemp;
+					}
 				}
-				sVariance+=_T("\t");
-				for(int c=0; c<iWidth; c++)
+				else
 				{
-					CString sTemp;
-					double dVariance = ullTotalG[r*iWidth+c]/(iImageNum*iImageNum*iImageNum*1.0);
-					sTemp.Format(_T("%e\t"), dVariance);
-					sVariance+=sTemp;
-				}
-				sVariance+=_T("\t");
-				for(int c=0; c<iWidth; c++)
-				{
-					CString sTemp;
-					double dVariance = ullTotalB[r*iWidth+c]/(iImageNum*iImageNum*iImageNum*1.0);
-					sTemp.Format(_T("%e%s"), dVariance,(c != (iWidth-1)? _T("\t"): _T("\n")));
-					sVariance+=sTemp;
+					for(int c=0; c<iWidth; c++)
+					{
+						CString sTemp;
+						double dNum3=ullArea[r*iWidth+c]*ullArea[r*iWidth+c]*ullArea[r*iWidth+c]*1.0;
+						sTemp.Format(_T("%e\t"), ullTotalR[r*iWidth+c]/(dNum3));
+						sVariance+=sTemp;
+					}
+					sVariance+=_T("\t");
+					for(int c=0; c<iWidth; c++)
+					{
+						CString sTemp;
+						double dNum3=ullArea[r*iWidth+c]*ullArea[r*iWidth+c]*ullArea[r*iWidth+c]*1.0;
+						sTemp.Format(_T("%e\t"), ullTotalG[r*iWidth+c]/(dNum3));
+						sVariance+=sTemp;
+					}
+					sVariance+=_T("\t");
+					for(int c=0; c<iWidth; c++)
+					{
+						CString sTemp;
+						double dNum3=ullArea[r*iWidth+c]*ullArea[r*iWidth+c]*ullArea[r*iWidth+c]*1.0;
+						sTemp.Format(_T("%e%s"), ullTotalB[r*iWidth+c]/(dNum3),(c != (iWidth-1)? _T("\t"): _T("\n")));
+						sVariance+=sTemp;
+					}
 				}
 			}
 		}
 
+		
+		SAFE_DELETE(ullArea);
 
 		SAFE_DELETE(ullTotalR);
 		SAFE_DELETE(ullTotalG);
@@ -957,9 +1053,7 @@ IMPLEMENT_DYNCREATE(CSImageViewerView, CView)
 				for(int c=0; c<iWidth; c++)
 				{
 					CString sTemp;
-
-					double Average = ullSumR[r*iWidth+c]/(m_iImageMax*1.0);
-					sTemp.Format(_T("%e%s"), Average,(c != (iWidth-1)? _T("\t"): _T("\n")));
+					sTemp.Format(_T("%e%s"), ullSumR[r*iWidth+c]/(m_iImageMax*1.0),(c != (iWidth-1)? _T("\t"): _T("\n")));
 					sAverage+=sTemp;
 				}
 			}
@@ -968,24 +1062,21 @@ IMPLEMENT_DYNCREATE(CSImageViewerView, CView)
 				for(int c=0; c<iWidth; c++)
 				{
 					CString sTemp;
-					double Average = ullSumR[r*iWidth+c]/(m_iImageMax*1.0);
-					sTemp.Format(_T("%e\t"), Average);
+					sTemp.Format(_T("%e\t"), ullSumR[r*iWidth+c]/(m_iImageMax*1.0));
 					sAverage+=sTemp;
 				}
 				sAverage+=_T("\t");
 				for(int c=0; c<iWidth; c++)
 				{
 					CString sTemp;
-					double Average = ullSumG[r*iWidth+c]/(m_iImageMax*1.0);
-					sTemp.Format(_T("%e\t"), Average);
+					sTemp.Format(_T("%e\t"), ullSumG[r*iWidth+c]/(m_iImageMax*1.0));
 					sAverage+=sTemp;
 				}
 				sAverage+=_T("\t");
 				for(int c=0; c<iWidth; c++)
 				{
 					CString sTemp;
-					double Average = ullSumB[r*iWidth+c]/(m_iImageMax*1.0);
-					sTemp.Format(_T("%e%s"), Average,(c != (iWidth-1)? _T("\t"): _T("\n")));
+					sTemp.Format(_T("%e%s"), ullSumB[r*iWidth+c]/(m_iImageMax*1.0),(c != (iWidth-1)? _T("\t"): _T("\n")));
 					sAverage+=sTemp;
 				}
 			}
