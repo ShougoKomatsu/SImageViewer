@@ -809,6 +809,9 @@ IMPLEMENT_DYNCREATE(CSImageViewerView, CView)
 				}
 			}
 		}
+		SAFE_DELETE(ullSumR);
+		SAFE_DELETE(ullSumG);
+		SAFE_DELETE(ullSumB);
 
 		sAverage.Delete(sAverage.GetLength()-1);
 		CopyToClipBoardStr(sAverage);
