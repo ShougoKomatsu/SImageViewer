@@ -1304,7 +1304,7 @@ IMPLEMENT_DYNCREATE(CSImageViewerView, CView)
 		int iIndexOf0 = m_image[0].GetProcessIndex();
 		for(int i=1; i<m_iImageMax; i++)
 		{
-			if(iIndexOf0 != m_image[i].GetProcessIndex()){bSame = true;}else{bSame = false; break;}
+			if(iIndexOf0 == m_image[i].GetProcessIndex()){bSame = true;}else{bSame = false; break;}
 		}
 
 		bool bApplyToAll = false;
@@ -1390,21 +1390,39 @@ IMPLEMENT_DYNCREATE(CSImageViewerView, CView)
 		}
 
 
-		CImage imgTemp;
-
-		ClipImage(m_image[m_iImageIndex].GetCurrentProcess(), &imgClipped, rect_i.top,rect_i.left, rect_i.bottom, rect_i.right); 
-		switch(dlg.m_colorize)
+		bool bSame = false;
+		int iIndexOf0 = m_image[0].GetProcessIndex();
+		for(int i=1; i<m_iImageMax; i++)
 		{
-		case Colorize_threshold:{ Threshold(&imgClipped, &imgTemp, dlg.m_byMin, dlg.m_byMax, dlg.m_bConnection, dlg.m_iNeighbor); break;}
-		case Colorize_Demosaic:{ Demosaic(&imgClipped, dlg.m_i00, dlg.m_i01, dlg.m_i10, dlg.m_i11, &imgTemp); break;}
-		case Colorize_rainbow:{ GrayToRainbow(&imgClipped, &imgTemp); break;}
+			if(iIndexOf0 == m_image[i].GetProcessIndex()){bSame = true;}else{bSame = false; break;}
+			if(_IsImageMonochrome(m_image[i].GetCurrentProcess())==false){bSame = false; break;}
 		}
 
-		CImage imgResult2;
-		bool bRet = ImposeImage(m_image[m_iImageIndex].GetCurrentProcess(), &(dlg.m_imageColorized), rect_i.top, rect_i.left,&imgResult2);
-		CopyImage_CImage(&imgResult2, m_image[m_iImageIndex].ProgressImageProcess());
+		bool bApplyToAll = false;
+		if(bSame == true){bApplyToAll = ((IDYES == AfxMessageBox(_T("全ての画像に適用しますか？"), MB_YESNO)) ? true: false);}
 
 
+		int iStart = ((bApplyToAll == true) ?		0	: m_iImageIndex);
+		int iEnd = ((bApplyToAll == true) ?	m_iImageMax : m_iImageIndex+1);
+
+		for(int i =iStart; i<iEnd; i++)
+		{
+
+			CImage imgTemp;
+
+			ClipImage(m_image[i].GetCurrentProcess(), &imgClipped, rect_i.top,rect_i.left, rect_i.bottom, rect_i.right); 
+			switch(dlg.m_colorize)
+			{
+			case Colorize_threshold:{ Threshold(&imgClipped, &imgTemp, dlg.m_byMin, dlg.m_byMax, dlg.m_bConnection, dlg.m_iNeighbor); break;}
+			case Colorize_Demosaic:{ Demosaic(&imgClipped, dlg.m_i00, dlg.m_i01, dlg.m_i10, dlg.m_i11, &imgTemp); break;}
+			case Colorize_rainbow:{ GrayToRainbow(&imgClipped, &imgTemp); break;}
+			}
+
+			CImage imgResult2;
+			bool bRet = ImposeImage(m_image[i].GetCurrentProcess(), &(dlg.m_imageColorized), rect_i.top, rect_i.left,&imgResult2);
+			CopyImage_CImage(&imgResult2, m_image[i].ProgressImageProcess());
+
+		}
 
 		if(bAutoFull == true)
 		{
