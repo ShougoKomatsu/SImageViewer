@@ -5,11 +5,26 @@
 
 // CColorizeDlg ダイアログ
 
+enum Colorize
+{
+	Colorize_threshold = 1,
+	Colorize_Demosaic = 2,
+	Colorize_rainbow = 3,
+};
+
 class CColorizeDlg : public CDialogEx
 {
 	DECLARE_DYNAMIC(CColorizeDlg)
 
 public:
+	Colorize m_colorize;
+
+	COLOR_ELEMENT m_i00, m_i01, m_i10, m_i11;
+	BYTE m_byMin ;
+	BYTE m_byMax ;
+	int m_iNeighbor;
+	bool m_bConnection;
+
 	CImage m_image;
 	CImage m_imageColorized;
 	CPictureCtrlEx m_pictureBefore;

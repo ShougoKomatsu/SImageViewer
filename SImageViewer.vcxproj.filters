@@ -108,23 +108,23 @@
     <ClInclude Include="InputDlg.h">
       <Filter>ヘッダー ファイル\Dlg</Filter>
     </ClInclude>
-    <ClInclude Include="SetTransparentDlg.h">
-      <Filter>ヘッダー ファイル</Filter>
-    </ClInclude>
     <ClInclude Include="ViewDraw.h">
       <Filter>ヘッダー ファイル</Filter>
     </ClInclude>
     <ClInclude Include="PictureCtrlEx.h">
       <Filter>ヘッダー ファイル</Filter>
     </ClInclude>
-    <ClInclude Include="SettingDlg.h">
-      <Filter>ヘッダー ファイル</Filter>
-    </ClInclude>
     <ClInclude Include="EditEx.h">
       <Filter>ヘッダー ファイル</Filter>
     </ClInclude>
+    <ClInclude Include="SettingDlg.h">
+      <Filter>ヘッダー ファイル\Dlg</Filter>
+    </ClInclude>
     <ClInclude Include="FullScreenDlg.h">
-      <Filter>ヘッダー ファイル</Filter>
+      <Filter>ヘッダー ファイル\Dlg</Filter>
+    </ClInclude>
+    <ClInclude Include="SetTransparentDlg.h">
+      <Filter>ヘッダー ファイル\Dlg</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -191,14 +191,14 @@
     <ClCompile Include="PictureCtrlEx.cpp">
       <Filter>ソース ファイル</Filter>
     </ClCompile>
-    <ClCompile Include="SettingDlg.cpp">
-      <Filter>ソース ファイル</Filter>
-    </ClCompile>
     <ClCompile Include="EditEx.cpp">
       <Filter>ソース ファイル</Filter>
     </ClCompile>
     <ClCompile Include="FullScreenDlg.cpp">
-      <Filter>ソース ファイル</Filter>
+      <Filter>ソース ファイル\Dlg</Filter>
+    </ClCompile>
+    <ClCompile Include="SettingDlg.cpp">
+      <Filter>ソース ファイル\Dlg</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

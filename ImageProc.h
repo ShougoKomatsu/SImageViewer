@@ -275,6 +275,7 @@ bool ImposeAlphaChannel(const CImage* imgSrc, CImage* imgDst);
 		COLOR_G=1,
 		COLOR_B=2,
 	};
+	bool Threshold(const CImage* image, CImage* imageColorized, const BYTE byMin, const BYTE byMax, const bool bConnection, const int iNeighbor );
 	bool Demosaic(const CImage* imgSrc,const COLOR_ELEMENT i00,const COLOR_ELEMENT i01,const COLOR_ELEMENT i10,const COLOR_ELEMENT i11, CImage* imgDst);
 
 	

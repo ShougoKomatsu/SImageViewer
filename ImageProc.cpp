@@ -4605,6 +4605,32 @@ bool ReadBinaryFile(const CString sFilePath, FileFormatList* fileFormatList, Pan
 			}
 		}
 	}
+	bool Threshold(const CImage* image, CImage* imageColorized, const BYTE byMin, const BYTE byMax, const bool bConnection, const int iNeighbor )
+	{
+
+		ImgRGB imgRGB;
+		_ConvertImage(image,&imgRGB);
+		ImgRGB imgGray;
+		ImgRGB imgDummy; 
+		Decompose3(&imgRGB, &imgGray, &imgDummy, &imgDummy, &imgDummy); 
+		Object obj;
+		Threshold( &imgGray, byMin, byMax, &obj);
+		ImgRGB imgResult;
+
+		if( bConnection == FALSE)
+		{
+			PaintRegion(&imgRGB, &obj, &imgResult); 
+		}
+		else
+		{
+			Object objConnected;
+			Connection(&obj, &objConnected, iNeighbor);
+			PaintRegion(&imgRGB, &objConnected, &imgResult); 
+		}
+		ConvertImage(&imgResult, imageColorized);
+
+		return true;
+	}
 
 	bool Demosaic(const CImage* imgSrc,const COLOR_ELEMENT i00,const COLOR_ELEMENT i01,const COLOR_ELEMENT i10,const COLOR_ELEMENT i11, CImage* imgDst)
 	{

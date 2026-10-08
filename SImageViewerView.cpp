@@ -1353,12 +1353,12 @@ IMPLEMENT_DYNCREATE(CSImageViewerView, CView)
 		CRect rect_i=view.GetRect_i();
 		if(rect_i.IsRectNull() == TRUE){bAutoFull = true;FullDomain(&rect_i);}
 
-		CColorizeDlg dlgModify;
+		CColorizeDlg dlg;
 
 		CImage imgClipped;
 		ClipImage(m_image[m_iImageIndex].GetCurrentProcess(), &imgClipped, rect_i.top,rect_i.left, rect_i.bottom, rect_i.right); 
-		CopyImage_CImage(&imgClipped, &dlgModify.m_image);
-		INT_PTR iRet = dlgModify.DoModal();
+		CopyImage_CImage(&imgClipped, &dlg.m_image);
+		INT_PTR iRet = dlg.DoModal();
 		if(iRet != IDOK)
 		{
 			if(bAutoFull == true)
@@ -1371,13 +1371,23 @@ IMPLEMENT_DYNCREATE(CSImageViewerView, CView)
 			return;
 		}
 
-		//	ImgRGB imgRGB;
-		//	_ConvertImage(&(dlgModify.m_imageColorized), &imgRGB);
+
+		CImage imgTemp;
+
+		ClipImage(m_image[m_iImageIndex].GetCurrentProcess(), &imgClipped, rect_i.top,rect_i.left, rect_i.bottom, rect_i.right); 
+		switch(dlg.m_colorize)
+		{
+		case Colorize_threshold:{ Threshold(&imgClipped, &imgTemp, dlg.m_byMin, dlg.m_byMax, dlg.m_bConnection, dlg.m_iNeighbor); break;}
+		case Colorize_Demosaic:{ Demosaic(&imgClipped, dlg.m_i00, dlg.m_i01, dlg.m_i10, dlg.m_i11, &imgTemp); break;}
+		case Colorize_rainbow:{ GrayToRainbow(&imgClipped, &imgTemp); break;}
+		}
+
 		CImage imgResult2;
-		bool bRet = ImposeImage(m_image[m_iImageIndex].GetCurrentProcess(), &(dlgModify.m_imageColorized), rect_i.top, rect_i.left,&imgResult2);
+		bool bRet = ImposeImage(m_image[m_iImageIndex].GetCurrentProcess(), &(dlg.m_imageColorized), rect_i.top, rect_i.left,&imgResult2);
 		CopyImage_CImage(&imgResult2, m_image[m_iImageIndex].ProgressImageProcess());
 
-		//	ConvertImage(&imgRGB, m_image[m_iImageIndex].ProgressImageProcess());
+
+
 		if(bAutoFull == true)
 		{
 			view.SetRect_v(NULL);

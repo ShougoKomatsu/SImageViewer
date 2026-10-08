@@ -67,66 +67,52 @@ void CColorizeDlg::UpdateResultImage(CImage* imgResult)
 }
 void CColorizeDlg::OperateRainbow()
 {
+	m_colorize = Colorize_rainbow;
 
 	GrayToRainbow(&m_image, &m_imageColorized);
+
 	m_pictureAfter.m_image.Set(IMAGE_TYPE_CIMAGE, NULL, NULL, 0, 0, &m_imageColorized, VALUE_IMAGE_CLIP_0_TO_255, _T("temp"));
 	m_pictureAfter.Refresh();
 }
 void CColorizeDlg::OperateThreshold()
 {
+	m_colorize = Colorize_threshold;
 	UpdateData(TRUE);
-	BYTE byMin = max(0, min(255, _ttoi(m_sEditThreshMin)));
-	BYTE byMax = max(0, min(255, _ttoi(m_sEditThreshMax)));
+	m_byMin = max(0, min(255, _ttoi(m_sEditThreshMin)));
+	m_byMax = max(0, min(255, _ttoi(m_sEditThreshMax)));
+	m_iNeighbor =((((CButton*)(GetDlgItem(IDC_COLORIZE_RADIO_CONNECTION4)))->GetCheck() == TRUE) ? 4 : 8);
+	m_bConnection = (((CButton*)(GetDlgItem(IDC_COLORIZE_CHECK_CONNECTION)))->GetCheck() == TRUE ? true : false) ;
 
-	int iNeighbor =((((CButton*)(GetDlgItem(IDC_COLORIZE_RADIO_CONNECTION4)))->GetCheck() == TRUE) ? 4 : 8);
-
-	ImgRGB imgRGB;
-	_ConvertImage(&m_image,&imgRGB);
-	ImgRGB imgGray;
-	ImgRGB imgDummy; 
-	Decompose3(&imgRGB, &imgGray, &imgDummy, &imgDummy, &imgDummy); 
-	Object obj;
-	Threshold( &imgGray, byMin, byMax, &obj);
-	ImgRGB imgResult;
-
-	if( ((CButton*)(GetDlgItem(IDC_COLORIZE_CHECK_CONNECTION)))->GetCheck() == FALSE)
-	{
-		PaintRegion(&imgRGB, &obj, &imgResult); 
-	}
-	else
-	{
-		Object objConnected;
-		Connection(&obj, &objConnected, iNeighbor);
-		PaintRegion(&imgRGB, &objConnected, &imgResult); 
-	}
-	ConvertImage(&imgResult, &m_imageColorized);
+	bool bRet = Threshold(&m_image, &m_imageColorized, m_byMin, m_byMax, m_bConnection, m_iNeighbor );
+	
 	m_pictureAfter.m_image.Set(IMAGE_TYPE_CIMAGE, NULL, NULL, 0, 0, &m_imageColorized, VALUE_IMAGE_CLIP_0_TO_255, _T("temp"));
-
 	m_pictureAfter.Refresh();
 }
 
 void CColorizeDlg::OperateDemosaic()
 {
+	m_colorize = Colorize_Demosaic;
+
 	CString sText;
-	COLOR_ELEMENT i00, i01, i10, i11;
 	int iSel;
 	iSel = ((CComboBox*)(GetDlgItem(IDC_COLORIZE_COMBO_00)))->GetCurSel();
 	((CComboBox*)(GetDlgItem(IDC_COLORIZE_COMBO_00)))->GetLBText(iSel,sText);
-	i00 = (sText.Compare(_T("R"))==0) ? COLOR_R : ((sText.Compare(_T("G"))==0) ? COLOR_G: COLOR_B);
+	m_i00 = (sText.Compare(_T("R"))==0) ? COLOR_R : ((sText.Compare(_T("G"))==0) ? COLOR_G: COLOR_B);
 
 	iSel = ((CComboBox*)(GetDlgItem(IDC_COLORIZE_COMBO_01)))->GetCurSel();
 	((CComboBox*)(GetDlgItem(IDC_COLORIZE_COMBO_01)))->GetLBText(iSel,sText);
-	i01 = (sText.Compare(_T("R"))==0) ? COLOR_R : ((sText.Compare(_T("G"))==0) ? COLOR_G: COLOR_B);
+	m_i01 = (sText.Compare(_T("R"))==0) ? COLOR_R : ((sText.Compare(_T("G"))==0) ? COLOR_G: COLOR_B);
 
 	iSel = ((CComboBox*)(GetDlgItem(IDC_COLORIZE_COMBO_10)))->GetCurSel();
 	((CComboBox*)(GetDlgItem(IDC_COLORIZE_COMBO_10)))->GetLBText(iSel,sText);
-	i10 = (sText.Compare(_T("R"))==0) ? COLOR_R : ((sText.Compare(_T("G"))==0) ? COLOR_G: COLOR_B);
+	m_i10 = (sText.Compare(_T("R"))==0) ? COLOR_R : ((sText.Compare(_T("G"))==0) ? COLOR_G: COLOR_B);
 
 	iSel = ((CComboBox*)(GetDlgItem(IDC_COLORIZE_COMBO_11)))->GetCurSel();
 	((CComboBox*)(GetDlgItem(IDC_COLORIZE_COMBO_11)))->GetLBText(iSel,sText);
-	i11 = (sText.Compare(_T("R"))==0) ? COLOR_R : ((sText.Compare(_T("G"))==0) ? COLOR_G: COLOR_B);
+	m_i11 = (sText.Compare(_T("R"))==0) ? COLOR_R : ((sText.Compare(_T("G"))==0) ? COLOR_G: COLOR_B);
 
-	Demosaic(&m_image, i00, i01, i10, i11, &m_imageColorized);
+	bool bRet = Demosaic(&m_image, m_i00, m_i01, m_i10, m_i11, &m_imageColorized);
+
 	m_pictureAfter.m_image.Set(IMAGE_TYPE_CIMAGE, NULL, NULL, 0, 0, &m_imageColorized, VALUE_IMAGE_CLIP_0_TO_255, _T("temp"));
 	m_pictureAfter.Refresh();
 }
