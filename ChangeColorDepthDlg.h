@@ -10,6 +10,9 @@ class CChangeColorDepthDlg : public CDialogEx
 	int m_iMode;
 	int m_iColors;
 	bool m_bGrayScale;
+	void GetSetting(int* iBPP, int* iMode);
+
+	void SetEnableByBPP(const int iBPP);
 public:
 	CChangeColorDepthDlg(CWnd* pParent = NULL);   // 標準コンストラクター
 	virtual ~CChangeColorDepthDlg();
@@ -27,4 +30,9 @@ public:
 	CString m_sEditBPP;
 	CString m_sEditColors;
 	CString m_sEditGrayScale;
+	afx_msg void OnBnClickedChangeColorDepthRadio1();
+	afx_msg void OnBnClickedChangeColorDepthRadio4();
+	afx_msg void OnBnClickedChangeColorDepthRadio8();
+	afx_msg void OnBnClickedChangeColorDepthRadio24();
+	afx_msg void OnBnClickedChangeColorDepthRadio32();
 };

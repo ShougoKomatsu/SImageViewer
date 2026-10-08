@@ -35,23 +35,31 @@ void CChangeColorDepthDlg::DoDataExchange(CDataExchange* pDX)
 
 BEGIN_MESSAGE_MAP(CChangeColorDepthDlg, CDialogEx)
 	ON_BN_CLICKED(IDOK, &CChangeColorDepthDlg::OnBnClickedOk)
+	ON_BN_CLICKED(IDC_CHANGE_COLOR_DEPTH_RADIO_1, &CChangeColorDepthDlg::OnBnClickedChangeColorDepthRadio1)
+	ON_BN_CLICKED(IDC_CHANGE_COLOR_DEPTH_RADIO_4, &CChangeColorDepthDlg::OnBnClickedChangeColorDepthRadio4)
+	ON_BN_CLICKED(IDC_CHANGE_COLOR_DEPTH_RADIO_8, &CChangeColorDepthDlg::OnBnClickedChangeColorDepthRadio8)
+	ON_BN_CLICKED(IDC_CHANGE_COLOR_DEPTH_RADIO_24, &CChangeColorDepthDlg::OnBnClickedChangeColorDepthRadio24)
+	ON_BN_CLICKED(IDC_CHANGE_COLOR_DEPTH_RADIO_32, &CChangeColorDepthDlg::OnBnClickedChangeColorDepthRadio32)
 END_MESSAGE_MAP()
 
 
 // CChangeColorDepthDlg メッセージ ハンドラー
 
+void CChangeColorDepthDlg::GetSetting(int* iBPP, int* iMode)
+{
+	if(((CButton*)GetDlgItem(IDC_CHANGE_COLOR_DEPTH_RADIO_1))->GetCheck()==TRUE){*iBPP=1;}
+	if(((CButton*)GetDlgItem(IDC_CHANGE_COLOR_DEPTH_RADIO_4))->GetCheck()==TRUE){*iBPP=4;}
+	if(((CButton*)GetDlgItem(IDC_CHANGE_COLOR_DEPTH_RADIO_8))->GetCheck()==TRUE){*iBPP=8;}
+	if(((CButton*)GetDlgItem(IDC_CHANGE_COLOR_DEPTH_RADIO_24))->GetCheck()==TRUE){*iBPP=24;}
+	if(((CButton*)GetDlgItem(IDC_CHANGE_COLOR_DEPTH_RADIO_32))->GetCheck()==TRUE){*iBPP=32;}
 
+	if(((CButton*)GetDlgItem(IDC_CHANGE_COLOR_DEPTH_RADIO_LOSSLESS))->GetCheck()==TRUE){*iMode=0;}
+	if(((CButton*)GetDlgItem(IDC_CHANGE_COLOR_DEPTH_RADIO_AREA))->GetCheck()==TRUE){*iMode=1;}
+	if(((CButton*)GetDlgItem(IDC_CHANGE_COLOR_DEPTH_RADIO_DEVIATION))->GetCheck()==TRUE){*iMode=2;}
+	}
 void CChangeColorDepthDlg::OnBnClickedOk()
 {
-	if(((CButton*)GetDlgItem(IDC_CHANGE_COLOR_DEPTH_RADIO_1))->GetCheck()==TRUE){m_iBPP=1;}
-	if(((CButton*)GetDlgItem(IDC_CHANGE_COLOR_DEPTH_RADIO_4))->GetCheck()==TRUE){m_iBPP=4;}
-	if(((CButton*)GetDlgItem(IDC_CHANGE_COLOR_DEPTH_RADIO_8))->GetCheck()==TRUE){m_iBPP=8;}
-	if(((CButton*)GetDlgItem(IDC_CHANGE_COLOR_DEPTH_RADIO_24))->GetCheck()==TRUE){m_iBPP=24;}
-	if(((CButton*)GetDlgItem(IDC_CHANGE_COLOR_DEPTH_RADIO_32))->GetCheck()==TRUE){m_iBPP=32;}
-
-	if(((CButton*)GetDlgItem(IDC_CHANGE_COLOR_DEPTH_RADIO_LOSSLESS))->GetCheck()==TRUE){m_iMode=0;}
-	if(((CButton*)GetDlgItem(IDC_CHANGE_COLOR_DEPTH_RADIO_AREA))->GetCheck()==TRUE){m_iMode=1;}
-	if(((CButton*)GetDlgItem(IDC_CHANGE_COLOR_DEPTH_RADIO_DEVIATION))->GetCheck()==TRUE){m_iMode=2;}
+	GetSetting(&m_iBPP, &m_iMode);
 	CDialogEx::OnOK();
 }
 
@@ -87,3 +95,26 @@ BOOL CChangeColorDepthDlg::OnInitDialog()
 	return TRUE;  // return TRUE unless you set the focus to a control
 	// 例外 : OCX プロパティ ページは必ず FALSE を返します。
 }
+
+
+void CChangeColorDepthDlg::SetEnableByBPP(const int iBPP)
+{	
+	if(m_iColors <= 1<<iBPP)
+	{
+		((CButton*)GetDlgItem(IDC_CHANGE_COLOR_DEPTH_RADIO_LOSSLESS))->EnableWindow(TRUE);
+		((CButton*)GetDlgItem(IDC_CHANGE_COLOR_DEPTH_RADIO_LOSSLESS))->SetCheck(true);
+		((CButton*)GetDlgItem(IDC_CHANGE_COLOR_DEPTH_RADIO_AREA))->SetCheck(false);
+		((CButton*)GetDlgItem(IDC_CHANGE_COLOR_DEPTH_RADIO_DEVIATION))->SetCheck(false);
+	}
+	else
+	{
+		((CButton*)GetDlgItem(IDC_CHANGE_COLOR_DEPTH_RADIO_LOSSLESS))->SetCheck(false);
+		((CButton*)GetDlgItem(IDC_CHANGE_COLOR_DEPTH_RADIO_LOSSLESS))->EnableWindow(FALSE);
+		((CButton*)GetDlgItem(IDC_CHANGE_COLOR_DEPTH_RADIO_AREA))->SetCheck(true);
+}
+}
+void CChangeColorDepthDlg::OnBnClickedChangeColorDepthRadio1(){SetEnableByBPP(1);}
+void CChangeColorDepthDlg::OnBnClickedChangeColorDepthRadio4(){SetEnableByBPP(4);}
+void CChangeColorDepthDlg::OnBnClickedChangeColorDepthRadio8(){SetEnableByBPP(8);}
+void CChangeColorDepthDlg::OnBnClickedChangeColorDepthRadio24(){SetEnableByBPP(24);}
+void CChangeColorDepthDlg::OnBnClickedChangeColorDepthRadio32(){SetEnableByBPP(32);}
