@@ -1284,7 +1284,7 @@ IMPLEMENT_DYNCREATE(CSImageViewerView, CView)
 	void CSImageViewerView::OnChangeColorDepth()
 	{
 		if(m_iImageMax <= 0){return;}
-		CChangeColorDepthDlg colorDepthDlg;
+		CChangeColorDepthDlg dlg;
 
 		int iUsedColors;
 		bool bGrayScale;
@@ -1293,22 +1293,40 @@ IMPLEMENT_DYNCREATE(CSImageViewerView, CView)
 
 		MakeColorTable(m_image[m_iImageIndex].GetCurrentProcess(), NULL,NULL, 1<<min(24, m_image[m_iImageIndex].GetCurrentProcess()->GetBPP()), &iUsedColors, &bGrayScale);
 
-		colorDepthDlg.m_iColors = iUsedColors;
-		colorDepthDlg.m_bGrayScale = bGrayScale;
-		colorDepthDlg.m_iBPP = m_image[m_iImageIndex].GetCurrentProcess()->GetBPP();
+		dlg.m_iColors = iUsedColors;
+		dlg.m_bGrayScale = bGrayScale;
+		dlg.m_iBPP = m_image[m_iImageIndex].GetCurrentProcess()->GetBPP();
 
-		INT_PTR iRet = colorDepthDlg.DoModal();
+		INT_PTR iRet = dlg.DoModal();
 		if(iRet != IDOK){return;}
 
-		CImage imgSrc;
-		CopyImage_CImage(m_image[m_iImageIndex].GetCurrentProcess(), &imgSrc);
-
-		switch(colorDepthDlg.m_iMode)
+		bool bSame = false;
+		int iIndexOf0 = m_image[0].GetProcessIndex();
+		for(int i=1; i<m_iImageMax; i++)
 		{
-		case 0:{ConvertImage_LossLess(&imgSrc, colorDepthDlg.m_iBPP, m_image[m_iImageIndex].ProgressImageProcess());break;}
-		case 1:{ConvertImage_AreaCoverage(&imgSrc,colorDepthDlg.m_iBPP, m_image[m_iImageIndex].ProgressImageProcess());break;}
-		case 2:{ConvertImage_ByDeviation(&imgSrc, colorDepthDlg.m_iBPP, m_image[m_iImageIndex].ProgressImageProcess());break;}
+			if(iIndexOf0 != m_image[i].GetProcessIndex()){bSame = true;}else{bSame = false; break;}
 		}
+
+		bool bApplyToAll = false;
+		if(bSame == true){bApplyToAll = ((IDYES == AfxMessageBox(_T("全ての画像に適用しますか？"), MB_YESNO)) ? true: false);}
+
+
+		int iStart = ((bApplyToAll == true) ?		0	: m_iImageIndex);
+		int iEnd = ((bApplyToAll == true) ?	m_iImageMax : m_iImageIndex+1);
+
+		for(int i =iStart; i<iEnd; i++)
+		{
+			CImage imgSrc;
+			CopyImage_CImage(m_image[i].GetCurrentProcess(), &imgSrc);
+
+			switch(dlg.m_iMode)
+			{
+			case 0:{ConvertImage_LossLess(&imgSrc, dlg.m_iBPP, m_image[i].ProgressImageProcess());break;}
+			case 1:{ConvertImage_AreaCoverage(&imgSrc,dlg.m_iBPP, m_image[i].ProgressImageProcess());break;}
+			case 2:{ConvertImage_ByDeviation(&imgSrc, dlg.m_iBPP, m_image[i].ProgressImageProcess());break;}
+			}
+		}
+
 		//		m_image[m_iImageIndex].m_imageProcessed[(m_image[m_iImageIndex].m_iImgProcessIndex % MAX_IMG_PROCESS)].Save(_T("D:\\test.bmp"));
 		Invalidate();
 	}

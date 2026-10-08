@@ -19,6 +19,9 @@
     <Filter Include="ヘッダー ファイル\Dlg">
       <UniqueIdentifier>{e07f45a4-9684-4e11-becd-973a6768d703}</UniqueIdentifier>
     </Filter>
+    <Filter Include="ソース ファイル\Dlg\Edit">
+      <UniqueIdentifier>{1db7d70b-bab1-48a7-a49c-e9379a34ed91}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <None Include="ReadMe.txt" />
@@ -149,23 +152,11 @@
     <ClCompile Include="CopyAsDlg.cpp">
       <Filter>ソース ファイル\Dlg</Filter>
     </ClCompile>
-    <ClCompile Include="ImageModifyDlg.cpp">
-      <Filter>ソース ファイル\Dlg</Filter>
-    </ClCompile>
     <ClCompile Include="SetSelectionDlg.cpp">
       <Filter>ソース ファイル\Dlg</Filter>
     </ClCompile>
     <ClCompile Include="CommonFunction.cpp">
       <Filter>ソース ファイル</Filter>
-    </ClCompile>
-    <ClCompile Include="ChangeColorDepthDlg.cpp">
-      <Filter>ソース ファイル\Dlg</Filter>
-    </ClCompile>
-    <ClCompile Include="ResampleDlg.cpp">
-      <Filter>ソース ファイル\Dlg</Filter>
-    </ClCompile>
-    <ClCompile Include="ExtractChannelDlg.cpp">
-      <Filter>ソース ファイル\Dlg</Filter>
     </ClCompile>
     <ClCompile Include="FormatSelectionDlg.cpp">
       <Filter>ソース ファイル\Dlg</Filter>
@@ -179,14 +170,8 @@
     <ClCompile Include="FileFormatDlg.cpp">
       <Filter>ソース ファイル\Dlg</Filter>
     </ClCompile>
-    <ClCompile Include="ColorizeDlg.cpp">
-      <Filter>ソース ファイル\Dlg</Filter>
-    </ClCompile>
     <ClCompile Include="ViewDraw.cpp">
       <Filter>ソース ファイル</Filter>
-    </ClCompile>
-    <ClCompile Include="SetTransparentDlg.cpp">
-      <Filter>ソース ファイル\Dlg</Filter>
     </ClCompile>
     <ClCompile Include="PictureCtrlEx.cpp">
       <Filter>ソース ファイル</Filter>
@@ -199,6 +184,24 @@
     </ClCompile>
     <ClCompile Include="SettingDlg.cpp">
       <Filter>ソース ファイル\Dlg</Filter>
+    </ClCompile>
+    <ClCompile Include="ChangeColorDepthDlg.cpp">
+      <Filter>ソース ファイル\Dlg\Edit</Filter>
+    </ClCompile>
+    <ClCompile Include="ColorizeDlg.cpp">
+      <Filter>ソース ファイル\Dlg\Edit</Filter>
+    </ClCompile>
+    <ClCompile Include="ExtractChannelDlg.cpp">
+      <Filter>ソース ファイル\Dlg\Edit</Filter>
+    </ClCompile>
+    <ClCompile Include="ImageModifyDlg.cpp">
+      <Filter>ソース ファイル\Dlg\Edit</Filter>
+    </ClCompile>
+    <ClCompile Include="ResampleDlg.cpp">
+      <Filter>ソース ファイル\Dlg\Edit</Filter>
+    </ClCompile>
+    <ClCompile Include="SetTransparentDlg.cpp">
+      <Filter>ソース ファイル\Dlg\Edit</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
