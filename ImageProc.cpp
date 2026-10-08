@@ -2041,6 +2041,13 @@ const BYTE g_byFont_4_8[96]={
 		0, 0, 0, 2, 5, 7, 4, 3,
 	};
 
+inline void SetRGBTransparent(BYTE* pbyData, const int r, const int c, const int iPitch, const BYTE byR, const BYTE byG, const BYTE byB)
+{
+	pbyData[r*iPitch+4*c+2]=(int(byR)*3+pbyData[r*iPitch+4*c+2])/4;
+	pbyData[r*iPitch+4*c+1]=(int(byG)*3+pbyData[r*iPitch+4*c+1])/4;
+	pbyData[r*iPitch+4*c+0]=(int(byB)*3+pbyData[r*iPitch+4*c+0])/4;
+}
+
 	inline void ImposeSingleValue_8_16(BYTE* pbyData, const int iPitch, const int iHeight, const int iWidth, const BYTE byDigitValue, const int ir_Origin, const int ic_Origin, const BYTE byDot)
 	{
 		for(int ir=0; ir<16; ir++)
@@ -2051,6 +2058,10 @@ const BYTE g_byFont_4_8[96]={
 			{
 				if(ic_Origin+icc>=iWidth){continue;}
 				if(ic_Origin+icc<0){continue;}
+
+				if(byDot<128){SetRGBTransparent(pbyData, ir_Origin+ir, ic_Origin+icc, iPitch, 255, 255, 255);}
+				else{SetRGBTransparent(pbyData, ir_Origin+ir, ic_Origin+icc, iPitch, 0, 0, 0);}
+
 				if( (g_byFont_8_16[byDigitValue*16 + ir] & (1<<(7-icc))) == 1<<(7-icc))
 				{
 					SetRGBAValue(pbyData, ir_Origin+ir, ic_Origin+icc, iPitch, byDot, byDot, byDot, 255);
@@ -2061,6 +2072,20 @@ const BYTE g_byFont_4_8[96]={
 
 	inline void ImposeSingleValue_4_8(BYTE* pbyData, const int iPitch, const int iHeight, const int iWidth, const BYTE byDigitValue,const int ir_Origin, int ic_Origin, BYTE byDot)
 	{
+
+		for(int ir=0; ir<8; ir++)
+		{
+			if(ir_Origin+ir>=iHeight){continue;}
+			if(ir_Origin+ir<0){continue;}
+			for(int icc=0; icc<5; icc++)
+			{
+				if(ic_Origin+icc>=iWidth){continue;}
+				if(ic_Origin+icc<0){continue;}
+
+				if(byDot<128){SetRGBTransparent(pbyData, ir_Origin+ir, ic_Origin+icc, iPitch, 255, 255, 255);}
+				else{SetRGBTransparent(pbyData, ir_Origin+ir, ic_Origin+icc, iPitch, 0, 0, 0);}}
+		}
+
 		for(int ir=0; ir<8; ir++)
 		{
 			if(ir_Origin+ir>=iHeight){continue;}
@@ -2069,6 +2094,7 @@ const BYTE g_byFont_4_8[96]={
 			{
 				if(ic_Origin+icc>=iWidth){continue;}
 				if(ic_Origin+icc<0){continue;}
+				
 				if( (g_byFont_4_8[byDigitValue*8 + ir] & (1<<(3-icc))) == 1<<(3-icc))
 				{
 					SetRGBAValue(pbyData, ir_Origin+ir, ic_Origin+icc, iPitch, byDot, byDot, byDot, 255);
@@ -3651,6 +3677,18 @@ const BYTE g_byFont_4_8[96]={
 		if ((iBPP == 24) || (iBPP == 32))
 		{
 			int iColorPitch_Src = ((iBPP==24) ? 3 : 4);
+
+			bool bAlphasAre0 = true;
+			if(iBPP==32)
+			{
+				for (int iR = 0; iR < iHeight; iR++)
+			{
+				for (int iC = 0; iC < iWidth; iC++)
+				{
+					if(byColor[iR * iDataPitch_Src + iC * iColorPitch_Src + 3] != 0){bAlphasAre0=false; break;}
+				}
+				}
+			}
 			for (int iR = 0; iR < iHeight; iR++)
 			{
 				for (int iC = 0; iC < iWidth; iC++)
@@ -3658,9 +3696,11 @@ const BYTE g_byFont_4_8[96]={
 					pbyDataDst[iR * iPitch_Dst +iC * 4 + 0] = byColor[iR * iDataPitch_Src + iC * iColorPitch_Src + 0];
 					pbyDataDst[iR * iPitch_Dst +iC * 4 + 1] = byColor[iR * iDataPitch_Src + iC * iColorPitch_Src + 1];
 					pbyDataDst[iR * iPitch_Dst +iC * 4 + 2] = byColor[iR * iDataPitch_Src + iC * iColorPitch_Src + 2];
-					if((iBPP==32) && (byColor[iR * iDataPitch_Src + iC * iColorPitch_Src + 3]!=0))
+					pbyDataDst[iR * iPitch_Dst +iC * 4 + 3] = 255;
+
+					if((iBPP==32) && (bAlphasAre0==false))
 					{
-						pbyDataDst[iR * iPitch_Dst +iC * 4 + 3] = byColor[iR * iDataPitch_Src + iC * 4 + 3];
+						pbyDataDst[iR * iPitch_Dst +iC * 4 + 3] = byColor[iR * iDataPitch_Src + iC * iColorPitch_Src + 3];
 					}
 					else
 					{
@@ -3794,7 +3834,7 @@ const BYTE g_byFont_4_8[96]={
 
 		UINT uiExtracted = ExtractIconEx(sFilePath, 0, hLargeIcons, hSmallIcons, uiNum);
 		if (uiExtracted == 0){SAFE_DELETE(hLargeIcons); SAFE_DELETE(hSmallIcons); return false;}
-		if (uiExtracted != 2*uiNum){SAFE_DELETE(hLargeIcons); SAFE_DELETE(hSmallIcons); return false;}
+		if ((uiExtracted != uiNum) && (uiExtracted != 2*uiNum)){SAFE_DELETE(hLargeIcons); SAFE_DELETE(hSmallIcons); return false;}
 
 
 		HDC hScreenDC = ::GetDC(NULL);
@@ -3820,7 +3860,6 @@ const BYTE g_byFont_4_8[96]={
 			::DestroyIcon(hLargeIcons[ui]);
 			imgs[ui].ResetProcessImage();
 		}
-
 		for (UINT ui = 0; ui < uiNum; ui++)
 		{
 			CImage imgTemp;
