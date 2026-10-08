@@ -1419,7 +1419,7 @@ IMPLEMENT_DYNCREATE(CSImageViewerView, CView)
 			}
 
 			CImage imgResult2;
-			bool bRet = ImposeImage(m_image[i].GetCurrentProcess(), &(dlg.m_imageColorized), rect_i.top, rect_i.left,&imgResult2);
+			bool bRet = ImposeImage(m_image[i].GetCurrentProcess(), &imgTemp, rect_i.top, rect_i.left,&imgResult2);
 			CopyImage_CImage(&imgResult2, m_image[i].ProgressImageProcess());
 
 		}
