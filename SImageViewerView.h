@@ -38,7 +38,7 @@ public:
 	CString m_sIniFilePath;
 
 	FileFormatList m_fileFomatList;
-	void FullDomain(CRect* rect_i);
+	void FullDomain(CRect* rect_i, PanImage* image);
 	int m_iTempIndex;
 	CString m_sFilePath;
 

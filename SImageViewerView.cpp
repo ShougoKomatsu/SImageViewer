@@ -615,10 +615,10 @@ IMPLEMENT_DYNCREATE(CSImageViewerView, CView)
 		SetCaption();
 	}
 
-	void CSImageViewerView::FullDomain(CRect* rect_i)
+	void CSImageViewerView::FullDomain(CRect* rect_i, PanImage* image)
 	{
 		if(m_iImageMax <= 0){return;}
-		rect_i->SetRect(0, 0, m_image[m_iImageIndex].GetCurrentProcess()->GetWidth()-1,m_image[m_iImageIndex].GetCurrentProcess()->GetHeight()-1);
+		rect_i->SetRect(0, 0, image->GetCurrentProcess()->GetWidth()-1,image->GetCurrentProcess()->GetHeight()-1);
 		CMainFrame* pFrame = (CMainFrame*)AfxGetMainWnd();
 		view.m_bRegionSelected = true;
 	}
@@ -628,7 +628,7 @@ IMPLEMENT_DYNCREATE(CSImageViewerView, CView)
 		if(_IsImageMonochrome(m_image[m_iImageIndex].GetCurrentProcess())==false){AfxMessageBox(_T("This image is not monochrome.")); return;}
 		bool bAutoFull = false;
 		CRect rect_i=view.GetRect_i();
-		if(rect_i.IsRectNull() == TRUE){bAutoFull = true;FullDomain(&rect_i);}
+		if(rect_i.IsRectNull() == TRUE){bAutoFull = true;FullDomain(&rect_i, &(m_image[m_iImageIndex]));}
 
 		CSetTransparentDlg dlg;
 
@@ -1186,7 +1186,7 @@ IMPLEMENT_DYNCREATE(CSImageViewerView, CView)
 		if(m_iImageMax <= 0){return;}
 		bool bAutoFull = false;
 		CRect rect_i=view.GetRect_i();
-		if(rect_i.IsRectNull() == TRUE){bAutoFull = true; FullDomain(&rect_i);}
+		if(rect_i.IsRectNull() == TRUE){bAutoFull = true; FullDomain(&rect_i, &(m_image[m_iImageIndex]));}
 
 		ImgRGB imgRGB;
 		_ConvertImage(m_image[m_iImageIndex].GetCurrentProcess(), &imgRGB);
@@ -1210,7 +1210,7 @@ IMPLEMENT_DYNCREATE(CSImageViewerView, CView)
 		if(m_iImageMax <= 0){return;}
 		bool bAutoFull = false;
 		CRect rect_i=view.GetRect_i();
-		if(rect_i.IsRectNull() == TRUE){bAutoFull = true; FullDomain(&rect_i);}
+		if(rect_i.IsRectNull() == TRUE){bAutoFull = true; FullDomain(&rect_i, &(m_image[m_iImageIndex]));}
 
 		ImgRGB imgRGB;
 		ImgRGB imgMeaned;
@@ -1242,42 +1242,40 @@ IMPLEMENT_DYNCREATE(CSImageViewerView, CView)
 	void CSImageViewerView::OnResample()
 	{
 		if(m_iImageMax <= 0){return;}
-		bool bAutoFull = false;
-		CRect rect_i=view.GetRect_i();
-		if(rect_i.IsRectNull() == TRUE){bAutoFull = true; FullDomain(&rect_i);}
 
 		CResampleDlg dlg;
 		dlg.m_iHeightOrg = m_image[m_iImageIndex].GetCurrentProcess()->GetHeight();
 		dlg.m_iWidthOrg = m_image[m_iImageIndex].GetCurrentProcess()->GetWidth();
 		INT_PTR iRet = dlg.DoModal();
-		if(iRet != IDOK)
+		if(iRet != IDOK){return;}
+		
+		bool bSame = false;
+		int iIndexOf0 = m_image[0].GetProcessIndex();
+		for(int i=1; i<m_iImageMax; i++)
 		{
-			if(bAutoFull == true)
-			{
-				view.SetRect_v(NULL);
-				view.SetRect_i(NULL);
-				CMainFrame* pFrame = (CMainFrame*)AfxGetMainWnd();
-				view.m_bRegionSelected = false;
-			}
-			return;
+			if(iIndexOf0 == m_image[i].GetProcessIndex()){bSame = true;}else{bSame = false; break;}
 		}
 
-		CImage imgSrc;
-		CopyImage_CImage(m_image[m_iImageIndex].GetCurrentProcess(), &imgSrc);
-		if((dlg.m_resample == RESIZE_NEAREST) || (dlg.m_resample == RESIZE_BILINEAR))
+		bool bApplyToAll = false;
+		if(bSame == true){bApplyToAll = ((IDYES == AfxMessageBox(_T("全ての画像に適用しますか？"), MB_YESNO)) ? true: false);}
+
+
+		int iStart = ((bApplyToAll == true) ?		0	: m_iImageIndex);
+		int iEnd = ((bApplyToAll == true) ?	m_iImageMax : m_iImageIndex+1);
+
+		for(int i =iStart; i<iEnd; i++)
 		{
-			Resize(&imgSrc, 0, 0, imgSrc.GetHeight()-1, imgSrc.GetWidth()-1, m_image[m_iImageIndex].ProgressImageProcess(), dlg.m_iWidth,dlg.m_iHeight,dlg.m_resample);
-		}
-		else
-		{
-			Resample(&imgSrc, m_image[m_iImageIndex].ProgressImageProcess(), dlg.m_resample);
-		}
-		if(bAutoFull == true)
-		{
-			view.SetRect_v(NULL);
-			view.SetRect_i(NULL);
-			CMainFrame* pFrame = (CMainFrame*)AfxGetMainWnd();
-			view.m_bRegionSelected = false;
+			CImage imgSrc;
+			CopyImage_CImage(m_image[i].GetCurrentProcess(), &imgSrc);
+			if((dlg.m_resample == RESIZE_NEAREST) || (dlg.m_resample == RESIZE_BILINEAR))
+			{
+				Resize(&imgSrc, 0, 0, imgSrc.GetHeight()-1, imgSrc.GetWidth()-1, m_image[i].ProgressImageProcess(), dlg.m_iWidth,dlg.m_iHeight,dlg.m_resample);
+			}
+			else
+			{
+				Resample(&imgSrc, m_image[i].ProgressImageProcess(), dlg.m_resample);
+			}
+
 		}
 		Invalidate();
 	}
@@ -1340,12 +1338,32 @@ IMPLEMENT_DYNCREATE(CSImageViewerView, CView)
 		INT_PTR iRet = extractDlg.DoModal();
 		if(iRet != IDOK){return;}
 
-		color = extractDlg.m_enumColor;
 
-		CImage imgSrc;
-		CopyImage_CImage(m_image[m_iImageIndex].GetCurrentProcess(), &imgSrc);
+		bool bSame = false;
+		int iIndexOf0 = m_image[0].GetProcessIndex();
+		for(int i=1; i<m_iImageMax; i++)
+		{
+			if(iIndexOf0 == m_image[i].GetProcessIndex()){bSame = true;}else{bSame = false; break;}
+		}
 
-		ExtractChannel(&imgSrc,m_image[m_iImageIndex].ProgressImageProcess(), color);
+		bool bApplyToAll = false;
+		if(bSame == true){bApplyToAll = ((IDYES == AfxMessageBox(_T("全ての画像に適用しますか？"), MB_YESNO)) ? true: false);}
+
+
+		int iStart = ((bApplyToAll == true) ?		0	: m_iImageIndex);
+		int iEnd = ((bApplyToAll == true) ?	m_iImageMax : m_iImageIndex+1);
+
+		for(int i =iStart; i<iEnd; i++)
+		{
+
+			color = extractDlg.m_enumColor;
+
+			CImage imgSrc;
+			CopyImage_CImage(m_image[i].GetCurrentProcess(), &imgSrc);
+
+			ExtractChannel(&imgSrc,m_image[i].ProgressImageProcess(), color);
+
+		}
 		Invalidate();
 		return;
 	}
@@ -1369,7 +1387,7 @@ IMPLEMENT_DYNCREATE(CSImageViewerView, CView)
 		if(_IsImageMonochrome(m_image[m_iImageIndex].GetCurrentProcess())==false){AfxMessageBox(_T("This image is not monochrome.")); return;}
 		bool bAutoFull = false;
 		CRect rect_i=view.GetRect_i();
-		if(rect_i.IsRectNull() == TRUE){bAutoFull = true;FullDomain(&rect_i);}
+		if(rect_i.IsRectNull() == TRUE){bAutoFull = true;FullDomain(&rect_i, &(m_image[m_iImageIndex]));}
 
 		CColorizeDlg dlg;
 
@@ -1407,7 +1425,8 @@ IMPLEMENT_DYNCREATE(CSImageViewerView, CView)
 
 		for(int i =iStart; i<iEnd; i++)
 		{
-
+			
+			if(bAutoFull == true){FullDomain(&rect_i, &(m_image[i]));}
 			CImage imgTemp;
 
 			ClipImage(m_image[i].GetCurrentProcess(), &imgClipped, rect_i.top,rect_i.left, rect_i.bottom, rect_i.right); 
@@ -1439,7 +1458,7 @@ IMPLEMENT_DYNCREATE(CSImageViewerView, CView)
 		if(m_iImageMax <= 0){return;}
 		bool bAutoFull = false;
 		CRect rect_i=view.GetRect_i();
-		if(rect_i.IsRectNull() == TRUE){bAutoFull = true;FullDomain(&rect_i);}
+		if(rect_i.IsRectNull() == TRUE){bAutoFull = true;FullDomain(&rect_i, &(m_image[m_iImageIndex]));}
 
 		CImageModifyDlg dlgModify;
 
@@ -1461,16 +1480,38 @@ IMPLEMENT_DYNCREATE(CSImageViewerView, CView)
 			return ;
 		}
 
-		int iBrightness = dlgModify.m_iBrightness;
-		int iContrast = dlgModify.m_iContrast;
-		double dGamma = dlgModify.m_dGamma;
+		bool bSame = false;
+		int iIndexOf0 = m_image[0].GetProcessIndex();
+		for(int i=1; i<m_iImageMax; i++)
+		{
+			if(iIndexOf0 == m_image[i].GetProcessIndex()){bSame = true;}else{bSame = false; break;}
+		}
 
-		ImgRGB imgRGB;
-		ImgRGB imgResult1;
-		ImgRGB imgResult2;
-		_ConvertImage(m_image[m_iImageIndex].GetCurrentProcess(), &imgRGB);
-		BrightnessContrast(&imgRGB,&imgResult1,rect_i.top, rect_i.left, rect_i.bottom, rect_i.right,(double)iBrightness,(double)iContrast);
-		Gamma(&imgResult1,&imgResult2,rect_i.top, rect_i.left, rect_i.bottom, rect_i.right,dGamma);
+		bool bApplyToAll = false;
+		if(bSame == true){bApplyToAll = ((IDYES == AfxMessageBox(_T("全ての画像に適用しますか？"), MB_YESNO)) ? true: false);}
+
+
+		int iStart = ((bApplyToAll == true) ?		0	: m_iImageIndex);
+		int iEnd = ((bApplyToAll == true) ?	m_iImageMax : m_iImageIndex+1);
+
+		for(int i =iStart; i<iEnd; i++)
+		{
+			if(bAutoFull == true){FullDomain(&rect_i, &(m_image[i]));}
+
+			int iBrightness = dlgModify.m_iBrightness;
+			int iContrast = dlgModify.m_iContrast;
+			double dGamma = dlgModify.m_dGamma;
+
+			ImgRGB imgRGB;
+			ImgRGB imgResult1;
+			ImgRGB imgResult2;
+			_ConvertImage(m_image[i].GetCurrentProcess(), &imgRGB);
+			BrightnessContrast(&imgRGB,&imgResult1,rect_i.top, rect_i.left, rect_i.bottom, rect_i.right,(double)iBrightness,(double)iContrast);
+			Gamma(&imgResult1,&imgResult2,rect_i.top, rect_i.left, rect_i.bottom, rect_i.right,dGamma);
+
+			ConvertImage(&imgResult2, m_image[i].ProgressImageProcess());
+		}
+
 		if(bAutoFull == true)
 		{
 			view.SetRect_v(NULL);
@@ -1478,8 +1519,6 @@ IMPLEMENT_DYNCREATE(CSImageViewerView, CView)
 			CMainFrame* pFrame = (CMainFrame*)AfxGetMainWnd();
 			view.m_bRegionSelected = false;
 		}
-
-		ConvertImage(&imgResult2, m_image[m_iImageIndex].ProgressImageProcess());
 		Invalidate();
 	}
 
@@ -2026,7 +2065,7 @@ IMPLEMENT_DYNCREATE(CSImageViewerView, CView)
 	void CSImageViewerView::OnSelectAll()
 	{
 		CRect rect_i;
-		FullDomain(&rect_i);
+		FullDomain(&rect_i, &(m_image[m_iImageIndex]));
 		view.SetRect_i(&rect_i);
 		Invalidate();
 	}
