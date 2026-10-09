@@ -20,6 +20,7 @@ protected: // ƒVƒŠƒAƒ‹‰»‚©‚ç‚Ì‚İì¬‚µ‚Ü‚·B
 
 	// ‘®«
 public:
+	bool SaveFileMulti(const CString sDir, const CString sPre1,const CString sPre2, const CString sBase, const CString sSub1, const CString sSub2, const CString sExt);
 	bool m_bPPFWwithoutCtrlWhenFullScreen;
 	bool m_bCenteredWhenFullScreen;
 	void OperateRotaateImage(enumRotate rotate);

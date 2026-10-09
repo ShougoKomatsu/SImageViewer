@@ -486,7 +486,7 @@ IMPLEMENT_DYNCREATE(CSImageViewerView, CView)
 
 		CFileFind cff;
 		BOOL bRet = cff.FindFile(sFilePath);
-		if(bRet = FALSE)
+		if(bRet != FALSE)
 		{
 			INT_PTR iRet = AfxMessageBox(_T("ファイルは既に存在します。上書きしますか？"),0,MB_YESNO);
 			if(iRet != IDYES){return false;}
@@ -502,6 +502,165 @@ IMPLEMENT_DYNCREATE(CSImageViewerView, CView)
 		return true;
 	}
 
+	int Setmode(const CString str)
+	{
+		
+			if(str.Compare(_T("0埋め0始まり"))==0){return 0;}
+			if(str.Compare(_T("0埋め1始まり"))==0){return 1;}
+			if(str.Compare(_T("埋め無し0始まり"))==0){return 2;}
+			if(str.Compare(_T("埋め無し1始まり"))==0){return 3;}
+			return 4;
+	}
+
+	const CString SetString(const int iMode, const int iSerial, const int iSerialMax, const CString sDefault)
+	{
+		CString sTest;
+		sTest.Format(_T("%d"), iSerialMax);
+		CString sFormat;
+		sFormat.Format(_T("%%0%dd"), sTest.GetLength());
+
+		CString sOut;
+		switch(iMode)
+		{
+		case 0:{sOut.Format(sFormat,iSerial);break;}
+		case 1:{sOut.Format(sFormat,iSerial+1);break;}
+		case 2:{sOut.Format(_T("%d"),iSerial);break;}
+		case 3:{sOut.Format(_T("%d"),iSerial+1);break;}
+		case 4:{sOut= sDefault;}
+		}
+		return sOut;
+	}
+	bool CSImageViewerView::SaveFileMulti(const CString sDir, const CString sPre1,const CString sPre2, const CString sBase, const CString sSub1, const CString sSub2, const CString sExt)
+	{
+		//TBD: ディレクトリ作成
+		CString sDir_l;
+		sDir_l = sDir;
+		if(sDir.Right(1).Compare(_T("\\"))==0){sDir_l.Format(_T("%s"), sDir.Left(sDir.GetLength()-1));}
+
+		int iP1=Setmode(sPre1);
+		int iP2=Setmode(sPre2);
+		int iS1=Setmode(sSub1);
+		int iS2=Setmode(sSub2);
+		
+		CStringArray saFilePath;
+		saFilePath.RemoveAll();
+		for(int i=0; i<m_iImageMax; i++)
+		{
+			CString sBase_l;
+			if(sBase.Compare(_T("元ファイルと同じ"))==0)
+			{
+				CString sDirDummy, sFileName, sExtDummy;
+				SplitFilePath(m_image[i].GetDataSource(), &sDirDummy,&sFileName, &sExtDummy);
+				sBase_l = sFileName;
+			}
+			else
+			{
+				sBase_l=sBase;
+			}
+
+			CString sExt_l;
+			if(sBase.Compare(_T("元ファイルと同じ"))==0)
+			{
+				CString sDirDummy, sFileNameDummy, sExt;
+				SplitFilePath(m_image[i].GetDataSource(), &sDirDummy,&sFileNameDummy, &sExt);
+				sExt_l = sExt;
+			}
+			else
+			{
+				sExt_l=sExt;
+			}
+
+			CString sPre1_l = SetString(iP1, i, m_iImageMax-1, sPre1);
+			CString sPre2_l = SetString(iP2, i, m_iImageMax, sPre2);
+			CString sSub1_l = SetString(iS1, i, m_iImageMax-1, sSub1);
+			CString sSub2_l = SetString(iS2, i, m_iImageMax, sSub2);
+
+			CString sFilePath;
+			sFilePath.Format(_T("%s\\%s%s%s%s%s.%s"), sDir_l, sPre1_l,sPre2_l,sBase_l,sSub1_l,sSub2_l,sExt_l);
+			saFilePath.Add(sFilePath);
+		}
+
+		CFileFind cff;
+		int iCheck=0;
+		CStringArray saDup;
+		saDup.RemoveAll();
+		bool* bDup;
+		bDup = new bool [saFilePath.GetCount()];
+
+		for(int i=0; i<saFilePath.GetCount(); i++)
+		{
+			bDup[i]=false;
+			BOOL bRet = cff.FindFile(saFilePath.GetAt(i));
+			cff.Close();
+			if(bRet != FALSE)
+			{
+				bDup[i]=true;
+				saDup.Add(saFilePath.GetAt(i));
+			}
+		}
+
+
+
+		if(saDup.GetCount()>0)
+		{
+
+			if(iCheck == 0)
+			{
+				CInputDlg dlg;
+				dlg.m_bDispButton[0]=true;
+				dlg.m_bDispButton[1]=true;
+				dlg.m_bDispButton[2]=true;
+				dlg.m_bDispInput=false;
+				dlg.m_sMessage.Format(_T("%d 個の同名のファイルが存在します。"),saDup.GetCount());
+				dlg.m_sButton[0]=_T("全て上書き");
+				dlg.m_sButton[1]=_T("全てスキップ");
+				dlg.m_sButton[2]=_T("キャンセル");
+				INT_PTR iRet = dlg.DoModal();
+				if(iRet != IDOK){SAFE_DELETE(bDup); return false;}
+				iCheck = dlg.m_iReturnCode;
+			}
+
+			CString sMes;
+			for(int i=0; i<min(10, saDup.GetCount()); i++)
+			{
+				sMes += saDup.GetAt(i);
+				sMes += _T("\n");
+			}
+			if(saDup.GetCount()>10)
+			{
+				CString sAddMes;
+				sAddMes.Format(_T("他、全 %d ファイル"), saDup.GetCount());
+				sMes+=sAddMes;
+			}
+
+
+			switch(iCheck)
+			{
+			case 0:{break;}
+			case 1:{sMes+=_T("が上書きされます"); break;}
+			case 2:{sMes+=_T("がスキップされます");break;}
+			case 3:{sMes+=_T("が既に存在します");break;}
+			}
+			INT_PTR iRet = AfxMessageBox(sMes, MB_OKCANCEL);
+			if(iRet != IDOK){SAFE_DELETE(bDup); return false;}
+		}
+		
+			if(iCheck == 3){SAFE_DELETE(bDup); return false;}
+
+
+		for(int i=0; i<saFilePath.GetCount(); i++)
+		{
+			if((iCheck == 2) &&  (bDup[i] == true)){continue;}
+
+			HRESULT hResult = m_image[i].GetCurrentProcess()->Save(saFilePath.GetAt(i));
+			if(hResult != S_OK){SAFE_DELETE(bDup); return false;}
+		}
+
+
+		SAFE_DELETE(bDup); 
+		return true;
+	}
+
 	void CSImageViewerView::OnFileSave()
 	{
 		if(m_iImageMax <= 0){return;}
@@ -510,10 +669,21 @@ IMPLEMENT_DYNCREATE(CSImageViewerView, CView)
 		{
 			CInputDlg dlg;
 			dlg.m_sMessage.Format(_T("すべての画像を保存しますか？"));
+			dlg.m_bDispInput=false;
+			INT_PTR iRet = dlg.DoModal();
+			if(iRet != IDOK){return;}
 			if(dlg.m_iReturnCode == 1)
 			{
 				CSaveAsMultiDlg dlgsave;
-				dlgsave.DoModal();
+				
+				CString sDir, sFileNameDummy, sExtDummy;
+				SplitFilePath(m_image[m_iImageIndex].GetDataSource(), &sDir,&sFileNameDummy, &sExtDummy);
+
+				dlgsave.m_sDir = sDir;
+				INT_PTR iRet = dlgsave.DoModal();
+				if(iRet != IDOK){return;}
+				
+				SaveFileMulti(dlgsave.m_sDir, dlgsave.m_sPrefix1, dlgsave.m_sPrefix2, dlgsave.m_sBase, dlgsave.m_sSuffix1,dlgsave.m_sSuffix2,  dlgsave.m_sExt);
 				return;
 			}
 		}

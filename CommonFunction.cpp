@@ -70,6 +70,31 @@ UINT CountImageInOneFile(CString sFilePath, FileFormatList* fileFormatList)
 	return 0;
 }
 
+bool SplitFilePath(const CString sFilePath, CString* sFileDirWithOutBS, CString* sFileNameWithoutDotExt, CString* sExt)
+{
+	int iPlace = sFilePath.ReverseFind('\\');
+	if(iPlace<0){return false;}
+	sFileDirWithOutBS->Format(_T("%s"),sFilePath.Left(iPlace)); 
+
+	CString sFileNameWithExt;
+	sFileNameWithExt = sFilePath.Mid(iPlace+1);
+
+	iPlace = sFileNameWithExt.ReverseFind('.');
+	if(iPlace<0)
+	{
+		sFileNameWithoutDotExt->Format(_T("%s"),sFileNameWithExt); 
+		sExt->Format(_T("")); 
+	}
+	else
+	{
+		sFileNameWithoutDotExt->Format(_T("%s"),sFileNameWithExt.Left(iPlace)); 
+		sExt->Format(_T("%s"),sFileNameWithExt.Mid(iPlace+1)); 
+	}
+
+	return true;
+}
+
+
 bool GetDirectory(const CString sFilePath, CString* sFileDir)
 {
 	int iPlace = sFilePath.ReverseFind('\\');

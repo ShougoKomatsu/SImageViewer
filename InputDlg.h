@@ -12,6 +12,7 @@ class CInputDlg : public CDialogEx
 public:
 
 	CString m_sMessage;
+	bool m_bDispInput;
 	bool m_bDispButton[3];
 	CString m_sButton[3];
 	int m_iReturnCode;
