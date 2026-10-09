@@ -10,6 +10,11 @@ class CInputDlg : public CDialogEx
 
 	CEditEx m_editInput;
 public:
+
+	CString m_sMessage;
+	bool m_bDispButton[3];
+	CString m_sButton[3];
+	int m_iReturnCode;
 	CInputDlg(CWnd* pParent = NULL);   // 標準コンストラクター
 	virtual ~CInputDlg();
 
@@ -24,4 +29,7 @@ public:
 	CString m_sEditInput;
 	virtual BOOL OnInitDialog();
 	virtual BOOL PreTranslateMessage(MSG* pMsg);
+	afx_msg void OnBnClickedInputButton1();
+	afx_msg void OnBnClickedInputButton2();
+	afx_msg void OnBnClickedInputButton3();
 };

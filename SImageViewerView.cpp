@@ -27,7 +27,7 @@
 #include "ColorizeDlg.h"
 #include "SetTransparentDlg.h"
 #include "FullScreenDlg.h"
-
+#include "SaveAsMultiDlg.h"
 #ifdef _DEBUG
 #define new DEBUG_NEW
 #endif
@@ -505,6 +505,19 @@ IMPLEMENT_DYNCREATE(CSImageViewerView, CView)
 	void CSImageViewerView::OnFileSave()
 	{
 		if(m_iImageMax <= 0){return;}
+
+		if(m_iImageMax>1)
+		{
+			CInputDlg dlg;
+			dlg.m_sMessage.Format(_T("‚·‚×‚Ä‚Ì‰æ‘œ‚ğ•Û‘¶‚µ‚Ü‚·‚©H"));
+			if(dlg.m_iReturnCode == 1)
+			{
+				CSaveAsMultiDlg dlgsave;
+				dlgsave.DoModal();
+				return;
+			}
+		}
+
 		SaveImage(m_image[m_iImageIndex].GetCurrentProcess());
 	}
 

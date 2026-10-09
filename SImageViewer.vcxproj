@@ -207,6 +207,7 @@
     <ClInclude Include="PictureCtrlEx.h" />
     <ClInclude Include="ResampleDlg.h" />
     <ClInclude Include="Resource.h" />
+    <ClInclude Include="SaveAsMultiDlg.h" />
     <ClInclude Include="SetSelectionDlg.h" />
     <ClInclude Include="SettingDlg.h" />
     <ClInclude Include="SetTransparentDlg.h" />
@@ -234,6 +235,7 @@
     <ClCompile Include="PasteAsDlg.cpp" />
     <ClCompile Include="PictureCtrlEx.cpp" />
     <ClCompile Include="ResampleDlg.cpp" />
+    <ClCompile Include="SaveAsMultiDlg.cpp" />
     <ClCompile Include="SetSelectionDlg.cpp" />
     <ClCompile Include="SettingDlg.cpp" />
     <ClCompile Include="SetTransparentDlg.cpp" />
