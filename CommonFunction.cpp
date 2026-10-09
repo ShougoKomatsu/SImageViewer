@@ -382,7 +382,7 @@ bool GetOpenFileList(CString* sFilePaths)
 
 	CFileDialog cf(TRUE, NULL, NULL, OFN_ALLOWMULTISELECT , _T(""));
 	TCHAR* tchBuf=NULL;
-	tchBuf = new TCHAR[100*MAX_PATH];
+	tchBuf = new TCHAR[1000*MAX_PATH];
 	for(int i=0; i<100*MAX_PATH; i++)
 	{
 		tchBuf[i]='\0';
