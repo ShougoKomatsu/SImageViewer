@@ -454,3 +454,142 @@ bool CopyFromClipBoardStr(CString* sData)
 
 	return true;
 }
+
+	UINT_PTR CALLBACK OpenFileHookProc(
+		HWND hdlg,
+		UINT uMsg,
+		WPARAM wParam,
+		LPARAM lParam)
+	{
+		switch (uMsg)
+		{
+		case WM_INITDIALOG:
+			{
+				OPENFILENAME* pOFN =(OPENFILENAME*)lParam;
+				SetWindowLongPtr(hdlg,GWLP_USERDATA,(LONG_PTR)pOFN->lCustData);
+				break;
+			}
+		case WM_NOTIFY:
+			{
+				OFNOTIFY* pNotify =(OFNOTIFY*)lParam;
+
+				FILEDLG_PARAM* pParam =(FILEDLG_PARAM*)GetWindowLongPtr(hdlg,GWLP_USERDATA);
+
+				if (pParam == NULL){break;}
+
+				switch (pNotify->hdr.code)
+				{
+				case CDN_INITDONE:
+				case CDN_FOLDERCHANGE:
+					{
+						HWND hParent =GetParent(hdlg);
+						CommDlg_OpenSave_SetControlText(hParent,edt1,pParam->pszDefaultFile);
+					}
+					break;
+				}
+				break;
+			}
+		}
+
+		return 0;
+	}
+
+
+	void SplitFilePath(const TCHAR* tchBuf, CStringArray* saFiles)
+	{
+		saFiles->RemoveAll();
+		LPCTSTR p = tchBuf;
+		CString sFirst = p;
+		p += sFirst.GetLength() + 1;
+
+		if ( (*p) == '\0')
+		{
+			if(sFirst.Right(16).Compare(_T(".FolderSelection"))==0)
+			{
+				saFiles->Add(sFirst.Left(sFirst.GetLength()-17));
+			}
+			else
+			{
+				saFiles->Add(sFirst);
+			}
+		}
+		else
+		{
+			CString sFolder = sFirst;
+
+			while ( (*p) != '\0')
+			{
+				CString sFileName = p;
+
+				CString sFullPath;
+
+				if (sFolder.Right(1) == _T("\\"))
+				{
+					sFullPath = sFolder + sFileName;
+				}
+				else
+				{
+					sFullPath = sFolder + _T("\\") + sFileName;
+				}
+
+				saFiles->Add(sFullPath);
+
+				p += sFileName.GetLength() + 1;
+			}
+		}
+	}
+
+	bool GetOpenFileList(CString* sFilePaths, CWnd* wnd)
+	{
+		
+
+
+		FILEDLG_PARAM param;
+		param.pszDefaultFile = _T(".FolderSelection");
+
+		OPENFILENAME ofn;
+		ZeroMemory(&ofn, sizeof(ofn));
+
+		ofn.lStructSize = sizeof(ofn);
+		ofn.hwndOwner   = wnd->m_hWnd;
+
+		ofn.lpstrFilter =      _T("All Files (*.*)\0*.*\0\0");
+
+
+		TCHAR* tchBuf=NULL;
+		tchBuf = new TCHAR[100*MAX_PATH];
+		for(int i=0; i<100*MAX_PATH; i++){tchBuf[i]='\0';}
+		_stprintf(tchBuf, _T(".FolderSelection"));
+		ofn.lpstrFile=tchBuf;
+		ofn.nMaxFile    = MAX_PATH;
+
+		ofn.Flags =OFN_EXPLORER |OFN_ENABLEHOOK |OFN_HIDEREADONLY | OFN_ALLOWMULTISELECT;
+
+
+
+		ofn.lpfnHook    = OpenFileHookProc;
+		ofn.lCustData   = (LPARAM)&param;
+
+		BOOL bRet = GetOpenFileName(&ofn);
+		if(bRet != TRUE){SAFE_DELETE(tchBuf); return false;}
+
+		CStringArray saFiles;
+
+		SplitFilePath(tchBuf, &saFiles);
+		SAFE_DELETE(tchBuf); 
+
+
+		(*sFilePaths)=_T("");
+		if(saFiles.GetCount()<=0){return false;}
+		for(int i=0; i<saFiles.GetCount(); i++)
+		{
+			CString sTemp;
+			sTemp.Format(_T("%s|"),saFiles.GetAt(i));
+			sFilePaths->Append(sTemp);
+		}
+		sFilePaths->Delete(sFilePaths->GetLength()-1);
+
+
+
+		return true;
+	}
