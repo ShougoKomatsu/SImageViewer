@@ -43,3 +43,10 @@ bool SortStrings(const CStringArray* saInput, CStringArray* saOutput);
 
 
 void Resample(const ImgRGB* imgRGBSrc, const int iR0, const int iC0, const int iR1, const int iC1, const int iResamplePitch, ImgRGB* imgRGBDst);
+
+#include <dlgs.h>
+struct FILEDLG_PARAM
+{
+    LPCTSTR pszDefaultFile;
+};
+	bool GetOpenFileList(CString* sFilePaths,CWnd* wnd);

@@ -717,11 +717,11 @@ IMPLEMENT_DYNCREATE(CSImageViewerView, CView)
 		AddReadImage(sFilePaths);
 	}
 
-	void CSImageViewerView::OnFileOpen()
-	{
-		CString sFilePaths;
-		bool bRet = GetOpenFileList(&sFilePaths);
-		if(bRet != true){return;}
+void CSImageViewerView::OnFileOpen()
+{
+CString sFilePaths;
+bool bRet = GetOpenFileList(&sFilePaths, this);
+if(bRet != true){return;}
 
 		ReadImage(sFilePaths);
 	}
@@ -1737,6 +1737,7 @@ IMPLEMENT_DYNCREATE(CSImageViewerView, CView)
 	}
 	void CSImageViewerView::OnInitialUpdate()
 	{
+
 		CView::OnInitialUpdate();
 		CMainFrame* pFrame = DYNAMIC_DOWNCAST(CMainFrame, GetParentFrame());
 		pFrame->m_sStatusSize.Format(_T("W 0 x H 0"));
