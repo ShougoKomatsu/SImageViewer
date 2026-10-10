@@ -711,17 +711,17 @@ IMPLEMENT_DYNCREATE(CSImageViewerView, CView)
 	void CSImageViewerView::OnFileAdd()
 	{
 		CString sFilePaths;
-		bool bRet = GetOpenFileList(&sFilePaths);
+		bool bRet = GetOpenFileList(&sFilePaths, this);
 		if(bRet != true){return;}
 
 		AddReadImage(sFilePaths);
 	}
 
-void CSImageViewerView::OnFileOpen()
-{
-CString sFilePaths;
-bool bRet = GetOpenFileList(&sFilePaths, this);
-if(bRet != true){return;}
+	void CSImageViewerView::OnFileOpen()
+	{
+		CString sFilePaths;
+		bool bRet = GetOpenFileList(&sFilePaths, this);
+		if(bRet != true){return;}
 
 		ReadImage(sFilePaths);
 	}

@@ -13,7 +13,7 @@ bool CopyToClipBoardStr(const CString sValue);
 int CountImages(const CString sFileOrFolderPath, const int iDepth, FileFormatList* fileFormatList);
 bool RecursivelyGetImageFilePaths(const CString sFileOrFolderPath, const int iDepth, CStringArray* saFilePath, FileFormatList* fileFormatList);
 bool ReadAndAppendImage(CString sFilePath, FileFormatList* fileFormatList, PanImage* panImage, int iImageIndex, int* iImageIndexNew);
-bool GetOpenFileList(CString* sFilePaths);
+//bool GetOpenFileList(CString* sFilePaths);
 
 bool index_i(const int* iValues, const int iLength, int* iIndex);
 bool index_i(const ULONGLONG* iValues, const int iLength, int* iIndex);

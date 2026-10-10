@@ -376,7 +376,7 @@ bool index_i(const ULONGLONG* iValues, const int iLength, int* iIndex)
 	QuickSortIndex(iValues, iIndex, 0, iLength - 1);
 	return true;
 }
-
+/*
 bool GetOpenFileList(CString* sFilePaths)
 {
 
@@ -413,7 +413,7 @@ bool GetOpenFileList(CString* sFilePaths)
 	SAFE_DELETE(tchBuf); 
 	return true;
 }
-
+*/
 bool GetImageTypeNum(const CString sIniFilePath, UINT* uiTypeNum)
 {
 	const UINT uiBufSize=128;
