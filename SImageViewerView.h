@@ -26,7 +26,8 @@ public:
 	void OperateRotaateImage(enumRotate rotate);
 	bool OperateImagePPFWFlexible(const int iStep);
 	bool OperateImagePPFW(const int iStep);
-
+	
+	bool  ReadImageProgress(const CStringArray* saFilePath, PanImage* image, const int iImageNum);
 
 	void ReadSetting(const CString sIniFilePath);
 	void SaveSetting(const CString sIniFilePath);
