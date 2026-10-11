@@ -205,6 +205,7 @@
     <ClInclude Include="MainFrm.h" />
     <ClInclude Include="PasteAsDlg.h" />
     <ClInclude Include="PictureCtrlEx.h" />
+    <ClInclude Include="ProgressDlg.h" />
     <ClInclude Include="ResampleDlg.h" />
     <ClInclude Include="Resource.h" />
     <ClInclude Include="SaveAsMultiDlg.h" />
@@ -234,6 +235,7 @@
     <ClCompile Include="MainFrm.cpp" />
     <ClCompile Include="PasteAsDlg.cpp" />
     <ClCompile Include="PictureCtrlEx.cpp" />
+    <ClCompile Include="ProgressDlg.cpp" />
     <ClCompile Include="ResampleDlg.cpp" />
     <ClCompile Include="SaveAsMultiDlg.cpp" />
     <ClCompile Include="SetSelectionDlg.cpp" />

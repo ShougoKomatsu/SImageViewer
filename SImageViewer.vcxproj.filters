@@ -132,6 +132,9 @@
     <ClInclude Include="SaveAsMultiDlg.h">
       <Filter>ヘッダー ファイル</Filter>
     </ClInclude>
+    <ClInclude Include="ProgressDlg.h">
+      <Filter>ヘッダー ファイル</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="SImageViewer.cpp">
@@ -207,6 +210,9 @@
       <Filter>ソース ファイル\Dlg\Edit</Filter>
     </ClCompile>
     <ClCompile Include="SaveAsMultiDlg.cpp">
+      <Filter>ソース ファイル</Filter>
+    </ClCompile>
+    <ClCompile Include="ProgressDlg.cpp">
       <Filter>ソース ファイル</Filter>
     </ClCompile>
   </ItemGroup>
