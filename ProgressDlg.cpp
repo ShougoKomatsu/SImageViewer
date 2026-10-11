@@ -13,6 +13,7 @@ IMPLEMENT_DYNAMIC(CProgressDlg, CDialogEx)
 
 CProgressDlg::CProgressDlg(CWnd* pParent /*=NULL*/)
 	: CDialogEx(CProgressDlg::IDD, pParent)
+	, m_sStatic(_T(""))
 {
 	
 	m_iStatus=0;
@@ -27,6 +28,7 @@ void CProgressDlg::DoDataExchange(CDataExchange* pDX)
 {
 	CDialogEx::DoDataExchange(pDX);
 	DDX_Control(pDX, IDC_PROGRESS1, m_progress);
+	DDX_Text(pDX, IDC_PROGRESS_STATIC, m_sStatic);
 }
 
 BEGIN_MESSAGE_MAP(CProgressDlg, CDialogEx)
@@ -45,6 +47,8 @@ void CProgressDlg::OnOK()
 void CProgressDlg::OnCancel()
 {
 	m_iStatus=0;
+	m_sStatic.Format(_T("’†’fˆ—‚ð‚µ‚Ä‚¢‚Ü‚·"));
+	UpdateData(FALSE);
 	DestroyWindow();
 }
 void CProgressDlg::PostNcDestroy()
@@ -75,7 +79,16 @@ BOOL CProgressDlg::OnInitDialog()
 void CProgressDlg::OnBnClickedCancel()
 {
 	m_iStatus=0;
+	m_sStatic.Format(_T("’†’fˆ—‚ð‚µ‚Ä‚¢‚Ü‚·"));
+	UpdateData(FALSE);
 	GetDlgItem(IDCANCEL)->EnableWindow(FALSE);
+}
+
+void CProgressDlg::SetText(const CString sText)
+{
+	if(m_iStatus==0){return;}
+	m_sStatic.Format(_T("%s"), sText);
+	UpdateData(FALSE);
 }
 
 
