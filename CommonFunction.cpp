@@ -504,7 +504,7 @@ UINT_PTR CALLBACK OpenFileHookProc(
 				if (ptchDefault == NULL){break;}
 
 				HWND hParent =GetParent(hdlg);
-				CommDlg_OpenSave_SetControlText(hParent,edt1,ptchDefault);
+				CommDlg_OpenSave_SetControlText(hParent,edt1,*ptchDefault);
 			}
 			return 0;
 		}
