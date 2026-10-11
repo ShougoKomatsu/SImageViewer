@@ -11,6 +11,8 @@ class CProgressDlg : public CDialogEx
 public:
 	int m_iStatus;
 	void SetPos(int i0to100);
+	void SetText(const CString sText);
+
 	CProgressDlg(CWnd* pParent = NULL);   // 標準コンストラクター
 	virtual ~CProgressDlg();
 
@@ -29,4 +31,5 @@ public:
 	CProgressCtrl m_progress;
 	afx_msg void OnBnClickedCancel();
 	afx_msg void OnTimer(UINT_PTR nIDEvent);
+	CString m_sStatic;
 };

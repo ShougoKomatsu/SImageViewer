@@ -445,7 +445,14 @@ bool CSImageViewerView::ReadImage(CString sFilePath)
 			int iPos=int(i*100/(saFilePathsTemp.GetCount()*1.0));
 
 			dlg->SetPos(iPos);
+			CString sMes;
+			sMes.Format(_T("%d / %d\n%s"), i+1, saFilePathsTemp.GetCount(),saFilePathsTemp.GetAt(i));
 
+			dlg->SetPos(iPos);
+			dlg->SetText(sMes);
+
+
+			Sleep(100);
 
 			MSG msg;
 			while (::PeekMessage(&msg, NULL, 0, 0, PM_REMOVE))
@@ -461,7 +468,7 @@ bool CSImageViewerView::ReadImage(CString sFilePath)
 			if(bRet != true){bError=true; break;}
 			if(dlg->m_iStatus==0){bError=true; break;}
 		}
-
+		Sleep(1000);
 		dlg->DestroyWindow();
 		dlg = NULL;
 
