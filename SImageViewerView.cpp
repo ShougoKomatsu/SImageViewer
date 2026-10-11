@@ -28,6 +28,7 @@
 #include "SetTransparentDlg.h"
 #include "FullScreenDlg.h"
 #include "SaveAsMultiDlg.h"
+#include "ProgressDlg.h"
 #ifdef _DEBUG
 #define new DEBUG_NEW
 #endif
@@ -415,14 +416,12 @@ IMPLEMENT_DYNCREATE(CSImageViewerView, CView)
 			if(m_saFilePaths.GetAt(i).CompareNoCase(m_image[m_iImageIndex].GetDataSource())==0){m_iTempIndex=i; return;}
 		}
 	}
+	
 
-	bool CSImageViewerView::ReadImage(CString sFilePath)
-	{
-		for(int i = 0; i<m_iImageMax; i++)
-		{
-			m_image[i].Init();
-		}
-		SAFE_DELETE(m_image);
+
+bool CSImageViewerView::ReadImage(CString sFilePath)
+{
+
 		m_sFilePath.Format(_T("%s"), sFilePath);
 		CStringArray saFilePathsTemp;
 		bool bRet = RecursivelyGetImageFilePaths(sFilePath, -1, &saFilePathsTemp, &m_fileFomatList);
@@ -430,23 +429,60 @@ IMPLEMENT_DYNCREATE(CSImageViewerView, CView)
 		SortStrings(&saFilePathsTemp, &m_saFilePaths);
 		int iImageNum = CountImages(sFilePath, -1, &m_fileFomatList);
 
-		m_image = new PanImage[iImageNum];
+		PanImage* imageTemp;
+		imageTemp = new PanImage[iImageNum];
 
 		CMainFrame* pFrame = (CMainFrame*)AfxGetMainWnd();
 
 		int iImageIndex = 0;
+
+
+		CProgressDlg* dlg = new CProgressDlg(this);
+
+		bool bError=false;
 		for(int i = 0; i<saFilePathsTemp.GetCount(); i++)
 		{
-			bRet = ReadAndAppendImage(saFilePathsTemp.GetAt(i), &m_fileFomatList, &m_image[iImageIndex], iImageIndex, &iImageIndex);
-			//			pFrame->SetProgressBar(int(i/iImageNum*1.0));
-			//			Invalidate();
-			if(bRet != true){
-				//pFrame->SetProgressBar(0);
-				return false;}
+			int iPos=int(i*100/(saFilePathsTemp.GetCount()*1.0));
+
+			dlg->SetPos(iPos);
+
+
+			MSG msg;
+			while (::PeekMessage(&msg, NULL, 0, 0, PM_REMOVE))
+			{
+				if (dlg->IsDialogMessage(&msg))
+				{
+					::TranslateMessage(&msg);
+					::DispatchMessage(&msg);
+				}
+			}
+
+			bRet = ReadAndAppendImage(saFilePathsTemp.GetAt(i), &m_fileFomatList, &imageTemp[iImageIndex], iImageIndex, &iImageIndex);
+			if(bRet != true){bError=true; break;}
+			if(dlg->m_iStatus==0){bError=true; break;}
 		}
 
-		//			pFrame->SetProgressBar(0);
+		dlg->DestroyWindow();
+		dlg = NULL;
 
+		if(bError==true){return false;}
+
+		for(int i = 0; i<m_iImageMax; i++)
+		{
+			m_image[i].Init();
+		}
+		SAFE_DELETE(m_image);
+
+		m_iImageIndex = 0;
+		m_iImageMax = 0;
+
+
+		m_image = new PanImage[iImageNum];
+
+		for(int i=0; i<iImageNum; i++)
+		{
+			m_image[i].CopyImage(&(imageTemp[i]));
+		}
 		m_iImageIndex = 0;
 		m_iImageMax = iImageNum;
 		pFrame->m_bFileOpened = true;
