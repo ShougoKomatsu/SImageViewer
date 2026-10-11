@@ -349,40 +349,85 @@ IMPLEMENT_DYNCREATE(CSImageViewerView, CView)
 		pFrame->SendMessage(WM_COMMAND, ID_DISP_STATUS_BPP);
 		if(m_iImageMax==1){		m_saFilePaths.RemoveAll();ListUpSameDirImages(m_sFilePath);}
 	}
+
+	bool CSImageViewerView::ReadImageProgress(const CStringArray* saFilePath, PanImage* image, const int iImageNum)
+	{
+		CProgressDlg* dlg = new CProgressDlg(this);
+		bool bError=false;
+		const int iFileNum = saFilePath->GetCount();
+		
+		int iImageIndex = 0;
+		for(int i = 0; i<iFileNum ; i++)
+		{
+			if(iImageIndex>=iImageNum){bError=true; break;}
+			CString sFilePath = saFilePath->GetAt(i);
+
+			int iPos=int(i*100/(iFileNum *1.0));
+			dlg->SetPos(iPos);
+
+			CString sMes;
+			sMes.Format(_T("%d / %d\n%s"), i+1, iFileNum ,sFilePath);
+			dlg->SetText(sMes);
+			
+			MSG msg;
+			while (::PeekMessage(&msg, NULL, 0, 0, PM_REMOVE))
+			{
+				if (dlg->IsDialogMessage(&msg))
+				{
+					::TranslateMessage(&msg);
+					::DispatchMessage(&msg);
+				}
+			}
+
+			bool bRet = ReadAndAppendImage(sFilePath, &m_fileFomatList, &image[iImageIndex], iImageIndex, &iImageIndex);
+
+			if(bRet != true){bError=true; break;}
+			if(dlg->m_iStatus==0){bError=true; break;}
+		}
+		dlg->DestroyWindow();
+		dlg = NULL;
+		if(bError==true){return false;}
+		if(iImageNum != iImageIndex){return false;}
+		return true;
+	}
+
+
 	bool CSImageViewerView::AddReadImage(CString sFilePath)
 	{
-		CStringArray saFilePath;
-		bool bRet = RecursivelyGetImageFilePaths(sFilePath, -1, &saFilePath, &m_fileFomatList);
+		CStringArray saFilePathTemp;
+		bool bRet = RecursivelyGetImageFilePaths(sFilePath, -1, &saFilePathTemp, &m_fileFomatList);
 		if(bRet != true){return false;}
-		int iImageNum = CountImages(sFilePath, -1, &m_fileFomatList);
+		
+		CStringArray saFilePath;
+		SortStrings(&saFilePathTemp, &saFilePath);
+		int iAddImageNum = CountImages(sFilePath, -1, &m_fileFomatList);
+		
+		PanImage* imgAdd = NULL;
+		imgAdd = new PanImage[iAddImageNum];
+		
+		bRet = ReadImageProgress(&saFilePath, imgAdd, iAddImageNum);
+		if(bRet!=true){SAFE_DELETE(imgAdd);return false;}
+
 
 		int iOldNum = m_iImageMax;
 		PanImage* imgTemp = NULL;
 		imgTemp = new PanImage[iOldNum];
-		for(int i = 0; i<iOldNum; i++)
-		{
-			imgTemp[i].CopyImage(&m_image[i]);
-		}
-
-		for(int i = 0; i<m_iImageMax; i++)
-		{
-			m_image[i].Init();
-		}
+		for(int i = 0; i<iOldNum; i++){imgTemp[i].CopyImage(&m_image[i]);}
+		
+		for(int i = 0; i<m_iImageMax; i++){m_image[i].Init();}
 		SAFE_DELETE(m_image);
-		int iNewImageNum = iOldNum + iImageNum;
-		m_image = new PanImage[iOldNum + iImageNum];
-		for(int i = 0; i<iOldNum; i++)
-		{
-			m_image[i].CopyImage(&imgTemp[i]);
-		}
+		int iNewImageNum = iOldNum + iAddImageNum;
+		m_image = new PanImage[iOldNum + iAddImageNum];
+
+		for(int i = 0; i<iOldNum; i++){m_image[i].CopyImage(&imgTemp[i]);}
 		SAFE_DELETE(imgTemp);
 
-		int iImageIndex = iOldNum;
-		for(int i = 0; i<iImageNum; i++)
-		{
-			bRet = ReadAndAppendImage(saFilePath.GetAt(i), &m_fileFomatList, &m_image[iImageIndex], iImageIndex, &iImageIndex);
-			if(bRet != true){return false;}
-		}
+		for(int i = 0; i<iAddImageNum; i++){m_image[iOldNum + i].CopyImage(&imgAdd[i]);}
+		for(int i = 0; i<saFilePath.GetCount(); i++){m_saFilePaths.Add(saFilePath.GetAt(i));}
+			
+		SAFE_DELETE(imgAdd);
+
+
 
 		CMainFrame* pFrame = (CMainFrame*)AfxGetMainWnd();
 		m_iImageIndex = iOldNum;
@@ -424,74 +469,33 @@ bool CSImageViewerView::ReadImage(CString sFilePath)
 
 		m_sFilePath.Format(_T("%s"), sFilePath);
 		CStringArray saFilePathsTemp;
+		CStringArray saFilePath;
 		bool bRet = RecursivelyGetImageFilePaths(sFilePath, -1, &saFilePathsTemp, &m_fileFomatList);
 		if((bRet != true) && saFilePathsTemp.GetCount()<0){return false;}
-		SortStrings(&saFilePathsTemp, &m_saFilePaths);
+		SortStrings(&saFilePathsTemp, &saFilePath);
 		int iImageNum = CountImages(sFilePath, -1, &m_fileFomatList);
 
 		PanImage* imageTemp;
 		imageTemp = new PanImage[iImageNum];
 
-		CMainFrame* pFrame = (CMainFrame*)AfxGetMainWnd();
-
-		int iImageIndex = 0;
-
-
-		CProgressDlg* dlg = new CProgressDlg(this);
-
-		bool bError=false;
-		for(int i = 0; i<saFilePathsTemp.GetCount(); i++)
-		{
-			int iPos=int(i*100/(saFilePathsTemp.GetCount()*1.0));
-
-			dlg->SetPos(iPos);
-			CString sMes;
-			sMes.Format(_T("%d / %d\n%s"), i+1, saFilePathsTemp.GetCount(),saFilePathsTemp.GetAt(i));
-
-			dlg->SetPos(iPos);
-			dlg->SetText(sMes);
+		
+		bRet = ReadImageProgress(&saFilePath, imageTemp, iImageNum);
+		if(bRet!=true){SAFE_DELETE(imageTemp);return false;}
 
 
-			Sleep(100);
-
-			MSG msg;
-			while (::PeekMessage(&msg, NULL, 0, 0, PM_REMOVE))
-			{
-				if (dlg->IsDialogMessage(&msg))
-				{
-					::TranslateMessage(&msg);
-					::DispatchMessage(&msg);
-				}
-			}
-
-			bRet = ReadAndAppendImage(saFilePathsTemp.GetAt(i), &m_fileFomatList, &imageTemp[iImageIndex], iImageIndex, &iImageIndex);
-			if(bRet != true){bError=true; break;}
-			if(dlg->m_iStatus==0){bError=true; break;}
-		}
-		Sleep(1000);
-		dlg->DestroyWindow();
-		dlg = NULL;
-
-		if(bError==true){return false;}
-
-		for(int i = 0; i<m_iImageMax; i++)
-		{
-			m_image[i].Init();
-		}
+		for(int i = 0; i<m_iImageMax; i++){m_image[i].Init();}
 		SAFE_DELETE(m_image);
 
-		m_iImageIndex = 0;
-		m_iImageMax = 0;
-
-
 		m_image = new PanImage[iImageNum];
+		for(int i=0; i<iImageNum; i++){m_image[i].CopyImage(&(imageTemp[i]));}
+		m_saFilePaths.RemoveAll();
+		for(int i = 0; i<saFilePath.GetCount(); i++){m_saFilePaths.Add(saFilePath.GetAt(i));}
+		SAFE_DELETE(imageTemp);
 
-		for(int i=0; i<iImageNum; i++)
-		{
-			m_image[i].CopyImage(&(imageTemp[i]));
-		}
 		m_iImageIndex = 0;
 		m_iImageMax = iImageNum;
+		
+		CMainFrame* pFrame = (CMainFrame*)AfxGetMainWnd();
 		pFrame->m_bFileOpened = true;
 		view.m_bRegionSelected = true;
 		if(m_iImageMax>=2){pFrame->m_bMultiFile=true; m_bSynchroScroll=true;;}
