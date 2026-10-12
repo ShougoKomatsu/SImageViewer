@@ -191,6 +191,8 @@ bool MakeColorTable(const CImage* cImage, RGBQUAD* rgbqTable_out, ULONGLONG* ull
 
 bool Resize(const CImage* imgSrc, const int iR0_src, const int iC0_src, const int iR1_src, const int iC1_src, CImage* imgDst, const int iWidth_dst, const int iHeight_dst, const RESAMPLE resample);
 bool Resample(const CImage* imgSrc, CImage* imgDst, const RESAMPLE resample);
+void Resample(const ImgRGB* imgRGBSrc, const int iR0, const int iC0, const int iR1, const int iC1, const int iResamplePitch, ImgRGB* imgRGBDst);
+
 bool MakeReservedChannelZero(const CImage* imgSrc, CImage* imgDst);
 bool SetColorTable(CImage* img, const RGBQUAD* rgbTable, int iLength);
 
@@ -297,3 +299,4 @@ bool ImposeLine(const CImage* imgSrc, CImage* imgDst, const double dR0, const do
 bool ImposeImage(const CImage* imgSrcBase, const CImage* imgSrcImposed, const int iROffset, const int iCOffset, CImage* imgDst);
 	bool ImposeImage(const CImage* imgSrcBase, const ImgRGB* imgSrcImposed, const int iROffset, const int iCOffset, CImage* imgDst);
 	bool LoadICOFileSingle(const CString sFilePath, PanImage* imgs, const int iTargetImageIndex);
+
