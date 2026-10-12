@@ -298,3 +298,27 @@ bool CopyFromClipBoardStr(CString* sData)
 
 	return true;
 }
+
+	int CountDigit(const int iValue)
+	{
+		if(iValue>=1000000000){return 10;}
+		if(iValue>=100000000){return 9;}
+		if(iValue>=10000000){return 8;}
+		if(iValue>=1000000){return 7;}
+		if(iValue>=100000){return 6;}
+		if(iValue>=10000){return 5;}
+		if(iValue>=1000){return 4;}
+		if(iValue>=100){return 3;}
+		if(iValue>=10){return 2;}
+		if(iValue>=0){return 1;}
+		if(iValue>=-9){return -1;}
+		if(iValue>=-99){return -2;}
+		if(iValue>=-999){return -3;}
+		if(iValue>=-9999){return -4;}
+		if(iValue>=-99999){return -5;}
+		if(iValue>=-999999){return -6;}
+		if(iValue>=-9999999){return -7;}
+		if(iValue>=-99999999){return -8;}
+		if(iValue>=-999999999){return -9;}
+		return -10;
+	}

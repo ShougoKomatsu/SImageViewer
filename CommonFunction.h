@@ -4,7 +4,7 @@
 #define SAFE_DELETE(arg) if(arg != NULL){delete [] arg; arg=NULL;}
 
 
-#include "ImageProc.h"
+//#include "ImageProc.h"
 #include "resource.h"
 
 
@@ -35,3 +35,5 @@ bool GetDirectory(const CString sFilePath, CString* sFileDir);
 
 
 bool SortStrings(const CStringArray* saInput, CStringArray* saOutput);
+
+	int CountDigit(const int iValue);

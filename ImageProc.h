@@ -3,24 +3,8 @@
 #pragma once
 #include "SImgProc_ex.h"
 #include "CommonFunction.h"
-
-enum VALUE_IMAGE
-{
-	VALUE_IMAGE_UNDEFINED = -1,
-	VALUE_IMAGE_RESCALE_0_TO_255 = 0,
-	VALUE_IMAGE_CLIP_0_TO_255 = 1,
-	VALUE_IMAGE_HUE_CYCLIC = 2,
-	VALUE_IMAGE_RAINBOW = 3,
-	VALUE_IMAGE_EQUALIZE= 4,
-};
-
-enum IMAGE_TYPE
-{
-	IMAGE_TYPE_UNDEFINED=0,
-	IMAGE_TYPE_CIMAGE=1,
-	IMAGE_TYPE_IIMAGE=2,
-	IMAGE_TYPE_DIMAGE=3,
-};
+#include "PanImage.h"
+#include "math.h"
 
 enum VALUE_TYPE
 {
@@ -44,71 +28,6 @@ enum RESAMPLE
 	RESAMPLE_3=3,
 	RESAMPLE_4=4,
 };
-
-
-struct FileFormat
-{
-	CString sType;
-	int iWidth;
-	int iHeight;
-	int iDataOffset;
-
-	int iWidthInfoOffset;
-	int iHeightInfoOffset;
-	int iDataInfoOffset;
-	int iDataOffsetOffset;
-	void Copy(FileFormat* fileFormat_in)
-	{
-		sType.Format(_T("%s"), fileFormat_in->sType);
-		iWidth=fileFormat_in->iWidth;
-		iHeight=fileFormat_in->iHeight;
-		iDataOffset=fileFormat_in->iDataOffset;
-
-		iWidthInfoOffset=fileFormat_in->iWidthInfoOffset;
-		iHeightInfoOffset=fileFormat_in->iHeightInfoOffset;
-		iDataInfoOffset=fileFormat_in->iDataInfoOffset;
-		iDataOffsetOffset=fileFormat_in->iDataOffsetOffset;
-	}
-};
-struct FileFormatList
-{
-	FileFormat* fileFormat;
-	UINT uiNum;
-	FileFormatList()
-	{
-		fileFormat=NULL;
-	}
-	void Init()
-	{
-		uiNum=0;
-		SAFE_DELETE(fileFormat);
-	}
-	~FileFormatList()
-	{
-		Init();
-	}
-	void Set(UINT uiNum_in)
-	{
-		Init();
-		fileFormat = new FileFormat[uiNum_in];
-		uiNum=uiNum_in;
-	}
-	void Copy(FileFormatList* fileFormatList_in)
-	{
-		Init();
-		this->Set(fileFormatList_in->uiNum);
-		for(UINT i=0; i<uiNum; i++)
-		{
-			fileFormat[i].Copy(&(fileFormatList_in->fileFormat[i]));
-		}
-	}
-
-};
-
-
-bool _IsImageMonochrome(const CImage* imgSrc);
-
-bool _ConvertImage(const CImage* cimage, ImgRGB* imgRGB);
 
 
 struct ColorValue
@@ -135,99 +54,9 @@ struct ColorValue
 	}
 	ColorValue(){Init();}
 };
-#define MAX_IMG_PROCESS (32)
-
-
-struct ScrollSetting
-{
-	int m_iScaleIndex;
-	double m_dDispOriginR_tv;
-	double m_dDispOriginC_tv;
-	ScrollSetting()
-	{
-		m_iScaleIndex=8;
-		m_dDispOriginR_tv=0;
-		m_dDispOriginC_tv=0;
-	}
-};
-
-
-class PanImage
-{
-public:
-	ScrollSetting scr;
-	int GetUnDoAvailableCount(){return m_iUnDoAvailableCount;}
-	int GetReDoAvailableCount(){return m_iReDoAvailableCount;}
-
-	CImage* ProgressImageProcess();
-	const CImage* GetCurrentProcess() const;
-	bool UnDo();
-	bool ReDo();
-	bool CopyImage(const PanImage* panImgSrc);
-	void ResetProcessImage();
-	bool Set(const IMAGE_TYPE enumImageType, const int* iImage_in, const double* dImage_in, const int iWidth, const int iHeight, const CImage* cImage_in, const VALUE_IMAGE enumValueImage_in, const CString sDataSource_in);
-	int GetWidth(){if(enumImageType==IMAGE_TYPE_CIMAGE){return cImage.GetWidth();} return iWidth;}
-	int GetHeight(){if(enumImageType==IMAGE_TYPE_CIMAGE){return cImage.GetHeight();}return iHeight;}
-	~PanImage()
-	{
-		Init();
-	}
-	PanImage()
-	{
-		iImage=NULL;
-		dImage=NULL;
-		Init();
-	}
-	void Init()
-	{
-		if(cImage.IsNull()!=true){cImage.Destroy();};
-		SAFE_DELETE(iImage);
-		SAFE_DELETE(dImage);
-		iWidth=0;
-		iHeight=0;
-		sDataSource.Format(_T(""));
-		enumImageType=IMAGE_TYPE_UNDEFINED;
-		enumValueImage=VALUE_IMAGE_UNDEFINED;
-		ResetProcessImage();
-	}
-	//	bool GetColor(int r, int c, ColorValue* colorValue);
-	bool Convert(const VALUE_IMAGE enumMode, CImage* imgDst);
-	bool GetValue(const int r, const int c, double* dValue) const;
-	bool GetValue(const int r, const int c, int* iValue) const;
-	bool GetValue(const int r, const int c, RGBQUAD* rgbValue, BYTE* byAlpha, int* iBPP) const;
-	int GetProcessIndex(){return m_iImgProcessIndex;}
-	const int* GetIImage() const {return iImage;}
-	const double* GetDImage() const {return dImage;}
-	const CImage* GetCImage() const {return &cImage;}
-	int* SetIImage(){return iImage;}
-	double* SetDImage(){return dImage;}
-	CImage* SetCImage(){return &cImage;}
-	const IMAGE_TYPE GetImageType() const{return enumImageType;}
-	void SetImageType(const IMAGE_TYPE enumImageType_in){enumImageType = enumImageType_in;}
-	void SetDataSource(const CString sDataSource_in){sDataSource.Format(_T("%s"), sDataSource_in);}
-	const CString GetDataSource() const{return sDataSource;}
-	bool IsImageMonochrome(){return _IsImageMonochrome(&cImage);}
-	bool ConvertImage(ImgRGB* imgRGB){return _ConvertImage(&cImage, imgRGB);}
-private:
-	CString sDataSource;
-	VALUE_IMAGE enumValueImage;
-	IMAGE_TYPE enumImageType;
-	int* iImage;
-	double* dImage;
-	CImage cImage;
-	int iWidth;
-	int iHeight;
-	CImage m_imageProcessed[MAX_IMG_PROCESS];
-	int m_iImgProcessIndex;
-	int m_iUnDoAvailableCount;
-	int m_iReDoAvailableCount;
-};
-
-
 
 
 bool ConvertImage(const ImgRGB* imgRGB, CImage* imgDst, const int iBPPDst, const RGBQUAD* rgbqTable, const int iColors);
-bool ConvertStrToPanImage(const CString sImage, const VALUE_IMAGE enumImageMode, const CString sDataSource, PanImage* panImgDst);
 bool ConvertImage_AreaCoverage(const CImage* imgSrc,const int iBPP, CImage* imgDst);
 bool ConvertImage_ByDeviation(const CImage* imgSrc,const int iBPP,  CImage* imgDst);
 bool ConvertImage_LossLess(const CImage* imgSrc, const int iBPP, CImage* imgDst);
@@ -236,7 +65,6 @@ bool ConvertImage(const ImgRGB* imgRGB, CImage* cimage);
 
 
 bool CopyToClipBoardImg(const CImage* img);
-bool CopyFromClipBoardImg(PanImage* panImg);
 
 bool CopyImage_CImage(const CImage* imgSrc, CImage* imgDst);
 bool ClipImage(const CImage* imgOriginal, CImage* imgClipped, const int iR0, const int iC0, const int iR1, const int iC1);
@@ -256,22 +84,15 @@ bool MakeReservedChannelZero(const CImage* imgSrc, CImage* imgDst);
 bool SetColorTable(CImage* img, const RGBQUAD* rgbTable, int iLength);
 
 
-UINT CountIconNum(const CString sFilePath);
-bool LoadICOFile(const CString sFilePath, PanImage* panImg, UINT uiNum);
-bool LoadICON2(const CString sFilePath, PanImage* panImgs, UINT uiNum);
-bool LoadICOFileSingle(const CString sFilePath, PanImage* imgs, const int iTargetImageIndex);
 
 bool ImposeGrid(const CImage* imgValueSrc, const CImage* imgSrc, CImage* imgDst, const int iType, const double dROffset, const double dCOffset, const double dScale, const double dScaleThresh,const int iRMax_i, const int iCMax_i);
-bool ImposeRGBValue(const PanImage* panImgSrc, const CImage* imgZoomed, CImage* imgDst, const int iType,const double dROffset, const double dCOffset, const double dScale, const double dScaleThresh,const int iRs_i, const int iCs_i, const int iRe_i, const int iCe_i);
 bool ImposeRect(const CImage* imgSrc, CImage* imgDst, const CRect* rect);
 bool ImposeAlphaChannel(const CImage* imgSrc, CImage* imgDst);
 
 
 bool GetImageTypeNum(const CString sIniFilePath, UINT* uiTypeNum);
 bool GetImageType(const CString sIniFilePath, const int iIndexB0, CString* sType);
-bool GetFileFormat(const CString sIniFilePath, const CString sType, FileFormat* fileFormat);
-bool ReadBinaryFile(const CString sFilePath, FileFormatList* fileFormatList, PanImage* panImgDst);
-bool WriteFileFormat(const CString sIniFilePath, FileFormatList* fileFormatList);
+
 //		bool Threshold(const CImage* imgSrc, CImage* imgDst, const BYTE byMin, const BYTE byMax, const BYTE byR, const BYTE byG, const BYTE byB);
 
 enum COLOR_ELEMENT
@@ -298,16 +119,186 @@ bool ImposeLine(const CImage* imgSrc, CImage* imgDst, const double dR0, const do
 bool ImposeImage(const CImage* imgSrcBase, const CImage* imgSrcImposed, const int iROffset, const int iCOffset, CImage* imgDst);
 bool ImposeImage(const CImage* imgSrcBase, const ImgRGB* imgSrcImposed, const int iROffset, const int iCOffset, CImage* imgDst);
 
-enum TYPE_IMAGE_FILE
+bool AnalyzeStrAsImage(const CString sImage, int* iWidth, int* iHeight, CString* sSeparator_out, bool* bColored, bool* bFloat);
+bool ConvertStrToByte3(const CString sImage, const CString sSeparator, const int iHeight, const int iWidth, BYTE* byImageR, BYTE* byImageG, BYTE* byImageB);
+bool ConvertStrToInt(const CString sImage, const CString sSeparator, const int iHeight, const int iWidth, int* iImage);
+
+
+
+extern const BYTE g_byFont_8_16[1992];
+extern const BYTE g_byFont_4_8[96];
+
+inline void SetRGBAValue(BYTE* pbyData, const int r, const int c, const int iPitch, const BYTE byR, const BYTE byG, const BYTE byB, const BYTE byA)
 {
-	IMAGE_FILE_TYPE_UNDEFINED = 0,
-	IMAGE_FILE_TYPE_SINGLE = 1,
-	IMAGE_FILE_TYPE_MULTI = 2,
-};
+	pbyData[r*iPitch+4*c+2]=byR;
+	pbyData[r*iPitch+4*c+1]=byG;
+	pbyData[r*iPitch+4*c+0]=byB;
+	pbyData[r*iPitch+4*c+3]=byA;
+}
 
-TYPE_IMAGE_FILE GetTypeOfImageFIle(CString sFilePath, FileFormatList* fileFormatList);
+inline void SetRGBValue(BYTE* pbyData, const int r, const int c, const int iPitch, const int iColorPitch, const BYTE byR, const BYTE byG, const BYTE byB)
+{
+	pbyData[r*iPitch+iColorPitch*c+2]=byR;
+	pbyData[r*iPitch+iColorPitch*c+1]=byG;
+	pbyData[r*iPitch+iColorPitch*c+0]=byB;
+}
 
-int CountImages(const CString sFileOrFolderPath, const int iDepth, FileFormatList* fileFormatList);
-bool RecursivelyGetImageFilePaths(const CString sFileOrFolderPath, const int iDepth, CStringArray* saFilePath, FileFormatList* fileFormatList);
-bool ReadAndAppendImage(CString sFilePath, FileFormatList* fileFormatList, PanImage* panImage, int iImageIndex, int* iImageIndexNew);
-bool ReadAndAppendSingllImage(CString sFilePath, FileFormatList* fileFormatList, PanImage* panImage, int iImageIndex);
+inline bool HSVValue(BYTE* pbyData, const int iPitch, const int iColorPitch, const int r, const int c, const UINT uiValue_in, const int uiMax)
+{
+	int uiValue = uiValue_in;
+
+	if(uiValue<uiMax)
+	{
+		SetRGBValue(pbyData, r, c, iPitch, iColorPitch, uiMax-1, uiValue-0, 0);
+		return true;
+	}
+	uiValue-=uiMax;
+	if(uiValue<uiMax)
+	{
+		SetRGBValue(pbyData, r, c, iPitch, iColorPitch, uiMax-1-uiValue, uiMax-1, 0);
+		return true;
+	}
+	uiValue-=uiMax;
+	if(uiValue<uiMax)
+	{
+		SetRGBValue(pbyData, r, c, iPitch, iColorPitch, 0, uiMax-1, uiValue);
+		return true;
+	}
+
+	uiValue-=uiMax;
+	if(uiValue<uiMax)
+	{
+		SetRGBValue(pbyData, r, c, iPitch, iColorPitch, 0, uiMax-1-uiValue, uiMax-1);
+		return true;
+	}
+	uiValue-=uiMax;
+	if(uiValue<uiMax)
+	{
+		SetRGBValue(pbyData, r, c, iPitch, iColorPitch, uiValue, 0, uiMax-1);
+		return true;
+	}
+	uiValue-=uiMax;
+	if(uiValue<uiMax)
+	{
+		SetRGBValue(pbyData, r, c, iPitch, iColorPitch, uiMax-1, 0, uiMax-1-uiValue);
+		return true;
+	}
+	return false;
+}
+
+inline bool SetHSVValue(BYTE* pbyData, const int iPitch, const int iColorPitch, const int r, const int c, const UINT uiValue, const int iDigit)
+{
+	bool bRet;
+	UINT uiValue_local=uiValue;
+	for (int i=1;i<=256/iDigit; i++)
+	{
+		bRet = HSVValue(pbyData, iPitch, iColorPitch, r, c, uiValue_local, iDigit*i);
+		if(bRet == true){break;}
+		uiValue_local-=iDigit*i*6;
+	}
+	return true;
+}
+
+
+inline void SetRGBTransparent(BYTE* pbyData, const int r, const int c, const int iPitch, const BYTE byR, const BYTE byG, const BYTE byB)
+{
+	pbyData[r*iPitch+4*c+2]=(int(byR)*3+pbyData[r*iPitch+4*c+2])/4;
+	pbyData[r*iPitch+4*c+1]=(int(byG)*3+pbyData[r*iPitch+4*c+1])/4;
+	pbyData[r*iPitch+4*c+0]=(int(byB)*3+pbyData[r*iPitch+4*c+0])/4;
+}
+
+
+	inline void ImposeSingleValue_8_16(BYTE* pbyData, const int iPitch, const int iHeight, const int iWidth, const BYTE byDigitValue, const int ir_Origin, const int ic_Origin, const BYTE byDot)
+	{
+		for(int ir=0; ir<16; ir++)
+		{
+			if(ir_Origin+ir>=iHeight){continue;}
+			if(ir_Origin+ir<0){continue;}
+			for(int icc=0; icc<8; icc++)
+			{
+				if(ic_Origin+icc>=iWidth){continue;}
+				if(ic_Origin+icc<0){continue;}
+
+				if(byDot<128){SetRGBTransparent(pbyData, ir_Origin+ir, ic_Origin+icc, iPitch, 255, 255, 255);}
+				else{SetRGBTransparent(pbyData, ir_Origin+ir, ic_Origin+icc, iPitch, 0, 0, 0);}
+
+				if( (g_byFont_8_16[byDigitValue*16 + ir] & (1<<(7-icc))) == 1<<(7-icc))
+				{
+					SetRGBAValue(pbyData, ir_Origin+ir, ic_Origin+icc, iPitch, byDot, byDot, byDot, 255);
+				}
+			}
+		}
+	}
+
+	inline void ImposeSingleValue_4_8(BYTE* pbyData, const int iPitch, const int iHeight, const int iWidth, const BYTE byDigitValue,const int ir_Origin, int ic_Origin, BYTE byDot)
+	{
+
+		for(int ir=0; ir<8; ir++)
+		{
+			if(ir_Origin+ir>=iHeight){continue;}
+			if(ir_Origin+ir<0){continue;}
+			for(int icc=0; icc<5; icc++)
+			{
+				if(ic_Origin+icc>=iWidth){continue;}
+				if(ic_Origin+icc<0){continue;}
+
+				if(byDot<128){SetRGBTransparent(pbyData, ir_Origin+ir, ic_Origin+icc, iPitch, 255, 255, 255);}
+				else{SetRGBTransparent(pbyData, ir_Origin+ir, ic_Origin+icc, iPitch, 0, 0, 0);}}
+		}
+
+		for(int ir=0; ir<8; ir++)
+		{
+			if(ir_Origin+ir>=iHeight){continue;}
+			if(ir_Origin+ir<0){continue;}
+			for(int icc=0; icc<4; icc++)
+			{
+				if(ic_Origin+icc>=iWidth){continue;}
+				if(ic_Origin+icc<0){continue;}
+				
+				if( (g_byFont_4_8[byDigitValue*8 + ir] & (1<<(3-icc))) == 1<<(3-icc))
+				{
+					SetRGBAValue(pbyData, ir_Origin+ir, ic_Origin+icc, iPitch, byDot, byDot, byDot, 255);
+				}
+			}
+		}
+	}
+
+
+	inline void ImposeValue_8_16(BYTE* pbyData, const int iPitch, const int iHeight, const int iWidth, const int iValue_in, const int ir_Origin, const int ic_Origin_0, const BYTE byDot)
+	{
+		UINT uiValue=iValue_in;
+		int iDigit = CountDigit(iValue_in);
+		if(iDigit<0)
+		{
+			ImposeSingleValue_8_16(pbyData, iPitch, iHeight, iWidth, 10, ir_Origin, ic_Origin_0 - 8*iDigit*(-1), byDot);
+			iDigit*=-1;
+			uiValue = iValue_in*(-1);
+		}
+
+		for(int i=iDigit-1; i>=0; i--)
+		{
+			BYTE byDigitValue = uiValue/(int(pow(10,(double)i)));
+			ImposeSingleValue_8_16(pbyData, iPitch, iHeight, iWidth, byDigitValue,ir_Origin, ic_Origin_0 - 8*i, byDot);
+			uiValue-=byDigitValue*(int(pow(10,(double)i)));
+		}
+
+	}
+
+	inline void ImposeValue_4_8(BYTE* pbyData, const int iPitch, const int iHeight, const int iWidth, const int iValue_in, const int ir_Origin, const int ic_Origin_0, const BYTE byDot)
+	{
+		UINT uiValue=iValue_in;
+		int iDigit = CountDigit(iValue_in);
+		if(iDigit<0)
+		{
+			ImposeSingleValue_4_8(pbyData, iPitch, iHeight, iWidth, 10, ir_Origin, ic_Origin_0 - 4*iDigit*(-1), byDot);
+			iDigit*=-1;
+			uiValue = iValue_in*(-1);
+		}
+
+		for(int i=iDigit-1; i>=0; i--)
+		{
+			BYTE byDigitValue = uiValue/(int(pow(10,(double)i)));
+			ImposeSingleValue_4_8(pbyData, iPitch, iHeight, iWidth, byDigitValue,ir_Origin, ic_Origin_0 - 4*i, byDot);
+			uiValue-=byDigitValue*(int(pow(10,(double)i)));
+		}
+	}
