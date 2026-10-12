@@ -10,7 +10,7 @@
 #include "ResampleDlg.h"
 #include "CommonFunction.h"
 #include "ViewDraw.h"
-
+#include "File.h"
 #define IMAGE_BUF_NUM (1)
 class CSImageViewerView : public CView
 {

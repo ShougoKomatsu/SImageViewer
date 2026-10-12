@@ -196,6 +196,8 @@
     <ClInclude Include="CopyAsDlg.h" />
     <ClInclude Include="EditEx.h" />
     <ClInclude Include="ExtractChannelDlg.h" />
+    <ClInclude Include="File.h" />
+    <ClInclude Include="FileFolderDialog.h" />
     <ClInclude Include="FileFormatDlg.h" />
     <ClInclude Include="FormatSelectionDlg.h" />
     <ClInclude Include="FullScreenDlg.h" />
@@ -203,6 +205,7 @@
     <ClInclude Include="ImageProc.h" />
     <ClInclude Include="InputDlg.h" />
     <ClInclude Include="MainFrm.h" />
+    <ClInclude Include="PanImage.h" />
     <ClInclude Include="PasteAsDlg.h" />
     <ClInclude Include="PictureCtrlEx.h" />
     <ClInclude Include="ProgressDlg.h" />
@@ -226,6 +229,8 @@
     <ClCompile Include="CopyAsDlg.cpp" />
     <ClCompile Include="EditEx.cpp" />
     <ClCompile Include="ExtractChannelDlg.cpp" />
+    <ClCompile Include="File.cpp" />
+    <ClCompile Include="FileFolderDialog.cpp" />
     <ClCompile Include="FileFormatDlg.cpp" />
     <ClCompile Include="FormatSelectionDlg.cpp" />
     <ClCompile Include="FullScreenDlg.cpp" />
@@ -233,6 +238,7 @@
     <ClCompile Include="ImageProc.cpp" />
     <ClCompile Include="InputDlg.cpp" />
     <ClCompile Include="MainFrm.cpp" />
+    <ClCompile Include="PanImage.cpp" />
     <ClCompile Include="PasteAsDlg.cpp" />
     <ClCompile Include="PictureCtrlEx.cpp" />
     <ClCompile Include="ProgressDlg.cpp" />

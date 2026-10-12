@@ -135,6 +135,15 @@
     <ClInclude Include="SaveAsMultiDlg.h">
       <Filter>ヘッダー ファイル\Dlg</Filter>
     </ClInclude>
+    <ClInclude Include="FileFolderDialog.h">
+      <Filter>ヘッダー ファイル</Filter>
+    </ClInclude>
+    <ClInclude Include="File.h">
+      <Filter>ヘッダー ファイル</Filter>
+    </ClInclude>
+    <ClInclude Include="PanImage.h">
+      <Filter>ヘッダー ファイル</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="SImageViewer.cpp">
@@ -213,6 +222,15 @@
       <Filter>ソース ファイル\Dlg</Filter>
     </ClCompile>
     <ClCompile Include="SaveAsMultiDlg.cpp">
+      <Filter>ソース ファイル\Dlg</Filter>
+    </ClCompile>
+    <ClCompile Include="FileFolderDialog.cpp">
+      <Filter>ソース ファイル\Dlg</Filter>
+    </ClCompile>
+    <ClCompile Include="File.cpp">
+      <Filter>ソース ファイル</Filter>
+    </ClCompile>
+    <ClCompile Include="PanImage.cpp">
       <Filter>ソース ファイル\Dlg</Filter>
     </ClCompile>
   </ItemGroup>

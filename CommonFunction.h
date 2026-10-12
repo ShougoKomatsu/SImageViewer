@@ -1,7 +1,13 @@
 #include "stdafx.h"
 #pragma once
-#include "ImageProc.h"
+
+#define SAFE_DELETE(arg) if(arg != NULL){delete [] arg; arg=NULL;}
+
+
+//#include "ImageProc.h"
 #include "resource.h"
+
+
 
 
 bool CopyFromClipBoardStr(CString* sData);
@@ -10,9 +16,6 @@ bool CopyFromClipBoardStr(CString* sData);
 bool isNearTheBoarder(double d, double dBoarder, double dMargin);
 bool isInTheRange(double d, double dMin, double dMax);
 bool CopyToClipBoardStr(const CString sValue);
-int CountImages(const CString sFileOrFolderPath, const int iDepth, FileFormatList* fileFormatList);
-bool RecursivelyGetImageFilePaths(const CString sFileOrFolderPath, const int iDepth, CStringArray* saFilePath, FileFormatList* fileFormatList);
-bool ReadAndAppendImage(CString sFilePath, FileFormatList* fileFormatList, PanImage* panImage, int iImageIndex, int* iImageIndexNew);
 //bool GetOpenFileList(CString* sFilePaths);
 
 bool index_i(const int* iValues, const int iLength, int* iIndex);
@@ -30,20 +33,7 @@ inline void SwapInt(int *a, int *b)
 bool SplitFilePath(const CString sFilePath, CString* sFileDirWithOutBS, CString* sFileNameWithoutDotExt, CString* sExt);
 bool GetDirectory(const CString sFilePath, CString* sFileDir);
 
-bool ReadAndAppendSingllImage(CString sFilePath, FileFormatList* fileFormatList, PanImage* panImage, int iImageIndex);
 
-enum TYPE_IMAGE_FILE
-{
-	IMAGE_FILE_TYPE_UNDEFINED = 0,
-	IMAGE_FILE_TYPE_SINGLE = 1,
-	IMAGE_FILE_TYPE_MULTI = 2,
-};
-TYPE_IMAGE_FILE GetTypeOfImageFIle(CString sFilePath, FileFormatList* fileFormatList);
 bool SortStrings(const CStringArray* saInput, CStringArray* saOutput);
 
-
-void Resample(const ImgRGB* imgRGBSrc, const int iR0, const int iC0, const int iR1, const int iC1, const int iResamplePitch, ImgRGB* imgRGBDst);
-
-#include <dlgs.h>
-
-	bool GetOpenFileList(CString* sFilePaths,CWnd* wnd);
+	int CountDigit(const int iValue);

@@ -1,7 +1,7 @@
 #pragma once
 #include "afxwin.h"
 #include "ImageProc.h"
-
+#include "File.h"
 // CFileFormatDlg ダイアログ
 
 class CFileFormatDlg : public CDialogEx

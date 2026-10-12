@@ -29,6 +29,7 @@
 #include "FullScreenDlg.h"
 #include "SaveAsMultiDlg.h"
 #include "ProgressDlg.h"
+#include "FileFolderDialog.h"
 #ifdef _DEBUG
 #define new DEBUG_NEW
 #endif
@@ -355,7 +356,7 @@ IMPLEMENT_DYNCREATE(CSImageViewerView, CView)
 		CProgressDlg* dlg = new CProgressDlg(this);
 		bool bError=false;
 		const int iFileNum = saFilePath->GetCount();
-		
+
 		int iImageIndex = 0;
 		for(int i = 0; i<iFileNum ; i++)
 		{
@@ -368,7 +369,7 @@ IMPLEMENT_DYNCREATE(CSImageViewerView, CView)
 			CString sMes;
 			sMes.Format(_T("%d / %d\n%s"), i+1, iFileNum ,sFilePath);
 			dlg->SetText(sMes);
-			
+
 			MSG msg;
 			while (::PeekMessage(&msg, NULL, 0, 0, PM_REMOVE))
 			{
@@ -387,10 +388,10 @@ IMPLEMENT_DYNCREATE(CSImageViewerView, CView)
 		dlg->DestroyWindow();
 		dlg = NULL;
 		if(bError==true){return false;}
-	//	if(iImageNum != iImageIndex){return false;}
+		//	if(iImageNum != iImageIndex){return false;}
 		return true;
 	}
-	
+
 	void CSImageViewerView::ListUpSameDirImages(const CString sBaseFilePath)
 	{
 		if(m_iImageMax <= 0){return;}
@@ -407,7 +408,7 @@ IMPLEMENT_DYNCREATE(CSImageViewerView, CView)
 			if(m_saFilePaths.GetAt(i).CompareNoCase(m_image[m_iImageIndex].GetDataSource())==0){m_iTempIndex=i; return;}
 		}
 	}
-	
+
 
 
 	bool CSImageViewerView::ReadImage(CString sFilePath, const bool bAdd)
@@ -415,14 +416,14 @@ IMPLEMENT_DYNCREATE(CSImageViewerView, CView)
 		CStringArray saFilePathTemp;
 		bool bRet = RecursivelyGetImageFilePaths(sFilePath, -1, &saFilePathTemp, &m_fileFomatList);
 		if(bRet != true){return false;}
-		
+
 		CStringArray saFilePath;
 		SortStrings(&saFilePathTemp, &saFilePath);
 		int iAddImageNum = CountImages(sFilePath, -1, &m_fileFomatList);
-		
+
 		PanImage* imgAdd = NULL;
 		imgAdd = new PanImage[iAddImageNum];
-		
+
 		bRet = ReadImageProgress(&saFilePath, imgAdd, iAddImageNum);
 		if(bRet!=true){SAFE_DELETE(imgAdd);return false;}
 
@@ -430,28 +431,25 @@ IMPLEMENT_DYNCREATE(CSImageViewerView, CView)
 		{
 			for(int i = 0; i<m_iImageMax; i++){m_image[i].Init();}
 			SAFE_DELETE(m_image);
-			m_image = new PanImage[iAddImageNum];
 			m_iImageIndex = 0;
 			m_iImageMax = 0;
 		}
 
 		int iOldNum = m_iImageMax;
-		PanImage* imgTemp = NULL;
-		imgTemp = new PanImage[iOldNum];
-		for(int i = 0; i<iOldNum; i++){imgTemp[i].CopyImage(&m_image[i]);}
-		
+		PanImage* imgOld = NULL;
+		imgOld = new PanImage[iOldNum];
+		for(int i = 0; i<iOldNum; i++){imgOld[i].CopyImage(&m_image[i]);}
+
 		for(int i = 0; i<m_iImageMax; i++){m_image[i].Init();}
 		SAFE_DELETE(m_image);
 		int iNewImageNum = iOldNum + iAddImageNum;
 		m_image = new PanImage[iOldNum + iAddImageNum];
 
-		for(int i = 0; i<iOldNum; i++){m_image[i].CopyImage(&imgTemp[i]);}
-		SAFE_DELETE(imgTemp);
+		for(int i = 0; i<iOldNum; i++){m_image[i].CopyImage(&imgOld[i]);}
+		SAFE_DELETE(imgOld);
 
 		for(int i = 0; i<iAddImageNum; i++){m_image[iOldNum + i].CopyImage(&imgAdd[i]);}			
 		SAFE_DELETE(imgAdd);
-
-
 
 		CMainFrame* pFrame = (CMainFrame*)AfxGetMainWnd();
 		m_iImageIndex = iOldNum;
@@ -469,7 +467,7 @@ IMPLEMENT_DYNCREATE(CSImageViewerView, CView)
 
 	}
 
-	
+
 
 	bool CSImageViewerView::SaveImage(const CImage* image)
 	{
@@ -515,12 +513,12 @@ IMPLEMENT_DYNCREATE(CSImageViewerView, CView)
 
 	int Setmode(const CString str)
 	{
-		
-			if(str.Compare(_T("0埋め0始まり"))==0){return 0;}
-			if(str.Compare(_T("0埋め1始まり"))==0){return 1;}
-			if(str.Compare(_T("埋め無し0始まり"))==0){return 2;}
-			if(str.Compare(_T("埋め無し1始まり"))==0){return 3;}
-			return 4;
+
+		if(str.Compare(_T("0埋め0始まり"))==0){return 0;}
+		if(str.Compare(_T("0埋め1始まり"))==0){return 1;}
+		if(str.Compare(_T("埋め無し0始まり"))==0){return 2;}
+		if(str.Compare(_T("埋め無し1始まり"))==0){return 3;}
+		return 4;
 	}
 
 	const CString SetString(const int iMode, const int iSerial, const int iSerialMax, const CString sDefault)
@@ -666,7 +664,7 @@ IMPLEMENT_DYNCREATE(CSImageViewerView, CView)
 		{
 			saFilePath.Add(GetNewFilePath(m_image[i].GetDataSource(), i, m_iImageMax, sDir, sPre1,sPre2, sBase, sSub1, sSub2, sExt));
 		}
-		
+
 		CStringArray saDup;
 		bool* bDup;
 		bDup = new bool [saFilePath.GetCount()];
@@ -703,14 +701,14 @@ IMPLEMENT_DYNCREATE(CSImageViewerView, CView)
 			if(dlg.m_iReturnCode == 1)
 			{
 				CSaveAsMultiDlg dlgsave;
-				
+
 				CString sDir, sFileNameDummy, sExtDummy;
 				SplitFilePath(m_image[m_iImageIndex].GetDataSource(), &sDir,&sFileNameDummy, &sExtDummy);
 
 				dlgsave.m_sDir = sDir;
 				INT_PTR iRet = dlgsave.DoModal();
 				if(iRet != IDOK){return;}
-				
+
 				SaveFileMulti(dlgsave.m_sDir, dlgsave.m_sPrefix1, dlgsave.m_sPrefix2, dlgsave.m_sBase, dlgsave.m_sSuffix1,dlgsave.m_sSuffix2,  dlgsave.m_sExt);
 				return;
 			}
@@ -734,7 +732,7 @@ IMPLEMENT_DYNCREATE(CSImageViewerView, CView)
 		bool bRet = GetOpenFileList(&sFilePaths, this);
 		if(bRet != true){return;}
 
-		
+
 		m_sFilePath.Format(_T("%s"), sFilePaths);
 		ReadImage(sFilePaths, false);
 	}
@@ -1178,7 +1176,7 @@ IMPLEMENT_DYNCREATE(CSImageViewerView, CView)
 			}
 		}
 
-		
+
 		SAFE_DELETE(ullArea);
 
 		SAFE_DELETE(ullTotalR);
@@ -1461,7 +1459,7 @@ IMPLEMENT_DYNCREATE(CSImageViewerView, CView)
 		dlg.m_iWidthOrg = m_image[m_iImageIndex].GetCurrentProcess()->GetWidth();
 		INT_PTR iRet = dlg.DoModal();
 		if(iRet != IDOK){return;}
-		
+
 		bool bSame = false;
 		int iIndexOf0 = m_image[0].GetProcessIndex();
 		for(int i=1; i<m_iImageMax; i++)
@@ -1638,7 +1636,7 @@ IMPLEMENT_DYNCREATE(CSImageViewerView, CView)
 
 		for(int i =iStart; i<iEnd; i++)
 		{
-			
+
 			if(bAutoFull == true){FullDomain(&rect_i, &(m_image[i]));}
 			CImage imgTemp;
 
