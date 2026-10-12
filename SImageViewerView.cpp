@@ -387,7 +387,7 @@ IMPLEMENT_DYNCREATE(CSImageViewerView, CView)
 		dlg->DestroyWindow();
 		dlg = NULL;
 		if(bError==true){return false;}
-		if(iImageNum != iImageIndex){return false;}
+	//	if(iImageNum != iImageIndex){return false;}
 		return true;
 	}
 
@@ -422,9 +422,7 @@ IMPLEMENT_DYNCREATE(CSImageViewerView, CView)
 		for(int i = 0; i<iOldNum; i++){m_image[i].CopyImage(&imgTemp[i]);}
 		SAFE_DELETE(imgTemp);
 
-		for(int i = 0; i<iAddImageNum; i++){m_image[iOldNum + i].CopyImage(&imgAdd[i]);}
-		for(int i = 0; i<saFilePath.GetCount(); i++){m_saFilePaths.Add(saFilePath.GetAt(i));}
-			
+		for(int i = 0; i<iAddImageNum; i++){m_image[iOldNum + i].CopyImage(&imgAdd[i]);}			
 		SAFE_DELETE(imgAdd);
 
 
@@ -488,9 +486,8 @@ bool CSImageViewerView::ReadImage(CString sFilePath)
 
 		m_image = new PanImage[iImageNum];
 		for(int i=0; i<iImageNum; i++){m_image[i].CopyImage(&(imageTemp[i]));}
-		m_saFilePaths.RemoveAll();
-		for(int i = 0; i<saFilePath.GetCount(); i++){m_saFilePaths.Add(saFilePath.GetAt(i));}
 		SAFE_DELETE(imageTemp);
+		m_saFilePaths.RemoveAll();
 
 		m_iImageIndex = 0;
 		m_iImageMax = iImageNum;
