@@ -1182,7 +1182,7 @@ bool Resize(const CImage* imgSrc, const int iR0_src, const int iC0_src, const in
 	ImgRGB imgRGBDst;
 	int iBPP=imgSrc->GetBPP();
 	_ConvertImage(imgSrc, &imgRGBSrc);
-	imgRGBDst.Set(iWidth_dst, iHeight_dst, ((max(imgSrc->GetBPP(),24)==24 )? CHANNEL_3_8RGB :CHANNEL_4_8RGBA) );
+	imgRGBDst.Set(iWidth_dst, iHeight_dst, imgRGBSrc.iChannel );
 	int iWidth_src = imgSrc->GetWidth();
 	int iHeight_src = imgSrc->GetHeight();
 
