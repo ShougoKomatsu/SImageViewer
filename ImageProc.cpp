@@ -4971,3 +4971,187 @@ bool ReadBinaryFile(const CString sFilePath, FileFormatList* fileFormatList, Pan
 		}
 		return true;
 	}
+
+	
+TYPE_IMAGE_FILE IsImageFIle(CString sFilePath, FileFormatList* fileFormatList)
+{
+	if(sFilePath.Right(4).CompareNoCase(_T(".bmp"))==0){return IMAGE_FILE_TYPE_SINGLE;}
+	if(sFilePath.Right(4).CompareNoCase(_T(".png"))==0){return IMAGE_FILE_TYPE_SINGLE;}
+	if(sFilePath.Right(4).CompareNoCase(_T(".jpg"))==0){return IMAGE_FILE_TYPE_SINGLE;}
+	if(sFilePath.Right(4).CompareNoCase(_T(".ico"))==0){return IMAGE_FILE_TYPE_MULTI;}
+	if(sFilePath.Right(4).CompareNoCase(_T(".exe"))==0){return IMAGE_FILE_TYPE_MULTI;}
+	if(sFilePath.Right(4).CompareNoCase(_T(".dll"))==0){return IMAGE_FILE_TYPE_MULTI;}
+	for(UINT i=0; i<fileFormatList->uiNum; i++)
+	{
+		if(sFilePath.Right(fileFormatList->fileFormat[i].sType.GetLength()).CompareNoCase(fileFormatList->fileFormat[i].sType)==0){return IMAGE_FILE_TYPE_SINGLE;}
+	}
+
+	return IMAGE_FILE_TYPE_UNDEFINED;
+}
+
+bool RecursivelyGetImageFilePaths(const CString sFileOrFolderPath, const int iDepth, CStringArray* saFilePath, FileFormatList* fileFormatList)
+{
+	if(iDepth==0){return false;}
+	if(sFileOrFolderPath.Find(_T("|"))>=0)
+	{
+		CStringArray saFilePathTemp;
+		saFilePathTemp.RemoveAll();
+		int iPlaceStart=0;
+		while(1)
+		{
+			int iPlaceEnd = sFileOrFolderPath.Find(_T("|"),iPlaceStart);
+			if(iPlaceEnd<0)
+			{
+				saFilePathTemp.Add(sFileOrFolderPath.Mid(iPlaceStart,sFileOrFolderPath.GetLength()-iPlaceStart));
+				break;
+			}
+			saFilePathTemp.Add(sFileOrFolderPath.Mid(iPlaceStart,iPlaceEnd-iPlaceStart));
+			iPlaceStart=iPlaceEnd+1;
+		}
+		for(int i=0; i<saFilePathTemp.GetCount(); i++)
+		{
+			bool bRet = RecursivelyGetImageFilePaths(saFilePathTemp.GetAt(i), iDepth-1, saFilePath, fileFormatList);
+			if(bRet != true){return false;}
+		}
+		return true;
+	}
+
+	DWORD dwAttribute = GetFileAttributes(sFileOrFolderPath);
+	if (dwAttribute == INVALID_FILE_ATTRIBUTES) {return false;}
+
+	if ((dwAttribute & FILE_ATTRIBUTE_DIRECTORY) == 0) 
+	{
+		if(IsImageFIle(sFileOrFolderPath, fileFormatList)==IMAGE_FILE_TYPE_SINGLE)
+		{
+			saFilePath->Add(sFileOrFolderPath);
+		}
+		if(IsImageFIle(sFileOrFolderPath, fileFormatList)==IMAGE_FILE_TYPE_MULTI)
+		{
+			saFilePath->Add(sFileOrFolderPath);
+		}
+		return true;
+	}
+
+
+	CString searchPath = sFileOrFolderPath;
+	if (searchPath.Right(1) != _T("\\")) 
+	{
+		searchPath += _T("\\");
+	}
+	searchPath += _T("*.*");
+
+	CFileFind cf;
+	BOOL bWorking = cf.FindFile(searchPath);
+
+	while (bWorking == TRUE) 
+	{
+		bWorking = cf.FindNextFile();
+		if (cf.IsDots() == TRUE){continue;}
+
+		CString sFilePath = cf.GetFilePath();
+
+		if (cf.IsDirectory() == TRUE) 
+		{
+			bool bRet = RecursivelyGetImageFilePaths(sFilePath, iDepth-1, saFilePath, fileFormatList);
+			if(bRet != true){continue;}
+		}
+		else 
+		{
+			if(IsImageFIle(sFilePath, fileFormatList) == IMAGE_FILE_TYPE_UNDEFINED){continue;}
+			saFilePath->Add(sFilePath);
+		}
+	}
+
+	cf.Close();
+	return true;
+}
+
+UINT CountImageInOneFile(CString sFilePath, FileFormatList* fileFormatList)
+{
+	if(sFilePath.Right(4).CompareNoCase(_T(".bmp"))==0){return 1;}
+	if(sFilePath.Right(4).CompareNoCase(_T(".png"))==0){return 1;}
+	if(sFilePath.Right(4).CompareNoCase(_T(".jpg"))==0){return 1;}
+	if(sFilePath.Right(4).CompareNoCase(_T(".ico"))==0){return 2*CountIconNum(sFilePath); }
+	if(sFilePath.Right(4).CompareNoCase(_T(".exe"))==0){return 2*CountIconNum(sFilePath); }
+	if(sFilePath.Right(4).CompareNoCase(_T(".dll"))==0){return 2*CountIconNum(sFilePath); }
+	for(UINT i=0; i<fileFormatList->uiNum; i++)
+	{
+		if(sFilePath.Right(fileFormatList->fileFormat[i].sType.GetLength()).CompareNoCase(fileFormatList->fileFormat[i].sType)==0){return 1;}
+	}
+	return 0;
+}
+
+int CountImages(const CString sFileOrFolderPath, const int iDepth, FileFormatList* fileFormatList)
+{
+	if(iDepth==0){return false;}
+	CStringArray saFilePath;
+	saFilePath.RemoveAll();
+	bool bRet = RecursivelyGetImageFilePaths(sFileOrFolderPath, iDepth, &saFilePath, fileFormatList);
+	if(bRet != true){return 0;}
+
+	int iFileNum = (int)saFilePath.GetCount();
+	int iImageCount=0;
+	for(int i=0; i<iFileNum; i++)
+	{
+		iImageCount += CountImageInOneFile(saFilePath.GetAt(i), fileFormatList);
+	}
+	return iImageCount;
+}
+
+bool ReadAndAppendImage(CString sFilePath, FileFormatList* fileFormatList, PanImage* panImage, int iImageIndex, int* iImageIndexNew)
+{
+	for(UINT i=0; i<fileFormatList->uiNum; i++)
+	{
+		if(sFilePath.Right(fileFormatList->fileFormat[i].sType.GetLength()).CompareNoCase(fileFormatList->fileFormat[i].sType)==0)
+		{
+			return ReadBinaryFile(sFilePath, fileFormatList, panImage);
+		}
+	}
+	if(((sFilePath.Right(4)).CompareNoCase(_T(".ico"))==0)
+		||((sFilePath.Right(4)).CompareNoCase(_T(".exe"))==0)
+		||((sFilePath.Right(4)).CompareNoCase(_T(".dll"))==0))
+	{
+
+		UINT uiIconNum = CountIconNum(sFilePath);
+		bool bRet = LoadICOFile(sFilePath,&(panImage[iImageIndex]),uiIconNum);
+		if(bRet != true){return false;}
+		*iImageIndexNew = iImageIndex+uiIconNum;
+		return true;
+	}
+	CImage img;
+	HRESULT hResult = img.Load(sFilePath);
+	if(hResult != S_OK){return false;}
+
+	panImage->Set(IMAGE_TYPE_CIMAGE, NULL, NULL, 0, 0, &img, VALUE_IMAGE_UNDEFINED, sFilePath);
+
+	*iImageIndexNew = iImageIndex+1;
+	return true;
+}
+
+bool ReadAndAppendSingllImage(CString sFilePath, FileFormatList* fileFormatList, PanImage* panImage, int iTargetImageIndex)
+{
+	for(UINT i=0; i<fileFormatList->uiNum; i++)
+	{
+		if(sFilePath.Right(fileFormatList->fileFormat[i].sType.GetLength()).CompareNoCase(fileFormatList->fileFormat[i].sType)==0)
+		{
+			return ReadBinaryFile(sFilePath, fileFormatList, panImage);
+		}
+	}
+	if(((sFilePath.Right(4)).CompareNoCase(_T(".ico"))==0)
+		||((sFilePath.Right(4)).CompareNoCase(_T(".exe"))==0)
+		||((sFilePath.Right(4)).CompareNoCase(_T(".dll"))==0))
+	{
+
+		UINT uiIconNum = CountIconNum(sFilePath);
+		bool bRet = LoadICOFileSingle(sFilePath,panImage,1);
+		if(bRet != true){return false;}
+		return true;
+	}
+	CImage img;
+	HRESULT hResult = img.Load(sFilePath);
+	if(hResult != S_OK){return false;}
+
+	panImage->Set(IMAGE_TYPE_CIMAGE, NULL, NULL, 0, 0, &img, VALUE_IMAGE_UNDEFINED, sFilePath);
+
+	return true;
+}

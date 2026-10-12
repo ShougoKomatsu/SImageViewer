@@ -2,9 +2,7 @@
 #include "stdafx.h"
 #pragma once
 #include "SImgProc_ex.h"
-
-
-#define SAFE_DELETE(arg) if(arg != NULL){delete [] arg; arg=NULL;}
+#include "CommonFunction.h"
 
 enum VALUE_IMAGE
 {
@@ -47,6 +45,67 @@ enum RESAMPLE
 	RESAMPLE_4=4,
 };
 
+
+struct FileFormat
+{
+	CString sType;
+	int iWidth;
+	int iHeight;
+	int iDataOffset;
+
+	int iWidthInfoOffset;
+	int iHeightInfoOffset;
+	int iDataInfoOffset;
+	int iDataOffsetOffset;
+	void Copy(FileFormat* fileFormat_in)
+	{
+		sType.Format(_T("%s"), fileFormat_in->sType);
+		iWidth=fileFormat_in->iWidth;
+		iHeight=fileFormat_in->iHeight;
+		iDataOffset=fileFormat_in->iDataOffset;
+
+		iWidthInfoOffset=fileFormat_in->iWidthInfoOffset;
+		iHeightInfoOffset=fileFormat_in->iHeightInfoOffset;
+		iDataInfoOffset=fileFormat_in->iDataInfoOffset;
+		iDataOffsetOffset=fileFormat_in->iDataOffsetOffset;
+	}
+};
+struct FileFormatList
+{
+	FileFormat* fileFormat;
+	UINT uiNum;
+	FileFormatList()
+	{
+		fileFormat=NULL;
+	}
+	void Init()
+	{
+		uiNum=0;
+		SAFE_DELETE(fileFormat);
+	}
+	~FileFormatList()
+	{
+		Init();
+	}
+	void Set(UINT uiNum_in)
+	{
+		Init();
+		fileFormat = new FileFormat[uiNum_in];
+		uiNum=uiNum_in;
+	}
+	void Copy(FileFormatList* fileFormatList_in)
+	{
+		Init();
+		this->Set(fileFormatList_in->uiNum);
+		for(UINT i=0; i<uiNum; i++)
+		{
+			fileFormat[i].Copy(&(fileFormatList_in->fileFormat[i]));
+		}
+	}
+
+};
+
+
 bool _IsImageMonochrome(const CImage* imgSrc);
 
 bool _ConvertImage(const CImage* cimage, ImgRGB* imgRGB);
@@ -86,9 +145,9 @@ struct ScrollSetting
 	double m_dDispOriginC_tv;
 	ScrollSetting()
 	{
-	m_iScaleIndex=8;
-	m_dDispOriginR_tv=0;
-	m_dDispOriginC_tv=0;
+		m_iScaleIndex=8;
+		m_dDispOriginR_tv=0;
+		m_dDispOriginC_tv=0;
 	}
 };
 
@@ -131,7 +190,7 @@ public:
 		enumValueImage=VALUE_IMAGE_UNDEFINED;
 		ResetProcessImage();
 	}
-//	bool GetColor(int r, int c, ColorValue* colorValue);
+	//	bool GetColor(int r, int c, ColorValue* colorValue);
 	bool Convert(const VALUE_IMAGE enumMode, CImage* imgDst);
 	bool GetValue(const int r, const int c, double* dValue) const;
 	bool GetValue(const int r, const int c, int* iValue) const;
@@ -200,103 +259,55 @@ bool SetColorTable(CImage* img, const RGBQUAD* rgbTable, int iLength);
 UINT CountIconNum(const CString sFilePath);
 bool LoadICOFile(const CString sFilePath, PanImage* panImg, UINT uiNum);
 bool LoadICON2(const CString sFilePath, PanImage* panImgs, UINT uiNum);
+bool LoadICOFileSingle(const CString sFilePath, PanImage* imgs, const int iTargetImageIndex);
 
 bool ImposeGrid(const CImage* imgValueSrc, const CImage* imgSrc, CImage* imgDst, const int iType, const double dROffset, const double dCOffset, const double dScale, const double dScaleThresh,const int iRMax_i, const int iCMax_i);
 bool ImposeRGBValue(const PanImage* panImgSrc, const CImage* imgZoomed, CImage* imgDst, const int iType,const double dROffset, const double dCOffset, const double dScale, const double dScaleThresh,const int iRs_i, const int iCs_i, const int iRe_i, const int iCe_i);
 bool ImposeRect(const CImage* imgSrc, CImage* imgDst, const CRect* rect);
 bool ImposeAlphaChannel(const CImage* imgSrc, CImage* imgDst);
 
-	struct FileFormat
-	{
-		CString sType;
-		int iWidth;
-		int iHeight;
-		int iDataOffset;
 
-		int iWidthInfoOffset;
-		int iHeightInfoOffset;
-		int iDataInfoOffset;
-		int iDataOffsetOffset;
-		void Copy(FileFormat* fileFormat_in)
-		{
-			sType.Format(_T("%s"), fileFormat_in->sType);
-			iWidth=fileFormat_in->iWidth;
-			iHeight=fileFormat_in->iHeight;
-			iDataOffset=fileFormat_in->iDataOffset;
+bool GetImageTypeNum(const CString sIniFilePath, UINT* uiTypeNum);
+bool GetImageType(const CString sIniFilePath, const int iIndexB0, CString* sType);
+bool GetFileFormat(const CString sIniFilePath, const CString sType, FileFormat* fileFormat);
+bool ReadBinaryFile(const CString sFilePath, FileFormatList* fileFormatList, PanImage* panImgDst);
+bool WriteFileFormat(const CString sIniFilePath, FileFormatList* fileFormatList);
+//		bool Threshold(const CImage* imgSrc, CImage* imgDst, const BYTE byMin, const BYTE byMax, const BYTE byR, const BYTE byG, const BYTE byB);
 
-			iWidthInfoOffset=fileFormat_in->iWidthInfoOffset;
-			iHeightInfoOffset=fileFormat_in->iHeightInfoOffset;
-			iDataInfoOffset=fileFormat_in->iDataInfoOffset;
-			iDataOffsetOffset=fileFormat_in->iDataOffsetOffset;
-		}
-	};
-	struct FileFormatList
-	{
-		FileFormat* fileFormat;
-		UINT uiNum;
-		FileFormatList()
-		{
-			fileFormat=NULL;
-		}
-		void Init()
-		{
-			uiNum=0;
-			SAFE_DELETE(fileFormat);
-		}
-		~FileFormatList()
-		{
-			Init();
-		}
-		void Set(UINT uiNum_in)
-		{
-			Init();
-			fileFormat = new FileFormat[uiNum_in];
-			uiNum=uiNum_in;
-		}
-		void Copy(FileFormatList* fileFormatList_in)
-		{
-			Init();
-			this->Set(fileFormatList_in->uiNum);
-			for(UINT i=0; i<uiNum; i++)
-			{
-				fileFormat[i].Copy(&(fileFormatList_in->fileFormat[i]));
-			}
-		}
-
-	};
-	bool GetImageTypeNum(const CString sIniFilePath, UINT* uiTypeNum);
-	bool GetImageType(const CString sIniFilePath, const int iIndexB0, CString* sType);
-	bool GetFileFormat(const CString sIniFilePath, const CString sType, FileFormat* fileFormat);
-	bool ReadBinaryFile(const CString sFilePath, FileFormatList* fileFormatList, PanImage* panImgDst);
-	bool WriteFileFormat(const CString sIniFilePath, FileFormatList* fileFormatList);
-	//		bool Threshold(const CImage* imgSrc, CImage* imgDst, const BYTE byMin, const BYTE byMax, const BYTE byR, const BYTE byG, const BYTE byB);
-
-	enum COLOR_ELEMENT
-	{
-		COLOR_R=0,
-		COLOR_G=1,
-		COLOR_B=2,
-	};
-	bool Threshold(const CImage* image, CImage* imageColorized, const BYTE byMin, const BYTE byMax, const bool bConnection, const int iNeighbor );
-	bool Demosaic(const CImage* imgSrc,const COLOR_ELEMENT i00,const COLOR_ELEMENT i01,const COLOR_ELEMENT i10,const COLOR_ELEMENT i11, CImage* imgDst);
-
-	
-		bool GrayToRainbow(const CImage* imgSrc, CImage* imgDst);
-	void GenHSImage(CImage* imgDst, const int iWidth, const int iHeight, const double dHue0to360Min, const double dHue0to360Max, const double dSaturation0to1Min, const double dSaturation0to1Max, const double dBrightness0to1);
-	void GenHVImage(CImage* imgDst, const int iWidth, const int iHeight, const double dHue0to360Min, const double dHue0to360Max,  const double dSaturation0to1, const double dBrightness0to1Min, const double dBrightness0to1Max);
-		void GenSVImage(CImage* imgDst, const int iWidth, const int iHeight, const double dHue0to360, const double dSaturation0to1Min, const double dSaturation0to1Max, const double dBrightness0to1Min, const double dBrightness0to1Max);
-		
-	void GenRGImage(CImage* imgDst, const int iWidth, const int iHeight, const BYTE byRMin, const BYTE byRMax, const BYTE byGMin, const BYTE byGMax, const BYTE byB);
+enum COLOR_ELEMENT
+{
+	COLOR_R=0,
+	COLOR_G=1,
+	COLOR_B=2,
+};
+bool Threshold(const CImage* image, CImage* imageColorized, const BYTE byMin, const BYTE byMax, const bool bConnection, const int iNeighbor );
+bool Demosaic(const CImage* imgSrc,const COLOR_ELEMENT i00,const COLOR_ELEMENT i01,const COLOR_ELEMENT i10,const COLOR_ELEMENT i11, CImage* imgDst);
 
 
-	
-	void GenGBImage(CImage* imgDst, const int iWidth, const int iHeight, const BYTE byR, const BYTE byGMin, const BYTE byGMax, const BYTE byBMin, const BYTE byBMax);
-	void GenBRImage(CImage* imgDst, const int iWidth, const int iHeight, const BYTE byRMin, const BYTE byRMax, const BYTE byG, const BYTE byBMin, const BYTE byBMax);
+bool GrayToRainbow(const CImage* imgSrc, CImage* imgDst);
+
+void GenHSImage(CImage* imgDst, const int iWidth, const int iHeight, const double dHue0to360Min, const double dHue0to360Max, const double dSaturation0to1Min, const double dSaturation0to1Max, const double dBrightness0to1);
+void GenHVImage(CImage* imgDst, const int iWidth, const int iHeight, const double dHue0to360Min, const double dHue0to360Max,  const double dSaturation0to1, const double dBrightness0to1Min, const double dBrightness0to1Max);
+void GenSVImage(CImage* imgDst, const int iWidth, const int iHeight, const double dHue0to360, const double dSaturation0to1Min, const double dSaturation0to1Max, const double dBrightness0to1Min, const double dBrightness0to1Max);
+void GenRGImage(CImage* imgDst, const int iWidth, const int iHeight, const BYTE byRMin, const BYTE byRMax, const BYTE byGMin, const BYTE byGMax, const BYTE byB);
+void GenGBImage(CImage* imgDst, const int iWidth, const int iHeight, const BYTE byR, const BYTE byGMin, const BYTE byGMax, const BYTE byBMin, const BYTE byBMax);
+void GenBRImage(CImage* imgDst, const int iWidth, const int iHeight, const BYTE byRMin, const BYTE byRMax, const BYTE byG, const BYTE byBMin, const BYTE byBMax);
 
 
 bool ImposeLine(const CImage* imgSrc, CImage* imgDst, const double dR0, const double dC0, const double dR1, const double dC1);
-
 bool ImposeImage(const CImage* imgSrcBase, const CImage* imgSrcImposed, const int iROffset, const int iCOffset, CImage* imgDst);
-	bool ImposeImage(const CImage* imgSrcBase, const ImgRGB* imgSrcImposed, const int iROffset, const int iCOffset, CImage* imgDst);
-	bool LoadICOFileSingle(const CString sFilePath, PanImage* imgs, const int iTargetImageIndex);
+bool ImposeImage(const CImage* imgSrcBase, const ImgRGB* imgSrcImposed, const int iROffset, const int iCOffset, CImage* imgDst);
 
+enum TYPE_IMAGE_FILE
+{
+	IMAGE_FILE_TYPE_UNDEFINED = 0,
+	IMAGE_FILE_TYPE_SINGLE = 1,
+	IMAGE_FILE_TYPE_MULTI = 2,
+};
+
+TYPE_IMAGE_FILE GetTypeOfImageFIle(CString sFilePath, FileFormatList* fileFormatList);
+
+int CountImages(const CString sFileOrFolderPath, const int iDepth, FileFormatList* fileFormatList);
+bool RecursivelyGetImageFilePaths(const CString sFileOrFolderPath, const int iDepth, CStringArray* saFilePath, FileFormatList* fileFormatList);
+bool ReadAndAppendImage(CString sFilePath, FileFormatList* fileFormatList, PanImage* panImage, int iImageIndex, int* iImageIndexNew);
+bool ReadAndAppendSingllImage(CString sFilePath, FileFormatList* fileFormatList, PanImage* panImage, int iImageIndex);
