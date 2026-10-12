@@ -196,6 +196,7 @@
     <ClInclude Include="CopyAsDlg.h" />
     <ClInclude Include="EditEx.h" />
     <ClInclude Include="ExtractChannelDlg.h" />
+    <ClInclude Include="FileFolderDialog.h" />
     <ClInclude Include="FileFormatDlg.h" />
     <ClInclude Include="FormatSelectionDlg.h" />
     <ClInclude Include="FullScreenDlg.h" />
@@ -226,6 +227,7 @@
     <ClCompile Include="CopyAsDlg.cpp" />
     <ClCompile Include="EditEx.cpp" />
     <ClCompile Include="ExtractChannelDlg.cpp" />
+    <ClCompile Include="FileFolderDialog.cpp" />
     <ClCompile Include="FileFormatDlg.cpp" />
     <ClCompile Include="FormatSelectionDlg.cpp" />
     <ClCompile Include="FullScreenDlg.cpp" />
