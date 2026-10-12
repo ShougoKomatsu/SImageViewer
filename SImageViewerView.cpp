@@ -430,28 +430,25 @@ IMPLEMENT_DYNCREATE(CSImageViewerView, CView)
 		{
 			for(int i = 0; i<m_iImageMax; i++){m_image[i].Init();}
 			SAFE_DELETE(m_image);
-			m_image = new PanImage[iAddImageNum];
 			m_iImageIndex = 0;
 			m_iImageMax = 0;
 		}
 
 		int iOldNum = m_iImageMax;
-		PanImage* imgTemp = NULL;
-		imgTemp = new PanImage[iOldNum];
-		for(int i = 0; i<iOldNum; i++){imgTemp[i].CopyImage(&m_image[i]);}
+		PanImage* imgOld = NULL;
+		imgOld = new PanImage[iOldNum];
+		for(int i = 0; i<iOldNum; i++){imgOld[i].CopyImage(&m_image[i]);}
 		
 		for(int i = 0; i<m_iImageMax; i++){m_image[i].Init();}
 		SAFE_DELETE(m_image);
 		int iNewImageNum = iOldNum + iAddImageNum;
 		m_image = new PanImage[iOldNum + iAddImageNum];
 
-		for(int i = 0; i<iOldNum; i++){m_image[i].CopyImage(&imgTemp[i]);}
-		SAFE_DELETE(imgTemp);
+		for(int i = 0; i<iOldNum; i++){m_image[i].CopyImage(&imgOld[i]);}
+		SAFE_DELETE(imgOld);
 
 		for(int i = 0; i<iAddImageNum; i++){m_image[iOldNum + i].CopyImage(&imgAdd[i]);}			
 		SAFE_DELETE(imgAdd);
-
-
 
 		CMainFrame* pFrame = (CMainFrame*)AfxGetMainWnd();
 		m_iImageIndex = iOldNum;
