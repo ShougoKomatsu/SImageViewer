@@ -390,9 +390,27 @@ IMPLEMENT_DYNCREATE(CSImageViewerView, CView)
 	//	if(iImageNum != iImageIndex){return false;}
 		return true;
 	}
+	
+	void CSImageViewerView::ListUpSameDirImages(const CString sBaseFilePath)
+	{
+		if(m_iImageMax <= 0){return;}
+
+		CString sFileDir;
+		bool bRet = GetDirectory(sBaseFilePath, &sFileDir);
+		CStringArray saFilePathsTemp;
+		bRet = RecursivelyGetImageFilePaths(sFileDir,1,&saFilePathsTemp, &m_fileFomatList);
+		if((bRet != true) && saFilePathsTemp.GetCount()<0){return;}
+		SortStrings(&saFilePathsTemp, &m_saFilePaths);
+		m_iTempIndex = 0;
+		for(int i=0; i<m_saFilePaths.GetCount(); i++)
+		{
+			if(m_saFilePaths.GetAt(i).CompareNoCase(m_image[m_iImageIndex].GetDataSource())==0){m_iTempIndex=i; return;}
+		}
+	}
+	
 
 
-	bool CSImageViewerView::AddReadImage(CString sFilePath)
+	bool CSImageViewerView::ReadImage(CString sFilePath, const bool bAdd)
 	{
 		CStringArray saFilePathTemp;
 		bool bRet = RecursivelyGetImageFilePaths(sFilePath, -1, &saFilePathTemp, &m_fileFomatList);
@@ -408,6 +426,14 @@ IMPLEMENT_DYNCREATE(CSImageViewerView, CView)
 		bRet = ReadImageProgress(&saFilePath, imgAdd, iAddImageNum);
 		if(bRet!=true){SAFE_DELETE(imgAdd);return false;}
 
+		if(bAdd == false)
+		{
+			for(int i = 0; i<m_iImageMax; i++){m_image[i].Init();}
+			SAFE_DELETE(m_image);
+			m_image = new PanImage[iAddImageNum];
+			m_iImageIndex = 0;
+			m_iImageMax = 0;
+		}
 
 		int iOldNum = m_iImageMax;
 		PanImage* imgTemp = NULL;
@@ -443,66 +469,7 @@ IMPLEMENT_DYNCREATE(CSImageViewerView, CView)
 
 	}
 
-	void CSImageViewerView::ListUpSameDirImages(const CString sBaseFilePath)
-	{
-		if(m_iImageMax <= 0){return;}
-
-		CString sFileDir;
-		bool bRet = GetDirectory(sBaseFilePath, &sFileDir);
-		CStringArray saFilePathsTemp;
-		bRet = RecursivelyGetImageFilePaths(sFileDir,1,&saFilePathsTemp, &m_fileFomatList);
-		if((bRet != true) && saFilePathsTemp.GetCount()<0){return;}
-		SortStrings(&saFilePathsTemp, &m_saFilePaths);
-		m_iTempIndex = 0;
-		for(int i=0; i<m_saFilePaths.GetCount(); i++)
-		{
-			if(m_saFilePaths.GetAt(i).CompareNoCase(m_image[m_iImageIndex].GetDataSource())==0){m_iTempIndex=i; return;}
-		}
-	}
 	
-
-
-bool CSImageViewerView::ReadImage(CString sFilePath)
-{
-
-		m_sFilePath.Format(_T("%s"), sFilePath);
-		CStringArray saFilePathsTemp;
-		CStringArray saFilePath;
-		bool bRet = RecursivelyGetImageFilePaths(sFilePath, -1, &saFilePathsTemp, &m_fileFomatList);
-		if((bRet != true) && saFilePathsTemp.GetCount()<0){return false;}
-		SortStrings(&saFilePathsTemp, &saFilePath);
-		int iImageNum = CountImages(sFilePath, -1, &m_fileFomatList);
-
-		PanImage* imageTemp;
-		imageTemp = new PanImage[iImageNum];
-
-		
-		bRet = ReadImageProgress(&saFilePath, imageTemp, iImageNum);
-		if(bRet!=true){SAFE_DELETE(imageTemp);return false;}
-
-
-		for(int i = 0; i<m_iImageMax; i++){m_image[i].Init();}
-		SAFE_DELETE(m_image);
-
-		m_image = new PanImage[iImageNum];
-		for(int i=0; i<iImageNum; i++){m_image[i].CopyImage(&(imageTemp[i]));}
-		SAFE_DELETE(imageTemp);
-		m_saFilePaths.RemoveAll();
-
-		m_iImageIndex = 0;
-		m_iImageMax = iImageNum;
-		
-		CMainFrame* pFrame = (CMainFrame*)AfxGetMainWnd();
-		pFrame->m_bFileOpened = true;
-		view.m_bRegionSelected = true;
-		if(m_iImageMax>=2){pFrame->m_bMultiFile=true; m_bSynchroScroll=true;;}
-		else{pFrame->m_bMultiFile=false; m_bSynchroScroll=false;}
-
-		ResetImage(true, true);
-		SetCaption();
-
-		return true;
-	}
 
 	bool CSImageViewerView::SaveImage(const CImage* image)
 	{
@@ -758,7 +725,7 @@ bool CSImageViewerView::ReadImage(CString sFilePath)
 		bool bRet = GetOpenFileList(&sFilePaths, this);
 		if(bRet != true){return;}
 
-		AddReadImage(sFilePaths);
+		ReadImage(sFilePaths, true);
 	}
 
 	void CSImageViewerView::OnFileOpen()
@@ -767,7 +734,9 @@ bool CSImageViewerView::ReadImage(CString sFilePath)
 		bool bRet = GetOpenFileList(&sFilePaths, this);
 		if(bRet != true){return;}
 
-		ReadImage(sFilePaths);
+		
+		m_sFilePath.Format(_T("%s"), sFilePaths);
+		ReadImage(sFilePaths, false);
 	}
 
 	void CSImageViewerView::OnEditCopy()
@@ -2285,7 +2254,7 @@ bool CSImageViewerView::ReadImage(CString sFilePath)
 			//		m_sFilePath.Format(_T("C:\\Users\\PC9\\Desktop\\test"));
 			if(m_sFilePath.GetLength()>0)
 			{
-				ReadImage(m_sFilePath);
+				ReadImage(m_sFilePath, false);
 			}
 			//	SetCursor(AfxGetApp()->LoadStandardCursor(IDC_CROSS));
 			return;
@@ -2403,7 +2372,7 @@ bool CSImageViewerView::ReadImage(CString sFilePath)
 	{
 		if(m_sFilePath.Compare(_T("Clipboard")) != 0)
 		{
-			ReadImage(m_sFilePath);
+			ReadImage(m_sFilePath, false);
 			return;
 		}
 		ResetImage(true, true);

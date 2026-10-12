@@ -68,8 +68,7 @@ public:
 	void SetCaption();
 	void ResetImage(bool bZoomReset, bool bProcessReset);
 	void AdjustViewClientSize(int desiredClientWidth, int desiredClientHeight);
-	bool ReadImage(CString sFilePath);
-	bool AddReadImage(CString sFilePath);
+	bool ReadImage(CString sFilePath, const bool bAdd);
 	bool ZoomChange(int iChange);
 	bool ZoomChange(int iMousePosR_v, int iMousePosC_v,int iChange);
 	bool ZoomChange(int iR0_i, int iC0_i, int iR1_i, int iC1_i);
