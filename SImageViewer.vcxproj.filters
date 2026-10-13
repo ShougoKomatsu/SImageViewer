@@ -22,6 +22,9 @@
     <Filter Include="ソース ファイル\Dlg\Edit">
       <UniqueIdentifier>{1db7d70b-bab1-48a7-a49c-e9379a34ed91}</UniqueIdentifier>
     </Filter>
+    <Filter Include="ヘッダー ファイル\Dlg\Edit">
+      <UniqueIdentifier>{0ec6a533-762d-4c51-8ca7-654222310c05}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <None Include="ReadMe.txt" />
@@ -78,31 +81,16 @@
     <ClInclude Include="CopyAsDlg.h">
       <Filter>ヘッダー ファイル\Dlg</Filter>
     </ClInclude>
-    <ClInclude Include="ImageModifyDlg.h">
-      <Filter>ヘッダー ファイル\Dlg</Filter>
-    </ClInclude>
     <ClInclude Include="SetSelectionDlg.h">
       <Filter>ヘッダー ファイル\Dlg</Filter>
     </ClInclude>
     <ClInclude Include="CommonFunction.h">
       <Filter>ヘッダー ファイル</Filter>
     </ClInclude>
-    <ClInclude Include="ChangeColorDepthDlg.h">
-      <Filter>ヘッダー ファイル\Dlg</Filter>
-    </ClInclude>
-    <ClInclude Include="ResampleDlg.h">
-      <Filter>ヘッダー ファイル\Dlg</Filter>
-    </ClInclude>
-    <ClInclude Include="ExtractChannelDlg.h">
-      <Filter>ヘッダー ファイル\Dlg</Filter>
-    </ClInclude>
     <ClInclude Include="FormatSelectionDlg.h">
       <Filter>ヘッダー ファイル\Dlg</Filter>
     </ClInclude>
     <ClInclude Include="PasteAsDlg.h">
-      <Filter>ヘッダー ファイル\Dlg</Filter>
-    </ClInclude>
-    <ClInclude Include="ColorizeDlg.h">
       <Filter>ヘッダー ファイル\Dlg</Filter>
     </ClInclude>
     <ClInclude Include="FileFormatDlg.h">
@@ -114,9 +102,6 @@
     <ClInclude Include="ViewDraw.h">
       <Filter>ヘッダー ファイル</Filter>
     </ClInclude>
-    <ClInclude Include="PictureCtrlEx.h">
-      <Filter>ヘッダー ファイル</Filter>
-    </ClInclude>
     <ClInclude Include="EditEx.h">
       <Filter>ヘッダー ファイル</Filter>
     </ClInclude>
@@ -126,23 +111,41 @@
     <ClInclude Include="FullScreenDlg.h">
       <Filter>ヘッダー ファイル\Dlg</Filter>
     </ClInclude>
-    <ClInclude Include="SetTransparentDlg.h">
-      <Filter>ヘッダー ファイル\Dlg</Filter>
-    </ClInclude>
     <ClInclude Include="ProgressDlg.h">
       <Filter>ヘッダー ファイル\Dlg</Filter>
     </ClInclude>
     <ClInclude Include="SaveAsMultiDlg.h">
       <Filter>ヘッダー ファイル\Dlg</Filter>
     </ClInclude>
-    <ClInclude Include="FileFolderDialog.h">
-      <Filter>ヘッダー ファイル</Filter>
-    </ClInclude>
     <ClInclude Include="File.h">
       <Filter>ヘッダー ファイル</Filter>
     </ClInclude>
     <ClInclude Include="PanImage.h">
       <Filter>ヘッダー ファイル</Filter>
+    </ClInclude>
+    <ClInclude Include="FileFolderDialog.h">
+      <Filter>ヘッダー ファイル\Dlg</Filter>
+    </ClInclude>
+    <ClInclude Include="PictureCtrlEx.h">
+      <Filter>ヘッダー ファイル\Dlg</Filter>
+    </ClInclude>
+    <ClInclude Include="ChangeColorDepthDlg.h">
+      <Filter>ヘッダー ファイル\Dlg\Edit</Filter>
+    </ClInclude>
+    <ClInclude Include="ColorizeDlg.h">
+      <Filter>ヘッダー ファイル\Dlg\Edit</Filter>
+    </ClInclude>
+    <ClInclude Include="ExtractChannelDlg.h">
+      <Filter>ヘッダー ファイル\Dlg\Edit</Filter>
+    </ClInclude>
+    <ClInclude Include="ImageModifyDlg.h">
+      <Filter>ヘッダー ファイル\Dlg\Edit</Filter>
+    </ClInclude>
+    <ClInclude Include="ResampleDlg.h">
+      <Filter>ヘッダー ファイル\Dlg\Edit</Filter>
+    </ClInclude>
+    <ClInclude Include="SetTransparentDlg.h">
+      <Filter>ヘッダー ファイル\Dlg\Edit</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -188,9 +191,6 @@
     <ClCompile Include="ViewDraw.cpp">
       <Filter>ソース ファイル</Filter>
     </ClCompile>
-    <ClCompile Include="PictureCtrlEx.cpp">
-      <Filter>ソース ファイル</Filter>
-    </ClCompile>
     <ClCompile Include="EditEx.cpp">
       <Filter>ソース ファイル</Filter>
     </ClCompile>
@@ -231,6 +231,9 @@
       <Filter>ソース ファイル</Filter>
     </ClCompile>
     <ClCompile Include="PanImage.cpp">
+      <Filter>ソース ファイル\Dlg</Filter>
+    </ClCompile>
+    <ClCompile Include="PictureCtrlEx.cpp">
       <Filter>ソース ファイル\Dlg</Filter>
     </ClCompile>
   </ItemGroup>

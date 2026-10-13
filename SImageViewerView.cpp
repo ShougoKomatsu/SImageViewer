@@ -1399,10 +1399,30 @@ IMPLEMENT_DYNCREATE(CSImageViewerView, CView)
 		CRect rect_i=view.GetRect_i();
 		if(rect_i.IsRectNull() == TRUE){bAutoFull = true; FullDomain(&rect_i, &(m_image[m_iImageIndex]));}
 
-		ImgRGB imgRGB;
-		_ConvertImage(m_image[m_iImageIndex].GetCurrentProcess(), &imgRGB);
-		InvertImage(&imgRGB,&imgRGB,rect_i.top,rect_i.left,rect_i.bottom,rect_i.right); 
+		
+		bool bSame = false;
+		int iIndexOf0 = m_image[0].GetProcessIndex();
+		for(int i=1; i<m_iImageMax; i++)
+		{
+			if(iIndexOf0 == m_image[i].GetProcessIndex()){bSame = true;}else{bSame = false; break;}
+		}
 
+		bool bApplyToAll = false;
+		if(bSame == true){bApplyToAll = ((IDYES == AfxMessageBox(_T("全ての画像に適用しますか？"), MB_YESNO)) ? true: false);}
+
+
+		int iStart = ((bApplyToAll == true) ?		0	: m_iImageIndex);
+		int iEnd = ((bApplyToAll == true) ?	m_iImageMax : m_iImageIndex+1);
+
+		for(int i =iStart; i<iEnd; i++)
+		{
+			if(bAutoFull == true){FullDomain(&rect_i, &(m_image[i]));}
+			ImgRGB imgRGB;
+			_ConvertImage(m_image[i].GetCurrentProcess(), &imgRGB);
+			InvertImage(&imgRGB,&imgRGB,rect_i.top,rect_i.left,rect_i.bottom,rect_i.right); 
+			ConvertImage(&imgRGB,m_image[i].ProgressImageProcess());
+
+		}
 		if(bAutoFull == true)
 		{
 			view.SetRect_v(NULL);
@@ -1410,9 +1430,6 @@ IMPLEMENT_DYNCREATE(CSImageViewerView, CView)
 			CMainFrame* pFrame = (CMainFrame*)AfxGetMainWnd();
 			view.m_bRegionSelected = false;
 		}
-
-		ConvertImage(&imgRGB,m_image[m_iImageIndex].ProgressImageProcess());
-
 		Invalidate();
 	}
 
