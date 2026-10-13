@@ -348,7 +348,8 @@ IMPLEMENT_DYNCREATE(CSImageViewerView, CView)
 		default:{return;}
 		}
 		pFrame->SendMessage(WM_COMMAND, ID_DISP_STATUS_BPP);
-		if(m_iImageMax==1){		m_saFilePaths.RemoveAll();ListUpSameDirImages(m_sFilePath);}
+		if(m_iImageMax==1){ m_saFilePaths.RemoveAll(); ListUpSameDirImages(m_sFilePath);
+		}
 	}
 
 	bool CSImageViewerView::ReadImageProgress(const CStringArray* saFilePath, PanImage* image, const int iImageNum)
@@ -405,7 +406,9 @@ IMPLEMENT_DYNCREATE(CSImageViewerView, CView)
 		m_iTempIndex = 0;
 		for(int i=0; i<m_saFilePaths.GetCount(); i++)
 		{
-			if(m_saFilePaths.GetAt(i).CompareNoCase(m_image[m_iImageIndex].GetDataSource())==0){m_iTempIndex=i; return;}
+			CString sTest = m_saFilePaths.GetAt(i);
+			CString sTarget = m_image[m_iImageIndex].GetDataSource().Left(sTest.GetLength());
+			if(sTest.CompareNoCase(sTarget)==0){m_iTempIndex=i; return;}
 		}
 	}
 
@@ -1599,12 +1602,29 @@ IMPLEMENT_DYNCREATE(CSImageViewerView, CView)
 	{
 		if(m_iImageMax <= 0){return;}
 		bool bAutoFull = false;
+		
+		bool bSame = false;
+		int iIndexOf0 = m_image[0].GetProcessIndex();
+		for(int i=1; i<m_iImageMax; i++)
+		{
+			if(iIndexOf0 == m_image[i].GetProcessIndex()){bSame = true;}else{bSame = false; break;}
+		}
 
+		bool bApplyToAll = false;
+		if(bSame == true){bApplyToAll = ((IDYES == AfxMessageBox(_T("全ての画像に適用しますか？"), MB_YESNO)) ? true: false);}
+
+
+		int iStart = ((bApplyToAll == true) ?		0	: m_iImageIndex);
+		int iEnd = ((bApplyToAll == true) ?	m_iImageMax : m_iImageIndex+1);
+
+		for(int i =iStart; i<iEnd; i++)
+		{
 		ImgRGB imgRGB;
-		_ConvertImage(m_image[m_iImageIndex].GetCurrentProcess(), &imgRGB);
+		_ConvertImage(m_image[i].GetCurrentProcess(), &imgRGB);
 		ImgRGB imgResult;
 		RotateImage(&imgRGB, &imgResult, rotate);
-		ConvertImage(&imgResult, m_image[m_iImageIndex].ProgressImageProcess());
+		ConvertImage(&imgResult, m_image[i].ProgressImageProcess());
+		}
 		SetScroll();
 		Invalidate();
 	}
