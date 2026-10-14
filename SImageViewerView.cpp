@@ -354,8 +354,6 @@ IMPLEMENT_DYNCREATE(CSImageViewerView, CView)
 
 	bool CSImageViewerView::ReadImageProgress(const CStringArray* saFilePath, PanImage* image, const int iImageNum)
 	{
-		CProgressDlg* dlg = new CProgressDlg(this);
-		bool bError=false;
 		const int iFileNum = saFilePath->GetCount();
 
 		int iImageIndex = 0;
@@ -364,6 +362,8 @@ IMPLEMENT_DYNCREATE(CSImageViewerView, CView)
 			CString sFilePath = saFilePath->GetAt(0);
 		return ReadAndAppendImage(sFilePath, &m_fileFomatList, &image[iImageIndex], iImageIndex, &iImageIndex);
 		}
+		CProgressDlg* dlg = new CProgressDlg(this);
+		bool bError=false;
 		for(int i = 0; i<iFileNum ; i++)
 		{
 			if(iImageIndex>=iImageNum){bError=true; break;}
