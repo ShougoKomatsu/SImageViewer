@@ -43,7 +43,7 @@ UINT_PTR CALLBACK OpenFileHookProc(
 
 		if ( (*p) == '\0')
 		{
-			if(sFirst.Right(16).Compare(_T(".FolderSelection"))==0)
+			if(sFirst.Right(16).Compare(_T("Folder Selection"))==0)
 			{
 				saFiles->Add(sFirst.Left(sFirst.GetLength()-17));
 			}
@@ -71,9 +71,9 @@ UINT_PTR CALLBACK OpenFileHookProc(
 		TCHAR* tchBuf=NULL;
 		tchBuf = new TCHAR[1000*MAX_PATH];
 		ZeroMemory(tchBuf, 1000*MAX_PATH*sizeof(TCHAR));
-		_stprintf(tchBuf, _T(".FolderSelection"));
+		_stprintf(tchBuf, _T("Folder Selection."));
 		
-		const LPCTSTR pszDefaultFile = _T(".FolderSelection");
+		const LPCTSTR pszDefaultFile = _T("Folder Selection.");
 		OPENFILENAME ofn;
 		ZeroMemory(&ofn, sizeof(ofn));
 		ofn.lStructSize = sizeof(ofn);
