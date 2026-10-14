@@ -2295,7 +2295,7 @@ IMPLEMENT_DYNCREATE(CSImageViewerView, CView)
 			CMainFrame* pFrame = (CMainFrame*)AfxGetMainWnd();
 			if (pFrame == NULL) {return;}
 			pFrame->ShowNormal();
-					m_sFilePath.Format(_T("C:\\Users\\PC9\\Desktop\\Clipboard_07-03-2026_01.png"));
+			//		m_sFilePath.Format(_T("C:\\Users\\PC9\\Desktop\\Clipboard_07-03-2026_01.png"));
 			if(m_sFilePath.GetLength()>0)
 			{
 				ReadImage(m_sFilePath, false);
