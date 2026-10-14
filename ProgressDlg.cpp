@@ -70,7 +70,7 @@ BOOL CProgressDlg::OnInitDialog()
 	m_progress.SetPos(0);
 
 	ShowWindow(SW_SHOW);
-
+	this->GetFocus();
 	return TRUE;  // return TRUE unless you set the focus to a control
 	// 例外 : OCX プロパティ ページは必ず FALSE を返します。
 }
