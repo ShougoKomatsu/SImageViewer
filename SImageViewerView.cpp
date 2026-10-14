@@ -372,13 +372,16 @@ IMPLEMENT_DYNCREATE(CSImageViewerView, CView)
 			dlg->SetText(sMes);
 
 			MSG msg;
+			int iLoop=0;
 			while (::PeekMessage(&msg, NULL, 0, 0, PM_REMOVE))
 			{
+				if(iLoop>100){break;}
 				if (dlg->IsDialogMessage(&msg))
 				{
 					::TranslateMessage(&msg);
 					::DispatchMessage(&msg);
 				}
+				iLoop++;
 			}
 
 			bool bRet = ReadAndAppendImage(sFilePath, &m_fileFomatList, &image[iImageIndex], iImageIndex, &iImageIndex);
