@@ -354,11 +354,16 @@ IMPLEMENT_DYNCREATE(CSImageViewerView, CView)
 
 	bool CSImageViewerView::ReadImageProgress(const CStringArray* saFilePath, PanImage* image, const int iImageNum)
 	{
-		CProgressDlg* dlg = new CProgressDlg(this);
-		bool bError=false;
 		const int iFileNum = saFilePath->GetCount();
 
 		int iImageIndex = 0;
+		if(iFileNum==1)
+		{
+			CString sFilePath = saFilePath->GetAt(0);
+		return ReadAndAppendImage(sFilePath, &m_fileFomatList, &image[iImageIndex], iImageIndex, &iImageIndex);
+		}
+		CProgressDlg* dlg = new CProgressDlg(this);
+		bool bError=false;
 		for(int i = 0; i<iFileNum ; i++)
 		{
 			if(iImageIndex>=iImageNum){bError=true; break;}
@@ -381,6 +386,7 @@ IMPLEMENT_DYNCREATE(CSImageViewerView, CView)
 					::TranslateMessage(&msg);
 					::DispatchMessage(&msg);
 				}
+
 				iLoop++;
 			}
 
@@ -2289,7 +2295,7 @@ IMPLEMENT_DYNCREATE(CSImageViewerView, CView)
 			CMainFrame* pFrame = (CMainFrame*)AfxGetMainWnd();
 			if (pFrame == NULL) {return;}
 			pFrame->ShowNormal();
-			//		m_sFilePath.Format(_T("C:\\Users\\PC9\\Desktop\\test"));
+			//		m_sFilePath.Format(_T("C:\\Users\\PC9\\Desktop\\Clipboard_07-03-2026_01.png"));
 			if(m_sFilePath.GetLength()>0)
 			{
 				ReadImage(m_sFilePath, false);
