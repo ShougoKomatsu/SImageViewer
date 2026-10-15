@@ -67,9 +67,9 @@ bool ReadBinaryFile(const CString sFilePath, FileFormatList* fileFormatList, Pan
 	int iPitch = imgTemp.GetPitch();
 	BYTE* pbyData = (BYTE*)imgTemp.GetBits();
 
-	for(UINT r=0; r< uiHeight; r++)
+	for(int r=0; r< uiHeight; r++)
 	{
-		for(UINT c=0; c<uiWidth; c++)
+		for(int c=0; c<uiWidth; c++)
 		{
 			if(uiDataOffset + r*uiWidth+c>=ullFileSize){break;}
 			pbyData[r*iPitch+c]=byData[uiDataOffset + r*uiWidth+c];
