@@ -1057,9 +1057,21 @@ bool Resample(const CImage* imgSrc, CImage* imgDst, const RESAMPLE resample)
 			int iColors = imgSrc->GetMaxColorTableEntries();
 			if (iColors > 0) 
 			{
+				for(int r=0; r<imgRGBDst.iHeight; r++)
+				{
+					for(int c=0; c<imgRGBDst.iWidth; c++)
+					{
+						int iPosDsc = r*imgRGBDst.iWidth+c;
+						int iPosSrc = (r*iStep)*imgRGBSrc.iWidth+(c*iStep);
+						imgRGBDst.byImgR[iPosDsc ]=imgRGBSrc.byImgR[iPosSrc];
+						imgRGBDst.byImgG[iPosDsc ]=imgRGBSrc.byImgG[iPosSrc];
+						imgRGBDst.byImgB[iPosDsc ]=imgRGBSrc.byImgB[iPosSrc];
+					}
+				}
+
+				
 				RGBQUAD* srcTable = new RGBQUAD[iColors];
 				imgSrc->GetColorTable(0, iColors, srcTable);
-
 				ConvertImage(&imgRGBDst,imgDst, iBPP, srcTable, iColors);
 				SAFE_DELETE(srcTable);
 				return true;
@@ -1104,6 +1116,18 @@ bool Resample(const CImage* imgSrc, CImage* imgDst, const RESAMPLE resample)
 			int iColors = imgSrc->GetMaxColorTableEntries();
 			if (iColors > 0) 
 			{
+				for(int r=0; r<imgRGBDst.iHeight; r++)
+				{
+					for(int c=0; c<imgRGBDst.iWidth; c++)
+					{
+						int iPosDsc = r*imgRGBDst.iWidth+c;
+						int iPosSrc = (r/iStep)*imgRGBSrc.iWidth+(c/iStep);
+						imgRGBDst.byImgR[iPosDsc ]=imgRGBSrc.byImgR[iPosSrc];
+						imgRGBDst.byImgG[iPosDsc ]=imgRGBSrc.byImgG[iPosSrc];
+						imgRGBDst.byImgB[iPosDsc ]=imgRGBSrc.byImgB[iPosSrc];
+					}
+				}
+
 				RGBQUAD* srcTable = new RGBQUAD[iColors];
 				imgSrc->GetColorTable(0, iColors, srcTable);
 
