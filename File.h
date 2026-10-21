@@ -74,8 +74,8 @@ enum TYPE_IMAGE_FILE
 
 TYPE_IMAGE_FILE GetTypeOfImageFIle(CString sFilePath, FileFormatList* fileFormatList);
 
-int CountImages(const CString sFileOrFolderPath, const int iDepth, FileFormatList* fileFormatList);
-bool RecursivelyGetImageFilePaths(const CString sFileOrFolderPath, const int iDepth, CStringArray* saFilePath, FileFormatList* fileFormatList);
+int CountImages(const CString sFileOrFolderPath, const int iDepth, const int iFilelimit, FileFormatList* fileFormatList);
+bool RecursivelyGetImageFilePaths(const CString sFileOrFolderPath, const int iDepth, const int iCurrentFileCount, const int iFilelimit, CStringArray* saFilePath, FileFormatList* fileFormatList);
 bool ReadAndAppendImage(CString sFilePath, FileFormatList* fileFormatList, PanImage* panImage, int iImageIndex, int* iImageIndexNew);
 bool ReadAndAppendSingllImage(CString sFilePath, FileFormatList* fileFormatList, PanImage* panImage, int iImageIndex);
 

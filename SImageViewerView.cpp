@@ -409,7 +409,7 @@ IMPLEMENT_DYNCREATE(CSImageViewerView, CView)
 		CString sFileDir;
 		bool bRet = GetDirectory(sBaseFilePath, &sFileDir);
 		CStringArray saFilePathsTemp;
-		bRet = RecursivelyGetImageFilePaths(sFileDir,1,&saFilePathsTemp, &m_fileFomatList);
+		bRet = RecursivelyGetImageFilePaths(sFileDir,1, 0, m_iImageLimit, &saFilePathsTemp, &m_fileFomatList);
 		if((bRet != true) && saFilePathsTemp.GetCount()<0){return;}
 		SortStrings(&saFilePathsTemp, &m_saFilePaths);
 		m_iTempIndex = 0;
@@ -426,12 +426,12 @@ IMPLEMENT_DYNCREATE(CSImageViewerView, CView)
 	bool CSImageViewerView::ReadImage(CString sFilePath, const bool bAdd)
 	{
 		CStringArray saFilePathTemp;
-		bool bRet = RecursivelyGetImageFilePaths(sFilePath, -1, &saFilePathTemp, &m_fileFomatList);
+		bool bRet = RecursivelyGetImageFilePaths(sFilePath, -1, 0, m_iImageLimit, &saFilePathTemp, &m_fileFomatList);
 		if(bRet != true){return false;}
 
 		CStringArray saFilePath;
 		SortStrings(&saFilePathTemp, &saFilePath);
-		int iAddImageNum = CountImages(sFilePath, -1, &m_fileFomatList);
+		int iAddImageNum = CountImages(sFilePath, -1, m_iImageLimit, &m_fileFomatList);
 
 		PanImage* imgAdd = NULL;
 		imgAdd = new PanImage[iAddImageNum];
@@ -1886,6 +1886,10 @@ IMPLEMENT_DYNCREATE(CSImageViewerView, CView)
 		m_bCenteredWhenFullScreen = ((_ttoi(tchData) == 0) ? 0 : 1);
 		GetPrivateProfileString(_T("Setting"), _T("PPFWwithoutCtrlWhenFullScreen"), _T("0"), tchData, uiBufSize, sIniFilePath);
 		m_bPPFWwithoutCtrlWhenFullScreen = ((_ttoi(tchData) == 0) ? 0 : 1);
+
+		GetPrivateProfileString(_T("Setting"), _T("ImageFileLimit"), _T("10000"), tchData, uiBufSize, sIniFilePath);
+		m_iImageLimit = ((_ttoi(tchData) == 0) ? 10000 : _ttoi(tchData));
+		
 	}
 	void CSImageViewerView::SaveSetting(const CString sIniFilePath)
 	{
