@@ -66,6 +66,7 @@ bool SplitFilePath(const CString sFilePath, CString* sFileDirWithOutBS, CString*
 
 bool GetDirectory(const CString sFilePath, CString* sFileDir)
 {
+	if(sFilePath.GetLength()<=0){return false;}
 	int iPlace = sFilePath.ReverseFind('\\');
 	if(iPlace<0){return false;}
 	sFileDir->Format(_T("%s"),sFilePath.Left(iPlace)); 
