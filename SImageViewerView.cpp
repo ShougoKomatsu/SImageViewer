@@ -732,7 +732,9 @@ IMPLEMENT_DYNCREATE(CSImageViewerView, CView)
 	void CSImageViewerView::OnFileAdd()
 	{
 		CString sFilePaths;
-		bool bRet = GetOpenFileList(&sFilePaths, this);
+		CString sDefaultDir = _T("");
+		if(m_iImageMax>0){GetDirectory(m_image[m_iImageIndex].GetDataSource(), &sDefaultDir);}
+		bool bRet = GetOpenFileList(sDefaultDir, &sFilePaths, this);
 		if(bRet != true){return;}
 
 		ReadImage(sFilePaths, true);
@@ -741,7 +743,9 @@ IMPLEMENT_DYNCREATE(CSImageViewerView, CView)
 	void CSImageViewerView::OnFileOpen()
 	{
 		CString sFilePaths;
-		bool bRet = GetOpenFileList(&sFilePaths, this);
+		CString sDefaultDir = _T("");
+		if(m_iImageMax>0){GetDirectory(m_image[m_iImageIndex].GetDataSource(), &sDefaultDir);}
+		bool bRet = GetOpenFileList(sDefaultDir, &sFilePaths, this);
 		if(bRet != true){return;}
 
 
