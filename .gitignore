@@ -16,6 +16,10 @@ Debug/SImageViewer.exe
 Debug/SImgProc.dll
 Release/SImgProc.dll
 SImageViewer.suo
+SImgProc.dll
+SImgProc.lib
+SImgProc_d.dll
+SImgProc_d.lib
 *.ipch
 /x64
 Debug/SImageViewer.exe.embed.manifest
