@@ -22,6 +22,8 @@ protected: // ÉVÉäÉAÉãâªÇ©ÇÁÇÃÇ›çÏê¨ÇµÇ‹Ç∑ÅB
 public:
 	bool SaveFileMulti(const CString sDir, const CString sPre1,const CString sPre2, const CString sBase, const CString sSub1, const CString sSub2, const CString sExt);
 	bool m_bPPFWwithoutCtrlWhenFullScreen;
+	int m_iMaxFile;
+	int m_iMaxDepth;
 	bool m_bCenteredWhenFullScreen;
 	void OperateRotaateImage(enumRotate rotate);
 	bool OperateImagePPFWFlexible(const int iStep);

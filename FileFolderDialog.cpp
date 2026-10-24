@@ -66,7 +66,7 @@ UINT_PTR CALLBACK OpenFileHookProc(
 		}
 	}
 
-	bool GetOpenFileList(CString* sFilePaths, CWnd* wnd)
+	bool GetOpenFileList(const CString sDefault, CString* sFilePaths, CWnd* wnd)
 	{
 		TCHAR* tchBuf=NULL;
 		tchBuf = new TCHAR[1000*MAX_PATH];
@@ -83,10 +83,11 @@ UINT_PTR CALLBACK OpenFileHookProc(
 		ofn.Flags		= OFN_EXPLORER |OFN_ENABLEHOOK |OFN_HIDEREADONLY | OFN_ALLOWMULTISELECT;
 		ofn.lpfnHook    = OpenFileHookProc;
 		ofn.lCustData   = (LPARAM)&pszDefaultFile;
+		ofn.lpstrInitialDir = sDefault;
 		ofn.lpstrFilter = _T("All Files (*.*)\0*.*\0\0");
 
-		BOOL bRet = GetOpenFileName(&ofn);
-		if(bRet != TRUE){SAFE_DELETE(tchBuf); return false;}
+		BOOL bbRet = GetOpenFileName(&ofn);
+		if(bbRet != TRUE){SAFE_DELETE(tchBuf); return false;}
 
 		CStringArray saFiles;
 

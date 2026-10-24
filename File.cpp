@@ -166,8 +166,9 @@ bool ReadBinaryFile(const CString sFilePath, FileFormatList* fileFormatList, Pan
 	return IMAGE_FILE_TYPE_UNDEFINED;
 }
 
-bool RecursivelyGetImageFilePaths(const CString sFileOrFolderPath, const int iDepth, CStringArray* saFilePath, FileFormatList* fileFormatList)
+bool RecursivelyGetImageFilePaths(const CString sFileOrFolderPath, const int iDepth, const int iCurrentFileCount, const int iFileNumLimit, CStringArray* saFilePath, FileFormatList* fileFormatList)
 {
+	if(iCurrentFileCount>iFileNumLimit){AfxMessageBox(_T("ì«Ç›çûÇ›â¬î\ç≈ëÂê›íËêîÇí¥Ç¶ÇƒÇ¢Ç‹Ç∑")); return false;}
 	if(iDepth==0){return false;}
 	if(sFileOrFolderPath.Find(_T("|"))>=0)
 	{
@@ -187,8 +188,9 @@ bool RecursivelyGetImageFilePaths(const CString sFileOrFolderPath, const int iDe
 		}
 		for(int i=0; i<saFilePathTemp.GetCount(); i++)
 		{
-			bool bRet = RecursivelyGetImageFilePaths(saFilePathTemp.GetAt(i), iDepth-1, saFilePath, fileFormatList);
+			bool bRet = RecursivelyGetImageFilePaths(saFilePathTemp.GetAt(i), iDepth-1, saFilePath->GetCount(), iFileNumLimit, saFilePath, fileFormatList);
 			if(bRet != true){return false;}
+			if(saFilePath->GetCount()>iFileNumLimit){AfxMessageBox(_T("ì«Ç›çûÇ›â¬î\ç≈ëÂê›íËêîÇí¥Ç¶ÇƒÇ¢Ç‹Ç∑")); return false;}
 		}
 		return true;
 	}
@@ -229,13 +231,14 @@ bool RecursivelyGetImageFilePaths(const CString sFileOrFolderPath, const int iDe
 
 		if (cf.IsDirectory() == TRUE) 
 		{
-			bool bRet = RecursivelyGetImageFilePaths(sFilePath, iDepth-1, saFilePath, fileFormatList);
+			bool bRet = RecursivelyGetImageFilePaths(sFilePath, iDepth-1, saFilePath->GetCount(), iFileNumLimit, saFilePath, fileFormatList);
 			if(bRet != true){continue;}
 		}
 		else 
 		{
 			if(IsImageFIle(sFilePath, fileFormatList) == IMAGE_FILE_TYPE_UNDEFINED){continue;}
 			saFilePath->Add(sFilePath);
+			if(saFilePath->GetCount()>iFileNumLimit){AfxMessageBox(_T("ì«Ç›çûÇ›â¬î\ç≈ëÂê›íËêîÇí¥Ç¶ÇƒÇ¢Ç‹Ç∑")); return false;}
 		}
 	}
 
@@ -258,12 +261,12 @@ UINT CountImageInOneFile(CString sFilePath, FileFormatList* fileFormatList)
 	return 0;
 }
 
-int CountImages(const CString sFileOrFolderPath, const int iDepth, FileFormatList* fileFormatList)
+int CountImages(const CString sFileOrFolderPath, const int iDepth, const int iFilelimit, FileFormatList* fileFormatList)
 {
 	if(iDepth==0){return false;}
 	CStringArray saFilePath;
 	saFilePath.RemoveAll();
-	bool bRet = RecursivelyGetImageFilePaths(sFileOrFolderPath, iDepth, &saFilePath, fileFormatList);
+	bool bRet = RecursivelyGetImageFilePaths(sFileOrFolderPath, iDepth, 0, iFilelimit, &saFilePath, fileFormatList);
 	if(bRet != true){return 0;}
 
 	int iFileNum = (int)saFilePath.GetCount();

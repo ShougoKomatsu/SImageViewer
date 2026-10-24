@@ -409,7 +409,7 @@ IMPLEMENT_DYNCREATE(CSImageViewerView, CView)
 		CString sFileDir;
 		bool bRet = GetDirectory(sBaseFilePath, &sFileDir);
 		CStringArray saFilePathsTemp;
-		bRet = RecursivelyGetImageFilePaths(sFileDir,1,&saFilePathsTemp, &m_fileFomatList);
+		bRet = RecursivelyGetImageFilePaths(sFileDir,1, 0, m_iMaxFile, &saFilePathsTemp, &m_fileFomatList);
 		if((bRet != true) && saFilePathsTemp.GetCount()<0){return;}
 		SortStrings(&saFilePathsTemp, &m_saFilePaths);
 		m_iTempIndex = 0;
@@ -426,12 +426,12 @@ IMPLEMENT_DYNCREATE(CSImageViewerView, CView)
 	bool CSImageViewerView::ReadImage(CString sFilePath, const bool bAdd)
 	{
 		CStringArray saFilePathTemp;
-		bool bRet = RecursivelyGetImageFilePaths(sFilePath, -1, &saFilePathTemp, &m_fileFomatList);
+		bool bRet = RecursivelyGetImageFilePaths(sFilePath, m_iMaxDepth, 0, m_iMaxFile, &saFilePathTemp, &m_fileFomatList);
 		if(bRet != true){return false;}
 
 		CStringArray saFilePath;
 		SortStrings(&saFilePathTemp, &saFilePath);
-		int iAddImageNum = CountImages(sFilePath, -1, &m_fileFomatList);
+		int iAddImageNum = CountImages(sFilePath, m_iMaxDepth, m_iMaxFile, &m_fileFomatList);
 
 		PanImage* imgAdd = NULL;
 		imgAdd = new PanImage[iAddImageNum];
@@ -732,7 +732,9 @@ IMPLEMENT_DYNCREATE(CSImageViewerView, CView)
 	void CSImageViewerView::OnFileAdd()
 	{
 		CString sFilePaths;
-		bool bRet = GetOpenFileList(&sFilePaths, this);
+		CString sDefaultDir = _T("");
+		if(m_iImageMax>0){GetDirectory(m_image[m_iImageIndex].GetDataSource(), &sDefaultDir);}
+		bool bRet = GetOpenFileList(sDefaultDir, &sFilePaths, this);
 		if(bRet != true){return;}
 
 		ReadImage(sFilePaths, true);
@@ -741,7 +743,9 @@ IMPLEMENT_DYNCREATE(CSImageViewerView, CView)
 	void CSImageViewerView::OnFileOpen()
 	{
 		CString sFilePaths;
-		bool bRet = GetOpenFileList(&sFilePaths, this);
+		CString sDefaultDir = _T("");
+		if(m_iImageMax>0){GetDirectory(m_image[m_iImageIndex].GetDataSource(), &sDefaultDir);}
+		bool bRet = GetOpenFileList(sDefaultDir, &sFilePaths, this);
 		if(bRet != true){return;}
 
 
@@ -1886,12 +1890,24 @@ IMPLEMENT_DYNCREATE(CSImageViewerView, CView)
 		m_bCenteredWhenFullScreen = ((_ttoi(tchData) == 0) ? 0 : 1);
 		GetPrivateProfileString(_T("Setting"), _T("PPFWwithoutCtrlWhenFullScreen"), _T("0"), tchData, uiBufSize, sIniFilePath);
 		m_bPPFWwithoutCtrlWhenFullScreen = ((_ttoi(tchData) == 0) ? 0 : 1);
+
+		GetPrivateProfileString(_T("Setting"), _T("MaxFile"), _T("10000"), tchData, uiBufSize, sIniFilePath);
+		m_iMaxFile = ((_ttoi(tchData) == 0) ? 10000 : _ttoi(tchData));
+
+		GetPrivateProfileString(_T("Setting"), _T("MaxDepth"), _T("-1"), tchData, uiBufSize, sIniFilePath);
+		m_iMaxDepth= ((_ttoi(tchData) == 0) ? 10000 : _ttoi(tchData));
+		
 	}
 	void CSImageViewerView::SaveSetting(const CString sIniFilePath)
 	{
 		WritePrivateProfileString(_T("Setting"), _T("ExitByEsc"), ((m_bExitByEsc == false) ? _T("0") : _T("1")), sIniFilePath);
 		WritePrivateProfileString(_T("Setting"), _T("CenteredWhenFullScreen"), ((m_bCenteredWhenFullScreen == false) ? _T("0") : _T("1")), sIniFilePath);
 		WritePrivateProfileString(_T("Setting"), _T("PPFWwithoutCtrlWhenFullScreen"), ((m_bPPFWwithoutCtrlWhenFullScreen == false) ? _T("0") : _T("1")), sIniFilePath);
+		CString sData;
+		sData.Format(_T("%d"),m_iMaxFile);
+		WritePrivateProfileString(_T("Setting"), _T("MaxFile"),sData, sIniFilePath);
+		sData.Format(_T("%d"),m_iMaxDepth);
+		WritePrivateProfileString(_T("Setting"), _T("MaxDepth"), sData, sIniFilePath);
 	}
 
 	int CSImageViewerView::GetClientHeight()
@@ -2537,6 +2553,9 @@ IMPLEMENT_DYNCREATE(CSImageViewerView, CView)
 		dlg.m_bExitByEsc=m_bExitByEsc;
 		dlg.m_bCenteredWhenFullScreen=m_bCenteredWhenFullScreen;
 		dlg.m_bPPFWwithoutCtrlWhenFullScreen=m_bPPFWwithoutCtrlWhenFullScreen;
+		dlg.m_iMaxFile=m_iMaxFile;
+		dlg.m_iMaxDepth=m_iMaxDepth;
+
 
 		INT_PTR iRet = dlg.DoModal();
 		if(iRet != IDOK){return;}
@@ -2545,5 +2564,9 @@ IMPLEMENT_DYNCREATE(CSImageViewerView, CView)
 		m_bExitByEsc=dlg.m_bExitByEsc;
 		m_bCenteredWhenFullScreen=dlg.m_bCenteredWhenFullScreen;
 		m_bPPFWwithoutCtrlWhenFullScreen=dlg.m_bPPFWwithoutCtrlWhenFullScreen;
+		m_iMaxFile=dlg.m_iMaxFile;
+		m_iMaxDepth=dlg.m_iMaxDepth;
+
+
 		SaveSetting(m_sIniFilePath);
 	}
