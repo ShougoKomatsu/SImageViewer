@@ -188,7 +188,7 @@ bool RecursivelyGetImageFilePaths(const CString sFileOrFolderPath, const int iDe
 		}
 		for(int i=0; i<saFilePathTemp.GetCount(); i++)
 		{
-			bool bRet = RecursivelyGetImageFilePaths(saFilePathTemp.GetAt(i), iDepth-1, saFilePath->GetCount(), iFileNumLimit, saFilePath, fileFormatList);
+			bool bRet = RecursivelyGetImageFilePaths(saFilePathTemp.GetAt(i), iDepth, saFilePath->GetCount(), iFileNumLimit, saFilePath, fileFormatList);
 			if(bRet != true){return false;}
 			if(saFilePath->GetCount()>iFileNumLimit){AfxMessageBox(_T("“Ç‚İ‚İ‰Â”\Å‘åİ’è”‚ğ’´‚¦‚Ä‚¢‚Ü‚·")); return false;}
 		}
@@ -293,9 +293,9 @@ bool ReadAndAppendImage(CString sFilePath, FileFormatList* fileFormatList, PanIm
 	{
 
 		UINT uiIconNum = CountIconNum(sFilePath);
-		bool bRet = LoadICOFile(sFilePath,&(panImage[iImageIndex]),uiIconNum);
+		bool bRet = LoadICOFile(sFilePath,panImage,uiIconNum);
 		if(bRet != true){return false;}
-		*iImageIndexNew = iImageIndex+uiIconNum;
+		*iImageIndexNew = iImageIndex+uiIconNum*2;
 		return true;
 	}
 	CImage img;
