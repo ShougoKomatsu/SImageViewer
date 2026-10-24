@@ -188,7 +188,7 @@ bool RecursivelyGetImageFilePaths(const CString sFileOrFolderPath, const int iDe
 		}
 		for(int i=0; i<saFilePathTemp.GetCount(); i++)
 		{
-			bool bRet = RecursivelyGetImageFilePaths(saFilePathTemp.GetAt(i), iDepth-1, saFilePath->GetCount(), iFileNumLimit, saFilePath, fileFormatList);
+			bool bRet = RecursivelyGetImageFilePaths(saFilePathTemp.GetAt(i), iDepth, saFilePath->GetCount(), iFileNumLimit, saFilePath, fileFormatList);
 			if(bRet != true){return false;}
 			if(saFilePath->GetCount()>iFileNumLimit){AfxMessageBox(_T("“Ç‚İ‚İ‰Â”\Å‘åİ’è”‚ğ’´‚¦‚Ä‚¢‚Ü‚·")); return false;}
 		}
