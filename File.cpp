@@ -293,9 +293,9 @@ bool ReadAndAppendImage(CString sFilePath, FileFormatList* fileFormatList, PanIm
 	{
 
 		UINT uiIconNum = CountIconNum(sFilePath);
-		bool bRet = LoadICOFile(sFilePath,&(panImage[iImageIndex]),uiIconNum);
+		bool bRet = LoadICOFile(sFilePath,panImage,uiIconNum);
 		if(bRet != true){return false;}
-		*iImageIndexNew = iImageIndex+uiIconNum;
+		*iImageIndexNew = iImageIndex+uiIconNum*2;
 		return true;
 	}
 	CImage img;
