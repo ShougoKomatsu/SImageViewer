@@ -1873,7 +1873,7 @@ const BYTE g_byFont_4_8[96]={
 		0, 0, 0, 2, 5, 7, 4, 3,
 	};
 
-bool ImposeGridConnection(const CImage* imgValueSrc, const int iPitch, const int iWidth, const int iHeight, BYTE* pbyDataDst)
+bool ImposeGridConnection(const CImage* imgValueSrc, const int iPitch_src, const int iWidth, const int iHeight, BYTE* pbyDataDst, const int iPitch_dst)
 {
 
 	CImage imgTemp;
@@ -1884,17 +1884,17 @@ bool ImposeGridConnection(const CImage* imgValueSrc, const int iPitch, const int
 	{
 		for(int c=0; c<iWidth-1; c++)
 		{
-			if(( pbyDataTemp[r*iPitch+4*c+0] != pbyDataTemp[r*iPitch+4*(c+1)+0]) || ( pbyDataTemp[r*iPitch+4*c+1] != pbyDataTemp[r*iPitch+4*(c+1)+1]) || ( pbyDataTemp[r*iPitch+4*c+2] != pbyDataTemp[r*iPitch+4*(c+1)+2]))
+			if(( pbyDataTemp[r*iPitch_src+4*c+0] != pbyDataTemp[r*iPitch_src+4*(c+1)+0]) || ( pbyDataTemp[r*iPitch_src+4*c+1] != pbyDataTemp[r*iPitch_src+4*(c+1)+1]) || ( pbyDataTemp[r*iPitch_src+4*c+2] != pbyDataTemp[r*iPitch_src+4*(c+1)+2]))
 			{
-				int iValue = pbyDataTemp[r*iPitch+4*c+0]+pbyDataTemp[r*iPitch+4*c+1]+pbyDataTemp[r*iPitch+4*c+2];
+				int iValue = pbyDataTemp[r*iPitch_src+4*c+0]+pbyDataTemp[r*iPitch_src+4*c+1]+pbyDataTemp[r*iPitch_src+4*c+2];
 				BYTE byDot=iValue<576 ? 255:0;
-				SetRGBAValue(pbyDataDst, r, c, iPitch, byDot, byDot, byDot, 255);
+				SetRGBAValue(pbyDataDst, r, c, iPitch_dst, byDot, byDot, byDot, 255);
 			}
-			if(( pbyDataTemp[r*iPitch+4*c+0] != pbyDataTemp[(r+1)*iPitch+4*c+0]) || ( pbyDataTemp[r*iPitch+4*c+1] != pbyDataTemp[(r+1)*iPitch+4*c+1]) || ( pbyDataTemp[r*iPitch+4*c+2] != pbyDataTemp[(r+1)*iPitch+4*c+2]))
+			if(( pbyDataTemp[r*iPitch_src+4*c+0] != pbyDataTemp[(r+1)*iPitch_src+4*c+0]) || ( pbyDataTemp[r*iPitch_src+4*c+1] != pbyDataTemp[(r+1)*iPitch_src+4*c+1]) || ( pbyDataTemp[r*iPitch_src+4*c+2] != pbyDataTemp[(r+1)*iPitch_src+4*c+2]))
 			{
-				int iValue = pbyDataTemp[r*iPitch+4*c+0]+pbyDataTemp[r*iPitch+4*c+1]+pbyDataTemp[r*iPitch+4*c+2];
+				int iValue = pbyDataTemp[r*iPitch_src+4*c+0]+pbyDataTemp[r*iPitch_src+4*c+1]+pbyDataTemp[r*iPitch_src+4*c+2];
 				BYTE byDot=iValue<576 ? 255:0;
-				SetRGBAValue(pbyDataDst, r, c, iPitch, byDot, byDot, byDot, 255);
+				SetRGBAValue(pbyDataDst, r, c, iPitch_dst, byDot, byDot, byDot, 255);
 			}
 		}
 	}
@@ -2028,7 +2028,7 @@ bool ImposeGridConnection(const CImage* imgValueSrc, const int iPitch, const int
 		if(iType==3)
 		{
 			
-			return ImposeGridConnection(imgValueSrc, iPitch, iWidth, iHeight, pbyDataDst);
+			return ImposeGridConnection(imgValueSrc, iPitch, iWidth, iHeight, pbyDataDst, iPitch);
 		}
 		return false;
 	}
