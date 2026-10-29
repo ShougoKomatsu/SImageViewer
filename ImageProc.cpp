@@ -1873,7 +1873,7 @@ const BYTE g_byFont_4_8[96]={
 		0, 0, 0, 2, 5, 7, 4, 3,
 	};
 
-bool ImposeGridConnection(const CImage* imgValueSrc, const int iPitch_src, const int iWidth, const int iHeight, BYTE* pbyDataDst, const int iPitch_dst)
+bool ImposeGridConnection(const CImage* imgValueSrc, const int iPitch_src, BYTE* pbyDataDst, const int iPitch_dst, const int iWidth, const int iHeight)
 {
 
 	CImage imgTemp;
@@ -2028,7 +2028,7 @@ bool ImposeGridConnection(const CImage* imgValueSrc, const int iPitch_src, const
 		if(iType==3)
 		{
 			
-			return ImposeGridConnection(imgValueSrc, iPitch, iWidth, iHeight, pbyDataDst, iPitch);
+			return ImposeGridConnection(imgValueSrc, iPitch, pbyDataDst, iPitch, iWidth, iHeight);
 		}
 		return false;
 	}
