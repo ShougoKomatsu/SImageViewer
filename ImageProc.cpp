@@ -1873,17 +1873,26 @@ const BYTE g_byFont_4_8[96]={
 		0, 0, 0, 2, 5, 7, 4, 3,
 	};
 
-bool ImposeGridConnection(const CImage* imgValueSrc, const int iPitch_src, BYTE* pbyDataDst, const int iPitch_dst, const int iWidth, const int iHeight)
+bool ImposeGridConnection(const CImage* imgValueSrc, const double dROffset, const double dCOffset, const double dScale,const int iRMax, const int iCMax, const int iPitch_src, BYTE* pbyDataDst, const int iPitch_dst, const int iWidth_dst, const int iHeight_dst)
 {
 
-	CImage imgTemp;
-	CopyImage_CImage(imgValueSrc,&imgTemp);
-	BYTE* pbyDataTemp = (BYTE*)imgTemp.GetBits();
-
-	for(int r=0; r<iHeight-1;r++)
+	for(int ir=0; ir<min(iRMax+2-dROffset, iRMax); ir++)
 	{
-		for(int c=0; c<iWidth-1; c++)
+		int r0=int((ir+dROffset)*dScale);
+		int r1=int((ir+1+dROffset)*dScale);
+		if(r0<0){continue;}
+		if(r0>=iHeight_dst-1){continue;}
+		for(int ic=0; ic<min(iCMax+2-dCOffset,iCMax); ic++)
 		{
+			int r=r0;
+			int c=int((ic+dCOffset)*dScale);
+			if(c<0){continue;}
+			if(c>=iWidth_dst-1){continue;}
+
+			CImage imgTemp;
+			CopyImage_CImage(imgValueSrc,&imgTemp);
+			BYTE* pbyDataTemp = (BYTE*)imgTemp.GetBits();
+
 			if(( pbyDataTemp[r*iPitch_src+4*c+0] != pbyDataTemp[r*iPitch_src+4*(c+1)+0]) || ( pbyDataTemp[r*iPitch_src+4*c+1] != pbyDataTemp[r*iPitch_src+4*(c+1)+1]) || ( pbyDataTemp[r*iPitch_src+4*c+2] != pbyDataTemp[r*iPitch_src+4*(c+1)+2]))
 			{
 				int iValue = pbyDataTemp[r*iPitch_src+4*c+0]+pbyDataTemp[r*iPitch_src+4*c+1]+pbyDataTemp[r*iPitch_src+4*c+2];
@@ -1914,10 +1923,10 @@ bool ImposeGridConnection(const CImage* imgValueSrc, const int iPitch_src, BYTE*
 		int iBPP = imgDst->GetBPP();
 		if(iBPP != 32){return false;}
 		int iPitch =imgDst->GetPitch();
-		int iWidth = imgDst->GetWidth();
-		int iHeight = imgDst->GetHeight();
-		int iRMax = int(iHeight/dScale+2);
-		int iCMax = int(iWidth/dScale+2);
+		int iWidth_dst = imgDst->GetWidth();
+		int iHeight_dst = imgDst->GetHeight();
+		int iRMax = int(iHeight_dst/dScale+2);
+		int iCMax = int(iWidth_dst/dScale+2);
 
 
 		if(iType==1)
@@ -1926,31 +1935,31 @@ bool ImposeGridConnection(const CImage* imgValueSrc, const int iPitch_src, BYTE*
 			{
 				int r0=int((ir+dROffset)*dScale);
 				if(r0<0){continue;}
-				if(r0>=iHeight){continue;}
+				if(r0>=iHeight_dst){continue;}
 				for(int ic=0; ic<min(iCMax_i+2-dCOffset,iCMax); ic++)
 				{
 					int r=r0;
 					int c=int((ic+dCOffset)*dScale);
 					if(c<0){continue;}
-					if(c>=iWidth){continue;}
+					if(c>=iWidth_dst){continue;}
 					int iValue = pbyDataDst[r*iPitch+4*c+0]+pbyDataDst[r*iPitch+4*c+1]+pbyDataDst[r*iPitch+4*c+2];
 					BYTE byDot=iValue<576 ? 255:0;
 					SetRGBAValue(pbyDataDst, r, c, iPitch, byDot, byDot, byDot, 255);
 
 					c=int((ic+dCOffset)*dScale + 1);
-					if(c>=iWidth){continue;}
+					if(c>=iWidth_dst){continue;}
 					SetRGBAValue(pbyDataDst, r, c, iPitch, byDot, byDot, byDot, 255);
 
 					r=r0 + 1;
-					if(r>=iHeight){break;}
+					if(r>=iHeight_dst){break;}
 
 					c=int((ic+dCOffset)*dScale);
 					if(c<0){continue;}
-					if(c>=iWidth){continue;}
+					if(c>=iWidth_dst){continue;}
 					SetRGBAValue(pbyDataDst, r, c, iPitch, byDot, byDot, byDot, 255);
 
 					c=int((ic+dCOffset)*dScale + 1);
-					if(c>=iWidth){continue;}
+					if(c>=iWidth_dst){continue;}
 					SetRGBAValue(pbyDataDst, r, c, iPitch, byDot, byDot, byDot, 255);
 				}
 
@@ -1963,9 +1972,9 @@ bool ImposeGridConnection(const CImage* imgValueSrc, const int iPitch_src, BYTE*
 			LONGLONG llCountW=0;
 			LONGLONG llCountM=0;
 			LONGLONG llCountB=0;
-			for(int r=0; r<iHeight; r++)
+			for(int r=0; r<iHeight_dst; r++)
 			{
-				for(int c=0; c<iWidth; c++)
+				for(int c=0; c<iWidth_dst; c++)
 				{
 					long lSum=pbyDataDst[r*iPitch+4*c+2];
 					lSum+=pbyDataDst[r*iPitch+4*c+1];
@@ -1991,15 +2000,15 @@ bool ImposeGridConnection(const CImage* imgValueSrc, const int iPitch_src, BYTE*
 				if(ir+dROffset>=iRMax_i+2){continue;}
 				int r=int((ir+dROffset)*dScale);
 				if(r<0){continue;}
-				if(r>=iHeight){continue;}
+				if(r>=iHeight_dst){continue;}
 
-				for(int c=0; c<min((iCMax_i+dCOffset+1)*dScale,iWidth); c++)
+				for(int c=0; c<min((iCMax_i+dCOffset+1)*dScale,iWidth_dst); c++)
 				{
 					SetRGBAValue(pbyDataDst, r, c, iPitch, byDot, byDot, byDot, 255);
 				}
 				r=int((ir+dROffset)*dScale+1);
-				if(r>=iHeight){continue;}
-				for(int c=0; c<min((iCMax_i+dCOffset+1)*dScale,iWidth); c++)
+				if(r>=iHeight_dst){continue;}
+				for(int c=0; c<min((iCMax_i+dCOffset+1)*dScale,iWidth_dst); c++)
 				{
 					SetRGBAValue(pbyDataDst, r, c, iPitch, byDot, byDot, byDot, 255);
 				}
@@ -2010,14 +2019,14 @@ bool ImposeGridConnection(const CImage* imgValueSrc, const int iPitch_src, BYTE*
 				if(ic+dCOffset>=iCMax_i+2){continue;}
 				int c=int((ic+dCOffset)*dScale);
 				if(c<0){continue;}
-				if(c>=iWidth){continue;}
-				for(int r=0; r<min((iRMax_i+dROffset+1)*dScale,iHeight); r++)
+				if(c>=iWidth_dst){continue;}
+				for(int r=0; r<min((iRMax_i+dROffset+1)*dScale,iHeight_dst); r++)
 				{
 					SetRGBAValue(pbyDataDst, r, c, iPitch, byDot, byDot, byDot, 255);
 				}
 				c=int((ic+dCOffset)*dScale+1);
-				if(c>=iWidth){continue;}
-				for(int r=0; r<min((iRMax_i+dROffset+1)*dScale,iHeight); r++)
+				if(c>=iWidth_dst){continue;}
+				for(int r=0; r<min((iRMax_i+dROffset+1)*dScale,iHeight_dst); r++)
 				{
 					SetRGBAValue(pbyDataDst, r, c, iPitch, byDot, byDot, byDot, 255);
 				}
@@ -2028,8 +2037,126 @@ bool ImposeGridConnection(const CImage* imgValueSrc, const int iPitch_src, BYTE*
 		if(iType==3)
 		{
 			
-			return ImposeGridConnection(imgValueSrc, iPitch, pbyDataDst, iPitch, iWidth, iHeight);
+			CImage imgTemp;
+			CopyImage_CImage(imgValueSrc,&imgTemp);
+			BYTE* pbyDataTemp = (BYTE*)imgTemp.GetBits();
+
+			for(int r=0; r<iHeight_dst-1;r++)
+			{
+				for(int c=0; c<iWidth_dst-1; c++)
+				{
+					if(( pbyDataTemp[r*iPitch+4*c+0] != pbyDataTemp[r*iPitch+4*(c+1)+0]) || ( pbyDataTemp[r*iPitch+4*c+1] != pbyDataTemp[r*iPitch+4*(c+1)+1]) || ( pbyDataTemp[r*iPitch+4*c+2] != pbyDataTemp[r*iPitch+4*(c+1)+2]))
+					{
+						int iValue = pbyDataTemp[r*iPitch+4*c+0]+pbyDataTemp[r*iPitch+4*c+1]+pbyDataTemp[r*iPitch+4*c+2];
+						BYTE byDot=iValue<576 ? 255:0;
+						SetRGBAValue(pbyDataDst, r, c, iPitch, byDot, byDot, byDot, 255);
+					}
+					if(( pbyDataTemp[r*iPitch+4*c+0] != pbyDataTemp[(r+1)*iPitch+4*c+0]) || ( pbyDataTemp[r*iPitch+4*c+1] != pbyDataTemp[(r+1)*iPitch+4*c+1]) || ( pbyDataTemp[r*iPitch+4*c+2] != pbyDataTemp[(r+1)*iPitch+4*c+2]))
+					{
+						int iValue = pbyDataTemp[r*iPitch+4*c+0]+pbyDataTemp[r*iPitch+4*c+1]+pbyDataTemp[r*iPitch+4*c+2];
+						BYTE byDot=iValue<576 ? 255:0;
+						SetRGBAValue(pbyDataDst, r, c, iPitch, byDot, byDot, byDot, 255);
+					}
+				}
+			}
+			return true;
+
 		}
+
+
+		if(iType==4)
+		{
+
+			CImage imgTemp;
+			CopyImage_CImage(imgValueSrc,&imgTemp);
+			BYTE* pbyDataTemp = (BYTE*)imgTemp.GetBits();
+
+			for(int r=0; r<iHeight_dst-1;r++)
+			{
+				for(int c=0; c<iWidth_dst-1; c++)
+				{
+					if(( pbyDataTemp[r*iPitch+4*c+0] != pbyDataTemp[r*iPitch+4*(c+1)+0]) || ( pbyDataTemp[r*iPitch+4*c+1] != pbyDataTemp[r*iPitch+4*(c+1)+1]) || ( pbyDataTemp[r*iPitch+4*c+2] != pbyDataTemp[r*iPitch+4*(c+1)+2]))
+					{
+						bool bRT=false;
+						if((r>0) && (c<=iWidth_dst-1) && (  ( pbyDataTemp[(r-1)*iPitch+4*c+0] == pbyDataTemp[r*iPitch+4*(c+1)+0])
+							&& ( pbyDataTemp[(r-1)*iPitch+4*c+1] == pbyDataTemp[r*iPitch+4*(c+1)+1]) 
+							&& ( pbyDataTemp[(r-1)*iPitch+4*c+2] == pbyDataTemp[r*iPitch+4*(c+1)+2])))
+						{
+							bRT=true;
+						}
+						
+						bool bRB=false;
+						if((r<iHeight_dst-1) && (c<=iWidth_dst-1) && (  ( pbyDataTemp[(r+1)*iPitch+4*c+0] == pbyDataTemp[r*iPitch+4*(c+1)+0])
+							&& ( pbyDataTemp[(r+1)*iPitch+4*c+1] == pbyDataTemp[r*iPitch+4*(c+1)+1]) 
+							&& ( pbyDataTemp[(r+1)*iPitch+4*c+2] == pbyDataTemp[r*iPitch+4*(c+1)+2])))
+						{
+							bRB=true;
+						}
+						
+						int cOffset=0;
+						if((bRT == true) || (bRB==true))
+						{
+							cOffset=-1;
+						}
+
+						int iValue = pbyDataTemp[r*iPitch+4*c+0]+pbyDataTemp[r*iPitch+4*c+1]+pbyDataTemp[r*iPitch+4*c+2];
+						BYTE byDot=iValue<576 ? 255:0;
+						if(c>1)
+						{
+							SetRGBAValue(pbyDataDst, r, c+cOffset, iPitch, byDot, byDot, byDot, 255);
+						}
+					}
+
+					if(( pbyDataTemp[r*iPitch+4*c+0] != pbyDataTemp[(r+1)*iPitch+4*c+0]) || ( pbyDataTemp[r*iPitch+4*c+1] != pbyDataTemp[(r+1)*iPitch+4*c+1]) || ( pbyDataTemp[r*iPitch+4*c+2] != pbyDataTemp[(r+1)*iPitch+4*c+2]))
+					{
+
+						if((r<iHeight_dst-1) && (c<=iWidth_dst-1) && (( pbyDataTemp[r*iPitch+4*c+0] == pbyDataTemp[(r+1)*iPitch+4*(c+1)+0]) && ( pbyDataTemp[r*iPitch+4*c+1] == pbyDataTemp[(r+1)*iPitch+4*(c+1)+1]) && ( pbyDataTemp[r*iPitch+4*c+2] == pbyDataTemp[(r+1)*iPitch+4*(c+1)+2])))
+						{
+							continue;
+						}
+						if((r<iHeight_dst-1) && (c<=iWidth_dst-2) && (( pbyDataTemp[r*iPitch+4*c+0] == pbyDataTemp[(r+1)*iPitch+4*(c+2)+0]) && ( pbyDataTemp[r*iPitch+4*c+1] == pbyDataTemp[(r+1)*iPitch+4*(c+2)+1]) && ( pbyDataTemp[r*iPitch+4*c+2] == pbyDataTemp[(r+1)*iPitch+4*(c+2)+2])))
+						{
+							continue;
+						}
+
+						bool bLB=false;
+						if((r>0) && (  ( pbyDataTemp[(r+1)*iPitch+4*c+0] == pbyDataTemp[r*iPitch+4*(c-1)+0])
+							&& ( pbyDataTemp[(r+1)*iPitch+4*c+1] == pbyDataTemp[r*iPitch+4*(c-1)+1]) 
+							&& ( pbyDataTemp[(r+1)*iPitch+4*c+2] == pbyDataTemp[r*iPitch+4*(c-1)+2])))
+						{
+							bLB=true;
+						}
+						
+						bool bRB=false;
+						if((r<iHeight_dst-1) && (  ( pbyDataTemp[(r+1)*iPitch+4*c+0] == pbyDataTemp[r*iPitch+4*(c+1)+0])
+							&& ( pbyDataTemp[(r+1)*iPitch+4*c+1] == pbyDataTemp[r*iPitch+4*(c+1)+1]) 
+							&& ( pbyDataTemp[(r+1)*iPitch+4*c+2] == pbyDataTemp[r*iPitch+4*(c+1)+2])))
+						{
+							bRB=true;
+						}
+						
+						int rOffset=0;
+						if((bLB == true) || (bRB==true))
+						{
+							rOffset=-1;
+						}
+
+
+						int iValue = pbyDataTemp[r*iPitch+4*c+0]+pbyDataTemp[r*iPitch+4*c+1]+pbyDataTemp[r*iPitch+4*c+2];
+						BYTE byDot=iValue<576 ? 255:0;
+						if(r>0)
+						{
+						SetRGBAValue(pbyDataDst, r+rOffset, c, iPitch, byDot, byDot, byDot, 255);
+						}
+					}
+				}
+			}
+			return true;
+
+
+		}
+
+
 		return false;
 	}
 	bool MakeReservedChannelZero(const CImage* imgSrc, CImage* imgDst)
