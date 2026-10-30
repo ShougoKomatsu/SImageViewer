@@ -724,7 +724,7 @@ void ViewDraw::OnDraw(CWnd* wnd, CDC* pDC, const PanImage* panImg)
 	case ID_TOOLBAR_GRID_CONNECT:{iGrid = 3;break;}
 	default:{iGrid = 0;}
 	}
-	ImposeGrid(&imgValue, &imgZoomed, &imgZoomed, (iGrid==3? 4:iGrid), int(dR0_i)-dR0_i, int(dC0_i)-dC0_i,m_dScale, 10, iRMax, iCMax);
+	ImposeGrid(&imgValue, &imgZoomed, &imgZoomed, iGrid, int(dR0_i)-dR0_i, int(dC0_i)-dC0_i,m_dScale, 10, iRMax, iCMax);
 	if(m_bValue == true)
 	{
 		ImposeRGBValue(panImg, &imgZoomed, &imgZoomed, iGrid, int(dR0_i)-dR0_i, int(dC0_i)-dC0_i,m_dScale, 10, int(dR0_i),int(dC0_i),iRMax, iCMax);
