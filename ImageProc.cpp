@@ -1910,6 +1910,14 @@ bool ImposeGridConnection(const CImage* imgValueSrc, const double dROffset, cons
 	return true;
 }
 
+inline bool IsColorSame(const BYTE* pbyDataTemp, const int iPitch, const int iColorPitch, const int iR1, const int iC1, const int iR2, const int iC2)
+{
+	if(pbyDataTemp[iR1*iPitch+iColorPitch*iC1+0] != pbyDataTemp[iR2*iPitch+iColorPitch*iC2+0]){return false;}
+	if(iColorPitch==1){return true;}
+	if(pbyDataTemp[iR1*iPitch+iColorPitch*iC1+1] != pbyDataTemp[iR2*iPitch+iColorPitch*iC2+1]){return false;}
+	if(pbyDataTemp[iR1*iPitch+iColorPitch*iC1+2] != pbyDataTemp[iR2*iPitch+iColorPitch*iC2+2]){return false;}
+	return true;
+}
 	bool ImposeGrid(const CImage* imgValueSrc, const CImage* imgSrc, CImage* imgDst, const int iType, const double dROffset, const double dCOffset, const double dScale, const double dScaleThresh,const int iRMax_i, const int iCMax_i)
 	{
 		if(imgSrc != imgDst)
@@ -2044,133 +2052,76 @@ bool ImposeGridConnection(const CImage* imgValueSrc, const double dROffset, cons
 			{
 				for(int c=0; c<iWidth_dst-1; c++)
 				{
-					if(( pbyDataTemp[r*iPitch+4*c+0] != pbyDataTemp[r*iPitch+4*(c+1)+0]) || ( pbyDataTemp[r*iPitch+4*c+1] != pbyDataTemp[r*iPitch+4*(c+1)+1]) || ( pbyDataTemp[r*iPitch+4*c+2] != pbyDataTemp[r*iPitch+4*(c+1)+2]))
+					if(IsColorSame(pbyDataTemp, iPitch, 4, r, c, r, c+1) == false)
 					{
-
-						if((r-iRange)>=0)
-						{
-							if(( pbyDataTemp[r*iPitch+4*c+0] == pbyDataTemp[(r-iRange)*iPitch+4*(c+1)+0]) && ( pbyDataTemp[r*iPitch+4*c+1] == pbyDataTemp[(r-iRange)*iPitch+4*(c+1)+1]) && ( pbyDataTemp[r*iPitch+4*c+2] == pbyDataTemp[(r-iRange)*iPitch+4*(c+1)+2]))
-							{
-								for(int iDif=0; iDif<=iRange; iDif++)
-								{
-									if(( pbyDataTemp[r*iPitch+4*c+0] == pbyDataTemp[(r-iDif)*iPitch+4*(c+1)+0]) && ( pbyDataTemp[r*iPitch+4*c+1] == pbyDataTemp[(r-iDif)*iPitch+4*(c+1)+1]) && ( pbyDataTemp[r*iPitch+4*c+2] == pbyDataTemp[(r-iDif)*iPitch+4*(c+1)+2]))
-									{
-
-										int iValue = pbyDataTemp[r*iPitch+4*c+0]+pbyDataTemp[r*iPitch+4*c+1]+pbyDataTemp[r*iPitch+4*c+2];
-										BYTE byDot=iValue<576 ? 255:0;
-										if(c+iRange-iDif<=iWidth_dst-1)
-										{
-											SetRGBAValue(pbyDataDst, r, (c+iRange-iDif), iPitch, byDot, byDot, byDot, 255);
-										}
-										break;
-									}
-								}
-								continue;
-							}
-						}
-
-						if((r+iRange)<=iHeight_dst-1)
-						{
-							if(( pbyDataTemp[(r+iRange)*iPitch+4*c+0] == pbyDataTemp[r*iPitch+4*(c+1)+0]) && ( pbyDataTemp[(r+iRange)*iPitch+4*c+1] == pbyDataTemp[r*iPitch+4*(c+1)+1]) && ( pbyDataTemp[(r+iRange)*iPitch+4*c+2] == pbyDataTemp[r*iPitch+4*(c+1)+2]))
-							{
-								for(int iDif=0; iDif<=iRange; iDif++)
-								{
-									if(( pbyDataTemp[(r+iDif)*iPitch+4*c+0] == pbyDataTemp[r*iPitch+4*(c+1)+0]) && ( pbyDataTemp[(r+iDif)*iPitch+4*c+1] == pbyDataTemp[r*iPitch+4*(c+1)+1]) && ( pbyDataTemp[(r+iDif)*iPitch+4*c+2] == pbyDataTemp[r*iPitch+4*(c+1)+2]))
-									{
-
-										int iValue = pbyDataTemp[r*iPitch+4*c+0]+pbyDataTemp[r*iPitch+4*c+1]+pbyDataTemp[r*iPitch+4*c+2];
-										BYTE byDot=iValue<576 ? 255:0;
-										SetRGBAValue(pbyDataDst, r, (c-iRange+iDif), iPitch, byDot, byDot, byDot, 255);
-										break;
-									}
-								}
-								continue;
-							}
-						}
-
-						if((r+iRange)<=iHeight_dst-1)
-						{
-							if(( pbyDataTemp[r*iPitch+4*c+0] == pbyDataTemp[(r+iRange)*iPitch+4*(c+1)+0]) && ( pbyDataTemp[r*iPitch+4*c+1] == pbyDataTemp[(r+iRange)*iPitch+4*(c+1)+1]) && ( pbyDataTemp[r*iPitch+4*c+2] == pbyDataTemp[(r+iRange)*iPitch+4*(c+1)+2]))
-							{
-								continue;
-							}
-						}
-
-						if((r-iRange)>=0)
-						{
-							if(( pbyDataTemp[(r-iRange)*iPitch+4*c+0] == pbyDataTemp[r*iPitch+4*(c+1)+0]) && ( pbyDataTemp[(r-iRange)*iPitch+4*c+1] == pbyDataTemp[r*iPitch+4*(c+1)+1]) && ( pbyDataTemp[(r-iRange)*iPitch+4*c+2] == pbyDataTemp[r*iPitch+4*(c+1)+2]))
-							{
-								continue;
-							}
-						}
 						int iValue = pbyDataTemp[r*iPitch+4*c+0]+pbyDataTemp[r*iPitch+4*c+1]+pbyDataTemp[r*iPitch+4*c+2];
 						BYTE byDot=iValue<576 ? 255:0;
+						if(((r-iRange)>=0) && (IsColorSame(pbyDataTemp, iPitch, 4, r, c, r-iRange, c+1) == true))
+						{
+							for(int iDif=max(0, c+iRange-iWidth_dst+1); iDif<=iRange; iDif++)
+							{
+								if(IsColorSame(pbyDataTemp, iPitch, 4, r, c, r-iDif, c+1) == true)
+								{
+									SetRGBAValue(pbyDataDst, r, (c+iRange-iDif), iPitch, byDot, byDot, byDot, 255);
+									break;
+								}
+							}
+							continue;
+						}
+
+						if(((r+iRange)<=iHeight_dst-1) && (IsColorSame(pbyDataTemp, iPitch, 4, r+iRange, c, r, c+1) == true))
+						{
+							for(int iDif=max(0, iRange-c); iDif<=iRange; iDif++)
+							{
+								if(IsColorSame(pbyDataTemp, iPitch, 4, r+iDif, c, r, c+1) == true)
+								{
+									SetRGBAValue(pbyDataDst, r, (c-iRange+iDif), iPitch, byDot, byDot, byDot, 255);
+									break;
+								}
+							}
+							continue;
+						}
+
+						if(((r+iRange)<=iHeight_dst-1)&&(IsColorSame(pbyDataTemp, iPitch, 4, r, c, r+iRange, c+1) == true)){continue;}
+						if(((r-iRange)>=0)&&(IsColorSame(pbyDataTemp, iPitch, 4, r-iRange, c, r, c+1) == true)){continue;}
+
 						SetRGBAValue(pbyDataDst, r, c, iPitch, byDot, byDot, byDot, 255);
 					}
 
 
-					if(( pbyDataTemp[r*iPitch+4*c+0] != pbyDataTemp[(r+1)*iPitch+4*c+0]) || ( pbyDataTemp[r*iPitch+4*c+1] != pbyDataTemp[(r+1)*iPitch+4*c+1]) || ( pbyDataTemp[r*iPitch+4*c+2] != pbyDataTemp[(r+1)*iPitch+4*c+2]))
+					if(IsColorSame(pbyDataTemp, iPitch, 4, r, c, r+1, c) == false)
 					{
-
-						if((c-iRange)>=0)
-						{
-							if(( pbyDataTemp[r*iPitch+4*(c-iRange)+0] == pbyDataTemp[(r+1)*iPitch+4*c+0]) && ( pbyDataTemp[r*iPitch+4*(c-iRange)+1] == pbyDataTemp[(r+1)*iPitch+4*c+1]) && ( pbyDataTemp[r*iPitch+4*(c-iRange)+2] == pbyDataTemp[(r+1)*iPitch+4*c+2]))
-							{
-								for(int iDif=0; iDif<=iRange; iDif++)
-								{
-									if(( pbyDataTemp[r*iPitch+4*(c-iDif)+0] == pbyDataTemp[(r+1)*iPitch+4*c+0]) && ( pbyDataTemp[r*iPitch+4*(c-iDif)+1] == pbyDataTemp[(r+1)*iPitch+4*c+1]) && ( pbyDataTemp[r*iPitch+4*(c-iDif)+2] == pbyDataTemp[(r+1)*iPitch+4*c+2]))
-									{
-
-										int iValue = pbyDataTemp[r*iPitch+4*c+0]+pbyDataTemp[r*iPitch+4*c+1]+pbyDataTemp[r*iPitch+4*c+2];
-										BYTE byDot=iValue<576 ? 255:0;
-										SetRGBAValue(pbyDataDst, r-iRange+iDif, c, iPitch, byDot, byDot, byDot, 255);
-										break;
-									}
-								}
-								continue;
-							}
-						}
-
-						if((c+iRange)<=iWidth_dst-1)
-						{
-							if(( pbyDataTemp[r*iPitch+4*c+0] == pbyDataTemp[(r+1)*iPitch+4*(c+iRange)+0]) && ( pbyDataTemp[r*iPitch+4*c+1] == pbyDataTemp[(r+1)*iPitch+4*(c+iRange)+1]) && ( pbyDataTemp[r*iPitch+4*c+2] == pbyDataTemp[(r+1)*iPitch+4*(c+iRange)+2]))
-							{
-								for(int iDif=0; iDif<=iRange; iDif++)
-								{
-									if(( pbyDataTemp[r*iPitch+4*c+0] == pbyDataTemp[(r+1)*iPitch+4*(c+iDif)+0]) && ( pbyDataTemp[r*iPitch+4*c+1] == pbyDataTemp[(r+1)*iPitch+4*(c+iDif)+1]) && ( pbyDataTemp[r*iPitch+4*c+2] == pbyDataTemp[(r+1)*iPitch+4*(c+iDif)+2]))
-									{
-
-										int iValue = pbyDataTemp[r*iPitch+4*c+0]+pbyDataTemp[r*iPitch+4*c+1]+pbyDataTemp[r*iPitch+4*c+2];
-										BYTE byDot=iValue<576 ? 255:0;
-										if(r+iRange-iDif<=iHeight_dst-1)
-										{
-										SetRGBAValue(pbyDataDst, r+iRange-iDif, c, iPitch, byDot, byDot, byDot, 255);
-										}
-										break;
-									}
-								}
-								continue;
-							}
-						}
-
-						if(c-iRange>=0)
-						{
-							if(( pbyDataTemp[r*iPitch+4*c+0] == pbyDataTemp[(r+1)*iPitch+4*(c-iRange)+0]) && ( pbyDataTemp[r*iPitch+4*c+1] == pbyDataTemp[(r+1)*iPitch+4*(c-iRange)+1]) && ( pbyDataTemp[r*iPitch+4*c+2] == pbyDataTemp[(r+1)*iPitch+4*(c-iRange)+2]))
-							{
-								continue;
-							}
-						}
-						
-						if(c+iRange<=iWidth_dst-1)
-						{
-							if(( pbyDataTemp[(r+1)*iPitch+4*c+0] == pbyDataTemp[r*iPitch+4*(c+iRange)+0]) && ( pbyDataTemp[(r+1)*iPitch+4*c+1] == pbyDataTemp[r*iPitch+4*(c+iRange)+1]) && ( pbyDataTemp[(r+1)*iPitch+4*c+2] == pbyDataTemp[r*iPitch+4*(c+iRange)+2]))
-							{
-								continue;
-							}
-						}
-
 						int iValue = pbyDataTemp[r*iPitch+4*c+0]+pbyDataTemp[r*iPitch+4*c+1]+pbyDataTemp[r*iPitch+4*c+2];
 						BYTE byDot=iValue<576 ? 255:0;
+						if(((c-iRange)>=0) && (IsColorSame(pbyDataTemp, iPitch, 4, r, c-iRange, r+1, c) == true))
+						{
+							for(int iDif=max(0, iRange-r); iDif<=iRange; iDif++)
+							{
+								if(IsColorSame(pbyDataTemp, iPitch, 4, r, c-iDif, r+1, c) == true)
+								{
+									SetRGBAValue(pbyDataDst, r-iRange+iDif, c, iPitch, byDot, byDot, byDot, 255);
+									break;
+								}
+							}
+							continue;
+						}
+
+						if(((c+iRange)<=iWidth_dst-1) &&  (IsColorSame(pbyDataTemp, iPitch, 4, r, c, r+1, c+iRange) == true))
+						{
+							for(int iDif=max(0,r+iRange-iHeight_dst+1); iDif<=iRange; iDif++)
+							{
+								if(IsColorSame(pbyDataTemp, iPitch, 4, r, c, r+1, c+iDif) == true)
+								{
+									SetRGBAValue(pbyDataDst, r+iRange-iDif, c, iPitch, byDot, byDot, byDot, 255);
+									break;
+								}
+							}
+							continue;
+						}
+
+						if((c-iRange>=0)&&(IsColorSame(pbyDataTemp, iPitch, 4, r, c, r+1, c-iRange) == true)){continue;}
+						if((c+iRange<=iWidth_dst-1)&&(IsColorSame(pbyDataTemp, iPitch, 4, r+1, c, r, c+iRange) == true)){continue;}
+
 						SetRGBAValue(pbyDataDst, r, c, iPitch, byDot, byDot, byDot, 255);
 					}
 				}
