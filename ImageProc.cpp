@@ -1873,6 +1873,51 @@ const BYTE g_byFont_4_8[96]={
 		0, 0, 0, 2, 5, 7, 4, 3,
 	};
 
+bool ImposeGridConnection(const CImage* imgValueSrc, const double dROffset, const double dCOffset, const double dScale,const int iRMax, const int iCMax, const int iPitch_src, BYTE* pbyDataDst, const int iPitch_dst, const int iWidth_dst, const int iHeight_dst)
+{
+
+	for(int ir=0; ir<min(iRMax+2-dROffset, iRMax); ir++)
+	{
+		int r0=int((ir+dROffset)*dScale);
+		int r1=int((ir+1+dROffset)*dScale);
+		if(r0<0){continue;}
+		if(r0>=iHeight_dst-1){continue;}
+		for(int ic=0; ic<min(iCMax+2-dCOffset,iCMax); ic++)
+		{
+			int r=r0;
+			int c=int((ic+dCOffset)*dScale);
+			if(c<0){continue;}
+			if(c>=iWidth_dst-1){continue;}
+
+			CImage imgTemp;
+			CopyImage_CImage(imgValueSrc,&imgTemp);
+			BYTE* pbyDataTemp = (BYTE*)imgTemp.GetBits();
+
+			if(( pbyDataTemp[r*iPitch_src+4*c+0] != pbyDataTemp[r*iPitch_src+4*(c+1)+0]) || ( pbyDataTemp[r*iPitch_src+4*c+1] != pbyDataTemp[r*iPitch_src+4*(c+1)+1]) || ( pbyDataTemp[r*iPitch_src+4*c+2] != pbyDataTemp[r*iPitch_src+4*(c+1)+2]))
+			{
+				int iValue = pbyDataTemp[r*iPitch_src+4*c+0]+pbyDataTemp[r*iPitch_src+4*c+1]+pbyDataTemp[r*iPitch_src+4*c+2];
+				BYTE byDot=iValue<576 ? 255:0;
+				SetRGBAValue(pbyDataDst, r, c, iPitch_dst, byDot, byDot, byDot, 255);
+			}
+			if(( pbyDataTemp[r*iPitch_src+4*c+0] != pbyDataTemp[(r+1)*iPitch_src+4*c+0]) || ( pbyDataTemp[r*iPitch_src+4*c+1] != pbyDataTemp[(r+1)*iPitch_src+4*c+1]) || ( pbyDataTemp[r*iPitch_src+4*c+2] != pbyDataTemp[(r+1)*iPitch_src+4*c+2]))
+			{
+				int iValue = pbyDataTemp[r*iPitch_src+4*c+0]+pbyDataTemp[r*iPitch_src+4*c+1]+pbyDataTemp[r*iPitch_src+4*c+2];
+				BYTE byDot=iValue<576 ? 255:0;
+				SetRGBAValue(pbyDataDst, r, c, iPitch_dst, byDot, byDot, byDot, 255);
+			}
+		}
+	}
+	return true;
+}
+
+inline bool IsColorSame(const BYTE* pbyDataTemp, const int iPitch, const int iColorPitch, const int iR1, const int iC1, const int iR2, const int iC2)
+{
+	if(pbyDataTemp[iR1*iPitch+iColorPitch*iC1+0] != pbyDataTemp[iR2*iPitch+iColorPitch*iC2+0]){return false;}
+	if(iColorPitch==1){return true;}
+	if(pbyDataTemp[iR1*iPitch+iColorPitch*iC1+1] != pbyDataTemp[iR2*iPitch+iColorPitch*iC2+1]){return false;}
+	if(pbyDataTemp[iR1*iPitch+iColorPitch*iC1+2] != pbyDataTemp[iR2*iPitch+iColorPitch*iC2+2]){return false;}
+	return true;
+}
 	bool ImposeGrid(const CImage* imgValueSrc, const CImage* imgSrc, CImage* imgDst, const int iType, const double dROffset, const double dCOffset, const double dScale, const double dScaleThresh,const int iRMax_i, const int iCMax_i)
 	{
 		if(imgSrc != imgDst)
@@ -1886,10 +1931,10 @@ const BYTE g_byFont_4_8[96]={
 		int iBPP = imgDst->GetBPP();
 		if(iBPP != 32){return false;}
 		int iPitch =imgDst->GetPitch();
-		int iWidth = imgDst->GetWidth();
-		int iHeight = imgDst->GetHeight();
-		int iRMax = int(iHeight/dScale+2);
-		int iCMax = int(iWidth/dScale+2);
+		int iWidth_dst = imgDst->GetWidth();
+		int iHeight_dst = imgDst->GetHeight();
+		int iRMax = int(iHeight_dst/dScale+2);
+		int iCMax = int(iWidth_dst/dScale+2);
 
 
 		if(iType==1)
@@ -1898,31 +1943,31 @@ const BYTE g_byFont_4_8[96]={
 			{
 				int r0=int((ir+dROffset)*dScale);
 				if(r0<0){continue;}
-				if(r0>=iHeight){continue;}
+				if(r0>=iHeight_dst){continue;}
 				for(int ic=0; ic<min(iCMax_i+2-dCOffset,iCMax); ic++)
 				{
 					int r=r0;
 					int c=int((ic+dCOffset)*dScale);
 					if(c<0){continue;}
-					if(c>=iWidth){continue;}
+					if(c>=iWidth_dst){continue;}
 					int iValue = pbyDataDst[r*iPitch+4*c+0]+pbyDataDst[r*iPitch+4*c+1]+pbyDataDst[r*iPitch+4*c+2];
 					BYTE byDot=iValue<576 ? 255:0;
 					SetRGBAValue(pbyDataDst, r, c, iPitch, byDot, byDot, byDot, 255);
 
 					c=int((ic+dCOffset)*dScale + 1);
-					if(c>=iWidth){continue;}
+					if(c>=iWidth_dst){continue;}
 					SetRGBAValue(pbyDataDst, r, c, iPitch, byDot, byDot, byDot, 255);
 
 					r=r0 + 1;
-					if(r>=iHeight){break;}
+					if(r>=iHeight_dst){break;}
 
 					c=int((ic+dCOffset)*dScale);
 					if(c<0){continue;}
-					if(c>=iWidth){continue;}
+					if(c>=iWidth_dst){continue;}
 					SetRGBAValue(pbyDataDst, r, c, iPitch, byDot, byDot, byDot, 255);
 
 					c=int((ic+dCOffset)*dScale + 1);
-					if(c>=iWidth){continue;}
+					if(c>=iWidth_dst){continue;}
 					SetRGBAValue(pbyDataDst, r, c, iPitch, byDot, byDot, byDot, 255);
 				}
 
@@ -1935,9 +1980,9 @@ const BYTE g_byFont_4_8[96]={
 			LONGLONG llCountW=0;
 			LONGLONG llCountM=0;
 			LONGLONG llCountB=0;
-			for(int r=0; r<iHeight; r++)
+			for(int r=0; r<iHeight_dst; r++)
 			{
-				for(int c=0; c<iWidth; c++)
+				for(int c=0; c<iWidth_dst; c++)
 				{
 					long lSum=pbyDataDst[r*iPitch+4*c+2];
 					lSum+=pbyDataDst[r*iPitch+4*c+1];
@@ -1963,15 +2008,15 @@ const BYTE g_byFont_4_8[96]={
 				if(ir+dROffset>=iRMax_i+2){continue;}
 				int r=int((ir+dROffset)*dScale);
 				if(r<0){continue;}
-				if(r>=iHeight){continue;}
+				if(r>=iHeight_dst){continue;}
 
-				for(int c=0; c<min((iCMax_i+dCOffset+1)*dScale,iWidth); c++)
+				for(int c=0; c<min((iCMax_i+dCOffset+1)*dScale,iWidth_dst); c++)
 				{
 					SetRGBAValue(pbyDataDst, r, c, iPitch, byDot, byDot, byDot, 255);
 				}
 				r=int((ir+dROffset)*dScale+1);
-				if(r>=iHeight){continue;}
-				for(int c=0; c<min((iCMax_i+dCOffset+1)*dScale,iWidth); c++)
+				if(r>=iHeight_dst){continue;}
+				for(int c=0; c<min((iCMax_i+dCOffset+1)*dScale,iWidth_dst); c++)
 				{
 					SetRGBAValue(pbyDataDst, r, c, iPitch, byDot, byDot, byDot, 255);
 				}
@@ -1982,14 +2027,14 @@ const BYTE g_byFont_4_8[96]={
 				if(ic+dCOffset>=iCMax_i+2){continue;}
 				int c=int((ic+dCOffset)*dScale);
 				if(c<0){continue;}
-				if(c>=iWidth){continue;}
-				for(int r=0; r<min((iRMax_i+dROffset+1)*dScale,iHeight); r++)
+				if(c>=iWidth_dst){continue;}
+				for(int r=0; r<min((iRMax_i+dROffset+1)*dScale,iHeight_dst); r++)
 				{
 					SetRGBAValue(pbyDataDst, r, c, iPitch, byDot, byDot, byDot, 255);
 				}
 				c=int((ic+dCOffset)*dScale+1);
-				if(c>=iWidth){continue;}
-				for(int r=0; r<min((iRMax_i+dROffset+1)*dScale,iHeight); r++)
+				if(c>=iWidth_dst){continue;}
+				for(int r=0; r<min((iRMax_i+dROffset+1)*dScale,iHeight_dst); r++)
 				{
 					SetRGBAValue(pbyDataDst, r, c, iPitch, byDot, byDot, byDot, 255);
 				}
@@ -2002,28 +2047,89 @@ const BYTE g_byFont_4_8[96]={
 			CImage imgTemp;
 			CopyImage_CImage(imgValueSrc,&imgTemp);
 			BYTE* pbyDataTemp = (BYTE*)imgTemp.GetBits();
-
-			for(int r=0; r<iHeight-1;r++)
+			int iRange = int(dScale/8.0)+1;
+			for(int r=0; r<iHeight_dst-1;r++)
 			{
-				for(int c=0; c<iWidth-1; c++)
+				for(int c=0; c<iWidth_dst-1; c++)
 				{
-					if(( pbyDataTemp[r*iPitch+4*c+0] != pbyDataTemp[r*iPitch+4*(c+1)+0]) || ( pbyDataTemp[r*iPitch+4*c+1] != pbyDataTemp[r*iPitch+4*(c+1)+1]) || ( pbyDataTemp[r*iPitch+4*c+2] != pbyDataTemp[r*iPitch+4*(c+1)+2]))
+					if(IsColorSame(pbyDataTemp, iPitch, 4, r, c, r, c+1) == false)
 					{
 						int iValue = pbyDataTemp[r*iPitch+4*c+0]+pbyDataTemp[r*iPitch+4*c+1]+pbyDataTemp[r*iPitch+4*c+2];
 						BYTE byDot=iValue<576 ? 255:0;
+						if(((r-iRange)>=0) && (IsColorSame(pbyDataTemp, iPitch, 4, r, c, r-iRange, c+1) == true))
+						{
+							for(int iDif=max(0, c+iRange-iWidth_dst+1); iDif<=iRange; iDif++)
+							{
+								if(IsColorSame(pbyDataTemp, iPitch, 4, r, c, r-iDif, c+1) == true)
+								{
+									SetRGBAValue(pbyDataDst, r, (c+iRange-iDif), iPitch, byDot, byDot, byDot, 255);
+									break;
+								}
+							}
+							continue;
+						}
+
+						if(((r+iRange)<=iHeight_dst-1) && (IsColorSame(pbyDataTemp, iPitch, 4, r+iRange, c, r, c+1) == true))
+						{
+							for(int iDif=max(0, iRange-c); iDif<=iRange; iDif++)
+							{
+								if(IsColorSame(pbyDataTemp, iPitch, 4, r+iDif, c, r, c+1) == true)
+								{
+									SetRGBAValue(pbyDataDst, r, (c-iRange+iDif), iPitch, byDot, byDot, byDot, 255);
+									break;
+								}
+							}
+							continue;
+						}
+
+						if(((r+iRange)<=iHeight_dst-1)&&(IsColorSame(pbyDataTemp, iPitch, 4, r, c, r+iRange, c+1) == true)){continue;}
+						if(((r-iRange)>=0)&&(IsColorSame(pbyDataTemp, iPitch, 4, r-iRange, c, r, c+1) == true)){continue;}
+
 						SetRGBAValue(pbyDataDst, r, c, iPitch, byDot, byDot, byDot, 255);
 					}
-					if(( pbyDataTemp[r*iPitch+4*c+0] != pbyDataTemp[(r+1)*iPitch+4*c+0]) || ( pbyDataTemp[r*iPitch+4*c+1] != pbyDataTemp[(r+1)*iPitch+4*c+1]) || ( pbyDataTemp[r*iPitch+4*c+2] != pbyDataTemp[(r+1)*iPitch+4*c+2]))
+
+
+					if(IsColorSame(pbyDataTemp, iPitch, 4, r, c, r+1, c) == false)
 					{
 						int iValue = pbyDataTemp[r*iPitch+4*c+0]+pbyDataTemp[r*iPitch+4*c+1]+pbyDataTemp[r*iPitch+4*c+2];
 						BYTE byDot=iValue<576 ? 255:0;
+						if(((c-iRange)>=0) && (IsColorSame(pbyDataTemp, iPitch, 4, r, c-iRange, r+1, c) == true))
+						{
+							for(int iDif=max(0, iRange-r); iDif<=iRange; iDif++)
+							{
+								if(IsColorSame(pbyDataTemp, iPitch, 4, r, c-iDif, r+1, c) == true)
+								{
+									SetRGBAValue(pbyDataDst, r-iRange+iDif, c, iPitch, byDot, byDot, byDot, 255);
+									break;
+								}
+							}
+							continue;
+						}
+
+						if(((c+iRange)<=iWidth_dst-1) &&  (IsColorSame(pbyDataTemp, iPitch, 4, r, c, r+1, c+iRange) == true))
+						{
+							for(int iDif=max(0,r+iRange-iHeight_dst+1); iDif<=iRange; iDif++)
+							{
+								if(IsColorSame(pbyDataTemp, iPitch, 4, r, c, r+1, c+iDif) == true)
+								{
+									SetRGBAValue(pbyDataDst, r+iRange-iDif, c, iPitch, byDot, byDot, byDot, 255);
+									break;
+								}
+							}
+							continue;
+						}
+
+						if((c-iRange>=0)&&(IsColorSame(pbyDataTemp, iPitch, 4, r, c, r+1, c-iRange) == true)){continue;}
+						if((c+iRange<=iWidth_dst-1)&&(IsColorSame(pbyDataTemp, iPitch, 4, r+1, c, r, c+iRange) == true)){continue;}
+
 						SetRGBAValue(pbyDataDst, r, c, iPitch, byDot, byDot, byDot, 255);
 					}
 				}
 			}
 			return true;
-
 		}
+
+
 		return false;
 	}
 	bool MakeReservedChannelZero(const CImage* imgSrc, CImage* imgDst)
