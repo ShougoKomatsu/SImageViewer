@@ -2,6 +2,7 @@
 
 #include "PictureCtrlEx.h"
 #include "ImageProc.h"
+#include "EditEx.h"
 // CImageModifyDlg ダイアログ
 
 class CImageModifyDlg : public CDialogEx
@@ -31,6 +32,9 @@ protected:
 
 	DECLARE_MESSAGE_MAP()
 public:
+	CEditEx m_editBrightness;
+	CEditEx m_editContrast;
+	CEditEx m_editGamma;
 	CString m_sEditBrightness;
 	CString m_sEditContrast;
 	CString m_sEditGamma;

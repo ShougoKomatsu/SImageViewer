@@ -30,6 +30,9 @@ void CImageModifyDlg::DoDataExchange(CDataExchange* pDX)
 	DDX_Text(pDX, IDC_IMAGE_MODIFY_EDIT_BRIGHTNESS, m_sEditBrightness);
 	DDX_Text(pDX, IDC_IMAGE_MODIFY_EDIT_CONTRAST, m_sEditContrast);
 	DDX_Text(pDX, IDC_IMAGE_MODIFY_EDIT_GAMMA, m_sEditGamma);
+    DDX_Control(pDX, IDC_IMAGE_MODIFY_EDIT_BRIGHTNESS, m_editBrightness);
+    DDX_Control(pDX, IDC_IMAGE_MODIFY_EDIT_CONTRAST, m_editContrast);
+    DDX_Control(pDX, IDC_IMAGE_MODIFY_EDIT_GAMMA, m_editGamma);
     DDX_Control(pDX, IDC_IMAGE_MODIFY_STATIC_BEFORE, m_pictureBefore);
     DDX_Control(pDX, IDC_IMAGE_MODIFY_STATIC_AFTER, m_pictureAfter);
 }
