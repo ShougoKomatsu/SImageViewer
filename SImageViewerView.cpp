@@ -202,6 +202,7 @@ IMPLEMENT_DYNCREATE(CSImageViewerView, CView)
 		if(iRet == IDOK)
 		{
 			rect_i.SetRect(setdlg.m_iC0,setdlg.m_iR0,setdlg.m_iC1,setdlg.m_iR1);
+			view.SetRect_i(&rect_i);
 			CMainFrame* pFrame = (CMainFrame*)AfxGetMainWnd();
 			view.m_bRegionSelected = true;
 			Invalidate();
