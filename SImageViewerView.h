@@ -116,6 +116,7 @@ public:
 	void OnColorize();
 	void OnBrightnessContrastGamma();
 	void OnEquHistImage();
+	void OnMeanImage();
 	void OnConvertColorSpace();
 	void OnChangeColorDepth();
 	void OnInvert();	

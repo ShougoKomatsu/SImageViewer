@@ -59,6 +59,7 @@ IMPLEMENT_DYNCREATE(CSImageViewerView, CView)
 		ON_COMMAND(ID_MENU_EDIT_TRANSPARENT, &CSImageViewerView::OnTransparent)
 		ON_COMMAND(ID_MENU_EDIT_INVERT, &CSImageViewerView::OnInvert)
 		ON_COMMAND(ID_MENU_EDIT_EQU_HIST, &CSImageViewerView::OnEquHistImage)
+		ON_COMMAND(ID_MENU_EDIT_MEAN_IMAGE, &CSImageViewerView::OnMeanImage)
 		ON_COMMAND(ID_MENU_EDIT_RESAMPLE, &CSImageViewerView::OnResample)
 		ON_COMMAND(ID_MENU_EDIT_REDO, &CSImageViewerView::OnReDo)
 		ON_COMMAND(ID_EDIT_UNDO, &CSImageViewerView::OnUnDo)
@@ -1449,7 +1450,28 @@ IMPLEMENT_DYNCREATE(CSImageViewerView, CView)
 		}
 		Invalidate();
 	}
+	void CSImageViewerView::OnMeanImage()
+	{
+		if(m_iImageMax <= 0){return;}
+		bool bAutoFull = false;
+		CRect rect_i=view.GetRect_i();
+		if(rect_i.IsRectNull() == TRUE){bAutoFull = true; FullDomain(&rect_i, &(m_image[m_iImageIndex]));}
 
+		ImgRGB imgRGB;
+		ImgRGB imgMeaned;
+		_ConvertImage(m_image[m_iImageIndex].GetCurrentProcess(), &imgRGB);
+		MeanImage(&imgRGB,&imgMeaned,rect_i.top,rect_i.left,rect_i.bottom,rect_i.right,3,3);
+		if(bAutoFull == true)
+		{
+			view.SetRect_v(NULL);
+			view.SetRect_i(NULL);
+			CMainFrame* pFrame = (CMainFrame*)AfxGetMainWnd();
+			view.m_bRegionSelected = false;
+		}
+
+		ConvertImage(&imgMeaned,m_image[m_iImageIndex].ProgressImageProcess());
+		Invalidate();
+	}
 	void CSImageViewerView::OnEquHistImage()
 	{
 		if(m_iImageMax <= 0){return;}
@@ -2537,6 +2559,7 @@ IMPLEMENT_DYNCREATE(CSImageViewerView, CView)
 		pPopup->EnableMenuItem(ID_MENU_EDIT_PASTE_AS, MF_BYCOMMAND | (( bFileOpened == true) ? MF_ENABLED : MF_DISABLED));
 
 		pPopup->EnableMenuItem(ID_MENU_EDIT_EQU_HIST, MF_BYCOMMAND | (( bFileOpened == true) ? MF_ENABLED : MF_DISABLED));
+		pPopup->EnableMenuItem(ID_MENU_EDIT_MEAN_IMAGE, MF_BYCOMMAND | (( bFileOpened == true) ? MF_ENABLED : MF_DISABLED));
 		pPopup->EnableMenuItem(ID_MENU_EDIT_CONVERT_COLOR_SPACE, MF_BYCOMMAND | (( bFileOpened == true) ? MF_ENABLED : MF_DISABLED));
 		pPopup->EnableMenuItem(ID_MENU_EDIT_CHANGE_COLOR_DEPTH, MF_BYCOMMAND | (( bFileOpened == true) ? MF_ENABLED : MF_DISABLED));
 		pPopup->EnableMenuItem(ID_MENU_EDIT_COLOR_CORRECTON, MF_BYCOMMAND | (( bFileOpened == true) ? MF_ENABLED : MF_DISABLED));
