@@ -71,6 +71,8 @@
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <LinkIncremental>true</LinkIncremental>
+    <OutDir>$(SolutionDir)</OutDir>
+    <TargetName>$(ProjectName)_d</TargetName>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <LinkIncremental>false</LinkIncremental>
@@ -78,7 +80,7 @@
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <LinkIncremental>false</LinkIncremental>
-    <OutDir>$(SolutionDir)$(Configuration)\</OutDir>
+    <OutDir>$(SolutionDir)</OutDir>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
@@ -199,6 +201,7 @@
     <ClInclude Include="File.h" />
     <ClInclude Include="FileFolderDialog.h" />
     <ClInclude Include="FileFormatDlg.h" />
+    <ClInclude Include="FilterSettingDlg.h" />
     <ClInclude Include="FormatSelectionDlg.h" />
     <ClInclude Include="FullScreenDlg.h" />
     <ClInclude Include="ImageModifyDlg.h" />
@@ -232,6 +235,7 @@
     <ClCompile Include="File.cpp" />
     <ClCompile Include="FileFolderDialog.cpp" />
     <ClCompile Include="FileFormatDlg.cpp" />
+    <ClCompile Include="FilterSettingDlg.cpp" />
     <ClCompile Include="FormatSelectionDlg.cpp" />
     <ClCompile Include="FullScreenDlg.cpp" />
     <ClCompile Include="ImageModifyDlg.cpp" />

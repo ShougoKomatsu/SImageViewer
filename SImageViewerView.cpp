@@ -30,6 +30,7 @@
 #include "SaveAsMultiDlg.h"
 #include "ProgressDlg.h"
 #include "FileFolderDialog.h"
+#include "FilterSettingDlg.h"
 #ifdef _DEBUG
 #define new DEBUG_NEW
 #endif
@@ -1453,6 +1454,14 @@ IMPLEMENT_DYNCREATE(CSImageViewerView, CView)
 	void CSImageViewerView::OnMeanImage()
 	{
 		if(m_iImageMax <= 0){return;}
+
+		CFilterSettingDlg dlg;
+
+		INT_PTR iRet = dlg.DoModal();
+		if(iRet != IDOK){return;}
+		int iW=max(1, _ttoi(dlg.m_sEditW));
+		int iH=max(1, _ttoi(dlg.m_sEditH));
+
 		bool bAutoFull = false;
 		CRect rect_i=view.GetRect_i();
 		if(rect_i.IsRectNull() == TRUE){bAutoFull = true; FullDomain(&rect_i, &(m_image[m_iImageIndex]));}
@@ -1460,7 +1469,8 @@ IMPLEMENT_DYNCREATE(CSImageViewerView, CView)
 		ImgRGB imgRGB;
 		ImgRGB imgMeaned;
 		_ConvertImage(m_image[m_iImageIndex].GetCurrentProcess(), &imgRGB);
-		MeanImage(&imgRGB,&imgMeaned,rect_i.top,rect_i.left,rect_i.bottom,rect_i.right,3,3);
+
+		MeanImage(&imgRGB,&imgMeaned,rect_i.top,rect_i.left,rect_i.bottom,rect_i.right,iW,iH);
 		if(bAutoFull == true)
 		{
 			view.SetRect_v(NULL);
