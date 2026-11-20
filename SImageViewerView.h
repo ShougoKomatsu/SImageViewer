@@ -116,6 +116,11 @@ public:
 	void OnColorize();
 	void OnBrightnessContrastGamma();
 	void OnEquHistImage();
+	void OnMeanImage();
+	void OnMinImage();
+	void OnMaxImage();
+	void OnMedianImage();
+	void FilterImage(const int iFilter);
 	void OnConvertColorSpace();
 	void OnChangeColorDepth();
 	void OnInvert();	

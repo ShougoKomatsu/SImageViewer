@@ -24,3 +24,8 @@ SImgProc_d.lib
 /x64
 Debug/SImageViewer.exe.embed.manifest
 Debug/SImageViewer.exe.intermediate.manifest
+Debug/SImgProc.dll
+Release/setting.ini
+Release/SImageViewer.lastbuildstate
+SImgProc_d.dll
+SImgProc_d.lib

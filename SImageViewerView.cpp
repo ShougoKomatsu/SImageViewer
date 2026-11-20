@@ -30,6 +30,7 @@
 #include "SaveAsMultiDlg.h"
 #include "ProgressDlg.h"
 #include "FileFolderDialog.h"
+#include "FilterSettingDlg.h"
 #ifdef _DEBUG
 #define new DEBUG_NEW
 #endif
@@ -59,6 +60,10 @@ IMPLEMENT_DYNCREATE(CSImageViewerView, CView)
 		ON_COMMAND(ID_MENU_EDIT_TRANSPARENT, &CSImageViewerView::OnTransparent)
 		ON_COMMAND(ID_MENU_EDIT_INVERT, &CSImageViewerView::OnInvert)
 		ON_COMMAND(ID_MENU_EDIT_EQU_HIST, &CSImageViewerView::OnEquHistImage)
+		ON_COMMAND(ID_MENU_EDIT_MEAN_IMAGE, &CSImageViewerView::OnMeanImage)
+		ON_COMMAND(ID_MENU_EDIT_MIN_IMAGE, &CSImageViewerView::OnMinImage)
+		ON_COMMAND(ID_MENU_EDIT_MAX_IMAGE, &CSImageViewerView::OnMaxImage)
+		ON_COMMAND(ID_MENU_EDIT_MEDIAN_IMAGE, &CSImageViewerView::OnMedianImage)
 		ON_COMMAND(ID_MENU_EDIT_RESAMPLE, &CSImageViewerView::OnResample)
 		ON_COMMAND(ID_MENU_EDIT_REDO, &CSImageViewerView::OnReDo)
 		ON_COMMAND(ID_EDIT_UNDO, &CSImageViewerView::OnUnDo)
@@ -1449,7 +1454,55 @@ IMPLEMENT_DYNCREATE(CSImageViewerView, CView)
 		}
 		Invalidate();
 	}
+	void CSImageViewerView::OnMeanImage(){FilterImage(1);}
+	void CSImageViewerView::OnMinImage(){FilterImage(2);}
+	void CSImageViewerView::OnMaxImage(){FilterImage(3);}
+	void CSImageViewerView::OnMedianImage(){FilterImage(4);}
+	void CSImageViewerView::FilterImage(const int iFilter)
+	{
+		if(m_iImageMax <= 0){return;}
 
+		
+		CFilterSettingDlg dlg;
+		switch(iFilter)
+		{
+		case 1:{dlg.m_sFilterType.Format(_T("MeanImage")); break;}
+		case 2:{dlg.m_sFilterType.Format(_T("MinnImage")); break;}
+		case 3:{dlg.m_sFilterType.Format(_T("MaxImage")); break;}
+		case 4:{dlg.m_sFilterType.Format(_T("MedianImage")); break;}
+		}
+
+		INT_PTR iRet = dlg.DoModal();
+		if(iRet != IDOK){return;}
+		int iW=max(1, _ttoi(dlg.m_sEditW));
+		int iH=max(1, _ttoi(dlg.m_sEditH));
+
+		bool bAutoFull = false;
+		CRect rect_i=view.GetRect_i();
+		if(rect_i.IsRectNull() == TRUE){bAutoFull = true; FullDomain(&rect_i, &(m_image[m_iImageIndex]));}
+
+		ImgRGB imgRGB;
+		ImgRGB imgMeaned;
+		_ConvertImage(m_image[m_iImageIndex].GetCurrentProcess(), &imgRGB);
+
+		switch(iFilter)
+		{
+		case 1:{MeanImage(&imgRGB,&imgMeaned,rect_i.top,rect_i.left,rect_i.bottom,rect_i.right,iW,iH); break;}
+		case 2:{MinImage(&imgRGB,&imgMeaned,rect_i.top,rect_i.left,rect_i.bottom,rect_i.right,iW,iH); break;}
+		case 3:{MaxImage(&imgRGB,&imgMeaned,rect_i.top,rect_i.left,rect_i.bottom,rect_i.right,iW,iH); break;}
+		case 4:{MedianImage(&imgRGB,&imgMeaned,rect_i.top,rect_i.left,rect_i.bottom,rect_i.right,iW,iH); break;}
+		}
+		if(bAutoFull == true)
+		{
+			view.SetRect_v(NULL);
+			view.SetRect_i(NULL);
+			CMainFrame* pFrame = (CMainFrame*)AfxGetMainWnd();
+			view.m_bRegionSelected = false;
+		}
+
+		ConvertImage(&imgMeaned,m_image[m_iImageIndex].ProgressImageProcess());
+		Invalidate();
+	}
 	void CSImageViewerView::OnEquHistImage()
 	{
 		if(m_iImageMax <= 0){return;}
@@ -2537,6 +2590,10 @@ IMPLEMENT_DYNCREATE(CSImageViewerView, CView)
 		pPopup->EnableMenuItem(ID_MENU_EDIT_PASTE_AS, MF_BYCOMMAND | (( bFileOpened == true) ? MF_ENABLED : MF_DISABLED));
 
 		pPopup->EnableMenuItem(ID_MENU_EDIT_EQU_HIST, MF_BYCOMMAND | (( bFileOpened == true) ? MF_ENABLED : MF_DISABLED));
+		pPopup->EnableMenuItem(ID_MENU_EDIT_MEAN_IMAGE, MF_BYCOMMAND | (( bFileOpened == true) ? MF_ENABLED : MF_DISABLED));
+		pPopup->EnableMenuItem(ID_MENU_EDIT_MIN_IMAGE, MF_BYCOMMAND | (( bFileOpened == true) ? MF_ENABLED : MF_DISABLED));
+		pPopup->EnableMenuItem(ID_MENU_EDIT_MAX_IMAGE, MF_BYCOMMAND | (( bFileOpened == true) ? MF_ENABLED : MF_DISABLED));
+		pPopup->EnableMenuItem(ID_MENU_EDIT_MEDIAN_IMAGE, MF_BYCOMMAND | (( bFileOpened == true) ? MF_ENABLED : MF_DISABLED));
 		pPopup->EnableMenuItem(ID_MENU_EDIT_CONVERT_COLOR_SPACE, MF_BYCOMMAND | (( bFileOpened == true) ? MF_ENABLED : MF_DISABLED));
 		pPopup->EnableMenuItem(ID_MENU_EDIT_CHANGE_COLOR_DEPTH, MF_BYCOMMAND | (( bFileOpened == true) ? MF_ENABLED : MF_DISABLED));
 		pPopup->EnableMenuItem(ID_MENU_EDIT_COLOR_CORRECTON, MF_BYCOMMAND | (( bFileOpened == true) ? MF_ENABLED : MF_DISABLED));
