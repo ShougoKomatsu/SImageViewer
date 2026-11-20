@@ -8,6 +8,7 @@ class CFilterSettingDlg : public CDialogEx
 	DECLARE_DYNAMIC(CFilterSettingDlg)
 
 public:
+	CString m_sFilterType;
 	CFilterSettingDlg(CWnd* pParent = NULL);   // 標準コンストラクター
 	virtual ~CFilterSettingDlg();
 
@@ -16,7 +17,6 @@ public:
 
 protected:
 	virtual void DoDataExchange(CDataExchange* pDX);    // DDX/DDV サポート
-
 	DECLARE_MESSAGE_MAP()
 public:
 	afx_msg void OnBnClickedCancel();
@@ -25,4 +25,5 @@ public:
 	CEditEx m_editW;
 	CEditEx m_editH;
 	afx_msg void OnBnClickedOk();
+	virtual BOOL OnInitDialog();
 };

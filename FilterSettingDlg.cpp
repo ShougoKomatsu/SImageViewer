@@ -13,8 +13,8 @@ IMPLEMENT_DYNAMIC(CFilterSettingDlg, CDialogEx)
 
 CFilterSettingDlg::CFilterSettingDlg(CWnd* pParent /*=NULL*/)
 	: CDialogEx(CFilterSettingDlg::IDD, pParent)
-	, m_sEditW(_T(""))
-	, m_sEditH(_T(""))
+	, m_sEditW(_T("3"))
+	, m_sEditH(_T("3"))
 {
 
 }
@@ -54,4 +54,15 @@ void CFilterSettingDlg::OnBnClickedOk()
 	UpdateData(TRUE);
 	// TODO: ここにコントロール通知ハンドラー コードを追加します。
 	CDialogEx::OnOK();
+}
+
+
+BOOL CFilterSettingDlg::OnInitDialog()
+{
+	CDialogEx::OnInitDialog();
+
+	// TODO:  ここに初期化を追加してください
+	SetWindowText(m_sFilterType);
+	return TRUE;  // return TRUE unless you set the focus to a control
+	// 例外 : OCX プロパティ ページは必ず FALSE を返します。
 }
