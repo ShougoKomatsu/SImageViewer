@@ -3,7 +3,7 @@
 
 #include "PictureCtrlEx.h"
 #include "ImageProc.h"
-
+#include "EditEx.h"
 
 // CSetTransparentDlg ダイアログ
 
@@ -20,6 +20,9 @@ public:
 	CPictureCtrlEx m_pictureAfter;
 	CPictureCtrlEx m_pictureColor1;
 
+	int m_iUniAlpha;
+	CEditEx m_editUniAlpha;
+	CString m_sEditUniAlpha;
 
 	CSetTransparentDlg(CWnd* pParent = NULL);   // 標準コンストラクター
 	virtual ~CSetTransparentDlg();
@@ -35,4 +38,5 @@ public:
 	virtual BOOL OnInitDialog();
 	virtual BOOL PreTranslateMessage(MSG* pMsg);
 	afx_msg void OnMouseMove(UINT nFlags, CPoint point);
+	afx_msg void OnBnClickedOk();
 };

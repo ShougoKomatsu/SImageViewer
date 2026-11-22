@@ -858,7 +858,7 @@ IMPLEMENT_DYNCREATE(CSImageViewerView, CView)
 	void CSImageViewerView::OnTransparent()
 	{
 		if(m_iImageMax <= 0){return;}
-		if(_IsImageMonochrome(m_image[m_iImageIndex].GetCurrentProcess())==false){AfxMessageBox(_T("This image is not monochrome.")); return;}
+	//	if(_IsImageMonochrome(m_image[m_iImageIndex].GetCurrentProcess())==false){AfxMessageBox(_T("This image is not monochrome.")); return;}
 		bool bAutoFull = false;
 		CRect rect_i=view.GetRect_i();
 		if(rect_i.IsRectNull() == TRUE){bAutoFull = true;FullDomain(&rect_i, &(m_image[m_iImageIndex]));}
@@ -869,6 +869,26 @@ IMPLEMENT_DYNCREATE(CSImageViewerView, CView)
 		ClipImage(m_image[m_iImageIndex].GetCurrentProcess(), &imgClipped, rect_i.top,rect_i.left, rect_i.bottom, rect_i.right); 
 		CopyImage_CImage(&imgClipped, &dlg.m_image);
 		INT_PTR iRet = dlg.DoModal();
+		if(iRet != IDOK){return;}
+
+		ImgRGB imgRGB;
+		_ConvertImage(m_image[m_iImageIndex].GetCurrentProcess(),&imgRGB);
+		ImgRGB imgRGB32;
+		imgRGB32.Set(imgRGB.iWidth, imgRGB.iHeight, CHANNEL_4_8RGBA);
+		for(int r=0; r<imgRGB32.iHeight; r++)
+		{
+			for(int c=0; c<imgRGB32.iWidth; c++)
+		{
+			imgRGB32.byImgR[r*imgRGB32.iWidth+c]=imgRGB.byImgR[r*imgRGB32.iWidth+c];
+			imgRGB32.byImgG[r*imgRGB32.iWidth+c]=imgRGB.byImgG[r*imgRGB32.iWidth+c];
+			imgRGB32.byImgB[r*imgRGB32.iWidth+c]=imgRGB.byImgB[r*imgRGB32.iWidth+c];
+			imgRGB32.byImgA[r*imgRGB32.iWidth+c]=dlg.m_iUniAlpha;
+		}
+		}
+			ConvertImage(&imgRGB32,m_image[m_iImageIndex].ProgressImageProcess());
+
+
+
 	}
 
 	void Intensity(ImgRGB* imgIn, double* dMean)
