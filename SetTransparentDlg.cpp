@@ -27,11 +27,15 @@ void CSetTransparentDlg::DoDataExchange(CDataExchange* pDX)
 	DDX_Control(pDX, IDC_SET_TRANSPARENT_STATIC_BEFORE, m_pictureBefore);
 	DDX_Control(pDX, IDC_SET_TRANSPARENT_STATIC_AFTER, m_pictureAfter);
 	DDX_Control(pDX, IDC_SET_TRANSPARENT_STATIC_COLOR1, m_pictureColor1);
+
+	DDX_Text(pDX, IDC_SET_TRANSPARENT_EDIT_ALPHA, m_sEditUniAlpha);
+    DDX_Control(pDX, IDC_SET_TRANSPARENT_EDIT_ALPHA, m_editUniAlpha);
 }
 
 
 BEGIN_MESSAGE_MAP(CSetTransparentDlg, CDialogEx)
 	ON_WM_MOUSEMOVE()
+	ON_BN_CLICKED(IDOK, &CSetTransparentDlg::OnBnClickedOk)
 END_MESSAGE_MAP()
 
 
@@ -83,4 +87,14 @@ void CSetTransparentDlg::OnMouseMove(UINT nFlags, CPoint point)
 
 	m_pictureColor1.OnMouseMove(nFlags, point);
 	CDialogEx::OnMouseMove(nFlags, point);
+}
+
+
+void CSetTransparentDlg::OnBnClickedOk()
+{
+	UpdateData(TRUE);
+	if(((CButton*)GetDlgItem(IDC_SET_TRANSPARENT_RADIO_UNIALPHA))->GetCheck()==TRUE){m_iUniAlpha = _ttoi(m_sEditUniAlpha);}
+	
+
+	CDialogEx::OnOK();
 }

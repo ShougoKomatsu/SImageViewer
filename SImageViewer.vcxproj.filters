@@ -233,13 +233,13 @@
     <ClCompile Include="File.cpp">
       <Filter>ソース ファイル</Filter>
     </ClCompile>
-    <ClCompile Include="PanImage.cpp">
-      <Filter>ソース ファイル\Dlg</Filter>
-    </ClCompile>
     <ClCompile Include="PictureCtrlEx.cpp">
       <Filter>ソース ファイル\Dlg</Filter>
     </ClCompile>
     <ClCompile Include="FilterSettingDlg.cpp">
+      <Filter>ソース ファイル</Filter>
+    </ClCompile>
+    <ClCompile Include="PanImage.cpp">
       <Filter>ソース ファイル</Filter>
     </ClCompile>
   </ItemGroup>
