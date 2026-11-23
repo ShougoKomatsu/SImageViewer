@@ -36,6 +36,7 @@ void CSetTransparentDlg::DoDataExchange(CDataExchange* pDX)
 BEGIN_MESSAGE_MAP(CSetTransparentDlg, CDialogEx)
 	ON_WM_MOUSEMOVE()
 	ON_BN_CLICKED(IDOK, &CSetTransparentDlg::OnBnClickedOk)
+	ON_EN_CHANGE(IDC_SET_TRANSPARENT_EDIT_ALPHA, &CSetTransparentDlg::OnChangeSetTransparentEditAlpha)
 END_MESSAGE_MAP()
 
 
@@ -45,6 +46,8 @@ END_MESSAGE_MAP()
 BOOL CSetTransparentDlg::OnInitDialog()
 {
 	CDialogEx::OnInitDialog();
+
+	((CButton*)GetDlgItem(IDC_SET_TRANSPARENT_RADIO_UNIALPHA))->SetCheck(TRUE);
 	
 	CopyImage_CImage(&m_image,&m_imageTransparent);
 
@@ -94,7 +97,29 @@ void CSetTransparentDlg::OnBnClickedOk()
 {
 	UpdateData(TRUE);
 	if(((CButton*)GetDlgItem(IDC_SET_TRANSPARENT_RADIO_UNIALPHA))->GetCheck()==TRUE){m_iUniAlpha = _ttoi(m_sEditUniAlpha);}
-	
+
 
 	CDialogEx::OnOK();
+}
+
+
+void CSetTransparentDlg::OnChangeSetTransparentEditAlpha()
+{
+	ImgRGB imgRGB;
+	_ConvertImage(&m_image,&imgRGB);
+	ImgRGB imgRGB32;
+	imgRGB32.Set(imgRGB.iWidth, imgRGB.iHeight, CHANNEL_4_8RGBA);
+	for(int r=0; r<imgRGB32.iHeight; r++)
+	{
+		for(int c=0; c<imgRGB32.iWidth; c++)
+		{
+			imgRGB32.byImgR[r*imgRGB32.iWidth+c]=imgRGB.byImgR[r*imgRGB32.iWidth+c];
+			imgRGB32.byImgG[r*imgRGB32.iWidth+c]=imgRGB.byImgG[r*imgRGB32.iWidth+c];
+			imgRGB32.byImgB[r*imgRGB32.iWidth+c]=imgRGB.byImgB[r*imgRGB32.iWidth+c];
+			imgRGB32.byImgA[r*imgRGB32.iWidth+c]=_ttoi(m_sEditUniAlpha);
+		}
+	}
+	ConvertImage(&imgRGB32,&m_imageTransparent);
+	m_pictureAfter.m_image.Set(IMAGE_TYPE_CIMAGE, NULL, NULL, 0, 0, &m_imageTransparent, VALUE_IMAGE_CLIP_0_TO_255, _T("temp"));
+	m_pictureAfter.Refresh();
 }

@@ -39,4 +39,5 @@ public:
 	virtual BOOL PreTranslateMessage(MSG* pMsg);
 	afx_msg void OnMouseMove(UINT nFlags, CPoint point);
 	afx_msg void OnBnClickedOk();
+	afx_msg void OnChangeSetTransparentEditAlpha();
 };

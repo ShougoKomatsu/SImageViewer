@@ -1164,7 +1164,7 @@ bool ConvertImage(const ImgRGB* imgRGB, CImage* imgDst)
 		{
 			if(imgDst->IsNull() != true){imgDst->Destroy();}
 			if(imgRGB->iChannel==CHANNEL_3_8RGB){imgDst->Create(iWidth_src, iHeight_src, 24);}
-			if(imgRGB->iChannel==CHANNEL_4_8RGBA){imgDst->Create(iWidth_src, iHeight_src, 32);}
+			if(imgRGB->iChannel==CHANNEL_4_8RGBA){imgDst->Create(iWidth_src, iHeight_src, 32, CImage::createAlphaChannel);}
 
 			int iColorPitch = ((imgRGB->iChannel==CHANNEL_3_8RGB) ? 3 : 4);
 			BYTE* pbyDataDst = (BYTE*)imgDst->GetBits();
