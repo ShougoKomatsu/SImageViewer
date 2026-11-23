@@ -515,7 +515,7 @@ IMPLEMENT_DYNCREATE(CSImageViewerView, CView)
 		BOOL bRet = cff.FindFile(sFilePath);
 		if(bRet != FALSE)
 		{
-			INT_PTR iRet = AfxMessageBox(_T("ファイルは既に存在します。上書きしますか？"),0,MB_YESNO);
+			INT_PTR iRet = AfxMessageBox(_T("ファイルは既に存在します。上書きしますか？"),MB_YESNO);
 			if(iRet != IDYES){return false;}
 		}
 
