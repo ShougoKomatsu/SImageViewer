@@ -116,8 +116,17 @@ bool CopyImage_CImage(const CImage* imgSrc, CImage* imgDst)
 
 
 	if (imgDst->IsNull() != true) {imgDst->Destroy();}
-	HRESULT hr = imgDst->Create(imgSrc->GetWidth(),imgSrc->GetHeight(),imgSrc->GetBPP());
-	if (FAILED(hr)) {return false;}
+
+	if(imgSrc->GetBPP() == 32)
+	{
+		HRESULT hr = imgDst->Create(imgSrc->GetWidth(),imgSrc->GetHeight(),imgSrc->GetBPP(), CImage::createAlphaChannel );
+		if (FAILED(hr)) {return false;}
+	}
+	else
+	{
+		HRESULT hr = imgDst->Create(imgSrc->GetWidth(),imgSrc->GetHeight(),imgSrc->GetBPP());
+		if (FAILED(hr)) {return false;}
+	}
 	BYTE* pbyDataSrc = (BYTE*)imgSrc->GetBits();
 	BYTE* pbyDataDst = (BYTE*)imgDst->GetBits();
 

@@ -522,7 +522,6 @@ IMPLEMENT_DYNCREATE(CSImageViewerView, CView)
 		CImage imgWrite;
 		bool bbRet = MakeReservedChannelZero(image,&imgWrite);
 		if(bbRet != true){return false;}
-
 		HRESULT hResult = imgWrite.Save(sFilePath);
 		if(hResult != S_OK){return false;}
 
